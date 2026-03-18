@@ -694,6 +694,38 @@ body {
   .ceremony-body { padding: 0 1rem 4rem; }
   .info-box { gap: 0.8rem; }
 }
+
+  /* Moment headers in index — no counter, no border */
+  .toc-moment-header,
+  .index-moment-header {
+    counter-increment: none !important;
+    border-bottom: none !important;
+    padding: 0.8rem 0 0.2rem !important;
+    list-style: none;
+  }
+  .toc-moment-header::before,
+  .index-moment-header::before {
+    content: none !important;
+    display: none !important;
+  }
+  .toc-moment-header span,
+  .index-moment-header span {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    color: var(--gold, #C8A830);
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  /* Song number in toc */
+  .toc-song-item { padding-left: 1rem; }
+  .toc-num {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: var(--gold-dim, #A08020);
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
@@ -803,19 +835,28 @@ body {
     <p class="index-title">✦ programa ✦</p>
     <h3 class="index-heading">Orden de la Ceremonia</h3>
     <div class="index-rule"></div>
-    <ol class="index-list">
-      <li><span class="idx-num">01</span><a href="#r01">Los Niños Hebreos</a><span class="idx-tag">Procesión Inicial</span></li>
-      <li><span class="idx-num">02</span><a href="#r02">Shalom Hosanna</a><span class="idx-tag">Entrada</span></li>
-      <li><span class="idx-num">03</span><a href="#r03">Piedad Cantaré</a><span class="idx-tag">Piedad</span></li>
-      <li><span class="idx-num">04</span><a href="#r04">Gloria a Ti Oh Cristo</a><span class="idx-tag">Aclamación</span></li>
-      <li><span class="idx-num">05</span><a href="#r05">Tomad Señor y Recibid</a><span class="idx-tag">Ofertorio</span></li>
-      <li><span class="idx-num">06</span><a href="#r06">Santo – Fones</a><span class="idx-tag">Santo</span></li>
-      <li><span class="idx-num">07</span><a href="#r07">Cordero – Dynamis</a><span class="idx-tag">Cordero</span></li>
-      <li><span class="idx-num">08</span><a href="#r08">Milagro de Amor</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">09</span><a href="#r09">Divino Manjar</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">10</span><a href="#r10">Pescador de Hombres</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">11</span><a href="#r11">Ave María (Verbum Panis)</a><span class="idx-tag">Salida</span></li>
-    </ol>
+                <ol class="index-list">
+        <li class="index-moment-header"><span>Procesión Inicial</span></li>
+        <li><span class="idx-num">01</span><a href="#r01">Los Niños Hebreos</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Entrada</span></li>
+        <li><span class="idx-num">02</span><a href="#r02">Shalom Hosanna</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Piedad</span></li>
+        <li><span class="idx-num">03</span><a href="#r03">Piedad Cantaré</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Aclamación</span></li>
+        <li><span class="idx-num">04</span><a href="#r04">Gloria a Ti Oh Cristo</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">05</span><a href="#r05">Tomad Señor y Recibid</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">06</span><a href="#r06">Santo – Fones</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">07</span><a href="#r07">Cordero – Dynamis</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Comunión</span></li>
+        <li><span class="idx-num">08</span><a href="#r08">Milagro de Amor</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">09</span><a href="#r09">Divino Manjar</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">10</span><a href="#r10">Pescador de Hombres</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Salida</span></li>
+        <li><span class="idx-num">11</span><a href="#r11">Ave María (Verbum Panis)</a><span class="toc-dot"></span></li>
+      </ol>
   </div>
 
   <!-- SONGS -->
@@ -1223,20 +1264,31 @@ body {
     <p class="index-title">✦ programa ✦</p>
     <h3 class="index-heading">Orden de la Ceremonia</h3>
     <div class="index-rule"></div>
-    <ol class="index-list">
-      <li><span class="idx-num">01</span><a href="#j01">Verbum Panis</a><span class="idx-tag">Entrada</span></li>
-      <li><span class="idx-num">02</span><a href="#j02">Piedad – Señor ten piedad</a><span class="idx-tag">Piedad</span></li>
-      <li><span class="idx-num">03</span><a href="#j03">Gloria – Palazón</a><span class="idx-tag">Gloria</span></li>
-      <li><span class="idx-num">04</span><a href="#j04">Gloria a Ti Oh Cristo</a><span class="idx-tag">Aclamación</span></li>
-      <li><span class="idx-num">05</span><a href="#j05">Cristo Mío</a><span class="idx-tag">Ofertorio</span></li>
-      <li><span class="idx-num">06</span><a href="#j06">Santo Luna</a><span class="idx-tag">Santo</span></li>
-      <li><span class="idx-num">07</span><a href="#j07">Oh Cordero de Dios</a><span class="idx-tag">Cordero</span></li>
-      <li><span class="idx-num">08</span><a href="#j08">Recíbeme</a><span class="idx-tag">Lavatorio de Pies</span></li>
-      <li><span class="idx-num">09</span><a href="#j09">Me Has Seducido Señor</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">10</span><a href="#j10">En su Mesa hay Amor</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">11</span><a href="#j11">Oh Buen Jesús</a><span class="idx-tag">Procesión al Templo</span></li>
-      <li><span class="idx-num">12</span><a href="#j12">Cantemos al Amor de los Amores</a><span class="idx-tag">Ingreso de Reserva al Monumento</span></li>
-    </ol>
+                <ol class="index-list">
+        <li class="index-moment-header"><span>Entrada</span></li>
+        <li><span class="idx-num">01</span><a href="#j01">Verbum Panis</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Piedad</span></li>
+        <li><span class="idx-num">02</span><a href="#j02">Piedad – Señor ten piedad</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Gloria</span></li>
+        <li><span class="idx-num">03</span><a href="#j03">Gloria – Palazón</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Aclamación</span></li>
+        <li><span class="idx-num">04</span><a href="#j04">Gloria a Ti Oh Cristo</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">05</span><a href="#j05">Cristo Mío</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">06</span><a href="#j06">Santo – Alfonso Luna</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">07</span><a href="#j07">Oh Cordero de Dios</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Lavatorio de Pies</span></li>
+        <li><span class="idx-num">08</span><a href="#j08">Recíbeme</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Comunión</span></li>
+        <li><span class="idx-num">09</span><a href="#j09">Me Has Seducido Señor</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">10</span><a href="#j10">En su Mesa hay Amor</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Procesión al Templo</span></li>
+        <li><span class="idx-num">11</span><a href="#j11">Oh Buen Jesús</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Ingreso de Reserva al Monumento</span></li>
+        <li><span class="idx-num">12</span><a href="#j12">Cantemos al Amor de los Amores</a><span class="toc-dot"></span></li>
+      </ol>
   </div>
 
   <div class="ceremony-body">
@@ -1738,28 +1790,36 @@ body {
     <p class="index-title">✦ programa ✦</p>
     <h3 class="index-heading">Orden de la Ceremonia</h3>
     <div class="index-rule"></div>
-    <ol class="index-list">
-      <li><span class="idx-num">01</span><a href="#v01">Rey de Reyes</a><span class="idx-tag">Aspersión del Agua</span></li>
-      <li><span class="idx-num">02</span><a href="#v02">Gloria – Palazón</a><span class="idx-tag">Gloria</span></li>
-      <li><span class="idx-num">03</span><a href="#v03">Aleluya – Verbum Panis</a><span class="idx-tag">Aclamación</span></li>
-      <li><span class="idx-num">04</span><a href="#v04">Pan y Vino de Amor</a><span class="idx-tag">Ofertorio</span></li>
-      <li><span class="idx-num">05</span><a href="#v05">Sanctus – Verbum Panis</a><span class="idx-tag">Santo</span></li>
-      <li><span class="idx-num">06</span><a href="#v06">Cordero – Mejía</a><span class="idx-tag">Cordero</span></li>
-      <li><span class="idx-num">07</span><a href="#v07">Camino Firme</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">08</span><a href="#v08">Te Hiciste Pan</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">09</span><a href="#v09">Milagro de Amor</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">10</span><a href="#v10">Pan de Vida, Pan de Fe</a><span class="idx-tag">Comunión</span></li>
-      <li><span class="idx-num">11</span><a href="#v11">Tus Maravillas</a><span class="idx-tag">Salida</span></li>
-      <li class="index-note">Cantos de Animación</li>
-      <li><span class="idx-num">12</span><a href="#v12">Mi Dios Está Vivo</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">13</span><a href="#v13">Que Viva Cristo</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">15</span><a href="#v15">Mi Mano Está Llena</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">16</span><a href="#v16">Porque Cristo Ha Tomado Mi Vida</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">17</span><a href="#v17">Dame del Agua que Brota</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">18</span><a href="#v18">Vamos a Alabar al Señor</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">19</span><a href="#v19">Jesús Está Pasando por Aquí</a><span class="idx-tag">Animación</span></li>
-      <li><span class="idx-num">14</span><a href="#v14">Granito de Mostaza</a><span class="idx-tag">Animación</span></li>
-    </ol>
+                <ol class="index-list">
+        <li class="index-moment-header"><span>Aspersión del Agua</span></li>
+        <li><span class="idx-num">01</span><a href="#v01">Rey de Reyes</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Gloria</span></li>
+        <li><span class="idx-num">02</span><a href="#v02">Gloria – Palazón</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Aclamación</span></li>
+        <li><span class="idx-num">03</span><a href="#v03">Aleluya – Verbum Panis</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">04</span><a href="#v04">Pan y Vino de Amor</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">05</span><a href="#v05">Sanctus – Verbum Panis</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">06</span><a href="#v06">Cordero – Mejía</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Comunión</span></li>
+        <li><span class="idx-num">07</span><a href="#v07">Camino Firme</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">08</span><a href="#v08">Te Hiciste Pan</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">09</span><a href="#v09">Milagro de Amor</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">10</span><a href="#v10">Pan de Vida, Pan de Fe</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Salida</span></li>
+        <li><span class="idx-num">11</span><a href="#v11">Tus Maravillas</a><span class="toc-dot"></span></li>
+        <li class="index-moment-header"><span>Cantos de Animación</span></li>
+        <li><span class="idx-num">12</span><a href="#v12">Mi Dios Está Vivo</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">13</span><a href="#v13">Que Viva Cristo</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">14</span><a href="#v15">Mi Mano Está Llena</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">15</span><a href="#v16">Porque Cristo Ha Tomado Mi Vida</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">16</span><a href="#v17">Dame del Agua que Brota</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">17</span><a href="#v18">Vamos a Alabar al Señor</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">18</span><a href="#v19">Jesús Está Pasando por Aquí</a><span class="toc-dot"></span></li>
+        <li><span class="idx-num">19</span><a href="#v14">Granito de Mostaza</a><span class="toc-dot"></span></li>
+      </ol>
   </div>
 
   <div class="ceremony-body">

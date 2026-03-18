@@ -570,6 +570,38 @@
     .song-body { padding: 1.4rem 1.4rem 1.8rem; }
     .song-number { font-size: 1.8rem; }
   }
+
+  /* Moment headers in index — no counter, no border */
+  .toc-moment-header,
+  .index-moment-header {
+    counter-increment: none !important;
+    border-bottom: none !important;
+    padding: 0.8rem 0 0.2rem !important;
+    list-style: none;
+  }
+  .toc-moment-header::before,
+  .index-moment-header::before {
+    content: none !important;
+    display: none !important;
+  }
+  .toc-moment-header span,
+  .index-moment-header span {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    color: var(--gold, #C8A830);
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  /* Song number in toc */
+  .toc-song-item { padding-left: 1rem; }
+  .toc-num {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: var(--gold-dim, #A08020);
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
@@ -661,42 +693,42 @@
   <h2 class="section-title">Índice</h2>
   <div class="toc-divider"></div>
     <ol class="toc-list">
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Procesión de Ingreso</span></li>
-    <li style="padding-left:1rem;"><a href="#song-01">Villancico de las Campanas</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Entrada</span></li>
-    <li style="padding-left:1rem;"><a href="#song-02">Esa Estrella que ha Nacido</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-03">Nace el Niño en un Portal</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Gloria</span></li>
-    <li style="padding-left:1rem;"><a href="#song-04">Gloria in Excelsis Deo</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-05">Gloria, Gloria (Giombini)</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Aleluya</span></li>
-    <li style="padding-left:1rem;"><a href="#song-06">Aleluya</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Ofertorio</span></li>
-    <li style="padding-left:1rem;"><a href="#song-07">Santa la Noche</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-08">El Tamborilero</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Santo &amp; Cordero</span></li>
-    <li style="padding-left:1rem;"><a href="#song-09">Sanctus &amp; Cordero Mejía</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Comunión</span></li>
-    <li style="padding-left:1rem;"><a href="#song-10">Duérmete ya mi Niño Dios</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Adoración &amp; Reflexión</span></li>
-    <li style="padding-left:1rem;"><a href="#song-11">Noche de Luz</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-12">Pastores Venid</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-13">Noche de Paz</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-14">Oh Blanca Navidad</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-15">Ven a Mi Casa esta Navidad</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-16">A la Nanita Nana</a><span class="toc-dot"></span></li>
-    <li style="border:none; padding:1rem 0 0.2rem; counter-increment:none;"><span style="font-family:'Cinzel Decorative',cursive; font-size:0.58rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; opacity:0.9;">Villancicos</span></li>
-    <li style="padding-left:1rem;"><a href="#song-17">Ya es Navidad</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-18">Vamos Pastores, Vamos</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-19">Cholito Jesús</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-20">Rodolfo el Reno</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-21">Pastores Venid</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-22">Burrito Sabanero</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-23">Campana Sobre Campana</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-24">Los Peces en el Río</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-25">Rueda Rueda</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-26">Ay del Chiquirritín</a><span class="toc-dot"></span></li>
-    <li style="padding-left:1rem;"><a href="#song-27">RinRin</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Procesión de Ingreso</span></li>
+    <li class="toc-song-item"><span class="toc-num">01</span><a href="#song-01">Villancico de las Campanas</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Entrada</span></li>
+    <li class="toc-song-item"><span class="toc-num">02</span><a href="#song-02">Esa Estrella que ha Nacido</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">03</span><a href="#song-03">Nace el Niño en un Portal</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Gloria</span></li>
+    <li class="toc-song-item"><span class="toc-num">04</span><a href="#song-04">Gloria in Excelsis Deo</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">05</span><a href="#song-05">Gloria, Gloria (Giombini)</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Aleluya</span></li>
+    <li class="toc-song-item"><span class="toc-num">06</span><a href="#song-06">Aleluya</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Ofertorio</span></li>
+    <li class="toc-song-item"><span class="toc-num">07</span><a href="#song-07">Santa la Noche</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">08</span><a href="#song-08">El Tamborilero</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Santo & Cordero</span></li>
+    <li class="toc-song-item"><span class="toc-num">09</span><a href="#song-09">Sanctus & Cordero Mejía</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Comunión</span></li>
+    <li class="toc-song-item"><span class="toc-num">10</span><a href="#song-10">Duérmete ya mi Niño Dios</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Adoración & Reflexión</span></li>
+    <li class="toc-song-item"><span class="toc-num">11</span><a href="#song-11">Noche de Luz</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">12</span><a href="#song-12">Pastores Venid</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">13</span><a href="#song-13">Noche de Paz</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">14</span><a href="#song-14">Oh Blanca Navidad</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">15</span><a href="#song-15">Ven a Mi Casa esta Navidad</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">16</span><a href="#song-16">A la Nanita Nana</a><span class="toc-dot"></span></li>
+    <li class="toc-moment-header"><span>Villancicos</span></li>
+    <li class="toc-song-item"><span class="toc-num">17</span><a href="#song-17">Ya es Navidad</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">18</span><a href="#song-18">Vamos Pastores, Vamos</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">19</span><a href="#song-19">Cholito Jesús</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">20</span><a href="#song-20">Rodolfo el Reno</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">21</span><a href="#song-21">Pastores Venid</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">22</span><a href="#song-22">Burrito Sabanero</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">23</span><a href="#song-23">Campana Sobre Campana</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">24</span><a href="#song-24">Los Peces en el Río</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">25</span><a href="#song-25">Rueda Rueda</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">26</span><a href="#song-26">Ay del Chiquirritín</a><span class="toc-dot"></span></li>
+    <li class="toc-song-item"><span class="toc-num">27</span><a href="#song-27">RinRin</a><span class="toc-dot"></span></li>
   </ol>
 </div>
 
