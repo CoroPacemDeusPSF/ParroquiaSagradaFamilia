@@ -244,10 +244,10 @@
     margin-bottom: 2rem;
   }
 
-  .toc-list { list-style: none; counter-reset: toc; }
+  .toc-list { list-style: none; counter-reset: none; }
 
   .toc-list li {
-    counter-increment: toc;
+    counter-increment: none;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -256,7 +256,7 @@
   }
 
   .toc-list li::before {
-    content: counter(toc, decimal-leading-zero);
+    content: none;
     font-family: 'Cinzel Decorative', cursive;
     font-size: 0.62rem;
     color: var(--gold-dim);
