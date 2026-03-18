@@ -2718,7 +2718,7 @@ initParticles('ramos');
 
     var el = document.createElement('span');
     el.id = 'pd-finger';
-    el.style.cssText = 'display:inline-block;opacity:0;transition:opacity 0.5s;vertical-align:middle;margin-left:0.5rem;font-size:1.4rem;animation:pdFB 0.8s ease infinite alternate;';
+    el.style.cssText = 'display:inline-block;opacity:0;transition:opacity 0.5s;vertical-align:middle;margin-left:0.4rem;font-size:' + (window.innerWidth >= 768 ? '1.4rem' : '0.9rem') + ';animation:pdFB 0.8s ease infinite alternate;';
     el.innerHTML = '&#128070;';
 
     // Insert directly before the link text
