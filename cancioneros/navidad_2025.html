@@ -1985,36 +1985,8 @@
 
 
 
-<script>
-(function() {
-  var KEY = 'pd_hint_v6';
-  if (localStorage.getItem(KEY)) return;
-  function run() {
-    var li = document.querySelector('.index-list li, .toc-list li');
-    if (!li) return;
-    var el = document.createElement('span');
-    el.style.cssText = 'display:inline-flex;align-items:center;gap:0.4rem;opacity:0;transition:opacity 0.4s;margin-left:0;vertical-align:middle;';
-    el.innerHTML = '<span style="font-size:1.3rem;animation:pdFB 0.8s ease infinite alternate;display:inline-block">&#128070;</span>';
-    li.appendChild(el);
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.style.opacity='1'; }); });
-    function bye(){
-      el.style.opacity='0';
-      setTimeout(function(){ el.remove(); }, 500);
-      localStorage.setItem(KEY, '1');
-    }
-    setTimeout(bye, 4500);
-    document.querySelectorAll('.index-list a,.toc-list a').forEach(function(a){
-      a.addEventListener('click', bye, {once:true});
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 600); });
-  } else {
-    setTimeout(run, 600);
-  }
-})();
-</script>
-<style>@keyframes pdFB{from{transform:translateY(2px) rotate(-10deg)}to{transform:translateY(-4px) rotate(5deg)}}</style>
+
+
 <script>
 (function() {
   var url = window.location.href;
@@ -2050,5 +2022,50 @@
   window.pdCopyUrl = pdCopyUrl;
 })();
 </script>
+<script>
+(function() {
+  function run() {
+    var list = document.querySelector('.index-list, .toc-list');
+    if (!list) return;
+    var firstA = list.querySelector('a');
+    if (!firstA) return;
+
+    var el = document.createElement('span');
+    el.id = 'pd-finger';
+    el.style.cssText = 'display:inline-block;opacity:0;transition:opacity 0.5s;vertical-align:middle;margin-left:0.5rem;font-size:1.4rem;animation:pdFB 0.8s ease infinite alternate;';
+    el.innerHTML = '&#128070;';
+
+    // Insert directly before the link text
+    firstA.appendChild(el);
+
+    // Fade in
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ el.style.opacity = '1'; });
+    });
+
+    // Remove after 5 seconds or on any link click
+    function bye() {
+      el.style.opacity = '0';
+      setTimeout(function(){ if(el.parentNode) el.remove(); }, 500);
+    }
+    setTimeout(bye, 5000);
+    list.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', bye, {once:true});
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 800); });
+  } else {
+    setTimeout(run, 800);
+  }
+})();
+</script>
+<style>
+@keyframes pdFB {
+  from { transform: translateY(2px) rotate(-10deg); }
+  to   { transform: translateY(-4px) rotate(5deg); }
+}
+</style>
 </body>
 </html>
