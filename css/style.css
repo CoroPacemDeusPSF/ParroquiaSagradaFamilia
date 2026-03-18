@@ -9,7 +9,7 @@
    PACEM DEUS — Main Stylesheet
 ═══════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital@1&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -20,8 +20,8 @@ html { scroll-behavior: smooth; }
   --gold-dk:    #8B6020;
   --cream:      #FAF5EC;
   --cream-dk:   #F0E8D4;
-  --brown:      #2A1A08;
-  --brown-lt:   #5A3A18;
+  --brown:      #3D3530;
+  --brown-lt:   #6B5E54;
   --white:      #FFFFFF;
   --shadow:     rgba(42,26,8,0.15);
   --shadow-lg:  rgba(42,26,8,0.25);
