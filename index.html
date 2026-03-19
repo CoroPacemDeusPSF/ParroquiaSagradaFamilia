@@ -477,20 +477,36 @@ document.addEventListener('click', function(e) {
 <script>
 // ── RETURN TO CANCIONERO ──────────────────────────
 (function() {
-  var params = new URLSearchParams(window.location.search);
-  var from   = params.get('from');
-  var names  = {
+  var names = {
     'semana_santa_2026':   'Semana Santa 2026',
     'navidad_2025':        'Navidad 2025',
     'vigilia_pascual_2024':'Vigilia Pascual 2024'
   };
-  if (from && names[from]) {
+
+  function showReturnBtn(from, label) {
+    if (!from || !names[from]) return;
+    if (document.getElementById('pd-return-btn')) return;
     var btn = document.createElement('a');
-    btn.id = 'pd-return-btn';
+    btn.id   = 'pd-return-btn';
     btn.href = 'cancioneros/' + from + '.html';
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>' + names[from];
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>' + (label || names[from]);
     document.body.appendChild(btn);
   }
+
+  // Listen for postMessage from cancionero iframe
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.pdFrom) {
+      try { sessionStorage.setItem('pdFrom', e.data.pdFrom); sessionStorage.setItem('pdLabel', e.data.pdLabel); } catch(err) {}
+      showReturnBtn(e.data.pdFrom, e.data.pdLabel);
+    }
+  });
+
+  // Also restore from sessionStorage on page load (survives iframe navigation)
+  try {
+    var from  = sessionStorage.getItem('pdFrom');
+    var label = sessionStorage.getItem('pdLabel');
+    if (from) showReturnBtn(from, label);
+  } catch(err) {}
 })();
 </script>
 
