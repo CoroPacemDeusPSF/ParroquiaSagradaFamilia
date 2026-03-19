@@ -149,35 +149,32 @@ body {
   box-shadow: 0 6px 20px rgba(42,26,8,0.1);
   border: 1px solid rgba(200,148,60,0.2);
   border-top: none;
+  text-decoration: none;
 }
 
 .scroll-hint::after {
-  content: '';
-  width: 1px;
-  height: 32px;
-  background: linear-gradient(180deg, var(--gold), transparent);
-  animation: scrollPulse 1.6s ease-in-out infinite;
-}
-
-/* Animated chevron arrows */
-.scroll-hint::before {
-  content: '❯';
-  display: block;
-  font-size: 0.85rem;
+  content: '∨';
+  width: auto;
+  height: auto;
+  background: none;
+  font-size: 1.1rem;
   color: var(--gold);
-  transform: rotate(90deg);
-  animation: chevronBounce 1.6s ease-in-out infinite;
+  animation: chevronBounce2 1.6s ease-in-out infinite;
   line-height: 1;
 }
 
-@keyframes chevronBounce {
-  0%,100% { transform: rotate(90deg) translateX(0);   opacity: 0.5; }
-  50%      { transform: rotate(90deg) translateX(4px); opacity: 1;   }
+.scroll-hint::before {
+  content: '';
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  display: block;
+  margin-top: 0.2rem;
 }
 
-@keyframes scrollPulse {
-  0%,100% { opacity: 0.3; transform: scaleY(1); }
-  50%      { opacity: 1;   transform: scaleY(1.2); }
+@keyframes chevronBounce2 {
+  0%,100% { transform: translateY(0);   opacity: 0.5; }
+  50%      { transform: translateY(4px); opacity: 1;   }
 }
 
 /* ── NAV ──────────────────────────────────────── */
