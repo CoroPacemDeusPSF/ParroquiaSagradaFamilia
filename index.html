@@ -474,6 +474,7 @@ document.addEventListener('click', function(e) {
 })();
 </script>
 
+
 <script>
 // ── RETURN TO CANCIONERO ──────────────────────────
 (function() {
@@ -482,33 +483,46 @@ document.addEventListener('click', function(e) {
     'navidad_2025':        'Navidad 2025',
     'vigilia_pascual_2024':'Vigilia Pascual 2024'
   };
+  var from = new URLSearchParams(window.location.search).get('from');
+  if (!from || !names[from]) return;
 
-  function showReturnBtn(from, label) {
-    if (!from || !names[from]) return;
-    if (document.getElementById('pd-return-btn')) return;
-    var btn = document.createElement('a');
-    btn.id   = 'pd-return-btn';
-    btn.href = 'cancioneros/' + from + '.html';
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>' + (label || names[from]);
-    document.body.appendChild(btn);
+  var btn = document.createElement('a');
+  btn.id        = 'pd-return-btn';
+  btn.href      = 'cancioneros/' + from + '.html';
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> ' + names[from];
+  document.body.appendChild(btn);
+
+  // Scroll to target section accounting for fixed nav
+  var hash = window.location.hash.replace('#', '');
+  if (hash) {
+    var target = document.getElementById(hash);
+    var nav    = document.querySelector('.site-nav');
+    if (target && nav) {
+      setTimeout(function() {
+        var top = target.getBoundingClientRect().top + window.pageYOffset - nav.offsetHeight;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }, 100);
+    }
   }
 
-  // Listen for postMessage from cancionero iframe
-  window.addEventListener('message', function(e) {
-    if (e.data && e.data.pdFrom) {
-      try { sessionStorage.setItem('pdFrom', e.data.pdFrom); sessionStorage.setItem('pdLabel', e.data.pdLabel); } catch(err) {}
-      showReturnBtn(e.data.pdFrom, e.data.pdLabel);
+  // Disappear when user scrolls AWAY from target section
+  // (only after the section has been visible at least once)
+  if (hash) {
+    var el = document.getElementById(hash);
+    if (el) {
+      var seen = false;
+      new IntersectionObserver(function(entries, obs) {
+        if (entries[0].isIntersecting) {
+          seen = true;
+        } else if (seen) {
+          var b = document.getElementById('pd-return-btn');
+          if (b) b.remove();
+          obs.disconnect();
+        }
+      }, { threshold: 0.05 }).observe(el);
     }
-  });
-
-  // Also restore from sessionStorage on page load (survives iframe navigation)
-  try {
-    var from  = sessionStorage.getItem('pdFrom');
-    var label = sessionStorage.getItem('pdLabel');
-    if (from) showReturnBtn(from, label);
-  } catch(err) {}
+  }
 })();
 </script>
-
 </body>
 </html>
