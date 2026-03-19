@@ -2556,13 +2556,19 @@ function showCeremony(name) {
   document.getElementById('ceremony-' + name).classList.add('active');
   document.querySelector('.tab-btn.' + name).classList.add('active');
 
-  // Scroll so ceremony-index lands just below both sticky bars
+  // Use absolute document position (offsetTop) — immune to dynamic address bar changes
+  // Walk up the DOM to get true absolute position
+  function getAbsoluteTop(el) {
+    var top = 0;
+    while (el) { top += el.offsetTop; el = el.offsetParent; }
+    return top;
+  }
+  var index   = document.getElementById(name + '-index');
   var backBar = document.getElementById('pd-back-bar');
   var tabNav  = document.querySelector('.tab-nav');
-  var offset  = (backBar ? backBar.offsetHeight : 0) + (tabNav ? tabNav.offsetHeight : 0);
-  var index   = document.getElementById(name + '-index');
   if (index) {
-    var top = index.getBoundingClientRect().top + window.pageYOffset - offset;
+    var offset = (backBar ? backBar.offsetHeight : 0) + (tabNav ? tabNav.offsetHeight : 0);
+    var top    = getAbsoluteTop(index) - offset;
     window.scrollTo({ top: top, behavior: 'smooth' });
   }
 
