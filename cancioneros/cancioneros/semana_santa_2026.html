@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana Santa 2026 – Coro Pacem Deus</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  /* Ramos – olives, gold, spring green */
+  --ramos-bg:      #141A08;
+  --ramos-mid:     #1E2A08;
+  --ramos-olive:   #5A7A10;
+  --ramos-gold:    #C8A830;
+  --ramos-gold-lt: #E8CC70;
+  --ramos-green:   #7A9C18;
+  --ramos-cream:   #F5F0DC;
+  --ramos-accent:  #9A7A10;
+
+  /* Jueves – deep crimson, almost-black, gold */
+  --jueves-bg:     #0C0608;
+  --jueves-mid:    #1A0A0C;
+  --jueves-crimson:#6B1020;
+  --jueves-gold:   #C8943C;
+  --jueves-gold-lt:#E8C070;
+  --jueves-cream:  #F0E8DC;
+  --jueves-flame:  #E86020;
+
+  /* Vigilia – dark to light, purple/gold/white */
+  --vigilia-dark:  #14102A;
+  --vigilia-mid:   #241E4A;
+  --vigilia-purple:#6A30A8;
+  --vigilia-gold:  #E8C040;
+  --vigilia-gold-lt:#FAE080;
+  --vigilia-white: #FFFDF5;
+  --vigilia-risen: #FFF8E0;
+
+  --white:   #FFFFFF;
+  --shadow-dark: rgba(0,0,0,0.5);
+}
+
+body {
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  overflow-x: hidden;
+  background: #0A0608;
+}
+
+/* ═══════════════════════════════════════════════
+   PARTICLE CANVAS (shared, changes per tab)
+═══════════════════════════════════════════════ */
+#particle-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN COVER / HERO
+═══════════════════════════════════════════════ */
+.main-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3.5rem 2rem 2rem;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(170deg,
+    rgba(10,6,8,0.95) 0%,
+    rgba(20,10,14,0.9) 50%,
+    rgba(10,6,8,0.98) 100%);
+}
+
+.cover-cross {
+  font-size: 4rem;
+  color: #C8943C;
+  text-shadow: 0 0 40px rgba(200,148,60,0.6), 0 0 80px rgba(200,148,60,0.3);
+  margin-bottom: 1.5rem;
+  animation: crossGlow 4s ease-in-out infinite;
+}
+@keyframes crossGlow {
+  0%,100% { text-shadow: 0 0 40px rgba(200,148,60,0.6), 0 0 80px rgba(200,148,60,0.3); }
+  50%      { text-shadow: 0 0 60px rgba(200,148,60,0.9), 0 0 120px rgba(200,148,60,0.5); }
+}
+
+.cover-eyebrow {
+  font-family: 'Pinyon Script', cursive;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  color: #C8943C;
+  text-transform: none;
+  opacity: 0.9;
+  margin-bottom: 0.4rem;
+  animation: fadeUp 1s 0.2s both;
+}
+.cover-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  color: #F0E8DC;
+  line-height: 1.1;
+  text-shadow: 0 2px 30px rgba(0,0,0,0.8);
+  margin-bottom: 0.5rem;
+  animation: fadeUp 1s 0.35s both;
+}
+.cover-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  color: #E8C070;
+  margin-bottom: 0.4rem;
+  animation: fadeUp 1s 0.5s both;
+}
+.cover-parroquia {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: #A07840;
+  opacity: 0.8;
+  margin-bottom: 1.2rem;
+  animation: fadeUp 1s 0.6s both;
+}
+.cover-divider {
+  width: 260px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C8943C, transparent);
+  margin: 0 auto 1rem;
+  animation: fadeIn 1.5s 0.8s both;
+}
+
+/* ═══════════════════════════════════════════════
+   TAB NAVIGATION
+═══════════════════════════════════════════════ */
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,4,6,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.6);
+}
+
+.tab-btn {
+  flex: 1;
+  max-width: 280px;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+.tab-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tab-btn:hover::before { opacity: 1; }
+
+.tab-btn .tab-date {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.tab-btn .tab-name {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Ramos tab */
+.tab-btn.ramos { }
+.tab-btn.ramos .tab-date { color: #9EBF1A; }
+.tab-btn.ramos .tab-name { color: #D4F040; }
+.tab-btn.ramos:hover, .tab-btn.ramos.active {
+  background: linear-gradient(180deg, rgba(74,82,32,0.3) 0%, transparent 100%);
+  border-bottom-color: #C8A830;
+}
+.tab-btn.ramos::before { background: linear-gradient(180deg, rgba(80,120,20,0.25) 0%, transparent); }
+
+/* Jueves tab */
+.tab-btn.jueves .tab-date { color: #8B4A30; }
+.tab-btn.jueves .tab-name { color: #E8A060; }
+.tab-btn.jueves:hover, .tab-btn.jueves.active {
+  background: linear-gradient(180deg, rgba(107,16,32,0.3) 0%, transparent 100%);
+  border-bottom-color: #C8943C;
+}
+.tab-btn.jueves::before { background: linear-gradient(180deg, rgba(107,16,32,0.2) 0%, transparent); }
+
+/* Vigilia tab */
+.tab-btn.vigilia .tab-date { color: #9B6FCC; }
+.tab-btn.vigilia .tab-name { color: #C0A0E0; }
+.tab-btn.vigilia:hover, .tab-btn.vigilia.active {
+  background: linear-gradient(180deg, rgba(58,26,90,0.3) 0%, transparent 100%);
+  border-bottom-color: #E8C040;
+}
+.tab-btn.vigilia::before { background: linear-gradient(180deg, rgba(58,26,90,0.2) 0%, transparent); }
+
+/* ═══════════════════════════════════════════════
+   CEREMONY PANELS
+═══════════════════════════════════════════════ */
+.ceremony {
+  display: block !important;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; width: 100%;
+  z-index: 2;
+  min-height: 100vh;
+}
+.ceremony.active {
+  visibility: visible;
+  pointer-events: auto;
+  position: relative;
+}
+
+/* ── CEREMONY COVER ── */
+.ceremony-cover {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ramos cover */
+.ceremony.ramos .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(74,82,32,0.6) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(200,168,48,0.2) 0%, transparent 50%),
+    linear-gradient(170deg, #141A08 0%, #1E2A08 50%, #141A08 100%);
+}
+/* Jueves cover */
+.ceremony.jueves .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(107,16,32,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(200,148,60,0.15) 0%, transparent 50%),
+    linear-gradient(170deg, #0C0608 0%, #1A0A0C 50%, #0C0608 100%);
+}
+/* Vigilia cover */
+.ceremony.vigilia .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(232,192,64,0.15) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(90,40,140,0.55) 0%, transparent 60%),
+    linear-gradient(170deg, #14102A 0%, #241E4A 50%, #14102A 100%);
+}
+
+.ceremony-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.2rem;
+  animation: floatIcon 6s ease-in-out infinite;
+}
+@keyframes floatIcon {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.ceremony.ramos  .ceremony-icon { font-size: 3.5rem; color: #C8A830; text-shadow: 0 0 30px rgba(200,168,48,0.5); }
+.ceremony.jueves .ceremony-icon { font-size: 6rem; color: #E86020; text-shadow: 0 0 30px rgba(232,96,32,0.6); filter: drop-shadow(0 0 20px rgba(232,96,32,0.4)); }
+.ceremony.vigilia .ceremony-icon { font-size: 3.5rem; color: #E8C040; text-shadow: 0 0 40px rgba(232,192,64,0.8); }
+
+.ceremony-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.ceremony.ramos  .ceremony-eyebrow { color: #9EBF1A; }
+.ceremony.jueves .ceremony-eyebrow { color: #8B4A30; }
+.ceremony.vigilia .ceremony-eyebrow { color: #9B6FCC; }
+
+.ceremony-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.1;
+  margin-bottom: 0.6rem;
+}
+.ceremony.ramos  .ceremony-title { color: #E8D88A; }
+.ceremony.jueves .ceremony-title { color: #F0E0C8; }
+.ceremony.vigilia .ceremony-title { color: #FAF0D0; }
+
+.ceremony-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+.ceremony.ramos  .ceremony-date { color: #B0B020; }
+.ceremony.jueves .ceremony-date { color: #C07840; }
+.ceremony.vigilia .ceremony-date { color: #C0A060; }
+
+/* Info box (reunión, vestimenta) */
+.info-box {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.info-pill {
+  padding: 0.5rem 1.3rem;
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-weight: 400;
+}
+.ceremony.ramos  .info-pill { background: rgba(80,120,20,0.45); border: 1px solid rgba(180,220,20,0.35); color: #D4F040; }
+.ceremony.jueves .info-pill { background: rgba(107,16,32,0.4); border: 1px solid rgba(200,148,60,0.3); color: #E8A060; }
+.ceremony.vigilia .info-pill { background: rgba(58,26,90,0.4); border: 1px solid rgba(232,192,64,0.3); color: #C0A0E0; }
+
+/* ── CEREMONY BODY ── */
+.ceremony-body {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+}
+
+/* ── INDEX ── */
+.ceremony-index {
+  padding: 2.5rem 2rem;
+  margin: 0 auto;
+  max-width: 740px;
+}
+.index-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.ceremony.ramos  .index-title { color: #B0B020; }
+.ceremony.jueves .index-title { color: #A06030; }
+.ceremony.vigilia .index-title { color: #A875D8; }
+
+.index-heading {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.ceremony.ramos  .index-heading { color: #D4F040; }
+.ceremony.jueves .index-heading { color: #E8A060; }
+.ceremony.vigilia .index-heading { color: #C0A0E0; }
+
+.index-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  margin-bottom: 1.5rem;
+  opacity: 0.3;
+}
+.ceremony.ramos  .index-rule { color: #C8A830; }
+.ceremony.jueves .index-rule { color: #C8943C; }
+.ceremony.vigilia .index-rule { color: #E8C040; }
+
+.index-list { list-style: none; }
+.index-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dotted;
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+}
+.ceremony.ramos  .index-list li { border-color: rgba(180,220,20,0.18); }
+.ceremony.jueves .index-list li { border-color: rgba(200,148,60,0.15); }
+.ceremony.vigilia .index-list li { border-color: rgba(232,192,64,0.15); }
+
+.index-list li .idx-num {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  width: 1.8em;
+  flex-shrink: 0;
+  text-align: right;
+}
+.ceremony.ramos  .idx-num { color: #B0B020; }
+.ceremony.jueves .idx-num { color: #A06030; }
+.ceremony.vigilia .idx-num { color: #A875D8; }
+
+.index-list a {
+  text-decoration: none;
+  flex: 1;
+  transition: color 0.2s;
+}
+.ceremony.ramos  .index-list a { color: #E8E0B0; }
+.ceremony.ramos  .index-list a:hover { color: #D4F040; }
+.ceremony.jueves .index-list a { color: #F0D8C0; }
+.ceremony.jueves .index-list a:hover { color: #E8A060; }
+.ceremony.vigilia .index-list a { color: #E0D0F0; }
+.ceremony.vigilia .index-list a:hover { color: #E8C040; }
+
+.idx-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+}
+.ceremony.ramos  .idx-tag { color: #7A9C18; background: rgba(120,150,24,0.18); border: 1px solid rgba(120,150,24,0.4); }
+.ceremony.jueves .idx-tag { color: #8B4A20; background: rgba(139,74,32,0.15); border: 1px solid rgba(139,74,32,0.3); }
+.ceremony.vigilia .idx-tag { color: #9B6FCC; background: rgba(155,111,204,0.18); border: 1px solid rgba(155,111,204,0.4); }
+
+/* Special index notes (non-song items) */
+.index-note {
+  font-style: italic;
+  opacity: 0.6;
+  font-size: 0.9rem;
+  padding: 0.4rem 0;
+  padding-left: 2.6rem;
+  font-family: 'EB Garamond', serif;
+}
+.ceremony.ramos  .index-note { color: #A09870; }
+.ceremony.jueves .index-note { color: #A08060; }
+.ceremony.vigilia .index-note { color: #B090CC; }
+
+/* ── BACK LINK ── */
+.back-link {
+  display: block;
+  text-align: right;
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  padding: 0.3rem 0;
+  margin: 0.5rem 0;
+}
+.back-link::before { content: '↑ '; }
+.back-link:hover { opacity: 1; }
+.ceremony.ramos  .back-link { color: #C8A830; }
+.ceremony.jueves .back-link { color: #C8943C; }
+.ceremony.vigilia .back-link { color: #E8C040; }
+
+/* ── MOMENT SUBTITLE ── */
+.moment-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 3rem 0 0.6rem;
+  position: relative;
+  z-index: 2;
+}
+.moment-header::before, .moment-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  opacity: 0.35;
+}
+.ceremony.ramos  .moment-header::before,
+.ceremony.ramos  .moment-header::after { background: linear-gradient(90deg, transparent, #C8A830, transparent); }
+.ceremony.jueves .moment-header::before,
+.ceremony.jueves .moment-header::after { background: linear-gradient(90deg, transparent, #C8943C, transparent); }
+.ceremony.vigilia .moment-header::before,
+.ceremony.vigilia .moment-header::after { background: linear-gradient(90deg, transparent, #E8C040, transparent); }
+
+.moment-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ceremony.ramos  .moment-label { color: #C8A830; }
+.ceremony.jueves .moment-label { color: #C8943C; }
+.ceremony.vigilia .moment-label { color: #E8C040; }
+
+/* Note inside moment header (for vigilia special cases) */
+.moment-note {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.6rem 1.5rem;
+  margin: 0.5rem 0 1.5rem;
+  border-left: 2px solid;
+  opacity: 0.75;
+}
+.ceremony.ramos  .moment-note { color: #A09870; border-color: rgba(180,220,20,0.35); }
+.ceremony.jueves .moment-note { color: #A08060; border-color: rgba(200,148,60,0.3); }
+.ceremony.vigilia .moment-note { color: #B090CC; border-color: rgba(232,192,64,0.3); }
+
+/* ── SONG CARD ── */
+.song-card {
+  border-radius: 2px;
+  margin: 2rem 0 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  page-break-before: always;
+}
+.ceremony.ramos  .song-card { background: #F5F0DC; box-shadow: 0 4px 40px rgba(0,0,0,0.6); border: 1px solid rgba(160,210,20,0.3); }
+.ceremony.jueves .song-card { background: #F0E8DC; box-shadow: 0 4px 40px rgba(0,0,0,0.7); border: 1px solid rgba(200,148,60,0.2); }
+.ceremony.vigilia .song-card { background: #FFFDF5; box-shadow: 0 4px 40px rgba(0,0,0,0.6); border: 1px solid rgba(232,192,64,0.2); }
+
+.song-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+}
+.ceremony.ramos  .song-card::after { background: linear-gradient(90deg, #5A7A10, #C8A830, #7A9C18); }
+.ceremony.jueves .song-card::after { background: linear-gradient(90deg, #6B1020, #C8943C, #6B1020); }
+.ceremony.vigilia .song-card::after { background: linear-gradient(90deg, #6A30A8, #E8C040, #6A30A8); }
+
+.song-header {
+  padding: 1.4rem 2rem 1.3rem 2.2rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
+  position: relative;
+}
+.ceremony.ramos  .song-header { background: linear-gradient(105deg, #141A08 0%, #1E2A08 70%, #263410 100%); }
+.ceremony.jueves .song-header { background: linear-gradient(105deg, #2A0C10 0%, #3A1018 70%, #441218 100%); }
+.ceremony.vigilia .song-header { background: linear-gradient(105deg, #14102A 0%, #241E4A 70%, #2E2460 100%); }
+
+.song-header-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+.ceremony.ramos  .song-header-bar { background: linear-gradient(180deg, #C8A830, #7A9C18); }
+.ceremony.jueves .song-header-bar { background: linear-gradient(180deg, #FF7A45, #F0A855); }
+.ceremony.vigilia .song-header-bar { background: linear-gradient(180deg, #E8C040, #9B6FCC); }
+
+.song-number {
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.92;
+}
+.ceremony.ramos  .song-number { color: #C8A830; }
+.ceremony.jueves .song-number { color: #FF7A45; }
+.ceremony.vigilia .song-number { color: #E8C040; }
+
+.song-header-text { flex: 1; }
+.song-moment-label {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.15rem;
+}
+.ceremony.ramos  .song-moment-label { color: #9EBF1A; }
+.ceremony.jueves .song-moment-label { color: #FFA060; }
+.ceremony.vigilia .song-moment-label { color: #9070C0; }
+
+.song-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.ceremony.ramos  .song-title { color: #F5F0DC; }
+.ceremony.jueves .song-title { color: #F0E0C8; }
+.ceremony.vigilia .song-title { color: #FAF0D0; }
+
+.song-body {
+  padding: 1.8rem 2.2rem 2.2rem;
+}
+
+.strophe { margin-bottom: 1.2rem; }
+.strophe p {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.02rem;
+  line-height: 1.85;
+}
+.ceremony.ramos  .strophe p { color: #141A08; }
+.ceremony.jueves .strophe p { color: #180810; }
+.ceremony.vigilia .strophe p { color: #100A1A; }
+
+.chorus {
+  padding: 0.9rem 1.3rem;
+  margin: 1.1rem 0;
+  border-left: 3px solid;
+  border-radius: 0 3px 3px 0;
+}
+.ceremony.ramos  .chorus { background: rgba(80,120,20,0.1); border-color: #7A9C18; }
+.ceremony.jueves .chorus { background: rgba(107,16,32,0.07); border-color: #8B2030; }
+.ceremony.vigilia .chorus { background: rgba(100,50,160,0.08); border-color: #7A4AC0; }
+
+.chorus p {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.85;
+}
+.ceremony.ramos  .chorus p { color: #2A2E08; }
+.ceremony.jueves .chorus p { color: #1A0810; }
+.ceremony.vigilia .chorus p { color: #180A28; }
+
+.song-note {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+  opacity: 0.7;
+}
+.ceremony.ramos  .song-note { color: #5A7A10; }
+.ceremony.jueves .song-note { color: #6B1020; }
+.ceremony.vigilia .song-note { color: #6A30A8; }
+
+.song-ornament {
+  text-align: center;
+  font-size: 0.9rem;
+  letter-spacing: 0.6em;
+  opacity: 0.35;
+  margin-top: 1.4rem;
+}
+.ceremony.ramos  .song-ornament { color: #C8A830; }
+.ceremony.jueves .song-ornament { color: #C8943C; }
+.ceremony.vigilia .song-ornament { color: #E8C040; }
+
+/* ── FOOTER ── */
+.ceremony-footer {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  position: relative;
+  z-index: 2;
+}
+.ceremony.ramos  .ceremony-footer { background: linear-gradient(180deg, rgba(20,26,8,0) 0%, #141A08 30%); }
+.ceremony.jueves .ceremony-footer { background: linear-gradient(180deg, rgba(12,6,8,0) 0%, #0C0608 30%); }
+.ceremony.vigilia .ceremony-footer { background: linear-gradient(180deg, rgba(20,16,42,0) 0%, #14102A 30%); }
+
+.ceremony-footer .footer-icon { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; }
+.ceremony.ramos  .ceremony-footer .footer-icon { color: #C8A830; }
+.ceremony.jueves .ceremony-footer .footer-icon { color: #E86020; }
+.ceremony.vigilia .ceremony-footer .footer-icon { color: #E8C040; }
+
+.ceremony-footer p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+.ceremony.ramos  .ceremony-footer p { color: #B0B020; }
+.ceremony.jueves .ceremony-footer p { color: #A06030; }
+.ceremony.vigilia .ceremony-footer p { color: #B090CC; }
+
+/* ═══════════════════════════════════════════════
+   SHARED ANIMATIONS
+═══════════════════════════════════════════════ */
+@keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .tab-btn .tab-name { font-size: 0.7rem; }
+  .song-header { padding: 1rem 1.2rem 1rem 1.4rem; }
+  .song-body { padding: 1.4rem 1.4rem 1.8rem; }
+  .ceremony-body { padding: 0 1rem 4rem; }
+  .info-box { gap: 0.8rem; }
+}
+
+  /* Moment headers in index — no counter, no border */
+  .toc-moment-header,
+  .index-moment-header {
+    counter-increment: none !important;
+    border-bottom: none !important;
+    padding: 0.8rem 0 0.2rem !important;
+    list-style: none;
+  }
+  .toc-moment-header::before,
+  .index-moment-header::before {
+    content: none !important;
+    display: none !important;
+  }
+  .toc-moment-header span,
+  .index-moment-header span {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    color: var(--gold, #C8A830);
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  /* Song number in toc */
+  .toc-song-item { padding-left: 1rem; }
+  .toc-num {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: var(--gold-dim, #A08020);
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  /* scroll-margin-top set dynamically by JS below */
+
+/* ── SHARE DROPDOWN (back-bar) ── */
+.pd-share-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: transparent; border: 1px solid rgba(200,148,60,0.35);
+  color: #C8943C; font-family: 'Cinzel', serif; font-size: 0.62rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 0.35rem 0.9rem; border-radius: 2px; cursor: pointer;
+  transition: all 0.2s;
+}
+.pd-share-btn:hover { background: rgba(200,148,60,0.1); }
+.pd-share-dd {
+  display: none; position: absolute; top: calc(100% + 6px); right: 0;
+  background: #fff; border: 1px solid rgba(200,148,60,0.2); border-radius: 2px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18); min-width: 170px; z-index: 9999; overflow: hidden;
+}
+.pd-share-option {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.65rem 1rem;
+  font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #5A3A18; text-decoration: none; cursor: pointer;
+  border-bottom: 1px solid rgba(200,148,60,0.08);
+  transition: background 0.15s;
+  background: transparent;
+}
+.pd-share-option:last-child { border-bottom: none; }
+.pd-share-option:hover { background: rgba(200,148,60,0.06); }
+
+/* ── CANCIONERO HAMBURGER MENU (mobile only) ── */
+.pd-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: 0.5rem;
+}
+.pd-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #C8943C;
+  transition: all 0.3s;
+}
+.pd-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.pd-hamburger.open span:nth-child(2) { opacity: 0; }
+.pd-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+.pd-nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(8,4,6,0.97);
+  backdrop-filter: blur(12px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+}
+.pd-nav-overlay.open { display: flex; }
+
+.pd-nav-overlay a {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #C8943C;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.pd-nav-overlay a:hover { color: #E8C070; }
+
+.pd-nav-close {
+  position: absolute;
+  top: 1.4rem; right: 1.5rem;
+  background: none;
+  border: none !important;
+  outline: none;
+  box-shadow: none;
+  color: #C8943C; font-size: 1.4rem;
+  cursor: pointer; line-height: 1;
+  transition: color 0.2s;
+  padding: 0.3rem 0.5rem;
+  -webkit-appearance: none;
+}
+.pd-nav-close:hover { color: #E8C070; }
+
+.pd-nav-divider {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, #C8943C, transparent);
+}
+
+@media (min-width: 768px) {
+  .pd-hamburger { display: none !important; }
+}
+@media (max-width: 767px) {
+  .pd-hamburger { display: flex; }
+}
+</style>
+</head>
+<body>
+<!-- ══ PACEM DEUS NAV BAR ══ -->
+<div id="pd-back-bar" style="
+  position: sticky; top: 0; z-index: 99999;
+  background: rgba(8,4,6,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200,148,60,0.25);
+  display: flex; align-items: center;
+  padding: 0.6rem 1.5rem; gap: 1rem;
+  font-family: 'Cinzel', serif;
+">
+  <a href="../index.html" target="_parent" style="
+    display: flex; align-items: center; gap: 0.5rem;
+    color: #C8943C; text-decoration: none; font-size: 0.68rem;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    transition: color 0.2s;
+  " onmouseover="this.style.color='#E8C070'" onmouseout="this.style.color='#C8943C'">
+    ← Coro Pacem Deus
+  </a>
+  <span style="margin-left:auto;"></span>
+  <div class="pd-share-wrap" style="position:relative;">
+    <button class="pd-share-btn" onclick="pdShare(this)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Compartir
+    </button>
+    <div class="pd-share-dd">
+      <a class="pd-share-option pd-share-wa" href="#" target="_blank" >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+      <a class="pd-share-option pd-share-email" href="#" >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email
+      </a>
+      <span class="pd-share-option pd-share-copy" onclick="pdCopyUrl(this)" >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/></svg>
+        Copiar enlace
+      </span>
+    </div>
+  </div>
+  <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<!-- ══ CANCIONERO NAV OVERLAY ══ -->
+<div class="pd-nav-overlay" id="pd-nav-overlay">
+  <button class="pd-nav-close" id="pd-nav-close" onclick="document.getElementById('pd-nav-overlay').classList.remove('open');document.getElementById('pd-hamburger').classList.remove('open');document.body.style.overflow='';">✕</button>
+  <div class="pd-nav-divider"></div>
+  <a href="../index.html?from=semana_santa_2026#cancioneros" target="_parent">Cancioneros</a>
+  <a href="../index.html?from=semana_santa_2026#about" target="_parent">El Coro</a>
+  <a href="../index.html?from=semana_santa_2026#contacto" target="_parent" style="display:flex;align-items:center;gap:0.5rem;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Contacto</a>
+  <div class="pd-nav-divider"></div>
+</div>
+
+
+<!-- ══ PARTICLE CANVAS ══ -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- ══════════════════════════════════════════════
+     MAIN COVER
+══════════════════════════════════════════════ -->
+<div class="main-cover">
+  <div class="cover-cross"><svg viewBox="0 0 40 60" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:0.75em;height:1.1em;display:inline-block;vertical-align:middle;"><rect x="16" y="0" width="8" height="60" rx="1"/><rect x="0" y="18" width="40" height="8" rx="1"/></svg></div>
+  <p class="cover-eyebrow">Coro Pacem Deus</p>
+  <h1 class="cover-title">Semana Santa</h1>
+  <p class="cover-subtitle">Guía Litúrgica 2026</p>
+  <p class="cover-parroquia">Parroquia de la Sagrada Familia</p>
+  <div class="cover-divider"></div>
+  <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:#806040; opacity:0.7;">Selecciona una ceremonia</p>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TAB NAVIGATION
+══════════════════════════════════════════════ -->
+<nav class="tab-nav">
+  <button class="tab-btn ramos active" onclick="showCeremony('ramos')">
+    <span class="tab-date">Domingo 29 de Marzo</span>
+    <span class="tab-name">🌿 Domingo de Ramos</span>
+  </button>
+  <button class="tab-btn jueves" onclick="showCeremony('jueves')">
+    <span class="tab-date">Jueves 2 de Abril</span>
+    <span class="tab-name">🕯 Jueves Santo</span>
+  </button>
+  <button class="tab-btn vigilia" onclick="showCeremony('vigilia')">
+    <span class="tab-date">Sábado 4 de Abril</span>
+    <span class="tab-name">✨ Vigilia Pascual</span>
+  </button>
+</nav>
+
+<script>
+(function() {
+  function fixAll() {
+    var bar    = document.getElementById('pd-back-bar');
+    var nav    = document.querySelector('.tab-nav');
+    var offset = (bar ? bar.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+    // Position tab-nav below back-bar
+    if (bar && nav) nav.style.top = bar.offsetHeight + 'px';
+    // Set scroll-margin-top on all anchor targets dynamically
+    document.querySelectorAll('[id]').forEach(function(el) {
+      el.style.scrollMarginTop = offset + 'px';
+    });
+  }
+  fixAll();
+  window.addEventListener('resize', fixAll);
+  window.addEventListener('load', fixAll);
+})();
+</script>
+
+
+<!-- ══════════════════════════════════════════════
+     CEREMONIA 1: DOMINGO DE RAMOS
+══════════════════════════════════════════════ -->
+<div class="ceremony ramos active" id="ceremony-ramos">
+
+  <div class="ceremony-cover">
+    <div class="ceremony-icon">🌿</div>
+    <p class="ceremony-eyebrow">Domingo 29 de Marzo · 2026</p>
+    <h2 class="ceremony-title">Domingo de Ramos</h2>
+    <p class="ceremony-date">Entrada Triunfal de Jesús en Jerusalén</p>
+  </div>
+
+  <!-- INDEX -->
+  <div class="ceremony-index" id="ramos-index">
+    <p class="index-title">✦ programa ✦</p>
+    <h3 class="index-heading">Orden de la Ceremonia</h3>
+    <div class="index-rule"></div>
+                <ol class="index-list">
+        <li class="index-moment-header"><span>Procesión Inicial</span></li>
+        <li><span class="idx-num">01</span><a href="#r01">Los Niños Hebreos</a></li>
+        <li class="index-moment-header"><span>Entrada</span></li>
+        <li><span class="idx-num">02</span><a href="#r02">Shalom Hosanna</a></li>
+        <li class="index-moment-header"><span>Piedad</span></li>
+        <li><span class="idx-num">03</span><a href="#r03">Piedad Cantaré</a></li>
+        <li class="index-moment-header"><span>Aclamación</span></li>
+        <li><span class="idx-num">04</span><a href="#r04">Gloria a Ti Oh Cristo</a></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">05</span><a href="#r05">Tomad Señor y Recibid</a></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">06</span><a href="#r06">Santo – Fones</a></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">07</span><a href="#r07">Cordero – Dynamis</a></li>
+        <li class="index-moment-header"><span>Comunión</span></li>
+        <li><span class="idx-num">08</span><a href="#r08">Milagro de Amor</a></li>
+        <li><span class="idx-num">09</span><a href="#r09">Divino Manjar</a></li>
+        <li><span class="idx-num">10</span><a href="#r10">Pescador de Hombres</a></li>
+        <li class="index-moment-header"><span>Salida</span></li>
+        <li><span class="idx-num">11</span><a href="#r11">Ave María (Verbum Panis)</a></li>
+      </ol>
+  </div>
+
+  <!-- SONGS -->
+  <div class="ceremony-body">
+
+    <div class="moment-header"><span class="moment-label">Procesión Inicial</span></div>
+    <a class="back-link" id="r01" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">01</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Procesión Inicial</div>
+          <div class="song-title">Los Niños Hebreos</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Los niños Hebreos</p>
+          <p>Llevando ramos de olivo</p>
+          <p>Salieron al encuentro del Señor, aclamando:</p>
+        </div>
+        <div class="chorus">
+          <p>¡Hosanna en el cielo!</p>
+          <p>¡Hosanna en el cielo!</p>
+          <p>¡Hosanna en el cielo!</p>
+        </div>
+        <div class="strophe">
+          <p>Portones abrid los dinteles</p>
+          <p>Que se alcen las puertas eternas</p>
+          <p>¡Va a entrar el Rey de la Gloria</p>
+          <p>Héroe valeroso y Dios de Israel!</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Entrada</span></div>
+    <a class="back-link" id="r02" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">02</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Entrada</div>
+          <div class="song-title">Shalom Hosanna</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Shalom, Hosanna</p>
+          <p>Shalom, Hosanna</p>
+          <p>Shalom, Hosanna.</p>
+          <p>Bendito el que viene en nombre del Señor,</p>
+          <p>Shalom, Hosanna.</p>
+        </div>
+        <div class="strophe">
+          <p>Los niños hebreos con ramos de olivo,</p>
+          <p>aclamaban al Señor.</p>
+        </div>
+        <div class="strophe">
+          <p>Los niños hebreos, tendiendo sus mantos,</p>
+          <p>aclamaban al Señor.</p>
+        </div>
+        <div class="strophe">
+          <p>Con ellos nosotros, con palmas y ramos,</p>
+          <p>aclamamos al Señor.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Piedad</span></div>
+    <a class="back-link" id="r03" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">03</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Piedad</div>
+          <div class="song-title">Piedad Cantaré</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Señor, Ten piedad</p>
+          <p>Señor, Ten Piedad</p>
+          <p>De Nosotros</p>
+        </div>
+        <div class="strophe">
+          <p>Cristo ten Piedad</p>
+          <p>Cristo ten Piedad</p>
+          <p>De nosotros</p>
+        </div>
+        <div class="strophe">
+          <p>Señor, Ten piedad</p>
+          <p>Señor, ten piedad</p>
+          <p>De nosotros.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Aclamación del Evangelio</span></div>
+    <a class="back-link" id="r04" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">04</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Aclamación del Evangelio</div>
+          <div class="song-title">Gloria a Ti Oh Cristo</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>¡Gloria a ti oh Cristo!, Sabiduría de Dios Padre</p>
+          <p>¡Gloria a ti oh Cristo!, Palabra de Dios</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
+    <a class="back-link" id="r05" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">05</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Tomad Señor y Recibid</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Tomad, Señor y recibid</p>
+          <p>Toda mi libertad,</p>
+          <p>Mi memoria,</p>
+          <p>Mi entendimiento</p>
+          <p>Y toda mi voluntad.</p>
+        </div>
+        <div class="strophe">
+          <p>Vos me lo disteis</p>
+          <p>A ti Señor lo torno</p>
+          <p>Todo es vuestro</p>
+          <p>Disponed… según vuestra voluntad.</p>
+        </div>
+        <div class="chorus">
+          <p>Dadme vuestro amor y gracia</p>
+          <p>Que esta me basta.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Santo</span></div>
+    <a class="back-link" id="r06" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">06</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Santo</div>
+          <div class="song-title">Santo – Fones</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Santo, santo, santo es el Señor</p>
+          <p>Dios del Universo, santo es el Señor.</p>
+        </div>
+        <div class="strophe">
+          <p>El cielo y la tierra están llenos de tu gloria,</p>
+          <p>Hosanna en el cielo.</p>
+        </div>
+        <div class="strophe">
+          <p>Bendito es el que viene en el nombre del Señor,</p>
+          <p>Hosanna en el cielo.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Cordero</span></div>
+    <a class="back-link" id="r07" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">07</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero</div>
+          <div class="song-title">Cordero – Dynamis</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Cordero de Dios,</p>
+          <p>que quitas el pecado del mundo,</p>
+          <p>ten piedad de nosotros.</p>
+        </div>
+        <div class="strophe">
+          <p>Cordero de Dios,</p>
+          <p>que quitas el pecado del mundo,</p>
+          <p>ten piedad de nosotros.</p>
+        </div>
+        <div class="strophe">
+          <p>Cordero de Dios</p>
+          <p>que quitas el pecado del mundo</p>
+          <p>Danos la paz, danos la paz,</p>
+          <p>danos la paz.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Comunión</span></div>
+    <a class="back-link" id="r08" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">08</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Milagro de Amor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Jesús, aquí presente en forma real</p>
+          <p>Te pido un poco más de fe y de humildad</p>
+          <p>Quisiera poder ser digna de compartir</p>
+          <p>Contigo el milagro más grande de amor.</p>
+        </div>
+        <div class="chorus">
+          <p>Milagro de amor tan infinito</p>
+          <p>En que Tú, mi Dios Te has hecho</p>
+          <p>tan pequeño y tan humilde</p>
+          <p>Para entrar en mí</p>
+          <p>Milagro de amor tan infinito</p>
+          <p>En que Tú mi Dios Te olvidas</p>
+          <p>De Tu gloria y de Tu majestad</p>
+          <p>Por mí</p>
+        </div>
+        <div class="strophe">
+          <p>Hoy vengo</p>
+          <p>Llena de alegrías</p>
+          <p>A recibirte en esta eucaristía</p>
+          <p>Te doy gracias</p>
+          <p>Por llamarme a esta cena</p>
+          <p>Porque aunque no soy digno</p>
+          <p>Visitas Tú mi alma.</p>
+        </div>
+        <div class="chorus">
+          <p>Milagro de amor…</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <a class="back-link" id="r09" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">09</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Divino Manjar</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Son tu cuerpo y tu sangre, Señor</p>
+          <p>Maravilla y prodigio de amor</p>
+          <p>Alimento del alma, riqueza sin par</p>
+          <p>Divino manjar</p>
+        </div>
+        <div class="chorus">
+          <p>Eucaristía, divino alimento</p>
+          <p>Celestial sustento para caminar</p>
+          <p>Eucaristía, divino alimento</p>
+          <p>Don del cielo para el mundo entero</p>
+          <p>Sacramento, divino manjar</p>
+        </div>
+        <div class="strophe">
+          <p>Anunciamos tu muerte, Señor</p>
+          <p>Proclamamos tu resurrección</p>
+          <p>De tu altar recibimos la fuerza</p>
+          <p>El valor para la misión</p>
+        </div>
+        <div class="chorus"><p>Eucaristía…</p></div>
+        <div class="strophe">
+          <p>En tu seno Jesús se encarnó</p>
+          <p>Oh, María, sagrario de Dios</p>
+          <p>Pura, llena de gracia, madre virginal, reina celestial</p>
+          <p>Pura, llena de gracia, madre virginal, reina celestial</p>
+        </div>
+        <div class="chorus"><p>Eucaristía…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <a class="back-link" id="r10" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">10</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Pescador de Hombres</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Tú has venido a la orilla,</p>
+          <p>No has buscado ni a sabios ni a ricos.</p>
+          <p>Tan sólo quieres que yo te siga.</p>
+        </div>
+        <div class="chorus">
+          <p>Señor, me has mirado a los ojos,</p>
+          <p>Sonriendo has dicho mi nombre.</p>
+          <p>En la arena he dejado mi barca:</p>
+          <p>Junto a Ti buscaré otro mar.</p>
+        </div>
+        <div class="strophe">
+          <p>Tú sabes bien lo que tengo,</p>
+          <p>En mi barca no hay oro ni espadas,</p>
+          <p>Tan sólo redes y mi trabajo.</p>
+        </div>
+        <div class="chorus"><p>Señor, me has mirado a los ojos…</p></div>
+        <div class="strophe">
+          <p>Tú necesitas mis manos,</p>
+          <p>Mi cansancio que a otros descanse,</p>
+          <p>Amor que quiera seguir amando.</p>
+        </div>
+        <div class="chorus"><p>Señor, me has mirado a los ojos…</p></div>
+        <div class="strophe">
+          <p>Tú, pescador de otros mares,</p>
+          <p>Ansia eterna de almas que esperan.</p>
+          <p>Amigo bueno que así me llamas.</p>
+        </div>
+        <div class="chorus"><p>Señor, me has mirado a los ojos…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Salida</span></div>
+    <a class="back-link" id="r11" href="#ramos-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">11</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Ave María (Verbum Panis)</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Ave María, ave</p>
+          <p>Ave María, ave.</p>
+        </div>
+        <div class="strophe">
+          <p>Madre de la espera y mujer de la esperanza, <em>ora pro nobis.</em></p>
+          <p>Madre de sonrisa y mujer de los silencios, <em>ora pro nobis.</em></p>
+          <p>Madre de frontera y mujer apasionada, <em>ora pro nobis.</em></p>
+          <p>Madre del descanso y mujer de los caminos, <em>ora pro nobis.</em></p>
+        </div>
+        <div class="chorus"><p>Ave María, ave / Ave María, ave.</p></div>
+        <div class="strophe">
+          <p>Madre del respiro y mujer de los desiertos, <em>ora pro nobis.</em></p>
+          <p>Madre del ocaso y mujer de los recuerdos, <em>ora pro nobis.</em></p>
+          <p>Madre del presente y mujer de los retornos, <em>ora pro nobis.</em></p>
+          <p>Madre del amor y mujer de la ternura, <em>ora pro nobis.</em></p>
+        </div>
+        <div class="chorus"><p>Ave María, ave / Ave María, ave. <em>(bis)</em></p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#ramos-index">Volver al índice</a>
+
+  </div><!-- /ceremony-body ramos -->
+
+  <div class="ceremony-footer">
+    <span class="footer-icon">🌿</span>
+    <p>Domingo de Ramos · 29 de Marzo 2026</p>
+    <p><span class="coro-name">Coro Pacem Deus</span> · Parroquia de la Sagrada Familia</p>
+  </div>
+</div><!-- /ceremony ramos -->
+
+
+<!-- ══════════════════════════════════════════════
+     CEREMONIA 2: JUEVES SANTO
+══════════════════════════════════════════════ -->
+<div class="ceremony jueves" id="ceremony-jueves">
+
+  <div class="ceremony-cover">
+    <div class="ceremony-icon">🕯</div>
+    <p class="ceremony-eyebrow">Jueves 2 de Abril · 2026</p>
+    <h2 class="ceremony-title">Jueves Santo</h2>
+    <p class="ceremony-date">La Última Cena · Institución de la Eucaristía</p>
+  </div>
+
+  <!-- INDEX -->
+  <div class="ceremony-index" id="jueves-index">
+    <p class="index-title">✦ programa ✦</p>
+    <h3 class="index-heading">Orden de la Ceremonia</h3>
+    <div class="index-rule"></div>
+                <ol class="index-list">
+        <li class="index-moment-header"><span>Entrada</span></li>
+        <li><span class="idx-num">01</span><a href="#j01">Verbum Panis</a></li>
+        <li class="index-moment-header"><span>Piedad</span></li>
+        <li><span class="idx-num">02</span><a href="#j02">Piedad – Señor ten piedad</a></li>
+        <li class="index-moment-header"><span>Gloria</span></li>
+        <li><span class="idx-num">03</span><a href="#j03">Gloria – Palazón</a></li>
+        <li class="index-moment-header"><span>Aclamación</span></li>
+        <li><span class="idx-num">04</span><a href="#j04">Gloria a Ti Oh Cristo</a></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">05</span><a href="#j05">Cristo Mío</a></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">06</span><a href="#j06">Santo – Alfonso Luna</a></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">07</span><a href="#j07">Oh Cordero de Dios</a></li>
+        <li class="index-moment-header"><span>Lavatorio de Pies</span></li>
+        <li><span class="idx-num">08</span><a href="#j08">Recíbeme</a></li>
+        <li class="index-moment-header"><span>Comunión</span></li>
+        <li><span class="idx-num">09</span><a href="#j09">Me Has Seducido Señor</a></li>
+        <li><span class="idx-num">10</span><a href="#j10">En su Mesa hay Amor</a></li>
+        <li class="index-moment-header"><span>Procesión al Templo</span></li>
+        <li><span class="idx-num">11</span><a href="#j11">Oh Buen Jesús</a></li>
+        <li class="index-moment-header"><span>Ingreso de Reserva al Monumento</span></li>
+        <li><span class="idx-num">12</span><a href="#j12">Cantemos al Amor de los Amores</a></li>
+      </ol>
+  </div>
+
+  <div class="ceremony-body">
+
+    <div class="moment-header"><span class="moment-label">Entrada</span></div>
+    <a class="back-link" id="j01" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">01</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Entrada</div>
+          <div class="song-title">Verbum Panis</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Antes del tiempo</p>
+          <p>Mucho antes que la tierra comenzase a existir</p>
+          <p>El verbo estaba junto a Dios</p>
+        </div>
+        <div class="strophe">
+          <p>Vino a este mundo</p>
+          <p>Para no abandonarnos</p>
+          <p>En el viaje nos dejó</p>
+          <p>Su cuerpo hecho pan de vida</p>
+        </div>
+        <div class="chorus">
+          <p><em>Verbum caro factum est</em></p>
+          <p><em>Verbum panis factum est</em></p>
+        </div>
+        <div class="strophe">
+          <p>Tú sigues repartiéndonos tu pan</p>
+          <p>Y quien coma de este pan</p>
+          <p>No tendrá más hambre</p>
+          <p>Tú sigues habitándonos, Señor</p>
+          <p>En tu iglesia vives hoy</p>
+          <p>Esta es nuestra casa</p>
+        </div>
+        <div class="chorus">
+          <p><em>Verbum caro factum est</em></p>
+          <p><em>Verbum panis factum est</em></p>
+        </div>
+        <div class="strophe">
+          <p>Antes del tiempo</p>
+          <p>Cuando el universo fue creado</p>
+          <p>De la oscuridad</p>
+          <p>El verbo estaba junto a Dios</p>
+        </div>
+        <div class="strophe">
+          <p>Vino a este mundo</p>
+          <p>En su gran misericordia</p>
+          <p>La palabra se encarnó</p>
+          <p>Su hijo hecho pan de vida</p>
+        </div>
+        <div class="chorus">
+          <p><em>Verbum caro factum est</em></p>
+          <p><em>Verbum panis factum est</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Piedad</span></div>
+    <a class="back-link" id="j02" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">02</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Piedad</div>
+          <div class="song-title">Señor, Ten Piedad</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Señor, ten piedad de Nosotros <em>(de Nosotros)</em></p>
+          <p>Señor, ten piedad de Nosotros</p>
+        </div>
+        <div class="strophe">
+          <p>Cristo, Ten piedad de Nosotros</p>
+        </div>
+        <div class="strophe">
+          <p>Señor, Ten piedad de nosotros <em>(bis)</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Gloria</span></div>
+    <a class="back-link" id="j03" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">03</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Gloria</div>
+          <div class="song-title">Gloria – Palazón</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Gloria a Dios en el cielo</p>
+          <p>y en la tierra paz a los hombres que ama el Señor.</p>
+        </div>
+        <div class="strophe">
+          <p>Por tu inmensa gloria te alabamos,</p>
+          <p>te bendecimos, te adoramos,</p>
+          <p>te glorificamos, te damos gracias.</p>
+          <p>Señor, Dios, rey celestial,</p>
+          <p>Dios Padre todopoderoso,</p>
+          <p>Señor hijo único Jesucristo,</p>
+          <p>Señor Dios, cordero de Dios, Hijo del Padre.</p>
+        </div>
+        <div class="strophe">
+          <p>Tú que quitas el pecado del mundo,</p>
+          <p>ten piedad de nosotros,</p>
+          <p>tú que quitas el pecado del mundo,</p>
+          <p>atiende nuestra súplica.</p>
+          <p>Tú que estás sentado a la derecha del Padre,</p>
+          <p>ten piedad de nosotros.</p>
+        </div>
+        <div class="strophe">
+          <p>Porque sólo tú eres santo, sólo tú Señor,</p>
+          <p>sólo tú altísimo, Jesucristo,</p>
+          <p>con el Espíritu Santo</p>
+          <p>en la gloria de Dios Padre.</p>
+          <p>Amén.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Aclamación del Evangelio</span></div>
+    <a class="back-link" id="j04" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">04</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Aclamación del Evangelio</div>
+          <div class="song-title">Gloria a Ti Oh Cristo</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>¡Gloria a ti oh Cristo!, Sabiduría de Dios Padre</p>
+          <p>¡Gloria a ti oh Cristo!, Palabra de Dios</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
+    <a class="back-link" id="j05" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">05</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Cristo Mío</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Siento tu presencia en mi vida</p>
+          <p>Siento que alimentas tú mi alma</p>
+          <p>Vida en abundancia tú me has dado</p>
+          <p>Vives dentro de mi corazón.</p>
+        </div>
+        <div class="chorus">
+          <p>Te darás, te darás, te darás</p>
+          <p>en cuerpo y sangre</p>
+          <p>me alimenta tu palabra y tu amor</p>
+          <p>este pan y vino convertido</p>
+          <p>es la fuente y culmen de todo mi ser.</p>
+        </div>
+        <div class="strophe">
+          <p>Oh, oh Cristo mío,</p>
+          <p>eres el pan del cielo</p>
+          <p>Oh, oh Cristo mío,</p>
+          <p>toma, toma mi vida.</p>
+        </div>
+        <div class="strophe">
+          <p>Eres el camino y la vida</p>
+          <p>Eres salvación, eres Señor.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Santo</span></div>
+    <a class="back-link" id="j06" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">06</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Santo</div>
+          <div class="song-title">Santo – Alfonso Luna</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Santo, Santo,</p>
+          <p>Santo es el Señor Dios del universo.</p>
+          <p>Llenos están el cielo y la tierra</p>
+          <p>de tu gloria, hosanna.</p>
+        </div>
+        <div class="chorus">
+          <p>Hosanna, hosanna, hosanna en el cielo.</p>
+          <p>Hosanna, hosanna, hosanna en el cielo.</p>
+        </div>
+        <div class="strophe">
+          <p>Bendito el que viene en nombre del Señor,</p>
+          <p>Hosanna en el cielo, hosanna.</p>
+        </div>
+        <div class="chorus">
+          <p>Hosanna, hosanna, hosanna en el cielo.</p>
+          <p>Hosanna, hosanna, hosanna en el cielo.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Cordero</span></div>
+    <a class="back-link" id="j07" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">07</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero</div>
+          <div class="song-title">Oh Cordero de Dios</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>¡Oh Cordero de Dios!</p>
+          <p>Tú que quitas el pecado del mundo,</p>
+          <p>Tú que quitas el pecado del mundo,</p>
+          <p>Ten piedad de nosotros, ¡Oh Señor! <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>¡Oh Cordero de Dios!</p>
+          <p>Tú que quitas el pecado del mundo,</p>
+          <p>Tú que quitas el pecado del mundo,</p>
+          <p>Danos la paz,</p>
+          <p>Danos la paz.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Lavatorio de Pies</span></div>
+    <a class="back-link" id="j08" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">08</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Lavatorio de Pies</div>
+          <div class="song-title">Recíbeme</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Recíbeme con todo lo que Tú pusiste en mí</p>
+          <p>Con todas esas ganas de vivir con todas mis miserias</p>
+          <p>Recíbeme con toda la miseria que hay en mí</p>
+          <p>Con todos los deseos de seguir por tu camino</p>
+          <p>Iluminar es hoy el reto en la oscuridad</p>
+          <p>Servicio, entrega en fidelidad hasta la muerte</p>
+        </div>
+        <div class="chorus">
+          <p>Hoy es tiempo de dar a manos llenas lo que se nos dio</p>
+          <p>Brillar hasta consumirse, iluminar</p>
+          <p>Un mundo en penumbras, hasta que no quede yo…</p>
+          <p>Hoy es tiempo de dar a manos llenas lo que se nos dio</p>
+          <p>Brillar hasta consumirse, iluminar</p>
+          <p>Un mundo en penumbras, hasta que no quede yo… Si no Tú</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Comunión</span></div>
+    <a class="back-link" id="j09" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">09</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Me Has Seducido, Señor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Señor, no soy nada.</p>
+          <p>¿Por qué me has llamado?</p>
+          <p>Has pasado por mi puerta y bien sabes</p>
+          <p>que soy pobre y soy débil.</p>
+          <p>¿Por qué te has fijado en mí?</p>
+        </div>
+        <div class="chorus">
+          <p>Me has seducido, Señor, con tu mirada.</p>
+          <p>Me has hablado al corazón y me has querido.</p>
+          <p>Es imposible conocerte y no amarte.</p>
+          <p>Es imposible amarte y no seguirte.</p>
+          <p>¡Me has seducido, Señor!</p>
+        </div>
+        <div class="strophe">
+          <p>Señor, hoy tu nombre,</p>
+          <p>es más que una palabra;</p>
+          <p>es tu voz que suena en mi interior,</p>
+          <p>y me habla en silencio.</p>
+          <p>¿Qué quieres que yo haga por ti?</p>
+        </div>
+        <div class="chorus"><p>Me has seducido, Señor…</p></div>
+        <div class="strophe">
+          <p>Señor, yo te sigo,</p>
+          <p>y quiero darte lo que pides,</p>
+          <p>aunque a veces me cuesta darlo todo.</p>
+          <p>Tú lo sabes, yo soy tuyo.</p>
+          <p>Camina, Señor, junto a mí.</p>
+        </div>
+        <div class="chorus"><p>Me has seducido, Señor…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <a class="back-link" id="j10" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">10</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">En su Mesa hay Amor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>El Señor nos ha reunido junto a Él</p>
+          <p>El Señor nos ha invitado a estar con Él</p>
+        </div>
+        <div class="chorus">
+          <p>En Su mesa hay amor</p>
+          <p>La promesa del perdón</p>
+          <p>y en el vino y pan su corazón <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Cuando, Señor, tu voz</p>
+          <p>llega en silencio a mí</p>
+          <p>y mis hermanos me hablan de ti</p>
+          <p>Sé que a mi lado estás,</p>
+          <p>te sientas junto a mí</p>
+          <p>Acoges mi vida y mi oración</p>
+        </div>
+        <div class="strophe">
+          <p>El Señor nos ha reunido junto a Él</p>
+          <p>El Señor nos ha invitado a estar con Él</p>
+        </div>
+        <div class="chorus"><p>En Su mesa hay amor…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Procesión al Templo del Reposo</span></div>
+    <p class="moment-note">Mientras la procesión se dirige al Templo</p>
+    <a class="back-link" id="j11" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">11</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Procesión al Templo del Reposo</div>
+          <div class="song-title">Oh Buen Jesús</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>¡Oh, buen Jesús! Yo creo firmemente</p>
+          <p>que por mi bien estás en el altar,</p>
+          <p>que das tu cuerpo y sangre juntamente</p>
+          <p>al alma fiel en celestial manjar,</p>
+          <p>al alma fiel en celestial manjar.</p>
+        </div>
+        <div class="strophe">
+          <p>Indigno soy, confieso avergonzado,</p>
+          <p>de recibir la santa Comunión;</p>
+          <p>Jesús, que ves mi nada y mi pecado,</p>
+          <p>prepara Tú mi pobre corazón,</p>
+          <p>prepara Tú mi pobre corazón.</p>
+        </div>
+        <div class="strophe">
+          <p>Espero en Ti, piadoso Jesús mío;</p>
+          <p>oigo tu voz, que dice "ven a mí".</p>
+          <p>Porque eres fiel, por eso en Ti confío;</p>
+          <p>Todo, Señor, espérolo de Ti,</p>
+          <p>Todo, Señor, espérolo de Ti.</p>
+        </div>
+        <div class="strophe">
+          <p>¡Oh, buen Jesús, Pastor fino y amante!</p>
+          <p>Mi corazón se abraza en santo ardor;</p>
+          <p>si te olvidé, hoy juro que, constante,</p>
+          <p>he de vivir tan sólo de tu amor,</p>
+          <p>he de vivir tan sólo de tu amor.</p>
+        </div>
+        <div class="strophe">
+          <p>Dulce maná de celestial comida,</p>
+          <p>gozo y salud del que te come bien;</p>
+          <p>ven sin tardar, mi Dios, mi Luz, mi Vida;</p>
+          <p>desciende a mí, hasta mi pecho ven,</p>
+          <p>desciende a mí, hasta mi pecho ven.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Ingreso de Reserva al Monumento</span></div>
+    <p class="moment-note">Ingreso de Reserva al Monumento</p>
+    <a class="back-link" id="j12" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">12</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ingreso de Reserva al Monumento</div>
+          <div class="song-title">Cantemos al Amor de los Amores</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Cantemos al amor de los amores,</p>
+          <p>cantemos al Señor,</p>
+          <p>Dios está aquí, venid adoradores</p>
+          <p>adoremos a Cristo Redentor.</p>
+        </div>
+        <div class="chorus">
+          <p>¡Gloria a Cristo Jesús!</p>
+          <p>cielos y tierra bendecid al Señor;</p>
+          <p>¡Honor y gloria a Ti Rey de la gloria!</p>
+          <p>Amor por siempre a Ti, Dios del amor.</p>
+        </div>
+        <div class="strophe">
+          <p>Unamos nuestra voz a los cantares</p>
+          <p>del coro celestial;</p>
+          <p>Dios está aquí;</p>
+          <p>al Dios de los altares alabemos</p>
+          <p>con gozo angelical.</p>
+        </div>
+        <div class="chorus"><p>¡Gloria a Cristo Jesús!…</p></div>
+        <div class="strophe">
+          <p>Los que buscáis solaz en vuestras penas</p>
+          <p>y alivio en el dolor;</p>
+          <p>Dios está aquí</p>
+          <p>y vierte a manos llenas</p>
+          <p>los tesoros de divinal dulzor.</p>
+        </div>
+        <div class="chorus"><p>¡Gloria a Cristo Jesús!…</p></div>
+        <div class="strophe">
+          <p>Oh rara caridad y real fineza,</p>
+          <p>oh dulce memorial;</p>
+          <p>Dios está aquí con toda su riqueza</p>
+          <p>con su cuerpo y sangre divinal.</p>
+        </div>
+        <div class="chorus"><p>¡Gloria a Cristo Jesús!…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+  </div><!-- /ceremony-body jueves -->
+
+  <div class="ceremony-footer">
+    <span class="footer-icon">🕯</span>
+    <p>Jueves Santo · 2 de Abril 2026</p>
+    <p><span class="coro-name">Coro Pacem Deus</span> · Parroquia de la Sagrada Familia</p>
+  </div>
+</div><!-- /ceremony jueves -->
+
+
+<!-- ══════════════════════════════════════════════
+     CEREMONIA 3: VIGILIA PASCUAL
+══════════════════════════════════════════════ -->
+<div class="ceremony vigilia" id="ceremony-vigilia">
+
+  <div class="ceremony-cover">
+    <div class="ceremony-icon">✨</div>
+    <p class="ceremony-eyebrow">Sábado 4 de Abril · 2026</p>
+    <h2 class="ceremony-title">Vigilia Pascual</h2>
+    <p class="ceremony-date">¡Ha Resucitado! · La Noche Santa</p>
+  </div>
+
+  <!-- INDEX -->
+  <div class="ceremony-index" id="vigilia-index">
+    <p class="index-title">✦ programa ✦</p>
+    <h3 class="index-heading">Orden de la Ceremonia</h3>
+    <div class="index-rule"></div>
+                <ol class="index-list">
+        <li class="index-moment-header"><span>Aspersión del Agua</span></li>
+        <li><span class="idx-num">01</span><a href="#v01">Rey de Reyes</a></li>
+        <li class="index-moment-header"><span>Gloria</span></li>
+        <li><span class="idx-num">02</span><a href="#v02">Gloria – Palazón</a></li>
+        <li class="index-moment-header"><span>Aclamación</span></li>
+        <li><span class="idx-num">03</span><a href="#v03">Aleluya – Verbum Panis</a></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">04</span><a href="#v04">Pan y Vino de Amor</a></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">05</span><a href="#v05">Sanctus – Verbum Panis</a></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">06</span><a href="#v06">Cordero – Mejía</a></li>
+        <li class="index-moment-header"><span>Comunión</span></li>
+        <li><span class="idx-num">07</span><a href="#v07">Camino Firme</a></li>
+        <li><span class="idx-num">08</span><a href="#v08">Te Hiciste Pan</a></li>
+        <li><span class="idx-num">09</span><a href="#v09">Milagro de Amor</a></li>
+        <li><span class="idx-num">10</span><a href="#v10">Pan de Vida, Pan de Fe</a></li>
+        <li class="index-moment-header"><span>Salida</span></li>
+        <li><span class="idx-num">11</span><a href="#v11">Tus Maravillas</a></li>
+        <li class="index-moment-header"><span>Cantos de Animación</span></li>
+        <li><span class="idx-num">12</span><a href="#v12">Mi Dios Está Vivo</a></li>
+        <li><span class="idx-num">13</span><a href="#v13">Que Viva Cristo</a></li>
+        <li><span class="idx-num">14</span><a href="#v15">Mi Mano Está Llena</a></li>
+        <li><span class="idx-num">15</span><a href="#v16">Porque Cristo Ha Tomado Mi Vida</a></li>
+        <li><span class="idx-num">16</span><a href="#v17">Dame del Agua que Brota</a></li>
+        <li><span class="idx-num">17</span><a href="#v18">Vamos a Alabar al Señor</a></li>
+        <li><span class="idx-num">18</span><a href="#v19">Jesús Está Pasando por Aquí</a></li>
+        <li><span class="idx-num">19</span><a href="#v14">Granito de Mostaza</a></li>
+      </ol>
+  </div>
+
+  <div class="ceremony-body">
+
+    <div class="moment-header"><span class="moment-label">Inicio de la Vigilia</span></div>
+    <p class="moment-note">No hay Canto de Entrada — El Padre ingresa con el Cirio encendido.</p>
+
+    <div class="moment-header"><span class="moment-label">Aspersión del Agua</span></div>
+    <a class="back-link" id="v01" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">01</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Aspersión del Agua</div>
+          <div class="song-title">Rey de Reyes</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Toda la tierra verá tu amor</p>
+          <p>y rodilla se doblará</p>
+          <p>mi lengua profesará</p>
+          <p>que tú eres el Señor.</p>
+        </div>
+        <div class="strophe">
+          <p>En la tierra reinará</p>
+          <p>tu gloria y majestad</p>
+          <p>y por siempre yo cantaré</p>
+          <p>cantaré a tu bondad.</p>
+        </div>
+        <div class="chorus">
+          <p>Rey de Reyes, Señor de Señores</p>
+          <p>Gloria aleluya <em>(x2)</em></p>
+          <p>Cristo Príncipe de Paz</p>
+          <p>Gloria aleluya <em>(x2)</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Gloria</span></div>
+    <a class="back-link" id="v02" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">02</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Gloria</div>
+          <div class="song-title">Gloria – Palazón</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Gloria a Dios en el cielo</p>
+          <p>y en la tierra paz a los hombres que ama el Señor.</p>
+        </div>
+        <div class="strophe">
+          <p>Por tu inmensa gloria te alabamos,</p>
+          <p>te bendecimos, te adoramos,</p>
+          <p>te glorificamos, te damos gracias.</p>
+          <p>Señor, Dios, rey celestial,</p>
+          <p>Dios Padre todopoderoso,</p>
+          <p>Señor hijo único Jesucristo,</p>
+          <p>Señor Dios, cordero de Dios, Hijo del Padre.</p>
+        </div>
+        <div class="strophe">
+          <p>Tú que quitas el pecado del mundo,</p>
+          <p>ten piedad de nosotros,</p>
+          <p>tú que quitas el pecado del mundo,</p>
+          <p>atiende nuestra súplica.</p>
+          <p>Tú que estás sentado a la derecha del Padre,</p>
+          <p>ten piedad de nosotros.</p>
+        </div>
+        <div class="strophe">
+          <p>Porque sólo tú eres santo, sólo tú Señor,</p>
+          <p>sólo tú altísimo, Jesucristo,</p>
+          <p>con el Espíritu Santo</p>
+          <p>en la gloria de Dios Padre.</p>
+          <p>Amén.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Aclamación del Evangelio</span></div>
+    <a class="back-link" id="v03" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">03</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Aclamación del Evangelio</div>
+          <div class="song-title">Aleluya – Verbum Panis</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>A–le–lu–ya, alelu–u–ya.</p>
+          <p>A–le–lu–ya, alelu–u–ya. <em>(Bis)</em></p>
+          <p>Aleluya aleluya, aleluya, aleluya, aleluya</p>
+          <p>Aleluya aleluya, aleluya, aleluya, aleluya</p>
+          <p>A–le–lu–ya, alelu–u–ya</p>
+          <p>A–le–lu–ya, alelu–u–ya <em>(Bis)</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
+    <a class="back-link" id="v04" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">04</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Pan y Vino de Amor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Te ofrecemos Señor</p>
+          <p>Estas ofrendas de amor,</p>
+          <p>Y aunque pobres serán</p>
+          <p>Salen del corazón <em>(BIS)</em></p>
+        </div>
+        <div class="chorus">
+          <p>Te Ofrecemos, Señor</p>
+          <p>El trabajo y el sudor</p>
+          <p>Nuestros frutos de amor</p>
+          <p>Y también nuestra unión.</p>
+        </div>
+        <div class="strophe">
+          <p>Te ofrecemos Señor</p>
+          <p>Estas ofrendas de amor</p>
+          <p>Tú los transformarás</p>
+          <p>Nos alimentarás <em>(BIS)</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Santo</span></div>
+    <a class="back-link" id="v05" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">05</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Santo</div>
+          <div class="song-title">Sanctus – Verbum Panis</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p><em>Sanctus, sanctus, sanctus,</em></p>
+          <p><em>Dominus Deus Sabaoth.</em></p>
+          <p><em>Pleni sunt caeli et terra gloria tua.</em></p>
+          <p><em>Hosanna, Hosanna, hosanna in excelsis.</em></p>
+        </div>
+        <div class="strophe">
+          <p><em>Sanctus, sanctus, sanctus,</em></p>
+          <p><em>Dominus Deus Sabaoth.</em></p>
+          <p><em>Benedictus qui venit in nomine Domini.</em></p>
+          <p><em>Hosanna, Hosanna, hosanna in excelsis.</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Cordero</span></div>
+    <a class="back-link" id="v06" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">06</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero</div>
+          <div class="song-title">Cordero – Mejía</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Cordero de Dios que quitas el pecado del mundo,</p>
+          <p>ten piedad de nosotros, ten piedad de nosotros.</p>
+        </div>
+        <div class="strophe">
+          <p>Cordero de Dios que quitas el pecado del mundo,</p>
+          <p>ten piedad de nosotros, ten piedad de nosotros.</p>
+        </div>
+        <div class="strophe">
+          <p>Cordero de Dios que quitas el pecado del mundo,</p>
+          <p>danos la paz, danos la paz, danos la paz.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Comunión</span></div>
+    <a class="back-link" id="v07" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">07</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Camino Firme</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Yo soy la luz del mundo,</p>
+          <p>no hay tinieblas junto a Mí.</p>
+          <p>Tendrán la luz de la vida</p>
+          <p>por la Palabra que les di.</p>
+        </div>
+        <div class="chorus">
+          <p>Yo soy el Camino firme,</p>
+          <p>yo soy la Vida y la Verdad,</p>
+          <p>por mí llegarán al Padre</p>
+          <p>y al Santo Espíritu tendrán. <em>(x2)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Yo soy el Pan de Vida</p>
+          <p>y con ustedes me quedé.</p>
+          <p>Me entrego como alimento,</p>
+          <p>soy el misterio de la fe.</p>
+        </div>
+        <div class="chorus"><p>Yo soy el Camino firme…</p></div>
+        <div class="strophe">
+          <p>Yo soy el Buen Pastor,</p>
+          <p>y por amor mi vida doy;</p>
+          <p>yo quiero un solo rebaño,</p>
+          <p>soy para todos salvador.</p>
+        </div>
+        <div class="chorus"><p>Yo soy el Camino firme…</p></div>
+        <div class="strophe">
+          <p>Yo soy la vid verdadera,</p>
+          <p>mi Padre Dios, el viñador;</p>
+          <p>produzcan fruto abundante</p>
+          <p>permaneciendo en mi amor.</p>
+        </div>
+        <div class="chorus"><p>Yo soy el Camino firme…</p></div>
+        <div class="strophe">
+          <p>Yo soy Señor y Maestro</p>
+          <p>y un mandamiento nuevo doy:</p>
+          <p>que se amen unos a otros</p>
+          <p>como los he amado yo.</p>
+        </div>
+        <div class="chorus"><p>Yo soy el Camino firme…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v08" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">08</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Te Hiciste Pan</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Estás aquí en este pan</p>
+          <p>Estás presente en este vino</p>
+        </div>
+        <div class="strophe">
+          <p>Te hiciste pan</p>
+          <p>Te hiciste carne</p>
+          <p>Para salvarme</p>
+          <p>Para salvarme</p>
+        </div>
+        <div class="chorus">
+          <p>Alimento del alma</p>
+          <p>Pan de vida eterna</p>
+        </div>
+        <div class="strophe">
+          <p>Al recibir tu cuerpo</p>
+          <p>Al recibir tu sangre</p>
+          <p>Al recibir tu alma</p>
+          <p>Al recibir Señor</p>
+          <p>Tu divinidad</p>
+        </div>
+        <div class="strophe">
+          <p>Ya no es más pan</p>
+          <p>Ya no es más vino</p>
+          <p>Señor y Dios mío</p>
+          <p>Realmente eres Tú</p>
+        </div>
+        <div class="chorus"><p>Alimento del alma / Pan de vida eterna</p></div>
+        <div class="strophe">
+          <p>Señor Jesús, aumenta mi fe <em>(x5)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Al recibir tu cuerpo</p>
+          <p>Al recibir tu sangre</p>
+          <p>Al recibir tu alma</p>
+          <p>Al recibir Señor</p>
+          <p>Tu divinidad</p>
+        </div>
+        <div class="chorus"><p>Alimento del alma / Pan de vida eterna</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v09" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">09</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Milagro de Amor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Jesús, aquí presente en forma real</p>
+          <p>Te pido un poco más de fe y de humildad</p>
+          <p>Quisiera poder ser digna de compartir</p>
+          <p>Contigo el milagro más grande de amor.</p>
+        </div>
+        <div class="chorus">
+          <p>Milagro de amor tan infinito</p>
+          <p>En que Tú, mi Dios Te has hecho</p>
+          <p>tan pequeño y tan humilde</p>
+          <p>Para entrar en mí</p>
+          <p>Milagro de amor tan infinito</p>
+          <p>En que Tú mi Dios Te olvidas</p>
+          <p>De Tu gloria y de Tu majestad</p>
+          <p>Por mí</p>
+        </div>
+        <div class="strophe">
+          <p>Hoy vengo llena de alegrías</p>
+          <p>A recibirte en esta eucaristía</p>
+          <p>Te doy gracias por llamarme a esta cena</p>
+          <p>Porque aunque no soy digno</p>
+          <p>Visitas Tú mi alma.</p>
+        </div>
+        <div class="chorus"><p>Milagro de amor…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v10" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">10</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Pan de Vida, Pan de Fe</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Camino y desierto andamos</p>
+          <p>a la tierra prometida;</p>
+          <p>vuelvan, Señor, tus torrentes</p>
+          <p>a saciarnos de agua viva.</p>
+        </div>
+        <div class="chorus">
+          <p>¡Mi Cuerpo es! ¡Tomad y comed!</p>
+          <p>¡Mi Sangre es! ¡Tomad y bebed!</p>
+          <p>Este es el Pan de vida,</p>
+          <p>este es el Pan de fe.</p>
+        </div>
+        <div class="strophe">
+          <p>Nos pesa nuestro pecado,</p>
+          <p>dolores, hambres y guerras:</p>
+          <p>venga tu paz como llama</p>
+          <p>a morar en nuestras tiendas.</p>
+        </div>
+        <div class="chorus"><p>¡Mi Cuerpo es!…</p></div>
+        <div class="strophe">
+          <p>Que todos son mis hermanos,</p>
+          <p>así reza el testamento:</p>
+          <p>amor a Dios y a los hombres,</p>
+          <p>es el culto verdadero.</p>
+        </div>
+        <div class="chorus"><p>¡Mi Cuerpo es!…</p></div>
+        <div class="strophe">
+          <p>Es cada altar en la tierra</p>
+          <p>la mesa del Sacramento:</p>
+          <p>Cristo es quien da vida plena</p>
+          <p>con su sangre, con su cuerpo.</p>
+        </div>
+        <div class="chorus"><p>¡Mi Cuerpo es!…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Salida</span></div>
+    <a class="back-link" id="v11" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">11</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Tus Maravillas</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Ahora puedes dejarme</p>
+          <p>ir en paz, oh Señor,</p>
+          <p>porque he visto tus maravillas.</p>
+          <p>Y tu pueblo en fiesta</p>
+          <p>por las calles marchará,</p>
+          <p>cantará todas tus maravillas.</p>
+        </div>
+        <div class="strophe">
+          <p>Es tu presencia que llena de amor</p>
+          <p>toda la vida y cada jornada,</p>
+          <p>contigo un alma sola,</p>
+          <p>somos un solo corazón,</p>
+          <p>la luz que en ti resplandece</p>
+          <p>por siempre iluminará.</p>
+        </div>
+        <div class="chorus"><p>Ahora puedes dejarme…</p></div>
+        <div class="strophe">
+          <p>Es tu presencia que inunda de amor</p>
+          <p>toda la vida y cada jornada.</p>
+          <p>Entre la gente Tú estarás</p>
+          <p>y con tu pueblo vivirás,</p>
+          <p>hasta el final de los tiempos</p>
+          <p>Tú nos acompañarás.</p>
+        </div>
+        <div class="chorus"><p>Ahora puedes dejarme… <em>(bis)</em></p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Cantos de Animación</span></div>
+
+    <a class="back-link" id="v12" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">12</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Mi Dios Está Vivo</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Mi Dios está vivo, Él no está muerto,</p>
+          <p>mi Dios está vivo, en mi corazón,</p>
+          <p>mi Dios está vivo, ha resucitado.</p>
+          <p>Lo siento en mis manos,</p>
+          <p>lo siento en mis pies,</p>
+          <p>lo siento en mi alma y en mi ser.</p>
+        </div>
+        <div class="chorus">
+          <p>¡Oh, oh, oh, oh!, hay que nacer del agua.</p>
+          <p>¡Oh, oh, oh, oh!, hay que nacer del Espíritu de Dios.</p>
+          <p>¡Oh, oh, oh, oh!, hay que nacer del agua</p>
+          <p>y del Espíritu de Dios.</p>
+          <p>Hay que nacer del Señor. <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Prepárate para que sientas,</p>
+          <p>prepárate para que sientas,</p>
+          <p>prepárate para que sientas</p>
+          <p>el Espíritu de Dios.</p>
+          <p>Déjalo que se mueva, déjalo que se mueva,</p>
+          <p>déjalo que se mueva dentro de tu corazón.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v13" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">13</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Que Viva Cristo</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Viva la fe, viva la esperanza, viva el amor. <em>(x3)</em></p>
+        </div>
+        <div class="chorus">
+          <p>Que viva Cristo, que viva Cristo, que viva Él.</p>
+          <p>Que viva Cristo, que viva, que viva Cristo.</p>
+          <p>Que viva, que viva Cristo, que viva Él. <em>(bis)</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v15" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">15</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Mi Mano Está Llena</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Mi mano está llena de su bendición. <em>(bis)</em></p>
+          <p>Y al hermano que toque bendito será. <em>(bis)</em></p>
+          <p>Mi mano está llena de su bendición.</p>
+        </div>
+        <div class="strophe">
+          <p>Porque Cristo ha tomado mi vida y no la quiere soltar. <em>(bis)</em></p>
+          <p>Yo estaba solo y triste, mas ahora estoy feliz,</p>
+          <p>porque Cristo ha tomado mi vida y no la quiere soltar.</p>
+        </div>
+        <div class="chorus">
+          <p>Mi brazo está lleno de su bendición. <em>(bis)</em></p>
+          <p>Y al hermano que abrace bendito será. <em>(bis)</em></p>
+          <p>Mi brazo está lleno de su bendición.</p>
+        </div>
+        <div class="strophe">
+          <p>Porque Cristo ha tomado mi vida…</p>
+        </div>
+        <div class="chorus">
+          <p>Mi pie está lleno de su bendición. <em>(bis)</em></p>
+          <p>Y al hermano que pise bendito será. <em>(bis)</em></p>
+          <p>Mi pie está lleno de su bendición.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v16" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">16</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Porque Cristo Ha Tomado Mi Vida</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Cristo ha tomado mi vida y no la quiere soltar. <em>(x2)</em></p>
+          <p>Estaba solo y triste, pero ahora soy feliz ¿Por qué?</p>
+          <p>Porque Cristo ha tomado mi vida y no la quiere soltar.</p>
+        </div>
+        <div class="strophe">
+          <p>Y yo me sigo enamorando,</p>
+          <p>me sigo enamorando de Dios. <em>(x2)</em></p>
+          <p>Estaba solo y triste, pero ahora soy feliz ¿Por qué?</p>
+          <p>Porque Cristo ha tomado mi vida y no la quiere soltar.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v17" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">17</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Dame del Agua que Brota</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Dame del agua que brota para la vida eterna. <em>(bis)</em></p>
+          <p>Del agua que le diste a la mujer samaritana. <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Batiendo las palmas con gozo,</p>
+          <p>así se viene a alabar. <em>(bis)</em></p>
+          <p>Ese gozo que hay en mi alma</p>
+          <p>y nadie lo podrá quitar. <em>(bis)</em></p>
+        </div>
+        <div class="chorus"><p>Dame del agua que brota…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v18" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">18</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Vamos a Alabar al Señor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Vamos a alabar al Señor,</p>
+          <p>con panderos y danzas. <em>(bis)</em></p>
+          <p>En la tierra se canta y en el cielo se oye. <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Así, así, así se alaba a Dios. <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Con mucha alegría hermanos <em>(x3)</em> Así se alaba a Dios.</p>
+          <p>Levanten las manos todos <em>(x3)</em> Así se alaba a Dios.</p>
+          <p>Afuera las ataduras <em>(x3)</em> Así se alaba a Dios.</p>
+          <p>Sacudan los pies del polvo <em>(x3)</em> Así se alaba a Dios.</p>
+          <p>Y demos un saltito <em>(x3)</em> Así se alaba a Dios.</p>
+          <p>Y demos un bailecito <em>(x3)</em> Así se alaba a Dios.</p>
+          <p>Cantemos abrazaditos <em>(x3)</em> Así se alaba a Dios.</p>
+        </div>
+        <div class="chorus"><p>Vamos a alabar al Señor…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v19" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">19</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Jesús Está Pasando por Aquí</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Jesús está pasando por aquí. <em>(x2)</em></p>
+          <p>Y cuando Él pasa todo se transforma,</p>
+          <p>la alegría viene, la tristeza va <em>(x2)</em></p>
+        </div>
+        <div class="strophe">
+          <p>María está pasando por aquí. <em>(x2)</em></p>
+          <p>Y cuando Él pasa todo se transforma,</p>
+          <p>la alegría viene, la tristeza va <em>(x2)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Nuestro Padre está pasando por aquí. <em>(x2)</em></p>
+          <p>Y cuando Él pasa todo se transforma,</p>
+          <p>la alegría viene, la tristeza va <em>(x2)</em></p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+    <a class="back-link" id="v14" href="#vigilia-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">14</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Granito de Mostaza</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Si tuviera fe,</p>
+          <p>como un granito de mostaza. Eso dice el Señor. <em>(x2)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Yo le diría a las montañas:</p>
+          <p>¡Muévanse, muévanse, muévanse! <em>(x2)</em></p>
+          <p>Y las montañas se moverán,</p>
+          <p>se moverán, se moverán. <em>(x2)</em></p>
+        </div>
+        <div class="chorus"><p>Si tuviera fe… <em>(x2)</em></p></div>
+        <div class="strophe">
+          <p>Yo le diría a los enfermos:</p>
+          <p>¡Sánense, sánense, sánense! <em>(x2)</em></p>
+          <p>Y los enfermos se sanarán,</p>
+          <p>se sanarán, se sanarán. <em>(x2)</em></p>
+        </div>
+        <div class="chorus"><p>Si tuviera fe… <em>(x2)</em></p></div>
+        <div class="strophe">
+          <p>Yo le diría a las familias:</p>
+          <p>¡Ámense, ámense, ámense! <em>(x2)</em></p>
+          <p>Y las familias se amarán,</p>
+          <p>se amarán, se amarán. <em>(x2)</em></p>
+        </div>
+        <div class="chorus"><p>Si tuviera fe… <em>(x2)</em></p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#vigilia-index">Volver al índice</a>
+
+  </div><!-- /ceremony-body vigilia -->
+
+  <div class="ceremony-footer">
+    <span class="footer-icon">✨</span>
+    <p>Vigilia Pascual · 4 de Abril 2026</p>
+    <p><span class="coro-name">Coro Pacem Deus</span> · Parroquia de la Sagrada Familia</p>
+  </div>
+</div><!-- /ceremony vigilia -->
+
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT: TABS + PARTICLES
+══════════════════════════════════════════════ -->
+<script>
+// ── TAB SWITCHING ──────────────────────────────
+function showCeremony(name) {
+  // Switch active states
+  document.querySelectorAll('.ceremony').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('ceremony-' + name).classList.add('active');
+  document.querySelector('.tab-btn.' + name).classList.add('active');
+
+  currentTheme = name;
+  initParticles(name);
+
+  // Jump to top instantly so layout is stable, then smooth scroll to index
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var index   = document.getElementById(name + '-index');
+      var backBar = document.getElementById('pd-back-bar');
+      var tabNav  = document.querySelector('.tab-nav');
+      if (index) {
+        var offset  = (backBar ? backBar.offsetHeight : 0) + (tabNav ? tabNav.offsetHeight : 0);
+        // Target the first visible element inside the index for exact landing
+        var target  = index.querySelector('.index-title') || index;
+        var rect    = target.getBoundingClientRect();
+        var top     = rect.top + window.pageYOffset - offset;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }
+    });
+  });
+}
+
+// ── PARTICLE SYSTEM ───────────────────────────
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let animFrame;
+let currentTheme = 'ramos';
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const THEMES = {
+  ramos: {
+    // Falling olive leaves / petals
+    count: 28,
+    create: () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      size: 4 + Math.random() * 8,
+      speed: 0.6 + Math.random() * 1.2,
+      drift: (Math.random() - 0.5) * 0.8,
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.04,
+      opacity: 0.15 + Math.random() * 0.35,
+      color: Math.random() > 0.4 ? '#7A8C28' : '#C8A830',
+      type: Math.random() > 0.5 ? 'leaf' : 'petal',
+    }),
+    draw: (p) => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.opacity;
+      if (p.type === 'leaf') {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.size * 0.4, p.size, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const a = (i * 4 * Math.PI / 5) - Math.PI / 2;
+          const r = i % 2 === 0 ? p.size : p.size * 0.4;
+          i === 0 ? ctx.moveTo(r * Math.cos(a), r * Math.sin(a))
+                  : ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    },
+    update: (p) => {
+      p.y += p.speed;
+      p.x += p.drift + Math.sin(p.y * 0.02) * 0.5;
+      p.rot += p.rotSpeed;
+      if (p.y > canvas.height + 20) {
+        p.y = -20;
+        p.x = Math.random() * canvas.width;
+      }
+    }
+  },
+
+  jueves: {
+    // Candle flame particles — rising embers/sparks
+    count: 35,
+    create: () => ({
+      x: canvas.width * (0.3 + Math.random() * 0.4),
+      y: canvas.height * (0.5 + Math.random() * 0.5),
+      size: 1.5 + Math.random() * 4,
+      speed: 0.5 + Math.random() * 1.8,
+      drift: (Math.random() - 0.5) * 1.2,
+      opacity: 0.2 + Math.random() * 0.6,
+      life: Math.random(),
+      decay: 0.003 + Math.random() * 0.008,
+      color: Math.random() > 0.5
+        ? `hsl(${20 + Math.random()*20}, 100%, ${60+Math.random()*30}%)`
+        : `hsl(${38 + Math.random()*15}, 100%, ${70+Math.random()*20}%)`,
+    }),
+    draw: (p) => {
+      ctx.save();
+      ctx.globalAlpha = p.opacity * p.life;
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      grad.addColorStop(0, p.color);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    },
+    update: (p) => {
+      p.y -= p.speed;
+      p.x += p.drift;
+      p.life -= p.decay;
+      p.drift *= 0.99;
+      if (p.life <= 0) {
+        p.x = canvas.width * (0.3 + Math.random() * 0.4);
+        p.y = canvas.height * (0.6 + Math.random() * 0.4);
+        p.life = 0.6 + Math.random() * 0.4;
+        p.size = 1.5 + Math.random() * 4;
+        p.speed = 0.5 + Math.random() * 1.8;
+        p.drift = (Math.random() - 0.5) * 1.2;
+      }
+    }
+  },
+
+  vigilia: {
+    // Stars / light bursts — Resurrection
+    count: 50,
+    create: () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: 0.5 + Math.random() * 2.5,
+      pulse: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.01 + Math.random() * 0.03,
+      opacity: 0.1 + Math.random() * 0.5,
+      color: Math.random() > 0.6
+        ? '#E8C040'
+        : Math.random() > 0.5 ? '#FFFFFF' : '#C0A0E0',
+      // Some rise upward (light particles)
+      rise: Math.random() > 0.6,
+      vy: -(0.1 + Math.random() * 0.4),
+    }),
+    draw: (p) => {
+      const glow = p.size * (1 + 0.5 * Math.sin(p.pulse));
+      ctx.save();
+      ctx.globalAlpha = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glow * 3);
+      grad.addColorStop(0, p.color);
+      grad.addColorStop(0.4, p.color + '88');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, glow * 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    },
+    update: (p) => {
+      p.pulse += p.pulseSpeed;
+      if (p.rise) {
+        p.y += p.vy;
+        if (p.y < -10) p.y = canvas.height + 10;
+      }
+    }
+  }
+};
+
+function initParticles(theme) {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  particles = [];
+  const t = THEMES[theme];
+  for (let i = 0; i < t.count; i++) particles.push(t.create());
+  animate(theme);
+}
+
+function animate(theme) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const t = THEMES[theme];
+  for (const p of particles) {
+    t.update(p);
+    t.draw(p);
+  }
+  animFrame = requestAnimationFrame(() => animate(theme));
+}
+
+// Start with Ramos
+initParticles('ramos');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function() {
+  var url = window.location.href;
+  var title = document.title;
+
+  function pdShare(btn) {
+    if (navigator.share) {
+      navigator.share({ title: title, url: url });
+      return;
+    }
+    var wrap = btn.closest('.pd-share-wrap');
+    var dd = wrap.querySelector('.pd-share-dd');
+    wrap.querySelector('.pd-share-wa').href = 'https://wa.me/?text=' + encodeURIComponent(title + ' ' + url);
+    wrap.querySelector('.pd-share-email').href = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(url);
+    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function pdCopyUrl(el) {
+    navigator.clipboard.writeText(url).then(function() {
+      var orig = el.innerHTML;
+      el.innerHTML = el.innerHTML.replace('Copiar enlace', '✓ Copiado');
+      setTimeout(function() { el.innerHTML = orig; }, 2000);
+    });
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.pd-share-wrap')) {
+      document.querySelectorAll('.pd-share-dd').forEach(function(d){ d.style.display='none'; });
+    }
+  });
+
+  window.pdShare = pdShare;
+  window.pdCopyUrl = pdCopyUrl;
+})();
+</script>
+<script>
+(function() {
+  function run() {
+    var list = document.querySelector('.index-list, .toc-list');
+    if (!list) return;
+    var firstA = list.querySelector('a');
+    if (!firstA) return;
+
+    var el = document.createElement('span');
+    el.id = 'pd-finger';
+    el.style.cssText = 'display:inline-block;opacity:0;transition:opacity 0.5s;vertical-align:middle;margin-left:0.4rem;font-size:' + (window.innerWidth >= 768 ? '1.4rem' : '0.9rem') + ';animation:pdFB 0.8s ease infinite alternate;';
+    el.innerHTML = '&#128070;';
+
+    // Insert directly before the link text
+    firstA.appendChild(el);
+
+    // Fade in
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ el.style.opacity = '1'; });
+    });
+
+    // Remove after 5 seconds or on any link click
+    function bye() {
+      el.style.opacity = '0';
+      setTimeout(function(){ if(el.parentNode) el.remove(); }, 500);
+    }
+    setTimeout(bye, 5000);
+    list.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', bye, {once:true});
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 800); });
+  } else {
+    setTimeout(run, 800);
+  }
+})();
+</script>
+<style>
+@keyframes pdFB {
+  from { transform: translateY(2px) rotate(-10deg); }
+  to   { transform: translateY(-4px) rotate(5deg); }
+}
+</style>
+
+<script>
+</script>
+
+<script>
+// ── HAMBURGER MENU ──────────────────────────────
+(function() {
+  var btn     = document.getElementById('pd-hamburger');
+  var overlay = document.getElementById('pd-nav-overlay');
+  var closeBtn = document.getElementById('pd-nav-close');
+
+  if (!btn || !overlay || !closeBtn) return;
+
+  function openMenu() {
+    btn.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    btn.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', openMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeMenu();
+  });
+
+  window.pdCloseMenu = closeMenu;
+})();
+</script>
+</body>
+</html>
