@@ -822,6 +822,18 @@ body {
   </button>
 </nav>
 
+<script>
+(function() {
+  function fixTabNavTop() {
+    var bar = document.getElementById('pd-back-bar');
+    var nav = document.querySelector('.tab-nav');
+    if (bar && nav) nav.style.top = bar.offsetHeight + 'px';
+  }
+  fixTabNavTop();
+  window.addEventListener('resize', fixTabNavTop);
+})();
+</script>
+
 
 <!-- ══════════════════════════════════════════════
      CEREMONIA 1: DOMINGO DE RAMOS
@@ -2541,15 +2553,12 @@ function showCeremony(name) {
   document.getElementById('ceremony-' + name).classList.add('active');
   document.querySelector('.tab-btn.' + name).classList.add('active');
 
-  // Scroll to the ceremony cover (just below the sticky nav)
-  requestAnimationFrame(function() {
-    var cover = document.querySelector('#ceremony-' + name + ' .ceremony-cover');
-    if (cover) {
-      var navH = document.querySelector('.tab-nav').offsetHeight;
-      var top = cover.getBoundingClientRect().top + window.pageYOffset - navH;
-      window.scrollTo(0, top);
-    }
-  });
+  // Scroll so tab-nav sits exactly at top of viewport (below back-bar)
+  var backBar = document.getElementById('pd-back-bar');
+  var tabNav  = document.querySelector('.tab-nav');
+  var backBarH = backBar ? backBar.offsetHeight : 0;
+  var tabTop   = tabNav.getBoundingClientRect().top + window.pageYOffset - backBarH;
+  window.scrollTo({ top: tabTop, behavior: 'smooth' });
 
   currentTheme = name;
   initParticles(name);

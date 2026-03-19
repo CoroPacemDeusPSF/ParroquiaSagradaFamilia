@@ -98,3 +98,20 @@ revealEls.forEach(el => {
   el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
   observer.observe(el);
 });
+
+// ── ACTIVE NAV LINK ON SCROLL ────────────────────
+const navSections = ['inicio', 'cancioneros', 'about', 'contacto'];
+function updateActiveNav() {
+  const scrollY = window.scrollY + 80;
+  let current = 'inicio';
+  navSections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) current = id;
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    const href = a.getAttribute('href').replace('#', '');
+    a.classList.toggle('active', href === current);
+  });
+}
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+updateActiveNav();

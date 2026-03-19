@@ -182,20 +182,22 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(250,245,236,0.97);
+  background: linear-gradient(180deg, rgba(252,248,240,0.99) 0%, rgba(248,242,228,0.97) 100%);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(200,148,60,0.2);
-  box-shadow: 0 2px 20px var(--shadow);
+  border-bottom: 1px solid rgba(200,148,60,0.35);
+  box-shadow: 0 2px 24px rgba(42,26,8,0.1), 0 1px 0 rgba(200,148,60,0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.8rem 2rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .nav-logo {
   font-family: 'Edwardian Script ITC', 'Pinyon Script', cursive;
   font-weight: normal;
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   color: var(--brown);
   text-decoration: none;
   transition: color 0.2s;
@@ -204,8 +206,22 @@ body {
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  align-items: center;
+  gap: 0;
   list-style: none;
+}
+
+/* Separators between items */
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+.nav-links li + li::before {
+  content: '✦';
+  font-size: 0.4rem;
+  color: rgba(200,148,60,0.45);
+  margin: 0 1.2rem;
+  flex-shrink: 0;
 }
 
 .nav-links a {
@@ -215,9 +231,30 @@ body {
   text-transform: uppercase;
   color: var(--brown-lt);
   text-decoration: none;
-  transition: color 0.2s;
+  position: relative;
+  padding-bottom: 0.15rem;
+  transition: color 0.25s;
+}
+
+/* Animated underline on hover */
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 1px;
+  background: var(--gold);
+  transition: width 0.3s ease;
 }
 .nav-links a:hover { color: var(--gold); }
+.nav-links a:hover::after { width: 100%; }
+
+/* Active link */
+.nav-links a.active {
+  color: var(--gold);
+}
+.nav-links a.active::after {
+  width: 100%;
+}
 
 /* Hamburger */
 .hamburger {
@@ -273,6 +310,28 @@ body {
   color: var(--brown-lt);
 }
 
+
+/* ── NAV SHIMMER ── */
+.site-nav::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; bottom: 0;
+  width: 60%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(200,148,60,0.08) 40%,
+    rgba(200,148,60,0.18) 50%,
+    rgba(200,148,60,0.08) 60%,
+    transparent 100%
+  );
+  animation: navShimmer 11s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes navShimmer {
+  0%   { left: -60%; }
+  50%  { left: 160%; }
+  100% { left: 160%; }
+}
 /* ── SECTIONS ─────────────────────────────────── */
 section {
   padding: 6rem 2rem;
