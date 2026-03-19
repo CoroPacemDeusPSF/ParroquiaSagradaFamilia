@@ -824,6 +824,7 @@ body {
 
 <script>
 (function() {
+  // Dynamically position tab-nav below pd-back-bar on any device
   function fixTabNavTop() {
     var bar = document.getElementById('pd-back-bar');
     var nav = document.querySelector('.tab-nav');
@@ -831,6 +832,8 @@ body {
   }
   fixTabNavTop();
   window.addEventListener('resize', fixTabNavTop);
+  // Also run after fonts/layout settle
+  window.addEventListener('load', fixTabNavTop);
 })();
 </script>
 
@@ -2553,12 +2556,15 @@ function showCeremony(name) {
   document.getElementById('ceremony-' + name).classList.add('active');
   document.querySelector('.tab-btn.' + name).classList.add('active');
 
-  // Scroll so tab-nav sits exactly at top of viewport (below back-bar)
+  // Scroll so ceremony-index lands just below both sticky bars
   var backBar = document.getElementById('pd-back-bar');
   var tabNav  = document.querySelector('.tab-nav');
-  var backBarH = backBar ? backBar.offsetHeight : 0;
-  var tabTop   = tabNav.getBoundingClientRect().top + window.pageYOffset - backBarH;
-  window.scrollTo({ top: tabTop, behavior: 'smooth' });
+  var offset  = (backBar ? backBar.offsetHeight : 0) + (tabNav ? tabNav.offsetHeight : 0);
+  var index   = document.getElementById(name + '-index');
+  if (index) {
+    var top = index.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  }
 
   currentTheme = name;
   initParticles(name);
