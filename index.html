@@ -51,7 +51,7 @@
 <!-- ══════════════════════════════════════════
      CANCIONEROS / TIMELINE
 ══════════════════════════════════════════ -->
-<section id="cancioneros" style="padding-top: 4rem; scroll-margin-top: 60px;">
+<section id="cancioneros" style="padding-top: 4rem;">
   <p class="section-eyebrow">✦ año litúrgico ✦</p>
   <h2 class="section-title">Cancioneros</h2>
   <p class="section-lead">Selecciona el año y explora los cancioneros de cada ceremonia</p>
@@ -459,5 +459,40 @@ document.addEventListener('click', function(e) {
   }
 });
 </script>
+<script>
+(function() {
+  function fixScrollMargins() {
+    var nav = document.querySelector('.site-nav');
+    var offset = nav ? nav.offsetHeight : 0;
+    document.querySelectorAll('[id]').forEach(function(el) {
+      el.style.scrollMarginTop = offset + 'px';
+    });
+  }
+  fixScrollMargins();
+  window.addEventListener('resize', fixScrollMargins);
+  window.addEventListener('load', fixScrollMargins);
+})();
+</script>
+
+<script>
+// ── RETURN TO CANCIONERO ──────────────────────────
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var from   = params.get('from');
+  var names  = {
+    'semana_santa_2026':   'Semana Santa 2026',
+    'navidad_2025':        'Navidad 2025',
+    'vigilia_pascual_2024':'Vigilia Pascual 2024'
+  };
+  if (from && names[from]) {
+    var btn = document.createElement('a');
+    btn.id = 'pd-return-btn';
+    btn.href = 'cancioneros/' + from + '.html';
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>' + names[from];
+    document.body.appendChild(btn);
+  }
+})();
+</script>
+
 </body>
 </html>
