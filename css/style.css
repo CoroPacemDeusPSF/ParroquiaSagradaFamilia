@@ -29,11 +29,11 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'EB Garamond', serif;
-  font-size: 17px;
+  font-size: 1rem;
   line-height: 1.8;
   background: var(--cream);
   color: var(--brown);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ── HEADER ───────────────────────────────────── */
