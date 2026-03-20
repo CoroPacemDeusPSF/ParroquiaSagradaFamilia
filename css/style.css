@@ -825,3 +825,13 @@ section {
   margin-bottom: 1rem;
   text-align: left;
 }
+
+/* ── REP CORO ── */
+.rep-coro {
+  font-family: 'Proza Libre', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0.3rem 0 0.8rem 0;
+  letter-spacing: 0.05em;
+}
