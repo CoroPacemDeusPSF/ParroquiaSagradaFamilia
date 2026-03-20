@@ -863,6 +863,14 @@ body {
       </span>
     </div>
   </div>
+  <button id="rehearsal-badge" title="Modo Ensayo activo — toca para salir">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+  </button>
   <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
     <span></span><span></span><span></span>
   </button>
@@ -878,6 +886,17 @@ body {
   <div class="pd-nav-divider"></div>
 </div>
 
+
+<!-- ══ REHEARSAL CONFIRM DIALOG ══ -->
+<div id="rehearsal-confirm">
+  <div id="rehearsal-confirm-box">
+    <p>¿Volver al<br>modo público?</p>
+    <div class="confirm-btns">
+      <button id="confirm-yes">Salir</button>
+      <button id="confirm-no">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ PARTICLE CANVAS ══ -->
 <canvas id="particle-canvas"></canvas>
@@ -984,7 +1003,7 @@ body {
         <div class="song-number">01</div>
         <div class="song-header-text">
           <div class="song-moment-label">Procesión Inicial</div>
-          <div class="song-title">Los Niños Hebreos</div>
+          <div class="song-title">Los Niños Hebreos<a class="yt-play-btn" href="https://youtu.be/RnlCHrTqVB0?t=30" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1016,7 +1035,7 @@ body {
         <div class="song-number">02</div>
         <div class="song-header-text">
           <div class="song-moment-label">Entrada</div>
-          <div class="song-title">Shalom Hosanna</div>
+          <div class="song-title">Shalom Hosanna<a class="yt-play-btn" href="https://youtu.be/JR4CoRWHlQ8?t=10" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1082,7 +1101,7 @@ body {
         <div class="song-number">04</div>
         <div class="song-header-text">
           <div class="song-moment-label">Aclamación del Evangelio</div>
-          <div class="song-title">Gloria a Ti Oh Cristo</div>
+          <div class="song-title">Gloria a Ti Oh Cristo<a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=79" target="_blank" title="Voz 1" style="color:#1D6FD8;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=114" target="_blank" title="Voz 2" style="color:#C2185B;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=160" target="_blank" title="Voz 3" style="color:#7B1FA2;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1099,7 +1118,7 @@ body {
     <a class="back-link" id="r05" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">05</div>
+        <div class="song-number">06</div>
         <div class="song-header-text">
           <div class="song-moment-label">Ofertorio</div>
           <div class="song-title">Tomad Señor y Recibid</div>
@@ -1132,10 +1151,10 @@ body {
     <a class="back-link" id="r06" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">06</div>
+        <div class="song-number">07</div>
         <div class="song-header-text">
           <div class="song-moment-label">Santo</div>
-          <div class="song-title">Santo – Fones</div>
+          <div class="song-title">Santo – Fones<a class="yt-play-btn" href="https://youtu.be/Vwy0tw6u3Qw?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1160,7 +1179,7 @@ body {
     <a class="back-link" id="r07" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">07</div>
+        <div class="song-number">08</div>
         <div class="song-header-text">
           <div class="song-moment-label">Cordero</div>
           <div class="song-title">Cordero – Dynamis</div>
@@ -1192,7 +1211,7 @@ body {
     <a class="back-link" id="r08" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">08</div>
+        <div class="song-number">09</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Milagro de Amor</div>
@@ -1235,10 +1254,10 @@ body {
     <a class="back-link" id="r09" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">09</div>
+        <div class="song-number">10</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Divino Manjar</div>
+          <div class="song-title">Divino Manjar<a class="yt-play-btn" href="https://youtu.be/r8HKwwZjCl0?list=RDr8HKwwZjCl0&t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1277,7 +1296,7 @@ body {
     <a class="back-link" id="r10" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">10</div>
+        <div class="song-number">11</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Pescador de Hombres</div>
@@ -1322,10 +1341,10 @@ body {
     <a class="back-link" id="r11" href="#ramos-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">11</div>
+        <div class="song-number">12</div>
         <div class="song-header-text">
           <div class="song-moment-label">Salida</div>
-          <div class="song-title">Ave María (Verbum Panis)</div>
+          <div class="song-title">Ave María (Verbum Panis)<a class="yt-play-btn" href="https://youtu.be/oylNSK8o9KA?t=25" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1388,21 +1407,22 @@ body {
         <li><span class="idx-num">03</span><a href="#j03">Gloria – Palazón</a></li>
         <li class="index-moment-header"><span>Aclamación</span></li>
         <li><span class="idx-num">04</span><a href="#j04">Gloria a Ti Oh Cristo</a></li>
-        <li class="index-moment-header"><span>Ofertorio</span></li>
-        <li><span class="idx-num">05</span><a href="#j05">Cristo Mío</a></li>
-        <li class="index-moment-header"><span>Santo</span></li>
-        <li><span class="idx-num">06</span><a href="#j06">Santo – Alfonso Luna</a></li>
-        <li class="index-moment-header"><span>Cordero</span></li>
-        <li><span class="idx-num">07</span><a href="#j07">Oh Cordero de Dios</a></li>
         <li class="index-moment-header"><span>Lavatorio de Pies</span></li>
-        <li><span class="idx-num">08</span><a href="#j08">Recíbeme</a></li>
+        <li><span class="idx-num">05</span><a href="#j05">Lava mis Pies Señor</a></li>
+        <li><span class="idx-num">06</span><a href="#j06">Recíbeme</a></li>
+        <li class="index-moment-header"><span>Ofertorio</span></li>
+        <li><span class="idx-num">07</span><a href="#j07">Cristo Mío</a></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">08</span><a href="#j08">Santo – Alfonso Luna</a></li>
+        <li class="index-moment-header"><span>Cordero</span></li>
+        <li><span class="idx-num">09</span><a href="#j09">Oh Cordero de Dios</a></li>
         <li class="index-moment-header"><span>Comunión</span></li>
-        <li><span class="idx-num">09</span><a href="#j09">Me Has Seducido Señor</a></li>
-        <li><span class="idx-num">10</span><a href="#j10">En su Mesa hay Amor</a></li>
+        <li><span class="idx-num">10</span><a href="#j10">Me Has Seducido, Señor</a></li>
+        <li><span class="idx-num">11</span><a href="#j11">En su Mesa hay Amor</a></li>
         <li class="index-moment-header"><span>Procesión al Templo</span></li>
-        <li><span class="idx-num">11</span><a href="#j11">Oh Buen Jesús</a></li>
+        <li><span class="idx-num">12</span><a href="#j12">Oh Buen Jesús</a></li>
         <li class="index-moment-header"><span>Ingreso de Reserva al Monumento</span></li>
-        <li><span class="idx-num">12</span><a href="#j12">Cantemos al Amor de los Amores</a></li>
+        <li><span class="idx-num">13</span><a href="#j13">Cantemos al Amor de los Amores</a></li>
       </ol>
   </div>
 
@@ -1415,7 +1435,7 @@ body {
         <div class="song-number">01</div>
         <div class="song-header-text">
           <div class="song-moment-label">Entrada</div>
-          <div class="song-title">Verbum Panis</div>
+          <div class="song-title">Verbum Panis<a class="yt-play-btn" href="https://youtu.be/wp-t_98g2Ng?t=13" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1544,7 +1564,7 @@ body {
         <div class="song-number">04</div>
         <div class="song-header-text">
           <div class="song-moment-label">Aclamación del Evangelio</div>
-          <div class="song-title">Gloria a Ti Oh Cristo</div>
+          <div class="song-title">Gloria a Ti Oh Cristo<a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=79" target="_blank" title="Voz 1" style="color:#1D6FD8;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=114" target="_blank" title="Voz 2" style="color:#C2185B;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=160" target="_blank" title="Voz 3" style="color:#7B1FA2;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1557,11 +1577,62 @@ body {
     </div>
     <a class="back-link" href="#jueves-index">Volver al índice</a>
 
-    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
+    <div class="moment-header"><span class="moment-label">Lavatorio de Pies</span></div>
+
     <a class="back-link" id="j05" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
         <div class="song-number">05</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Lavatorio de Pies</div>
+          <div class="song-title">Lava mis Pies Señor<a class="yt-play-btn" href="https://youtu.be/SIQeiFSJsiQ?t=32" target="_blank" title="Ver referencia en YouTube" style="color:#7B1FA2;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Lava mis pies, Señor, lava mi alma,</p>
+          <p>lava mis pies, Señor, para ser digno de Ti.</p>
+          <p>Quiero lavar tus pies en mis hermanos,</p>
+          <p>quiero imitar tu amor viviendo para servir.</p>
+        </div>
+        <div class="strophe">
+          <p>1. Hoy te levantas de la Cena,</p>
+          <p>te quitas el manto, preparas el agua</p>
+          <p>y te arrodillas frente a mí,</p>
+          <p>me miras tan dulce y lleno de amor,</p>
+          <p>tomas mis pies y lavas mis pecados.</p>
+        </div>
+        <div class="strophe">
+          <p>2. Yo te pregunto: Señor,</p>
+          <p>¿me vas a lavar los pies a mí?</p>
+          <p>y me contestas tiernamente:</p>
+          <p>Tú ahora no puedes comprender</p>
+          <p>lo que Yo estoy haciendo, lo comprenderás después.</p>
+        </div>
+        <div class="strophe">
+          <p>3. Me descoloca verte así,</p>
+          <p>ver que el Maestro sirve al discípulo</p>
+          <p>y me niego a aceptar</p>
+          <p>que seas Tú quien me lave los pies a mí,</p>
+          <p>pero sé que si no lo haces no podré compartir contigo.</p>
+        </div>
+        <div class="jesus-quote">
+          <p>4. Entiendan lo que he hecho,</p>
+          <p>ustedes me llaman Maestro y Señor</p>
+          <p>y dicen la verdad.</p>
+          <p>Si Yo, siendo Señor y siendo Maestro</p>
+          <p>les he lavado los pies, háganlo también ustedes.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#jueves-index">Volver al índice</a>
+
+    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
+    <a class="back-link" id="j06" href="#jueves-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">06</div>
         <div class="song-header-text">
           <div class="song-moment-label">Ofertorio</div>
           <div class="song-title">Cristo Mío</div>
@@ -1597,10 +1668,10 @@ body {
     <a class="back-link" href="#jueves-index">Volver al índice</a>
 
     <div class="moment-header"><span class="moment-label">Santo</span></div>
-    <a class="back-link" id="j06" href="#jueves-index">Volver al índice</a>
+    <a class="back-link" id="j07" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">06</div>
+        <div class="song-number">07</div>
         <div class="song-header-text">
           <div class="song-moment-label">Santo</div>
           <div class="song-title">Santo – Alfonso Luna</div>
@@ -1631,10 +1702,10 @@ body {
     <a class="back-link" href="#jueves-index">Volver al índice</a>
 
     <div class="moment-header"><span class="moment-label">Cordero</span></div>
-    <a class="back-link" id="j07" href="#jueves-index">Volver al índice</a>
+    <a class="back-link" id="j08" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">07</div>
+        <div class="song-number">08</div>
         <div class="song-header-text">
           <div class="song-moment-label">Cordero</div>
           <div class="song-title">Oh Cordero de Dios</div>
@@ -1659,11 +1730,11 @@ body {
     </div>
     <a class="back-link" href="#jueves-index">Volver al índice</a>
 
-    <div class="moment-header"><span class="moment-label">Lavatorio de Pies</span></div>
-    <a class="back-link" id="j08" href="#jueves-index">Volver al índice</a>
+
+    <a class="back-link" id="j09" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">08</div>
+        <div class="song-number">09</div>
         <div class="song-header-text">
           <div class="song-moment-label">Lavatorio de Pies</div>
           <div class="song-title">Recíbeme</div>
@@ -1692,10 +1763,10 @@ body {
     <a class="back-link" href="#jueves-index">Volver al índice</a>
 
     <div class="moment-header"><span class="moment-label">Comunión</span></div>
-    <a class="back-link" id="j09" href="#jueves-index">Volver al índice</a>
+    <a class="back-link" id="j10" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">09</div>
+        <div class="song-number">10</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Me Has Seducido, Señor</div>
@@ -1737,10 +1808,10 @@ body {
     </div>
     <a class="back-link" href="#jueves-index">Volver al índice</a>
 
-    <a class="back-link" id="j10" href="#jueves-index">Volver al índice</a>
+    <a class="back-link" id="j11" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">10</div>
+        <div class="song-number">11</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">En su Mesa hay Amor</div>
@@ -1776,10 +1847,10 @@ body {
 
     <div class="moment-header"><span class="moment-label">Procesión al Templo del Reposo</span></div>
     <p class="moment-note">Mientras la procesión se dirige al Templo</p>
-    <a class="back-link" id="j11" href="#jueves-index">Volver al índice</a>
+    <a class="back-link" id="j12" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">11</div>
+        <div class="song-number">12</div>
         <div class="song-header-text">
           <div class="song-moment-label">Procesión al Templo del Reposo</div>
           <div class="song-title">Oh Buen Jesús</div>
@@ -1828,13 +1899,13 @@ body {
 
     <div class="moment-header"><span class="moment-label">Ingreso de Reserva al Monumento</span></div>
     <p class="moment-note">Ingreso de Reserva al Monumento</p>
-    <a class="back-link" id="j12" href="#jueves-index">Volver al índice</a>
+    <a class="back-link" id="j13" href="#jueves-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">12</div>
+        <div class="song-number">13</div>
         <div class="song-header-text">
           <div class="song-moment-label">Ingreso de Reserva al Monumento</div>
-          <div class="song-title">Cantemos al Amor de los Amores</div>
+          <div class="song-title">Cantemos al Amor de los Amores<a class="yt-play-btn" href="https://youtu.be/Rb1cYPb1ogY?t=36" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -2051,7 +2122,7 @@ body {
         <div class="song-number">04</div>
         <div class="song-header-text">
           <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Pan y Vino de Amor</div>
+          <div class="song-title">Pan y Vino de Amor<a class="yt-play-btn" href="https://www.youtube.com/watch?v=UqY7SzeULt8&t=28s" target="_blank" title="Ver referencia en YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -2082,7 +2153,7 @@ body {
     <a class="back-link" id="v05" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">05</div>
+        <div class="song-number">06</div>
         <div class="song-header-text">
           <div class="song-moment-label">Santo</div>
           <div class="song-title">Sanctus – Verbum Panis</div>
@@ -2110,7 +2181,7 @@ body {
     <a class="back-link" id="v06" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">06</div>
+        <div class="song-number">07</div>
         <div class="song-header-text">
           <div class="song-moment-label">Cordero</div>
           <div class="song-title">Cordero – Mejía</div>
@@ -2138,7 +2209,7 @@ body {
     <a class="back-link" id="v07" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">07</div>
+        <div class="song-number">08</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Camino Firme</div>
@@ -2193,7 +2264,7 @@ body {
     <a class="back-link" id="v08" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">08</div>
+        <div class="song-number">09</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Te Hiciste Pan</div>
@@ -2247,7 +2318,7 @@ body {
     <a class="back-link" id="v09" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">09</div>
+        <div class="song-number">10</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Milagro de Amor</div>
@@ -2286,7 +2357,7 @@ body {
     <a class="back-link" id="v10" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">10</div>
+        <div class="song-number">11</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
           <div class="song-title">Pan de Vida, Pan de Fe</div>
@@ -2335,7 +2406,7 @@ body {
     <a class="back-link" id="v11" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">11</div>
+        <div class="song-number">12</div>
         <div class="song-header-text">
           <div class="song-moment-label">Salida</div>
           <div class="song-title">Tus Maravillas</div>
@@ -2378,7 +2449,7 @@ body {
     <a class="back-link" id="v12" href="#vigilia-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">12</div>
+        <div class="song-number">13</div>
         <div class="song-header-text">
           <div class="song-moment-label">Animación</div>
           <div class="song-title">Mi Dios Está Vivo</div>
@@ -2936,6 +3007,119 @@ initParticles('ramos');
   from { transform: translateY(2px) rotate(-10deg); }
   to   { transform: translateY(-4px) rotate(5deg); }
 }
+
+/* ── REHEARSAL MODE ── */
+#rehearsal-badge {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.6rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+#rehearsal-badge.active { display: flex; }
+
+#rehearsal-badge svg {
+  width: 22px; height: 22px;
+  color: #fff;
+  background: #7C3AED;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 0 0 0 rgba(124,58,237,0.7);
+  animation: rehearsalPulse 1.4s ease-in-out infinite;
+}
+@keyframes rehearsalPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(124,58,237,0.7); }
+  70%  { box-shadow: 0 0 0 8px rgba(124,58,237,0); }
+  100% { box-shadow: 0 0 0 0 rgba(124,58,237,0); }
+}
+
+.yt-play-btn {
+  display: none;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.6rem;
+  color: #FF0000;
+  text-decoration: none;
+  vertical-align: middle;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.yt-play-btn:hover { opacity: 1; }
+.yt-play-btn svg { width: 20px; height: 20px; }
+
+body.rehearsal-mode .yt-play-btn { display: inline-flex; }
+
+/* Confirm dialog */
+#rehearsal-confirm {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+}
+#rehearsal-confirm.open { display: flex; }
+#rehearsal-confirm-box {
+  background: #fff;
+  border-radius: 4px;
+  padding: 2rem;
+  max-width: 300px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+#rehearsal-confirm-box p {
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: #3D3530;
+  margin-bottom: 1.5rem;
+}
+.confirm-btns { display: flex; gap: 0.8rem; justify-content: center; }
+.confirm-btns button {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.2rem;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+}
+#confirm-yes { background: #7C3AED; color: #fff; border-color: #7C3AED; }
+#confirm-yes:hover { background: #6D28D9; }
+#confirm-no  { background: transparent; color: #3D3530; border-color: rgba(61,53,48,0.3); }
+#confirm-no:hover { background: rgba(61,53,48,0.05); }
+
+/* ── JESUS QUOTE ── */
+.jesus-quote {
+  border-left: 3px solid var(--jueves-gold, #C8943C);
+  padding: 0.8rem 1rem 0.8rem 2rem;
+  margin: 1rem 0;
+  background: rgba(200,148,60,0.05);
+  border-radius: 0 2px 2px 0;
+  position: relative;
+}
+.jesus-quote::before {
+  content: '\201C';
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  color: rgba(200,148,60,0.35);
+  position: absolute;
+  top: -0.3rem;
+  left: 0.3rem;
+  line-height: 1;
+}
+.jesus-quote p {
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #1A1530;
+}
 </style>
 
 <script>
@@ -2968,6 +3152,56 @@ initParticles('ramos');
   });
 
   window.pdCloseMenu = closeMenu;
+})();
+</script>
+
+<script>
+// ── REHEARSAL MODE ────────────────────────────────
+(function() {
+  var CLICKS_NEEDED = 5;
+  var CLICK_WINDOW  = 2000; // ms
+  var clicks = 0, timer = null;
+  var active = false;
+
+  // The secret trigger: 5 clicks on the ceremony cover icon
+  document.addEventListener('click', function(e) {
+    var icon = e.target.closest('.cover-cross');
+    if (!icon) return;
+    clicks++;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function() { clicks = 0; }, CLICK_WINDOW);
+    if (clicks >= CLICKS_NEEDED) {
+      clicks = 0;
+      if (!active) activateRehearsal();
+    }
+  });
+
+  function activateRehearsal() {
+    active = true;
+    document.body.classList.add('rehearsal-mode');
+    document.getElementById('rehearsal-badge').classList.add('active');
+  }
+
+  function deactivateRehearsal() {
+    active = false;
+    document.body.classList.remove('rehearsal-mode');
+    document.getElementById('rehearsal-badge').classList.remove('active');
+    document.getElementById('rehearsal-confirm').classList.remove('open');
+  }
+
+  // Badge click → show confirm dialog
+  document.getElementById('rehearsal-badge').addEventListener('click', function() {
+    document.getElementById('rehearsal-confirm').classList.add('open');
+  });
+
+  document.getElementById('confirm-yes').addEventListener('click', deactivateRehearsal);
+  document.getElementById('confirm-no').addEventListener('click', function() {
+    document.getElementById('rehearsal-confirm').classList.remove('open');
+  });
+  // Click outside dialog box closes it
+  document.getElementById('rehearsal-confirm').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
 })();
 </script>
 </body>
