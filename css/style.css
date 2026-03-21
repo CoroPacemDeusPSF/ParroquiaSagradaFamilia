@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&display=swap');
+
 /* ── EDWARDIAN SCRIPT ITC ── */
 @font-face {
   font-family: 'Edwardian Script ITC';
@@ -818,12 +820,12 @@ section {
   margin-bottom: 1.5rem;
 }
 .about-text {
-  font-family: 'EB Garamond', serif;
-  font-size: 1.08rem;
-  line-height: 1.85;
+  font-family: 'Poiret One', cursive;
+  font-size: 1.2rem;
+  line-height: 2;
   color: var(--brown-lt);
   margin-bottom: 1rem;
-  text-align: left;
+  text-align: center;
 }
 
 /* ── REP CORO ── */
