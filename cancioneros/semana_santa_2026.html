@@ -851,6 +851,10 @@ body {
     ← Coro Pacem Deus
   </a>
   <span style="margin-left:auto;"></span>
+  <div id="font-size-controls" style="display:flex;align-items:center;gap:0.3rem;">
+    <button class="font-size-btn" id="font-decrease" title="Reducir letra">A−</button>
+    <button class="font-size-btn" id="font-increase" title="Agrandar letra">A+</button>
+  </div>
   <div class="pd-share-wrap" style="position:relative;">
     <button class="pd-share-btn" onclick="pdShare(this)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -3896,6 +3900,113 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
   transition: all 0.2s;
 }
 .transpose-reset:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+
+/* Font size controls */
+.font-size-btn {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.65rem;
+  color: #C8943C;
+  background: rgba(200,148,60,0.08);
+  border: 1px solid rgba(200,148,60,0.35);
+  border-radius: 3px;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.font-size-btn:hover { background: rgba(200,148,60,0.2); }
+
+/* Print chords button */
+.print-chords-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.print-chords-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.print-chords-btn svg { width: 12px; height: 12px; }
+
+/* Fullscreen chords */
+.chords-block.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  margin: 0;
+  background: #1a1a1a;
+  overflow-y: auto;
+  padding: 1rem;
+  display: block;
+}
+.chords-block.fullscreen pre {
+  background: transparent;
+  border-left: none;
+  color: #e0d0b0;
+  font-size: 0.9rem;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+.chords-block.fullscreen .transpose-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1a1a1a;
+  padding: 0.8rem 0;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+}
+.chords-block.fullscreen .chord { color: #E8C040; }
+.fullscreen-close {
+  display: none;
+  position: fixed;
+  top: 0.8rem;
+  right: 1rem;
+  z-index: 100001;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,148,60,0.4);
+  background: rgba(30,30,30,0.95);
+  color: #C8943C;
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.fullscreen-close:hover { background: rgba(200,148,60,0.2); }
+.chords-block.fullscreen .fullscreen-close { display: flex; }
+
+/* Fullscreen button in transpose bar */
+.fullscreen-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.fullscreen-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.fullscreen-btn svg { width: 12px; height: 12px; }
 </style>
 
 <script>
@@ -4137,10 +4248,13 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
     var bar = document.createElement('div');
     bar.className = 'transpose-bar';
     bar.innerHTML =
+      '<button class="fullscreen-close" title="Cerrar">✕</button>' +
       '<button class="transpose-btn" data-dir="-1">−</button>' +
       '<span class="transpose-label" id="transpose-val-' + blockId + '">Original</span>' +
       '<button class="transpose-btn" data-dir="1">+</button>' +
-      '<button class="transpose-reset">Reset</button>';
+      '<button class="transpose-reset">Reset</button>' +
+      '<button class="fullscreen-btn" data-block="' + blockId + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir</button>' +
+      '<button class="print-chords-btn" data-block="' + blockId + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir</button>';
     block.insertBefore(bar, block.firstChild);
 
     var current = 0;
@@ -4149,18 +4263,82 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
     bar.addEventListener('click', function(e) {
       var btn = e.target.closest('.transpose-btn');
       var reset = e.target.closest('.transpose-reset');
+      var print = e.target.closest('.print-chords-btn');
+      var expand = e.target.closest('.fullscreen-btn');
+      var close = e.target.closest('.fullscreen-close');
 
       if (btn) {
         current += parseInt(btn.dataset.dir);
         if (current > 11) current = -11;
         if (current < -11) current = 11;
+        applyTranspose(blockId, current);
+        label.textContent = current === 0 ? 'Original' : (current > 0 ? '+' + current : '' + current);
       } else if (reset) {
         current = 0;
-      } else return;
-
-      applyTranspose(blockId, current);
-      label.textContent = current === 0 ? 'Original' : (current > 0 ? '+' + current : '' + current);
+        applyTranspose(blockId, current);
+        label.textContent = 'Original';
+      } else if (print) {
+        printChords(blockId);
+      } else if (expand) {
+        block.classList.add('fullscreen');
+        document.body.style.overflow = 'hidden';
+        block.scrollTop = 0;
+      } else if (close) {
+        block.classList.remove('fullscreen');
+        document.body.style.overflow = '';
+      }
     });
+  }
+
+  // ── Print chords ──
+  function printChords(blockId) {
+    var block = document.getElementById('chords-block-' + blockId);
+    if (!block) return;
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    // Get the song title from the closest song-card
+    var card = block.closest('.song-card');
+    var titleEl = card ? card.querySelector('.song-title') : null;
+    var title = titleEl ? titleEl.textContent.replace(/[𝄞▾▴]/g, '').trim() : 'Acordes';
+
+    // Get current chord content (already transposed if applicable)
+    var content = pre.innerHTML;
+
+    // Analyze line lengths to decide columns
+    var lines = pre.textContent.split('\n');
+    var maxLen = 0;
+    lines.forEach(function(l) { if (l.length > maxLen) maxLen = l.length; });
+    var useColumns = maxLen < 50;
+
+    var win = window.open('', '_blank');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<title>' + title + ' — Acordes</title>' +
+      '<style>' +
+      '* { margin: 0; padding: 0; box-sizing: border-box; }' +
+      'body { font-family: "Courier New", monospace; font-size: 11px; line-height: 1.6; padding: 1.5cm; color: #000; }' +
+      'h1 { font-family: Georgia, serif; font-size: 16px; text-align: center; margin-bottom: 0.3cm; font-weight: normal; }' +
+      '.subtitle { font-family: Georgia, serif; font-size: 10px; text-align: center; color: #666; margin-bottom: 0.6cm; }' +
+      'hr { border: none; border-top: 1px solid #ccc; margin-bottom: 0.5cm; }' +
+      '.chord-content { white-space: pre; overflow: visible; ' +
+      (useColumns ? 'column-count: 2; column-gap: 1.5cm; column-rule: 1px solid #ddd;' : '') +
+      ' }' +
+      '.chord-content b { font-weight: bold; }' +
+      '.chord { color: #000; font-weight: bold; }' +
+      'pre { white-space: pre; margin: 0; font-family: inherit; font-size: inherit; line-height: inherit; }' +
+      /* Prevent breaks inside lyric+chord pairs */
+      '@media print {' +
+      '  body { padding: 1cm; }' +
+      '  .chord-content { orphans: 2; widows: 2; }' +
+      '}' +
+      '</style></head><body>' +
+      '<h1>' + title + '</h1>' +
+      '<div class="subtitle">Coro Pacem Deus — Parroquia de la Sagrada Familia</div>' +
+      '<hr>' +
+      '<div class="chord-content">' + content + '</div>' +
+      '</body></html>');
+    win.document.close();
+    setTimeout(function() { win.print(); }, 400);
   }
 
   // ── Toggle function (public) ──
@@ -4173,6 +4351,32 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
     if (btn) btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
     if (opening) injectTransposeBar(id);
   };
+})();
+</script>
+
+<script>
+// ── FONT SIZE CONTROL ─────────────────────────────
+(function() {
+  var STEP = 0.05;  // rem
+  var MIN  = 0.7;
+  var MAX  = 1.6;
+  var current = 1.0; // 1rem base
+
+  var targets = '.song-body, .chords-block pre';
+
+  function applySize() {
+    document.querySelectorAll(targets).forEach(function(el) {
+      el.style.fontSize = current + 'rem';
+    });
+  }
+
+  document.getElementById('font-increase').addEventListener('click', function() {
+    if (current < MAX) { current = Math.round((current + STEP) * 100) / 100; applySize(); }
+  });
+
+  document.getElementById('font-decrease').addEventListener('click', function() {
+    if (current > MIN) { current = Math.round((current - STEP) * 100) / 100; applySize(); }
+  });
 })();
 </script>
 </body>
