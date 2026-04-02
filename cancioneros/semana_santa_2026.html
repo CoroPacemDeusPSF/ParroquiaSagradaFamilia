@@ -568,6 +568,44 @@ body {
   line-height: 1;
   flex-shrink: 0;
   opacity: 0.92;
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.2s;
+}
+.song-number:hover { opacity: 1; }
+.song-number::after {
+  content: '🔗';
+  position: absolute;
+  font-size: 0.5rem;
+  bottom: -0.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.song-number:hover::after { opacity: 0.5; }
+
+/* Link copied toast */
+.link-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(200,148,60,0.95);
+  color: #000;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  z-index: 100000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.link-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 .ceremony.ramos  .song-number { color: #C8A830; }
 .ceremony.jueves .song-number { color: #FF7A45; }
@@ -4430,6 +4468,77 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
 
   document.getElementById('font-decrease').addEventListener('click', function() {
     if (current > MIN) { current = Math.round((current - STEP) * 100) / 100; applySize(); }
+  });
+})();
+</script>
+
+<script>
+// ── DEEP LINK TO SONGS ────────────────────────────
+(function() {
+  // Map song ID prefix → ceremony name for showCeremony()
+  var CEREMONY_MAP = { 'r': 'ramos', 'j': 'jueves', 'v': 'vigilia' };
+
+  // ── On page load: handle hash deep link ──
+  var hash = window.location.hash.replace('#', '');
+  if (hash && /^[rjv]\d{2}$/.test(hash)) {
+    var ceremony = CEREMONY_MAP[hash.charAt(0)];
+    if (ceremony) {
+      // Activate the correct ceremony tab
+      if (typeof showCeremony === 'function') showCeremony(ceremony);
+
+      // Scroll to the song after layout settles
+      setTimeout(function() {
+        var el = document.getElementById(hash);
+        if (el) {
+          var backBar = document.getElementById('pd-back-bar');
+          var tabNav  = document.querySelector('.tab-nav');
+          var offset  = (backBar ? backBar.offsetHeight : 0) + (tabNav ? tabNav.offsetHeight : 0) + 10;
+          var top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+        }
+      }, 300);
+    }
+  }
+
+  // ── Toast element ──
+  var toast = document.createElement('div');
+  toast.className = 'link-toast';
+  toast.textContent = '✓ Link copiado';
+  document.body.appendChild(toast);
+  var toastTimer;
+
+  function showToast() {
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 1800);
+  }
+
+  // ── Make song numbers clickable → copy direct link ──
+  document.querySelectorAll('.song-number').forEach(function(numEl) {
+    numEl.addEventListener('click', function() {
+      // Find the song ID from the preceding back-link
+      var card = numEl.closest('.song-card');
+      if (!card) return;
+      var backLink = card.previousElementSibling;
+      while (backLink && !backLink.id) backLink = backLink.previousElementSibling;
+      if (!backLink || !backLink.id) return;
+
+      var songId = backLink.id;
+      var url = window.location.origin + window.location.pathname + '#' + songId;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(showToast);
+      } else {
+        // Fallback
+        var tmp = document.createElement('textarea');
+        tmp.value = url;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+        showToast();
+      }
+    });
   });
 })();
 </script>
