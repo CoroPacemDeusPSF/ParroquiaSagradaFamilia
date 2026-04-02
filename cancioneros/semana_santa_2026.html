@@ -3840,6 +3840,56 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 }
 .chord { color: #C8943C; font-weight: bold; }
 body.rehearsal-mode .chords-toggle { display: inline-block; }
+
+/* Transpose controls */
+.transpose-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.transpose-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,148,60,0.5);
+  background: rgba(200,148,60,0.1);
+  color: #C8943C;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+  padding: 0;
+}
+.transpose-btn:hover { background: rgba(200,148,60,0.25); }
+.transpose-label {
+  color: #C8943C;
+  min-width: 3rem;
+  text-align: center;
+  font-weight: bold;
+}
+.transpose-reset {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  margin-left: 0.3rem;
+  transition: all 0.2s;
+}
+.transpose-reset:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
 </style>
 
 <script>
@@ -3947,15 +3997,177 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
 })();
 </script>
 <script>
-// ── CHORDS TOGGLE ─────────────────────────────────
-function toggleChords(id, forceOpen) {
-  var block  = document.getElementById('chords-block-' + id);
-  var btn    = document.getElementById('chords-toggle-' + id);
-  if (!block) return;
-  var opening = (forceOpen === true) ? true : !block.classList.contains('open');
-  block.classList.toggle('open', opening);
-  if (btn) btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
-}
+// ── CHORDS TOGGLE + TRANSPOSE ─────────────────────
+(function() {
+  // ── Chromatic scale (Latin notation) ──
+  var NOTES = ['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
+  // Flats → sharps mapping for lookup
+  var FLAT_MAP = {'REb':'DO#','MIb':'RE#','FAb':'MI','SOLb':'FA#','LAb':'SOL#','SIb':'LA#','DOb':'SI'};
+
+  // Parse a chord string into { root, rootIndex, suffix, bass, bassIndex }
+  function parseChord(txt) {
+    var t = txt.trim();
+    if (!t) return null;
+
+    // Split on slash for bass note (but not at position 0)
+    var mainPart = t, bassPart = '';
+    var slashIdx = t.indexOf('/');
+    if (slashIdx > 0) {
+      mainPart = t.substring(0, slashIdx);
+      bassPart = t.substring(slashIdx + 1);
+    }
+
+    var rootInfo = extractNote(mainPart);
+    if (!rootInfo) return null;
+
+    var bassInfo = bassPart ? extractNote(bassPart) : null;
+
+    return {
+      root: rootInfo.note,
+      rootIndex: rootInfo.index,
+      rootCase: rootInfo.originalCase,
+      rootSystem: rootInfo.system || 'latin',
+      suffix: mainPart.substring(rootInfo.length),
+      bass: bassInfo ? bassInfo.note : '',
+      bassIndex: bassInfo ? bassInfo.index : -1,
+      bassCase: bassInfo ? bassInfo.originalCase : '',
+      bassSystem: bassInfo ? (bassInfo.system || 'latin') : 'latin',
+      bassSuffix: bassInfo ? bassPart.substring(bassInfo.length) : '',
+      hasSlash: slashIdx > 0
+    };
+  }
+
+  // Extract root note from beginning of string
+  function extractNote(s) {
+    var upper = s.toUpperCase();
+    // Latin notation: try 3-char notes first (SOL), then 2-char (DO, RE, MI, FA, LA, SI)
+    var latin = ['SOL#','SOLb','SOL','DO#','DOb','RE#','REb','MI#','MIb','FA#','FAb','LA#','LAb','SI#','SIb','SI','LA','MI','FA','DO','RE'];
+    for (var i = 0; i < latin.length; i++) {
+      if (upper.indexOf(latin[i]) === 0) {
+        var note = latin[i];
+        // Normalize flats to sharps
+        if (FLAT_MAP[note]) note = FLAT_MAP[note];
+        // Normalize enharmonics (MI# = FA, SI# = DO, DOb = SI, FAb = MI)
+        if (note === 'MI#') note = 'FA';
+        if (note === 'SI#') note = 'DO';
+        var idx = NOTES.indexOf(note);
+        if (idx < 0) continue;
+        return { note: note, index: idx, length: latin[i].length, originalCase: s.substring(0, latin[i].length), system: 'latin' };
+      }
+    }
+    // English notation: C, D, E, F, G, A, B (with # or b)
+    var ENG_MAP = {'C':'DO','C#':'DO#','Cb':'SI','D':'RE','D#':'RE#','Db':'DO#','E':'MI','E#':'FA','Eb':'RE#','F':'FA','F#':'FA#','Fb':'MI','G':'SOL','G#':'SOL#','Gb':'FA#','A':'LA','A#':'LA#','Ab':'SOL#','B':'SI','B#':'DO','Bb':'LA#'};
+    var eng = ['G#','Gb','Ab','Bb','C#','Cb','D#','Db','E#','Eb','F#','Fb','A','B','C','D','E','F','G'];
+    for (var i = 0; i < eng.length; i++) {
+      if (upper.indexOf(eng[i]) === 0) {
+        var mapped = ENG_MAP[eng[i]];
+        if (!mapped) continue;
+        var idx = NOTES.indexOf(mapped);
+        if (idx < 0) continue;
+        return { note: mapped, index: idx, length: eng[i].length, originalCase: s.substring(0, eng[i].length), system: 'english' };
+      }
+    }
+    return null;
+  }
+
+  // Reverse map: Latin note → English
+  var LATIN_TO_ENG = {'DO':'C','DO#':'C#','RE':'D','RE#':'D#','MI':'E','FA':'F','FA#':'F#','SOL':'G','SOL#':'G#','LA':'A','LA#':'A#','SI':'B'};
+
+  // Transpose a note index by semitones
+  function transposeIndex(idx, semitones) {
+    return ((idx + semitones) % 12 + 12) % 12;
+  }
+
+  // Reconstruct chord with case and notation system matching
+  function formatNote(noteIndex, originalCase, system) {
+    var note = NOTES[noteIndex];
+    // If original was English notation, output in English
+    if (system === 'english') {
+      var eng = LATIN_TO_ENG[note] || note;
+      if (originalCase && originalCase === originalCase.toLowerCase()) return eng.toLowerCase();
+      return eng;
+    }
+    // Latin notation: match case style
+    if (originalCase && originalCase === originalCase.toLowerCase()) return note.toLowerCase();
+    if (originalCase && originalCase.length > 1 && originalCase[0] === originalCase[0].toUpperCase() && originalCase[1] === originalCase[1].toLowerCase()) {
+      return note.charAt(0) + note.substring(1).toLowerCase();
+    }
+    return note;
+  }
+
+  function transposeChord(txt, semitones) {
+    var parsed = parseChord(txt);
+    if (!parsed) return txt;
+
+    var newRoot = transposeIndex(parsed.rootIndex, semitones);
+    var result = formatNote(newRoot, parsed.rootCase, parsed.rootSystem) + parsed.suffix;
+
+    if (parsed.hasSlash) {
+      var newBass = transposeIndex(parsed.bassIndex, semitones);
+      result += '/' + formatNote(newBass, parsed.bassCase, parsed.bassSystem) + parsed.bassSuffix;
+    }
+
+    return result;
+  }
+
+  // Store originals and apply transpose
+  function applyTranspose(blockId, semitones) {
+    var block = document.getElementById('chords-block-' + blockId);
+    if (!block) return;
+
+    var chords = block.querySelectorAll('.chord');
+    chords.forEach(function(el) {
+      // Store original on first call
+      if (!el.dataset.original) el.dataset.original = el.textContent;
+      el.textContent = semitones === 0 ? el.dataset.original : transposeChord(el.dataset.original, semitones);
+    });
+  }
+
+  // Inject transpose bar into a block
+  function injectTransposeBar(blockId) {
+    var block = document.getElementById('chords-block-' + blockId);
+    if (!block || block.querySelector('.transpose-bar')) return;
+
+    var bar = document.createElement('div');
+    bar.className = 'transpose-bar';
+    bar.innerHTML =
+      '<button class="transpose-btn" data-dir="-1">−</button>' +
+      '<span class="transpose-label" id="transpose-val-' + blockId + '">Original</span>' +
+      '<button class="transpose-btn" data-dir="1">+</button>' +
+      '<button class="transpose-reset">Reset</button>';
+    block.insertBefore(bar, block.firstChild);
+
+    var current = 0;
+    var label = bar.querySelector('.transpose-label');
+
+    bar.addEventListener('click', function(e) {
+      var btn = e.target.closest('.transpose-btn');
+      var reset = e.target.closest('.transpose-reset');
+
+      if (btn) {
+        current += parseInt(btn.dataset.dir);
+        if (current > 11) current = -11;
+        if (current < -11) current = 11;
+      } else if (reset) {
+        current = 0;
+      } else return;
+
+      applyTranspose(blockId, current);
+      label.textContent = current === 0 ? 'Original' : (current > 0 ? '+' + current : '' + current);
+    });
+  }
+
+  // ── Toggle function (public) ──
+  window.toggleChords = function(id, forceOpen) {
+    var block = document.getElementById('chords-block-' + id);
+    var btn   = document.getElementById('chords-toggle-' + id);
+    if (!block) return;
+    var opening = (forceOpen === true) ? true : !block.classList.contains('open');
+    block.classList.toggle('open', opening);
+    if (btn) btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
+    if (opening) injectTransposeBar(id);
+  };
+})();
 </script>
 </body>
 </html>
