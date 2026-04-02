@@ -4007,6 +4007,39 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
 }
 .fullscreen-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
 .fullscreen-btn svg { width: 12px; height: 12px; }
+
+/* Browser fullscreen pseudo-class */
+.chords-block:fullscreen,
+.chords-block:-webkit-full-screen {
+  background: #1a1a1a;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.chords-block:fullscreen pre,
+.chords-block:-webkit-full-screen pre {
+  background: transparent;
+  border-left: none;
+  color: #e0d0b0;
+  font-size: 0.9rem;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+.chords-block:fullscreen .chord,
+.chords-block:-webkit-full-screen .chord { color: #E8C040; }
+.chords-block:fullscreen .transpose-bar,
+.chords-block:-webkit-full-screen .transpose-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1a1a1a;
+  padding: 0.8rem 0;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+}
+.chords-block:fullscreen .fullscreen-close,
+.chords-block:-webkit-full-screen .fullscreen-close { display: flex; }
 </style>
 
 <script>
@@ -4283,9 +4316,17 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
         block.classList.add('fullscreen');
         document.body.style.overflow = 'hidden';
         block.scrollTop = 0;
+        // Fullscreen API — oculta barra del navegador
+        var el = block;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
       } else if (close) {
         block.classList.remove('fullscreen');
         document.body.style.overflow = '';
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
       }
     });
   }
@@ -4339,6 +4380,19 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
       '</body></html>');
     win.document.close();
     setTimeout(function() { win.print(); }, 400);
+  }
+
+  // Clean up if user exits fullscreen via Escape or browser gesture
+  document.addEventListener('fullscreenchange', handleFSChange);
+  document.addEventListener('webkitfullscreenchange', handleFSChange);
+  function handleFSChange() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      var fs = document.querySelector('.chords-block.fullscreen');
+      if (fs) {
+        fs.classList.remove('fullscreen');
+        document.body.style.overflow = '';
+      }
+    }
   }
 
   // ── Toggle function (public) ──
