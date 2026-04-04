@@ -13,7 +13,6 @@
 </script>
 <title>Cancionero Dominical – Coro Pacem Deus</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-<script src="data/chord-overrides.js"></script>
 <style>
 
 /* ═══════════════════════════════════════════════
@@ -484,8 +483,8 @@ body {
 .moment-header::before, .moment-header::after {
   content: '';
   flex: 1;
-  height: 1px;
-  opacity: 0.35;
+  height: 2px;
+  opacity: 0.6;
 }
 .ceremony.ramos  .moment-header::before,
 .ceremony.ramos  .moment-header::after { background: linear-gradient(90deg, transparent, #C8A830, transparent); }
@@ -496,7 +495,7 @@ body {
 
 .moment-label {
   font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -752,7 +751,7 @@ body {
   .toc-moment-header span,
   .index-moment-header span {
     font-family: 'Cinzel Decorative', 'Cinzel', serif;
-    font-size: 0.58rem;
+    font-size: 0.78rem;
     letter-spacing: 0.3em;
     color: var(--gold, #C8A830);
     text-transform: uppercase;
@@ -1387,7 +1386,8 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   background: linear-gradient(90deg, rgba(42,74,32,0.4), transparent);
   border-left-color: #6B9E4A;
 }
-.ceremony.dominical .moment-header::after { background: linear-gradient(90deg, transparent, rgba(107,158,74,0.3), transparent); }
+.ceremony.dominical .moment-header::before,
+.ceremony.dominical .moment-header::after { background: linear-gradient(90deg, transparent, rgba(139,192,96,0.5), transparent); }
 .ceremony.dominical .moment-label { color: #8BC060; }
 
 /* ── Song cards ── */
@@ -1609,7 +1609,6 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 <div id="chord-editor-overlay">
   <div id="chord-editor-toolbar">
     <span id="chord-editor-title">Modo Edición</span>
-    <button class="editor-btn" id="editor-export-btn" style="border-color:#4A90D9;color:#4A90D9;">Exportar overrides</button>
     <button class="editor-btn" id="editor-reset-btn">Restaurar original</button>
     <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
     <button class="editor-btn" id="editor-save-btn">Guardar</button>
@@ -5201,6 +5200,8 @@ Dios del Amor
 </script>
 
 <script>
+var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
+
 // ── CHORD EDITOR MODE ─────────────────────────────
 (function() {
   var overlay    = document.getElementById('chord-editor-overlay');
@@ -5383,10 +5384,13 @@ Dios del Amor
       var pre = block.querySelector('pre');
       if (pre) pre.innerHTML = originalHtml;
     }
-    // Remove from localStorage
-    try { localStorage.removeItem('chord-edit-' + currentBlockId); } catch(e) {}
+    // Remove from Firebase and cache
+    fetch(FIREBASE_URL + '/chord-overrides/' + currentBlockId + '.json', {
+      method: 'DELETE'
+    }).catch(function() {});
+    try { localStorage.removeItem('chord-cloud-' + currentBlockId); } catch(e) {}
     textarea.value = htmlToText(originalHtml || '');
-    status.textContent = '✓ Restaurado al original';
+    status.textContent = '✓ Restaurado al original (nube actualizada)';
     status.className = 'success';
   });
 
@@ -5397,66 +5401,6 @@ Dios del Amor
     originalHtml = null;
   }
 
-  // ── EXPORT OVERRIDES TO FILE ──
-  document.getElementById('editor-export-btn').addEventListener('click', function() {
-    var overrides = {};
-    var count = 0;
-
-    // Collect ALL localStorage chord edits
-    try {
-      for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        if (key && key.startsWith('chord-edit-')) {
-          var id = key.replace('chord-edit-', '');
-          overrides[id] = localStorage.getItem(key);
-          count++;
-        }
-      }
-    } catch(e) {}
-
-    if (count === 0) {
-      status.textContent = 'No hay ediciones para exportar.';
-      status.className = 'error';
-      return;
-    }
-
-    // Build the JS file content
-    var fileContent = '// ══════════════════════════════════════════\n';
-    fileContent += '// CHORD OVERRIDES — Cancionero Dominical\n';
-    fileContent += '// Generado desde el Modo Edición\n';
-    fileContent += '// Este archivo tiene prioridad sobre los acordes inline del HTML\n';
-    fileContent += '// ══════════════════════════════════════════\n\n';
-    fileContent += 'var CHORD_OVERRIDES = {\n';
-
-    var keys = Object.keys(overrides).sort();
-    keys.forEach(function(id, idx) {
-      // Escape the HTML content for safe JS string
-      var escaped = overrides[id]
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/\n/g, '\\n')
-        .replace(/\r/g, '');
-      fileContent += "  '" + id + "': '" + escaped + "'";
-      fileContent += (idx < keys.length - 1) ? ',\n' : '\n';
-    });
-
-    fileContent += '};\n';
-
-    // Trigger download
-    var blob = new Blob([fileContent], { type: 'application/javascript' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'chord-overrides.js';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    status.textContent = '✓ Exportado: chord-overrides.js (' + count + ' canción' + (count > 1 ? 'es' : '') + '). Subir a data/ en GitHub.';
-    status.className = 'success';
-  });
-
   // Escape key closes
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && overlay.classList.contains('open')) {
@@ -5464,29 +5408,40 @@ Dios del Amor
     }
   });
 
-  // ── LOAD CHORD OVERRIDES (3-layer priority) ──
-  // Layer 1: localStorage (current session edits) — highest priority
-  // Layer 2: CHORD_OVERRIDES from data/chord-overrides.js (confirmed edits in GitHub)
-  // Layer 3: Inline HTML (base version from zip) — lowest priority
-  document.querySelectorAll('.chords-block').forEach(function(block) {
-    var id = block.id.replace('chords-block-', '');
-    var pre = block.querySelector('pre');
-    if (!pre) return;
+  // ── LOAD CHORD OVERRIDES (2-layer: Firebase → inline) ──
+  // Layer 1: Firebase Realtime DB (cloud overrides) — highest priority
+  // Layer 2: Inline HTML (base version from zip) — fallback
+  // localStorage is used only as temp cache while Firebase loads
+  // Load overrides from Firebase
+  (function loadFirebaseOverrides() {
+    fetch(FIREBASE_URL + '/chord-overrides.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data) return;
+        Object.keys(data).forEach(function(id) {
+          var block = document.getElementById('chords-block-' + id);
+          if (!block) return;
+          var pre = block.querySelector('pre');
+          if (pre) {
+            pre.innerHTML = data[id];
+            // Cache locally for instant load next time
+            try { localStorage.setItem('chord-cloud-' + id, data[id]); } catch(e) {}
+          }
+        });
+      })
+      .catch(function() { /* Firebase unavailable, use cached or inline */ });
 
-    // Layer 1: localStorage
-    try {
-      var local = localStorage.getItem('chord-edit-' + id);
-      if (local) { pre.innerHTML = local; return; }
-    } catch(e) {}
-
-    // Layer 2: chord-overrides.js (only if file was loaded)
-    if (typeof CHORD_OVERRIDES !== 'undefined' && CHORD_OVERRIDES[id]) {
-      pre.innerHTML = CHORD_OVERRIDES[id];
-      return;
-    }
-
-    // Layer 3: inline HTML (already in place, no action needed)
-  });
+    // While Firebase loads, apply local cache for instant render
+    document.querySelectorAll('.chords-block').forEach(function(block) {
+      var id = block.id.replace('chords-block-', '');
+      var pre = block.querySelector('pre');
+      if (!pre) return;
+      try {
+        var cached = localStorage.getItem('chord-cloud-' + id);
+        if (cached) pre.innerHTML = cached;
+      } catch(e) {}
+    });
+  })();
 
   // ── INJECT "EDITAR" BUTTON INTO TRANSPOSE BARS ──
   // The transpose bar is injected dynamically by injectTransposeBar().
