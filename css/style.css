@@ -624,8 +624,8 @@ section {
   align-items: center;
   justify-content: space-between;
   padding: 0.8rem 1.5rem;
-  background: var(--brown);
-  border-bottom: 1px solid rgba(200,148,60,0.2);
+  background: #1E1E1C;
+  border-bottom: 1px solid rgba(200,148,60,0.15);
 }
 .modal-title {
   font-family: 'Cinzel', serif;
