@@ -1494,17 +1494,20 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   tab-size: 4;
 }
 #chord-editor-status {
-  padding: 0.5rem 1.2rem;
+  padding: 0.8rem 1.2rem;
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   letter-spacing: 0.1em;
-  background: #1a1a1a;
-  border-top: 1px solid #333;
-  color: #888;
+  background: #222;
+  border-top: 2px solid #333;
+  color: #ccc;
   flex-shrink: 0;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
 }
-#chord-editor-status.error { color: #E74C3C; }
-#chord-editor-status.success { color: #5C7A3A; }
+#chord-editor-status.error { color: #FF6B6B; font-weight: 600; }
+#chord-editor-status.success { color: #8BC060; font-weight: 600; }
 
 </style>
 </head>
@@ -5331,18 +5334,31 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     var pre = block.querySelector('pre');
     if (!pre) return;
 
+    // Exit browser fullscreen if active (chord block fullscreen)
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      var exitFS = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exitFS) exitFS.call(document);
+    }
+
     // Store original for reset
     originalHtml = pre.innerHTML;
 
     // Convert to plain text
     textarea.value = htmlToText(pre.innerHTML);
     titleEl.textContent = 'Modo Edición — ' + (pre.querySelector('b') ? htmlToText(pre.querySelector('b').innerHTML) : blockId);
-    status.textContent = 'Edita los acordes. Los cambios se guardarán localmente.';
+    status.textContent = 'Edita los acordes. Al guardar se subirán a la nube.';
     status.className = '';
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-    textarea.focus();
+
+    // Request fullscreen on the editor overlay itself
+    setTimeout(function() {
+      var el = overlay;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      textarea.focus();
+    }, 100);
   };
 
   // ── SAVE ──
@@ -5355,21 +5371,51 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       return;
     }
 
-    // Apply to the pre element
     var block = document.getElementById('chords-block-' + currentBlockId);
-    if (block) {
-      var pre = block.querySelector('pre');
-      if (pre) {
-        pre.innerHTML = result.html;
-        // Save to localStorage
-        try {
-          localStorage.setItem('chord-edit-' + currentBlockId, result.html);
-        } catch(e) {}
-        status.textContent = '✓ Guardado en sesión. Usa "Exportar" para confirmar en GitHub.';
+    if (!block) return;
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    pre.innerHTML = result.html;
+    saveBtn.disabled = true;
+    status.textContent = '⏳ Guardando en la nube...';
+    status.className = '';
+
+    var saveId = currentBlockId;
+    var saveData = result.html;
+
+    // Step 1: Write to Firebase
+    fetch(FIREBASE_URL + '/chord-overrides/' + saveId + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(saveData)
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Error al escribir: HTTP ' + r.status);
+      status.textContent = '⏳ Verificando en la base de datos...';
+
+      // Step 2: Read back to confirm
+      return fetch(FIREBASE_URL + '/chord-overrides/' + saveId + '.json');
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Error al verificar: HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(saved) {
+      if (saved && saved.length > 10) {
+        try { localStorage.setItem('chord-cloud-' + saveId, saved); } catch(e) {}
+        status.textContent = '✓ Confirmado: acordes guardados en la base de datos (' + saveId + ')';
         status.className = 'success';
-        setTimeout(closeEditor, 1200);
+        saveBtn.disabled = false;
+      } else {
+        throw new Error('La verificación devolvió datos vacíos');
       }
-    }
+    })
+    .catch(function(err) {
+      status.textContent = '✗ ' + err.message;
+      status.className = 'error';
+      saveBtn.disabled = false;
+    });
   });
 
   // ── CANCEL ──
@@ -5395,6 +5441,11 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   });
 
   function closeEditor() {
+    // Exit fullscreen if editor is in fullscreen
+    if (document.fullscreenElement === overlay || document.webkitFullscreenElement === overlay) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
     overlay.classList.remove('open');
     document.body.style.overflow = '';
     currentBlockId = null;
@@ -5417,19 +5468,20 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     fetch(FIREBASE_URL + '/chord-overrides.json')
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (!data) return;
-        Object.keys(data).forEach(function(id) {
+        if (!data) { console.log('[Chords] Firebase: sin overrides'); return; }
+        var ids = Object.keys(data);
+        console.log('[Chords] Firebase: ' + ids.length + ' override(s) cargado(s):', ids.join(', '));
+        ids.forEach(function(id) {
           var block = document.getElementById('chords-block-' + id);
-          if (!block) return;
+          if (!block) { console.warn('[Chords] Bloque no encontrado: ' + id); return; }
           var pre = block.querySelector('pre');
           if (pre) {
             pre.innerHTML = data[id];
-            // Cache locally for instant load next time
             try { localStorage.setItem('chord-cloud-' + id, data[id]); } catch(e) {}
           }
         });
       })
-      .catch(function() { /* Firebase unavailable, use cached or inline */ });
+      .catch(function(err) { console.warn('[Chords] Firebase no disponible:', err.message); });
 
     // While Firebase loads, apply local cache for instant render
     document.querySelectorAll('.chords-block').forEach(function(block) {
