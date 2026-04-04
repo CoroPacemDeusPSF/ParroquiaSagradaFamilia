@@ -5348,6 +5348,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     titleEl.textContent = 'Modo Edición — ' + (pre.querySelector('b') ? htmlToText(pre.querySelector('b').innerHTML) : blockId);
     status.textContent = 'Edita los acordes. Al guardar se subirán a la nube.';
     status.className = '';
+    cancelBtn.textContent = 'Cancelar';
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -5407,6 +5408,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         status.textContent = '✓ Confirmado: acordes guardados en la base de datos (' + saveId + ')';
         status.className = 'success';
         saveBtn.disabled = false;
+        cancelBtn.textContent = 'Cerrar';
       } else {
         throw new Error('La verificación devolvió datos vacíos');
       }
