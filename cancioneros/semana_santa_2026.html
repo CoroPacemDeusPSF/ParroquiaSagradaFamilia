@@ -977,8 +977,9 @@ body {
 <div id="chord-editor-overlay">
   <div id="chord-editor-toolbar">
     <span id="chord-editor-title">Modo Edición</span>
-    <button class="editor-btn" id="editor-repair-all-btn" style="border-color:#E8C040;color:#E8C040;">Reparar todos</button>
+    <button class="editor-btn" id="editor-diagnose-btn" style="border-color:#4A90D9;color:#4A90D9;display:none;">Diagnosticar</button>
     <button class="editor-btn" id="editor-reset-btn">Restaurar original</button>
+    <button class="editor-btn" id="editor-reset-html-btn" style="display:none;border-color:#E74C3C;color:#E74C3C;">Restaurar Original (HTML)</button>
     <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
     <button class="editor-btn" id="editor-save-btn">Guardar</button>
   </div>
@@ -4239,6 +4240,11 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
 #chord-editor-status.error { color: #FF6B6B; font-weight: 600; }
 #chord-editor-status.success { color: #8BC060; font-weight: 600; }
 
+
+/* ── Dev Mode ── */
+body.dev-mode #editor-diagnose-btn { display: inline-block !important; }
+body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
+body.rehearsal-mode #editor-diagnose-btn { display: none !important; }
 </style>
 
 <script>
@@ -4743,66 +4749,88 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
   // ── Auto-correct chord notation ──
   function normalizeChord(raw) {
-    // Map lowercase/mixed roots to standard
-    var rootMap = {
-      'do':'DO','re':'RE','mi':'MI','fa':'FA','sol':'SOL','la':'LA','si':'SI',
-      'Do':'DO','Re':'RE','Mi':'MI','Fa':'FA','Sol':'SOL','La':'LA','Si':'SI',
-      'DO':'DO','RE':'RE','MI':'MI','FA':'FA','SOL':'SOL','LA':'LA','SI':'SI'
-    };
-    // Try to match a root at the start (longest first)
-    var roots = ['sol','SOL','Sol','do','DO','Do','re','RE','Re','mi','MI','Mi','fa','FA','Fa','la','LA','La','si','SI','Si'];
-    var matched = null, rest = raw;
-    for (var i = 0; i < roots.length; i++) {
-      if (raw.toLowerCase().indexOf(roots[i].toLowerCase()) === 0 && raw.length >= roots[i].length) {
-        // Check actual case match
-        if (raw.substring(0, roots[i].length).toLowerCase() === roots[i].toLowerCase()) {
-          matched = rootMap[roots[i]] || roots[i].toUpperCase();
-          rest = raw.substring(roots[i].length);
+    if (!raw) return raw;
+    
+    // Handle compound chords: Lam-LA7
+    if (raw.indexOf('-') >= 0) {
+      return raw.split('-').map(function(p) { return normalizeChord(p.trim()); }).join('-');
+    }
+    
+    // Handle slash chords: FA/A, Do/MI
+    var slashIdx = raw.indexOf('/');
+    if (slashIdx > 0) {
+      var mainPart = normalizeChord(raw.substring(0, slashIdx));
+      var bassPart = normalizeChord(raw.substring(slashIdx + 1));
+      // Bass note always uppercase
+      bassPart = bassPart.toUpperCase();
+      return mainPart + '/' + bassPart;
+    }
+    
+    // Root matching (case-insensitive, longest first)
+    var rootMap = [
+      ['sol','SOL'], ['SOL','SOL'], ['Sol','SOL'],
+      ['do','DO'],   ['DO','DO'],   ['Do','DO'],
+      ['re','RE'],   ['RE','RE'],   ['Re','RE'],
+      ['mi','MI'],   ['MI','MI'],   ['Mi','MI'],
+      ['fa','FA'],   ['FA','FA'],   ['Fa','FA'],
+      ['la','LA'],   ['LA','LA'],   ['La','LA'],
+      ['si','SI'],   ['SI','SI'],   ['Si','SI'],
+      // English notation
+      ['A','LA'], ['B','SI'], ['C','DO'], ['D','RE'],
+      ['E','MI'], ['F','FA'], ['G','SOL']
+    ];
+    
+    var matchedRoot = null;
+    var rest = raw;
+    
+    // Sort by length descending to match "sol" before "so"
+    rootMap.sort(function(a, b) { return b[0].length - a[0].length; });
+    
+    for (var i = 0; i < rootMap.length; i++) {
+      var pattern = rootMap[i][0];
+      var standard = rootMap[i][1];
+      if (raw.substring(0, pattern.length).toLowerCase() === pattern.toLowerCase() && 
+          raw.substring(0, pattern.length) === raw.substring(0, pattern.length).replace(new RegExp('^' + pattern, 'i'), pattern)) {
+        // More precise: check if the raw starts with this pattern (case-insensitive)
+        if (raw.length >= pattern.length && raw.substring(0, pattern.length).toLowerCase() === pattern.toLowerCase()) {
+          matchedRoot = standard;
+          rest = raw.substring(pattern.length);
           break;
         }
       }
     }
-    if (!matched) return raw; // not a chord
-
+    
+    if (!matchedRoot) return raw;
+    
     // Check accidental
     var acc = '';
-    if (rest.charAt(0) === '#' || rest.charAt(0) === 'b') {
-      acc = rest.charAt(0);
+    if (rest.length > 0 && (rest[0] === '#' || rest[0] === 'b')) {
+      acc = rest[0];
       rest = rest.substring(1);
     }
-
-    // Check if minor (has 'm' quality)
-    var isMinor = /^m($|[^a])/.test(rest) || /^m[7]/.test(rest) || rest === 'm';
+    
+    // Determine if minor (has 'm' at start of quality)
+    var isMinor = rest.length > 0 && rest[0] === 'm' && (rest.length === 1 || rest[1] !== 'a' || rest.substring(0, 3) === 'maj');
+    // "m", "m7", "m6", "m9", "maj7" 
+    if (rest === 'm' || /^m[7690]/.test(rest) || rest === 'maj7') isMinor = true;
     
     // Build normalized root
-    var normRoot;
     if (isMinor) {
-      // Title case: first letter upper, rest lower
-      normRoot = matched.charAt(0).toUpperCase() + matched.substring(1).toLowerCase();
+      // Title case: Do, Re, Mi, Fa, Sol, La, Si
+      return matchedRoot.charAt(0) + matchedRoot.substring(1).toLowerCase() + acc + rest;
     } else {
-      // ALL CAPS
-      normRoot = matched.toUpperCase();
+      // ALL CAPS: DO, RE, MI, FA, SOL, LA, SI
+      return matchedRoot + acc + rest;
     }
-
-    // Handle slash bass note
-    var slashIdx = rest.indexOf('/');
-    if (slashIdx >= 0) {
-      var bassRaw = rest.substring(slashIdx + 1);
-      var bassNorm = normalizeChord(bassRaw);
-      // Bass note is always a note (major form = uppercase)
-      bassNorm = bassNorm.toUpperCase();
-      rest = rest.substring(0, slashIdx) + '/' + bassNorm;
-    }
-
-    return normRoot + acc + rest;
   }
 
+
   function isValidChord(token) {
-    // Clean up common separators
     token = token.replace(/[()]/g, '').trim();
     if (!token) return false;
-    // Handle compound: DO-MI7, LAm-LA7
-    var parts = token.split('-');
+    // Normalize first, then validate
+    var normalized = normalizeChord(token);
+    var parts = normalized.split('-');
     return parts.every(function(p) {
       p = p.trim();
       return p && CHORD_RE.test(p);
@@ -4948,31 +4976,72 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       return;
     }
 
+    // Check if normalization changed any chords
+    var originalText = textarea.value;
+    var normalizedText = htmlToText(result.html);
+    var diffs = [];
+    var origLines = originalText.split('\n');
+    var normLines = normalizedText.split('\n');
+    for (var i = 0; i < origLines.length; i++) {
+      if (i < normLines.length && origLines[i].trim() !== normLines[i].trim() && origLines[i].trim().length > 0) {
+        diffs.push((i+1) + ': "' + origLines[i].trim() + '" → "' + normLines[i].trim() + '"');
+      }
+    }
+
+    if (diffs.length > 0) {
+      // Show normalization dialog
+      status.className = '';
+      status.textContent = 'Se normalizaron ' + diffs.length + ' línea(s): ' + diffs[0] + (diffs.length > 1 ? ' (+' + (diffs.length-1) + ' más)' : '') + ' — ¿Guardar con normalización?';
+      
+      // Create Yes/No buttons in status bar
+      var yesBtn = document.createElement('button');
+      yesBtn.textContent = 'Sí';
+      yesBtn.style.cssText = 'margin-left:1rem;padding:0.3rem 1rem;border:1px solid #5C7A3A;background:#5C7A3A;color:#fff;font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.1em;cursor:pointer;border-radius:2px;';
+      var noBtn = document.createElement('button');
+      noBtn.textContent = 'No';
+      noBtn.style.cssText = 'margin-left:0.5rem;padding:0.3rem 1rem;border:1px solid rgba(255,255,255,0.3);background:transparent;color:#ccc;font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.1em;cursor:pointer;border-radius:2px;';
+      
+      status.appendChild(yesBtn);
+      status.appendChild(noBtn);
+      
+      noBtn.addEventListener('click', function() {
+        status.textContent = 'Guardado cancelado. Edita los acordes manualmente si lo prefieres.';
+        status.className = '';
+      });
+      
+      yesBtn.addEventListener('click', function() {
+        doSave(result.html);
+      });
+      return;
+    }
+
+    // No normalization needed, save directly
+    doSave(result.html);
+  });
+
+  function doSave(htmlContent) {
     var block = document.getElementById('chords-block-' + currentBlockId);
     if (!block) return;
     var pre = block.querySelector('pre');
     if (!pre) return;
 
-    pre.innerHTML = result.html;
+    pre.innerHTML = htmlContent;
     saveBtn.disabled = true;
     status.textContent = '⏳ Guardando en la nube...';
     status.className = '';
 
     var saveId = currentBlockId;
-    var saveData = result.html;
+    var chordKey = getChordKey(saveId);
 
-    // Step 1: Write to Firebase
-    fetch(FIREBASE_URL + '/chord-overrides/' + getChordKey(saveId) + '.json', {
+    fetch(FIREBASE_URL + '/chord-overrides/' + chordKey + '.json', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(saveData)
+      body: JSON.stringify(htmlContent)
     })
     .then(function(r) {
       if (!r.ok) throw new Error('Error al escribir: HTTP ' + r.status);
       status.textContent = '⏳ Verificando en la base de datos...';
-
-      // Step 2: Read back to confirm
-      return fetch(FIREBASE_URL + '/chord-overrides/' + getChordKey(saveId) + '.json');
+      return fetch(FIREBASE_URL + '/chord-overrides/' + chordKey + '.json');
     })
     .then(function(r) {
       if (!r.ok) throw new Error('Error al verificar: HTTP ' + r.status);
@@ -4980,8 +5049,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     })
     .then(function(saved) {
       if (saved && saved.length > 10) {
-        try { localStorage.setItem('chord-cloud-' + getChordKey(saveId), saved); } catch(e) {}
-        status.textContent = '✓ Confirmado: acordes guardados en la base de datos (' + saveId + ')';
+        status.textContent = '✓ Confirmado: acordes guardados (' + chordKey + ')';
         status.className = 'success';
         saveBtn.disabled = false;
         cancelBtn.textContent = 'Cerrar';
@@ -4994,28 +5062,39 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       status.className = 'error';
       saveBtn.disabled = false;
     });
-  });
+  }
 
   // ── CANCEL ──
   cancelBtn.addEventListener('click', closeEditor);
 
-  // ── RESET ──
+  // ── RESET (undo to state when editor opened) ──
   resetBtn.addEventListener('click', function() {
-    if (!currentBlockId) return;
-    // Restore original HTML
+    if (!currentBlockId || !originalHtml) return;
     var block = document.getElementById('chords-block-' + currentBlockId);
-    if (block && originalHtml) {
+    if (block) {
       var pre = block.querySelector('pre');
       if (pre) pre.innerHTML = originalHtml;
     }
-    // Remove from Firebase and cache
-    fetch(FIREBASE_URL + '/chord-overrides/' + getChordKey(currentBlockId) + '.json', {
-      method: 'DELETE'
-    }).catch(function() {});
-    try { localStorage.removeItem('chord-cloud-' + getChordKey(currentBlockId)); } catch(e) {}
-    textarea.value = htmlToText(originalHtml || '');
-    status.textContent = '✓ Restaurado al original (nube actualizada)';
+    textarea.value = htmlToText(originalHtml);
+    status.textContent = '✓ Restaurado al estado anterior (sin cambios en la nube)';
     status.className = 'success';
+  });
+
+  // ── RESET HTML (dev mode: restore to inline HTML + delete Firebase override) ──
+  document.getElementById('editor-reset-html-btn').addEventListener('click', function() {
+    if (!currentBlockId) return;
+    var chordKey = getChordKey(currentBlockId);
+    
+    // Delete from Firebase
+    fetch(FIREBASE_URL + '/chord-overrides/' + chordKey + '.json', {
+      method: 'DELETE'
+    }).then(function() {
+      status.textContent = '✓ Override eliminado de Firebase (' + chordKey + '). Recarga la página para ver los acordes originales del HTML.';
+      status.className = 'success';
+    }).catch(function(err) {
+      status.textContent = '✗ Error: ' + err.message;
+      status.className = 'error';
+    });
   });
 
   function closeEditor() {
@@ -5031,44 +5110,6 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   }
 
 
-  // ── REPAIR ALL FIREBASE OVERRIDES ──
-  document.getElementById('editor-repair-all-btn').addEventListener('click', function() {
-    status.textContent = '⏳ Leyendo overrides de Firebase...';
-    status.className = '';
-    
-    fetch(FIREBASE_URL + '/chord-overrides.json')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!data) {
-          status.textContent = 'No hay overrides en Firebase.';
-          status.className = 'error';
-          return;
-        }
-        
-        var ids = Object.keys(data);
-        var fixed = 0;
-        var total = ids.length;
-        var promises = [];
-        
-        status.textContent = '⏳ Reparando ' + total + ' override(s)...';
-        
-        ids.forEach(function(id) {
-          var rawHtml = data[id];
-          if (!rawHtml) return;
-          
-          // Convert HTML → text → HTML (re-processes with current validator)
-          var plainText = htmlToText(rawHtml);
-          var result = textToHtml(plainText);
-          var repairedHtml = result.html;
-          
-          // Only update if changed
-          if (repairedHtml !== rawHtml) {
-            fixed++;
-            var p = fetch(FIREBASE_URL + '/chord-overrides/' + id + '.json', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(repairedHtml)
-            });
             promises.push(p);
             
             // Also update the pre in the page if it exists
@@ -5079,7 +5120,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
             }
             
             // Update cache
-            try { localStorage.setItem('chord-cloud-' + id, repairedHtml); } catch(e) {}
+            // no cache
           }
         });
         
@@ -5100,6 +5141,94 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       });
   });
 
+
+  // ── DIAGNOSE FIREBASE OVERRIDES (Dev Mode) ──
+  document.getElementById('editor-diagnose-btn').addEventListener('click', function() {
+    status.textContent = '⏳ Leyendo Firebase...';
+    status.className = '';
+    
+    fetch(FIREBASE_URL + '/chord-overrides.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var lines = [];
+        lines.push('══════════════════════════════════════════');
+        lines.push('DIAGNÓSTICO COMPLETO — ' + new Date().toLocaleString());
+        lines.push('Firebase URL: ' + FIREBASE_URL);
+        lines.push('══════════════════════════════════════════');
+        
+        if (!data) {
+          lines.push('\nFirebase: VACÍO (sin overrides)');
+        } else {
+          var keys = Object.keys(data).sort();
+          lines.push('\n═══ FIREBASE OVERRIDES (' + keys.length + ') ═══\n');
+          
+          keys.forEach(function(key) {
+            var content = data[key] || '';
+            var titleMatch = content.match(/♫\s*([^<]+)/);
+            var title = titleMatch ? titleMatch[1].trim() : '(sin título ♫)';
+            var hasSpans = content.indexOf('<span class="chord">') >= 0;
+            var chordCount = (content.match(/<span class="chord">/g) || []).length;
+            var lineCount = content.split('\n').length;
+            
+            lines.push('Clave: ' + key);
+            lines.push('  Título: ' + title);
+            lines.push('  Tamaño: ' + content.length + ' chars | ' + lineCount + ' líneas | ' + chordCount + ' acordes formateados');
+            lines.push('  Tiene spans: ' + (hasSpans ? 'SÍ' : 'NO ⚠'));
+            lines.push('');
+          });
+        }
+        
+        lines.push('═══ CANCIONES EN PÁGINA (' + document.querySelectorAll('.song-card').length + ') ═══\n');
+        
+        document.querySelectorAll('.song-card[data-chord-id]').forEach(function(card) {
+          var chordId = card.getAttribute('data-chord-id');
+          var titleEl = card.querySelector('.song-title');
+          var title = titleEl ? titleEl.textContent.replace(/[\u{1D11E}▾▴]/gu, '').trim() : '?';
+          var chordBlock = card.querySelector('.chords-block');
+          var blockId = chordBlock ? chordBlock.id : '-';
+          var hasChords = chordBlock ? 'sí' : 'no';
+          
+          var overrideInfo = '';
+          if (data && data[chordId]) {
+            var ovTitle = (data[chordId].match(/♫\s*([^<]+)/) || [])[1] || '';
+            if (ovTitle.trim().toLowerCase() === title.toLowerCase()) {
+              overrideInfo = ' ✓ OVERRIDE OK';
+            } else {
+              overrideInfo = ' ✗ MISMATCH: "' + ovTitle.trim() + '"';
+            }
+          }
+          
+          lines.push(chordId + ' | ' + blockId + ' | ' + title + ' | acordes: ' + hasChords + overrideInfo);
+        });
+        
+        lines.push('\n═══ LOCALSTORAGE ═══\n');
+        var lsCount = 0;
+        try {
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && (k.indexOf('chord') >= 0 || k.indexOf('rehearsal') >= 0 || k.indexOf('dev') >= 0)) {
+              var val = localStorage.getItem(k);
+              lines.push(k + ' = ' + (val ? val.substring(0, 80) + (val.length > 80 ? '...' : '') : 'null'));
+              lsCount++;
+            }
+          }
+        } catch(e) {}
+        if (lsCount === 0) lines.push('(vacío)');
+        
+        lines.push('\n═══ FIN ═══');
+        
+        textarea.value = lines.join('\n');
+        titleEl.textContent = 'Diagnóstico Dev';
+        status.textContent = '✓ Diagnóstico completo — ' + (data ? Object.keys(data).length : 0) + ' overrides en Firebase';
+        status.className = 'success';
+      })
+      .catch(function(err) {
+        status.textContent = '✗ Error: ' + err.message;
+        status.className = 'error';
+      });
+  });
+  });
+
   // Escape key closes
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && overlay.classList.contains('open')) {
@@ -5110,21 +5239,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
 
 
-  // ── One-time cache purge (v78 fix) ──
-  try {
-    if (!localStorage.getItem('chord-cache-v78-clean')) {
-      var keysToRemove = [];
-      for (var k = 0; k < localStorage.length; k++) {
-        var key = localStorage.key(k);
-        if (key && (key.startsWith('chord-cloud-') || key.startsWith('chord-edit-'))) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach(function(key) { localStorage.removeItem(key); });
-      localStorage.setItem('chord-cache-v78-clean', '1');
-      if (keysToRemove.length > 0) console.log('[Chords] Purged ' + keysToRemove.length + ' corrupted cache entries');
-    }
-  } catch(e) {}
+  
 
   // ── LOAD CHORD OVERRIDES (2-layer: Firebase → inline) ──
   // Layer 1: Firebase Realtime DB (cloud overrides) — highest priority
@@ -5147,7 +5262,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
             var pre = block.querySelector('pre');
             if (pre) {
               pre.innerHTML = data[slug];
-              try { localStorage.setItem('chord-cloud-' + slug, data[slug]); } catch(e) {}
+              // no cache
               console.log('[Chords] Override aplicado: ' + slug + ' → ' + blockId);
             }
           }
@@ -5155,95 +5270,10 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       })
       .catch(function(err) { console.warn('[Chords] Firebase no disponible:', err.message); });
 
-    // While Firebase loads, apply local cache for instant render
-    document.querySelectorAll('.chords-block').forEach(function(block) {
-      var blockId = block.id.replace('chords-block-', '');
-      var slug = getChordKey(blockId);
-      var pre = block.querySelector('pre');
-      if (!pre) return;
-      try {
-        var cached = localStorage.getItem('chord-cloud-' + slug);
-        if (cached) pre.innerHTML = cached;
-      } catch(e) {}
-    });
+    // No cache — Firebase loads directly
   })();
 
 
-
-  // ── One-time migration: old keys → permanent chord-id keys ──
-  (function migrateKeys() {
-    try {
-      if (localStorage.getItem('chord-id-migrated-v81')) return;
-    } catch(e) { return; }
-    
-    fetch(FIREBASE_URL + '/chord-overrides.json')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!data) { try { localStorage.setItem('chord-id-migrated-v81', '1'); } catch(e) {} return; }
-        
-        var keys = Object.keys(data);
-        // Old keys are either IDs (d01, j01) or slugs (tus-maravillas)
-        // New keys are chord-ids (cpd-001, cps-001)
-        var isOldFormat = keys.some(function(k) { return !k.startsWith('cpd-') && !k.startsWith('cps-'); });
-        if (!isOldFormat) {
-          try { localStorage.setItem('chord-id-migrated-v81', '1'); } catch(e) {}
-          return;
-        }
-        
-        console.log('[Chords] Migrando ' + keys.length + ' overrides a IDs permanentes...');
-        
-        // Build a map: for each block on page, map old possible keys to new chord-id
-        var blockMap = {}; // oldKey → { chordId, data }
-        document.querySelectorAll('.song-card[data-chord-id]').forEach(function(card) {
-          var chordId = card.getAttribute('data-chord-id');
-          var chordBlock = card.querySelector('.chords-block');
-          if (!chordBlock) return;
-          var blockId = chordBlock.id.replace('chords-block-', '');
-          
-          // This block could match by old numeric ID
-          if (data[blockId]) {
-            blockMap[blockId] = { chordId: chordId, content: data[blockId] };
-          }
-          
-          // Or by old slug
-          var titleEl = card.querySelector('.song-title');
-          if (titleEl) {
-            var title = titleEl.textContent.replace(/[\u{1D11E}▾▴]/gu, '').trim();
-            var slug = title.toLowerCase()
-              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-              .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 60);
-            if (data[slug]) {
-              blockMap[slug] = { chordId: chordId, content: data[slug] };
-            }
-          }
-        });
-        
-        var migrations = [];
-        Object.keys(blockMap).forEach(function(oldKey) {
-          var info = blockMap[oldKey];
-          // Write to new chord-id key
-          migrations.push(
-            fetch(FIREBASE_URL + '/chord-overrides/' + info.chordId + '.json', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(info.content)
-            }).then(function() {
-              // Delete old key
-              return fetch(FIREBASE_URL + '/chord-overrides/' + oldKey + '.json', { method: 'DELETE' });
-            }).then(function() {
-              console.log('[Chords] ' + oldKey + ' → ' + info.chordId);
-            })
-          );
-        });
-        
-        return Promise.all(migrations).then(function() {
-          try { localStorage.setItem('chord-id-migrated-v81', '1'); } catch(e) {}
-          console.log('[Chords] Migración completa (' + migrations.length + ' overrides)');
-          if (migrations.length > 0) location.reload();
-        });
-      })
-      .catch(function(err) { console.warn('[Chords] Error en migración:', err); });
-  })();
 
     // ── INJECT "EDITAR" BUTTON INTO TRANSPOSE BARS ──
   // The transpose bar is injected dynamically by injectTransposeBar().
@@ -5312,6 +5342,37 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         if (label) label.textContent = '100%';
       }
     });
+  });
+})();
+</script>
+
+
+<script>
+// ── DEV MODE (5 clicks on footer cross) ──
+(function() {
+  var crosses = document.querySelectorAll('.footer-icon');
+  var footer_cross = crosses.length > 0 ? crosses[crosses.length - 1] : null;
+  if (!footer_cross) return;
+  
+  var devClicks = 0;
+  var devTimer = null;
+  var devActive = false;
+  
+  footer_cross.style.cursor = 'default';
+  footer_cross.style.userSelect = 'none';
+  
+  footer_cross.addEventListener('click', function(e) {
+    e.preventDefault();
+    devClicks++;
+    if (devTimer) clearTimeout(devTimer);
+    devTimer = setTimeout(function() { devClicks = 0; }, 2000);
+    
+    if (devClicks >= 5 && !devActive) {
+      devClicks = 0;
+      devActive = true;
+      document.body.classList.add('dev-mode');
+      console.log('[Dev] Modo Dev activado');
+    }
   });
 })();
 </script>
