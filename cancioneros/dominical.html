@@ -1423,6 +1423,42 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 
 
 
+
+/* ── Fullscreen zoom controls ── */
+.fullscreen-zoom {
+  display: none;
+  position: absolute;
+  top: 0.5rem;
+  right: 5rem;
+  gap: 0.4rem;
+  align-items: center;
+  z-index: 10;
+}
+.chords-block.fullscreen .fullscreen-zoom { display: flex; }
+.zoom-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(232,192,64,0.4);
+  background: rgba(26,26,26,0.8);
+  color: #E8C040;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.zoom-btn:hover { background: rgba(232,192,64,0.2); }
+.zoom-label {
+  color: #E8C040;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
 /* ── CHORD EDITOR MODE ── */
 #chord-editor-overlay {
   display: none;
@@ -1640,10 +1676,10 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
     <ol class="index-list">
         <li class="index-moment-header"><span>Entrada</span></li>
         <li><span class="idx-num">01</span><a href="#d01">Desde el Alba hasta el Ocaso</a><a class="yt-play-btn" href="#chords-block-d01" onclick="toggleChords('d01',true);setTimeout(function(){document.getElementById('chords-block-d01').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/edRkrtcnVx8?t=24" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">02</span><a href="#d02">Reunidos en el Nombre del Señor</a></li>
+        <li><span class="idx-num">02</span><a href="#d02">Dios Trino</a></li>
         <li><span class="idx-num">03</span><a href="#d03">Maranatha</a><a class="yt-play-btn" href="#chords-block-d03" onclick="toggleChords('d03',true);setTimeout(function(){document.getElementById('chords-block-d03').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/N-adf06_3g0?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">04</span><a href="#d04">Vosotros Sois de Dios</a><a class="yt-play-btn" href="#chords-block-d04" onclick="toggleChords('d04',true);setTimeout(function(){document.getElementById('chords-block-d04').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/gbvCj2NRvIg?t=10" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">05</span><a href="#d05">Dios Trino</a></li>
+        <li><span class="idx-num">04</span><a href="#d04">Reunidos en el Nombre del Señor</a></li>
+        <li><span class="idx-num">05</span><a href="#d05">Vosotros Sois de Dios</a><a class="yt-play-btn" href="#chords-block-d05" onclick="toggleChords('d05',true);setTimeout(function(){document.getElementById('chords-block-d05').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/gbvCj2NRvIg?t=10" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header"><span>Piedad</span></li>
         <li><span class="idx-num">06</span><a href="#d06">Piedad Cantaré</a><a class="yt-play-btn" href="https://youtu.be/aLY6SINGMjs?t=5" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">07</span><a href="#d07">Señor, Ten Piedad</a></li>
@@ -1654,60 +1690,62 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
         <li class="index-moment-header"><span>Aclamación del Evangelio</span></li>
         <li><span class="idx-num">10</span><a href="#d10">Gloria a Ti Oh Cristo</a><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=79" target="_blank" title="Voz 1" style="color:#1D6FD8;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=114" target="_blank" title="Voz 2" style="color:#C2185B;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/3Y_MNT4CU90?t=160" target="_blank" title="Voz 3" style="color:#7B1FA2;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header"><span>Ofertorio</span></li>
-        <li><span class="idx-num">11</span><a href="#d11">Tomad Señor y Recibid</a></li>
-        <li><span class="idx-num">12</span><a href="#d12">Cristo Mío</a></li>
+        <li><span class="idx-num">11</span><a href="#d11">Cristo Mío</a></li>
+        <li><span class="idx-num">12</span><a href="#d12">Feliz Encuentro</a><a class="yt-play-btn" href="#chords-block-d12" onclick="toggleChords('d12',true);setTimeout(function(){document.getElementById('chords-block-d12').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Wl85TQpniyg?t=8" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">13</span><a href="#d13">Pan y Vino de Amor</a><a class="yt-play-btn" href="#chords-block-d13" onclick="toggleChords('d13',true);setTimeout(function(){document.getElementById('chords-block-d13').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/UqY7SzeULt8?t=30" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">14</span><a href="#d14">Recíbeme</a></li>
-                <li><span class="idx-num">15</span><a href="#d15">Sobre tu Altar</a><a class="yt-play-btn" href="#chords-block-d15" onclick="toggleChords('d15',true);setTimeout(function(){document.getElementById('chords-block-d15').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/rweoC6NTiKo?t=23" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">16</span><a href="#d16">Por Amor</a><a class="yt-play-btn" href="#chords-block-d16" onclick="toggleChords('d16',true);setTimeout(function(){document.getElementById('chords-block-d16').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/GBe-5rk6h8g?t=40" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">17</span><a href="#d17">Feliz Encuentro</a><a class="yt-play-btn" href="#chords-block-d17" onclick="toggleChords('d17',true);setTimeout(function(){document.getElementById('chords-block-d17').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Wl85TQpniyg?t=8" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-                <li class="index-moment-header"><span>Santo</span></li>
-        <li><span class="idx-num">18</span><a href="#d18">Santo – Fones</a><a class="yt-play-btn" href="https://youtu.be/Vwy0tw6u3Qw?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">14</span><a href="#d14">Por Amor</a><a class="yt-play-btn" href="#chords-block-d14" onclick="toggleChords('d14',true);setTimeout(function(){document.getElementById('chords-block-d14').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/GBe-5rk6h8g?t=40" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">15</span><a href="#d15">Recíbeme</a></li>
+        <li><span class="idx-num">16</span><a href="#d16">Sobre tu Altar</a><a class="yt-play-btn" href="#chords-block-d16" onclick="toggleChords('d16',true);setTimeout(function(){document.getElementById('chords-block-d16').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/rweoC6NTiKo?t=23" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">17</span><a href="#d17">Tomad Señor y Recibid</a></li>
+        <li class="index-moment-header"><span>Santo</span></li>
+        <li><span class="idx-num">18</span><a href="#d18">Sanctus – Verbum Panis</a><a class="yt-play-btn" href="https://youtu.be/CwZCvXp7bwE?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">19</span><a href="#d19">Santo – Alfonso Luna</a></li>
-        <li><span class="idx-num">20</span><a href="#d20">Sanctus – Verbum Panis</a><a class="yt-play-btn" href="https://youtu.be/CwZCvXp7bwE?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">20</span><a href="#d20">Santo – Fones</a><a class="yt-play-btn" href="https://youtu.be/Vwy0tw6u3Qw?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header"><span>Cordero de Dios</span></li>
         <li><span class="idx-num">21</span><a href="#d21">Cordero – Dynamis</a><a class="yt-play-btn" href="https://youtu.be/U7QvUW2A5mg?t=14" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">22</span><a href="#d22">Oh Cordero de Dios</a></li>
-        <li><span class="idx-num">23</span><a href="#d23">Cordero – Mejía</a></li>
+        <li><span class="idx-num">22</span><a href="#d22">Cordero – Mejía</a></li>
+        <li><span class="idx-num">23</span><a href="#d23">Oh Cordero de Dios</a></li>
         <li class="index-moment-header"><span>Comunión</span></li>
-        <li><span class="idx-num">24</span><a href="#d24">Verbum Panis</a><a class="yt-play-btn" href="#chords-block-d24" onclick="toggleChords('d24',true);setTimeout(function(){document.getElementById('chords-block-d24').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/wp-t_98g2Ng?t=13" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">25</span><a href="#d25">Milagro de Amor</a></li>
-        <li><span class="idx-num">26</span><a href="#d26">Divino Manjar</a><a class="yt-play-btn" href="https://youtu.be/r8HKwwZjCl0?list=RDr8HKwwZjCl0&t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">27</span><a href="#d27">Pescador de Hombres</a></li>
-        <li><span class="idx-num">28</span><a href="#d28">Me Has Seducido, Señor</a></li>
-        <li><span class="idx-num">29</span><a href="#d29">En su Mesa hay Amor</a></li>
-        <li><span class="idx-num">30</span><a href="#d30">Camino Firme</a></li>
-        <li><span class="idx-num">31</span><a href="#d31">Te Hiciste Pan</a><a class="yt-play-btn" href="https://youtu.be/vaHHAXg5NEQ?t=12" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">32</span><a href="#d32">Pan de Vida, Pan de Fe</a></li>
+        <li><span class="idx-num">24</span><a href="#d24">Camino Firme</a></li>
+        <li><span class="idx-num">25</span><a href="#d25">Divino Manjar</a><a class="yt-play-btn" href="https://youtu.be/r8HKwwZjCl0?list=RDr8HKwwZjCl0&t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">26</span><a href="#d26">En su Mesa hay Amor</a></li>
+        <li><span class="idx-num">27</span><a href="#d27">Me Has Seducido, Señor</a></li>
+        <li><span class="idx-num">28</span><a href="#d28">Milagro de Amor</a></li>
+        <li><span class="idx-num">29</span><a href="#d29">Pan de Vida, Pan de Fe</a></li>
+        <li><span class="idx-num">30</span><a href="#d30">Pescador de Hombres</a></li>
+        <li><span class="idx-num">31</span><a href="#d31">Señor, a Quién Iremos</a><a class="yt-play-btn" href="#chords-block-d31" onclick="toggleChords('d31',true);setTimeout(function(){document.getElementById('chords-block-d31').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
+        <li><span class="idx-num">32</span><a href="#d32">Te Hiciste Pan</a><a class="yt-play-btn" href="https://youtu.be/vaHHAXg5NEQ?t=12" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">33</span><a href="#d33">Verbum Panis</a><a class="yt-play-btn" href="#chords-block-d33" onclick="toggleChords('d33',true);setTimeout(function(){document.getElementById('chords-block-d33').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/wp-t_98g2Ng?t=13" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header"><span>Salida</span></li>
-        <li><span class="idx-num">33</span><a href="#d33">Ave María (Verbum Panis)</a><a class="yt-play-btn" href="#chords-block-d33" onclick="toggleChords('d33',true);setTimeout(function(){document.getElementById('chords-block-d33').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/oylNSK8o9KA?t=25" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">34</span><a href="#d34">Tus Maravillas</a><a class="yt-play-btn" href="#chords-block-d34" onclick="toggleChords('d34',true);setTimeout(function(){document.getElementById('chords-block-d34').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/AQlpDb_dXkM?t=17" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">34</span><a href="#d34">Ave María (Verbum Panis)</a><a class="yt-play-btn" href="#chords-block-d34" onclick="toggleChords('d34',true);setTimeout(function(){document.getElementById('chords-block-d34').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/oylNSK8o9KA?t=25" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">35</span><a href="#d35">Dios te Salve María (Betsaida)</a><a class="yt-play-btn" href="#chords-block-d35" onclick="toggleChords('d35',true);setTimeout(function(){document.getElementById('chords-block-d35').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/kmULXNjCx00?t=5" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">36</span><a href="#d36">Madre del Silencio</a><a class="yt-play-btn" href="#chords-block-d36" onclick="toggleChords('d36',true);setTimeout(function(){document.getElementById('chords-block-d36').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5gfbm_8Ag9s?t=22" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-                <li><span class="idx-num">37</span><a href="#d37">Dios te Salve María (Betsaida)</a><a class="yt-play-btn" href="#chords-block-d37" onclick="toggleChords('d37',true);setTimeout(function(){document.getElementById('chords-block-d37').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/kmULXNjCx00?t=5" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">35</span><a href="#d35">Toda Hermosa</a><a class="yt-play-btn" href="#chords-block-d35" onclick="toggleChords('d35',true);setTimeout(function(){document.getElementById('chords-block-d35').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5f9u2R06eWQ?t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-                <li class="index-moment-header"><span>Exposición del Santísimo</span></li>
-                <li><span class="idx-num">38</span><a href="#d38">Anima Christi – Marco Frisina</a><a class="yt-play-btn" href="#chords-block-d38" onclick="toggleChords('d38',true);setTimeout(function(){document.getElementById('chords-block-d38').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
-                <li><span class="idx-num">39</span><a href="#d39">Cantemos al Amor de los Amores</a><a class="yt-play-btn" href="#chords-block-d39" onclick="toggleChords('d39',true);setTimeout(function(){document.getElementById('chords-block-d39').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Rb1cYPb1ogY?t=36" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">37</span><a href="#d37">Toda Hermosa</a><a class="yt-play-btn" href="#chords-block-d37" onclick="toggleChords('d37',true);setTimeout(function(){document.getElementById('chords-block-d37').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5f9u2R06eWQ?t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">38</span><a href="#d38">Tus Maravillas</a><a class="yt-play-btn" href="#chords-block-d38" onclick="toggleChords('d38',true);setTimeout(function(){document.getElementById('chords-block-d38').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/AQlpDb_dXkM?t=17" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li class="index-moment-header"><span>Exposición del Santísimo</span></li>
+        <li><span class="idx-num">39</span><a href="#d39">Anima Christi – Marco Frisina</a><a class="yt-play-btn" href="#chords-block-d39" onclick="toggleChords('d39',true);setTimeout(function(){document.getElementById('chords-block-d39').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
+        <li><span class="idx-num">40</span><a href="#d40">Cantemos al Amor de los Amores</a><a class="yt-play-btn" href="#chords-block-d40" onclick="toggleChords('d40',true);setTimeout(function(){document.getElementById('chords-block-d40').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Rb1cYPb1ogY?t=36" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header" style="margin-top:1.5rem;border-top:2px solid rgba(200,148,60,0.3);padding-top:1rem;"><span>✦ Momentos Especiales ✦</span></li>
         <li class="index-moment-header"><span>Adoración</span></li>
-        <li><span class="idx-num">40</span><a href="#d40">Rey de Reyes</a></li>
         <li><span class="idx-num">41</span><a href="#d41">Oh Buen Jesús</a><a class="yt-play-btn" href="https://youtu.be/iXadPLBF5Ws?t=15" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">42</span><a href="#d42">Rey de Reyes</a></li>
         <li class="index-moment-header"><span>Animación</span></li>
-        <li><span class="idx-num">42</span><a href="#d42">Mi Dios Está Vivo</a></li>
-        <li><span class="idx-num">43</span><a href="#d43">Que Viva Cristo</a></li>
+        <li><span class="idx-num">43</span><a href="#d43">Dame del Agua que Brota</a></li>
         <li><span class="idx-num">44</span><a href="#d44">Granito de Mostaza</a></li>
-        <li><span class="idx-num">45</span><a href="#d45">Mi Mano Está Llena</a></li>
-        <li><span class="idx-num">46</span><a href="#d46">Porque Cristo Ha Tomado Mi Vida</a></li>
-        <li><span class="idx-num">47</span><a href="#d47">Dame del Agua que Brota</a></li>
-        <li><span class="idx-num">48</span><a href="#d48">Vamos a Alabar al Señor</a></li>
-        <li><span class="idx-num">49</span><a href="#d49">Jesús Está Pasando por Aquí</a></li>
-    </ol>
+        <li><span class="idx-num">45</span><a href="#d45">Jesús Está Pasando por Aquí</a></li>
+        <li><span class="idx-num">46</span><a href="#d46">Mi Dios Está Vivo</a></li>
+        <li><span class="idx-num">47</span><a href="#d47">Mi Mano Está Llena</a></li>
+        <li><span class="idx-num">48</span><a href="#d48">Porque Cristo Ha Tomado Mi Vida</a></li>
+        <li><span class="idx-num">49</span><a href="#d49">Que Viva Cristo</a></li>
+        <li><span class="idx-num">50</span><a href="#d50">Vamos a Alabar al Señor</a></li>
+        
   </div>
 
   <!-- SONGS -->
   <div class="ceremony-body">
 
         <div class="moment-header"><span class="moment-label">Entrada</span></div>
+
 
     <a class="back-link" id="d01" href="#dominical-index">Volver al índice</a>
     <div class="song-card">
@@ -1716,6 +1754,47 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
         <div class="song-header-text">
           <div class="song-moment-label">Entrada</div>
           <div class="song-title">Desde el Alba hasta el Ocaso<a class="yt-play-btn" href="#chords-block-d01" onclick="toggleChords('d01',true);setTimeout(function(){document.getElementById('chords-block-d01').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/edRkrtcnVx8?t=24" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d02" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">02</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Entrada</div>
+          <div class="song-title">Dios Trino</div>
+        </div>
+      
+
+    <a class="back-link" id="d03" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">03</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Entrada</div>
+          <div class="song-title">Maranatha<a class="yt-play-btn" href="#chords-block-d03" onclick="toggleChords('d03',true);setTimeout(function(){document.getElementById('chords-block-d03').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/N-adf06_3g0?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+
+    <a class="back-link" id="d04" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">04</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Entrada</div>
+          <div class="song-title">Reunidos en el Nombre del Señor</div>
+        </div>
+      
+
+    <a class="back-link" id="d05" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">05</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Entrada</div>
+          <div class="song-title">Vosotros Sois de Dios<a class="yt-play-btn" href="#chords-block-d05" onclick="toggleChords('d05',true);setTimeout(function(){document.getElementById('chords-block-d05').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/gbvCj2NRvIg?t=10" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -1779,18 +1858,7 @@ Nunca vencerá la noche dentro de mí.
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-
-
-    <a class="back-link" id="d02" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">02</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Entrada</div>
-          <div class="song-title">Reunidos en el Nombre del Señor</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Reunidos en el nombre del Señor</p>
@@ -1818,17 +1886,7 @@ Nunca vencerá la noche dentro de mí.
         <div class="chorus"><p>Reunidos en el nombre del Señor… (x2)</p></div>
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
-    </div>
-
-    <a class="back-link" id="d03" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">03</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Entrada</div>
-          <div class="song-title">Maranatha<a class="yt-play-btn" href="#chords-block-d03" onclick="toggleChords('d03',true);setTimeout(function(){document.getElementById('chords-block-d03').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/N-adf06_3g0?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    </div></div>
       <div class="song-body">
         <p class="song-note" style="font-style:italic; font-size:0.85rem;">Tonalidad: MIm (+3) · 3/4</p>
         <div class="chorus">
@@ -1890,17 +1948,7 @@ Maranatha, Maranatha.
 <span class="chord">SI</span>  <span class="chord">RE</span>  <span class="chord">SI</span></pre>
         </div>
       </div>
-    </div>
-
-    <a class="back-link" id="d04" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">04</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Entrada</div>
-          <div class="song-title">Vosotros Sois de Dios<a class="yt-play-btn" href="#chords-block-d04" onclick="toggleChords('d04',true);setTimeout(function(){document.getElementById('chords-block-d04').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/gbvCj2NRvIg?t=10" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    </div></div>
       <div class="song-body">
         <div class="strophe">
           <p>Todos los días y las noches,</p>
@@ -1928,8 +1976,8 @@ Maranatha, Maranatha.
           <p>es todo nuestro y nosotros de Dios.</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d04" onclick="toggleChords('d04')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d04">
+        <button class="chords-toggle" id="chords-toggle-d05" onclick="toggleChords('d05')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d05">
           <pre><b>♫ Vosotros Sois de Dios</b>
 
 <b>INTRO:</b> <span class="chord">SOL</span> <span class="chord">RE</span> <span class="chord">DO9</span> <span class="chord">MIm7</span> <span class="chord">DO9</span> <span class="chord">RE</span>
@@ -1981,17 +2029,7 @@ es todo nuestro y nosotros de Dios.
 <span class="chord">LA</span>        <span class="chord">MI</span> <span class="chord">SI</span>   <span class="chord">MI</span></pre>
         </div>
       </div>
-    </div>
-
-    <a class="back-link" id="d05" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">05</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Entrada</div>
-          <div class="song-title">Dios Trino</div>
-        </div>
-      </div>
+    </div></div>
       <div class="song-body">
         <div class="strophe">
           <p>En el nombre del Padre, en el nombre del Hijo,</p>
@@ -2159,7 +2197,7 @@ es todo nuestro y nosotros de Dios.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
+    <div class="moment-header"><span class="moment-label">Ofertorio</span></div
 
     <a class="back-link" id="d11" href="#dominical-index">Volver al índice</a>
     <div class="song-card">
@@ -2167,9 +2205,69 @@ es todo nuestro y nosotros de Dios.
         <div class="song-number">11</div>
         <div class="song-header-text">
           <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Cristo Mío</div>
+        </div>
+      
+
+    <a class="back-link" id="d12" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">12</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Feliz Encuentro<a class="yt-play-btn" href="#chords-block-d12" onclick="toggleChords('d12',true);setTimeout(function(){document.getElementById('chords-block-d12').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Wl85TQpniyg?t=8" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d13" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">13</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Pan y Vino de Amor<a class="yt-play-btn" href="#chords-block-d13" onclick="toggleChords('d13',true);setTimeout(function(){document.getElementById('chords-block-d13').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/UqY7SzeULt8?t=30" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+
+    <a class="back-link" id="d14" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">14</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Por Amor<a class="yt-play-btn" href="#chords-block-d14" onclick="toggleChords('d14',true);setTimeout(function(){document.getElementById('chords-block-d14').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/GBe-5rk6h8g?t=40" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d15" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">15</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Recíbeme</div>
+        </div>
+      
+
+    
+    <a class="back-link" id="d16" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">16</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Sobre tu Altar<a class="yt-play-btn" href="#chords-block-d16" onclick="toggleChords('d16',true);setTimeout(function(){document.getElementById('chords-block-d16').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/rweoC6NTiKo?t=23" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d17" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">17</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
           <div class="song-title">Tomad Señor y Recibid</div>
         </div>
-      </div>
+      ></div>
       <div class="song-body">
         <div class="strophe">
           <p>Tomad, Señor y recibid</p>
@@ -2191,16 +2289,7 @@ es todo nuestro y nosotros de Dios.
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d12" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">12</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Cristo Mío</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Siento Tu presencia en mi vida</p>
@@ -2228,16 +2317,7 @@ es todo nuestro y nosotros de Dios.
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d13" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">13</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Pan y Vino de Amor<a class="yt-play-btn" href="#chords-block-d13" onclick="toggleChords('d13',true);setTimeout(function(){document.getElementById('chords-block-d13').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/UqY7SzeULt8?t=30" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Te ofrecemos Señor</p>
@@ -2296,16 +2376,7 @@ Nos alimentarás
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d14" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">14</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Recíbeme</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Recíbeme con todo lo que Tú pusiste en mí</p>
@@ -2326,18 +2397,7 @@ Nos alimentarás
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-
-    
-    <a class="back-link" id="d15" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">15</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Sobre tu Altar<a class="yt-play-btn" href="#chords-block-d15" onclick="toggleChords('d15',true);setTimeout(function(){document.getElementById('chords-block-d15').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/rweoC6NTiKo?t=23" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Sobre Tu altar, lo más preciado, Señor,</p>
@@ -2362,8 +2422,8 @@ Nos alimentarás
           <p>a Tu amor, mi Dios, mi Rey.</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d15" onclick="toggleChords('d15')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d15">
+        <button class="chords-toggle" id="chords-toggle-d16" onclick="toggleChords('d16')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d16">
           <pre><b>♫ Sobre tu Altar</b>
 
 <b>═══ ESTROFA 1 ═══</b>
@@ -2408,18 +2468,7 @@ a tu amor, mi Dios, mi Rey.
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-
-
-    <a class="back-link" id="d16" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">16</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Por Amor<a class="yt-play-btn" href="#chords-block-d16" onclick="toggleChords('d16',true);setTimeout(function(){document.getElementById('chords-block-d16').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/GBe-5rk6h8g?t=40" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <p class="song-note" style="font-style:italic; font-size:0.85rem;">Hermana Inés de Jesús · Capo +1 · Tono: MIb</p>
         <div class="strophe">
@@ -2481,8 +2530,8 @@ a tu amor, mi Dios, mi Rey.
           <p>lo hago por amor.</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d16" onclick="toggleChords('d16')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d16">
+        <button class="chords-toggle" id="chords-toggle-d14" onclick="toggleChords('d14')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d14">
           <pre><b>♫ Por Amor</b>
 
 <b>⚠ CAPO +1 · Tono: MIb</b>
@@ -2578,17 +2627,7 @@ cuando haya tempestad.
 <b>(Rep. Coro final con "lo hago por amor a Ti")</b></pre>
         </div>
       </div>
-    </div>
-
-    <a class="back-link" id="d17" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">17</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Feliz Encuentro<a class="yt-play-btn" href="#chords-block-d17" onclick="toggleChords('d17',true);setTimeout(function(){document.getElementById('chords-block-d17').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Wl85TQpniyg?t=8" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    </div></div>
       <div class="song-body">
         <p class="song-note" style="font-style:italic; font-size:0.85rem;">Hermana Inés de Jesús · Capo +1</p>
         <div class="strophe">
@@ -2631,8 +2670,8 @@ cuando haya tempestad.
           <p>Solo una cosa me es necesaria: amor.</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d17" onclick="toggleChords('d17')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d17">
+        <button class="chords-toggle" id="chords-toggle-d12" onclick="toggleChords('d12')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d12">
           <pre><b>♫ Feliz Encuentro</b>
 
 <b>⚠ CAPO +1</b>
@@ -2700,7 +2739,7 @@ Solo una cosa me es necesaria: amor.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-        <div class="moment-header"><span class="moment-label">Santo</span></div>
+        <div class="moment-header"><span class="moment-label">Santo</span></di
 
     <a class="back-link" id="d18" href="#dominical-index">Volver al índice</a>
     <div class="song-card">
@@ -2708,9 +2747,56 @@ Solo una cosa me es necesaria: amor.
         <div class="song-number">18</div>
         <div class="song-header-text">
           <div class="song-moment-label">Santo</div>
+          <div class="song-title">Sanctus – Verbum Panis<a class="yt-play-btn" href="https://youtu.be/CwZCvXp7bwE?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d19" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">19</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Santo</div>
+          <div class="song-title">Santo – Alfonso Luna</div>
+        </div>
+      
+
+    <a class="back-link" id="d20" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">20</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Santo</div>
           <div class="song-title">Santo – Fones<a class="yt-play-btn" href="https://youtu.be/Vwy0tw6u3Qw?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
-      </div>
+      
+
+    <a class="back-link" id="d21" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">21</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero de Dios</div>
+          <div class="song-title">Cordero – Dynamis<a class="yt-play-btn" href="https://youtu.be/U7QvUW2A5mg?t=14" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d22" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">22</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero de Dios</div>
+          <div class="song-title">Cordero – Mejía</div>
+        </div>
+      
+    <a class="back-link" id="d23" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">23</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero de Dios</div>
+          <div class="song-title">Oh Cordero de Dios</div>
+        </div>
+      v></div>
       <div class="song-body">
         <div class="strophe">
           <p>Santo, santo, santo es el Señor</p>
@@ -2727,17 +2813,153 @@ Solo una cosa me es necesaria: amor.
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d19" href="#dominical-index">Volver al índice</a>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
+      <div class="song-body"
+
+    <a class="back-link" id="d24" href="#dominical-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">19</div>
+        <div class="song-number">24</div>
         <div class="song-header-text">
-          <div class="song-moment-label">Santo</div>
-          <div class="song-title">Santo – Alfonso Luna</div>
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Camino Firme</div>
         </div>
-      </div>
-      <div class="song-body">
+      
+    <a class="back-link" id="d25" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">25</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Divino Manjar<a class="yt-play-btn" href="https://youtu.be/r8HKwwZjCl0?list=RDr8HKwwZjCl0&t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d26" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">26</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">En su Mesa hay Amor</div>
+        </div>
+      
+    <a class="back-link" id="d27" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">27</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Me Has Seducido, Señor</div>
+        </div>
+      
+    <a class="back-link" id="d28" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">28</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Milagro de Amor</div>
+        </div>
+      
+    <a class="back-link" id="d29" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">29</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Pan de Vida, Pan de Fe</div>
+        </div>
+      
+    <a class="back-link" id="d30" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">30</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Pescador de Hombres</div>
+        </div>
+      
+
+
+    <a class="back-link" id="d31" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">31</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Señor, a Quién Iremos<a class="yt-play-btn" href="#chords-block-d31" onclick="toggleChords('d31',true);setTimeout(function(){document.getElementById('chords-block-d31').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d32" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">32</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Te Hiciste Pan<a class="yt-play-btn" href="https://youtu.be/vaHHAXg5NEQ?t=12" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d33" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">33</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Comunión</div>
+          <div class="song-title">Verbum Panis<a class="yt-play-btn" href="#chords-block-d33" onclick="toggleChords('d33',true);setTimeout(function(){document.getElementById('chords-block-d33').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/wp-t_98g2Ng?t=13" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d34" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">34</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Ave María (Verbum Panis)<a class="yt-play-btn" href="#chords-block-d34" onclick="toggleChords('d34',true);setTimeout(function(){document.getElementById('chords-block-d34').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/oylNSK8o9KA?t=25" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    
+    <a class="back-link" id="d35" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">35</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Dios te Salve María (Betsaida)<a class="yt-play-btn" href="#chords-block-d35" onclick="toggleChords('d35',true);setTimeout(function(){document.getElementById('chords-block-d35').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/kmULXNjCx00?t=5" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d36" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">36</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Madre del Silencio<a class="yt-play-btn" href="#chords-block-d36" onclick="toggleChords('d36',true);setTimeout(function(){document.getElementById('chords-block-d36').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5gfbm_8Ag9s?t=22" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+
+    <a class="back-link" id="d37" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">37</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Toda Hermosa<a class="yt-play-btn" href="#chords-block-d37" onclick="toggleChords('d37',true);setTimeout(function(){document.getElementById('chords-block-d37').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5f9u2R06eWQ?t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d38" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">38</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Salida</div>
+          <div class="song-title">Tus Maravillas<a class="yt-play-btn" href="#chords-block-d38" onclick="toggleChords('d38',true);setTimeout(function(){document.getElementById('chords-block-d38').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/AQlpDb_dXkM?t=17" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      >
         <div class="strophe">
           <p>Santo, Santo,</p>
           <p>Santo es el Señor Dios del universo.</p>
@@ -2759,16 +2981,7 @@ Solo una cosa me es necesaria: amor.
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d20" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">20</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Santo</div>
-          <div class="song-title">Sanctus – Verbum Panis<a class="yt-play-btn" href="https://youtu.be/CwZCvXp7bwE?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p><em>Sanctus, sanctus, sanctus,</em></p>
@@ -2787,17 +3000,7 @@ Solo una cosa me es necesaria: amor.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <div class="moment-header"><span class="moment-label">Cordero de Dios</span></div>
-
-    <a class="back-link" id="d21" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">21</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Cordero de Dios</div>
-          <div class="song-title">Cordero – Dynamis<a class="yt-play-btn" href="https://youtu.be/U7QvUW2A5mg?t=14" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <div class="moment-header"><span class="moment-label">Cordero de Dios</span></div></div>
       <div class="song-body">
         <div class="strophe">
           <p>Cordero de Dios,</p>
@@ -2818,16 +3021,7 @@ Solo una cosa me es necesaria: amor.
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d22" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">22</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Cordero de Dios</div>
-          <div class="song-title">Oh Cordero de Dios</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>¡Oh Cordero de Dios!</p>
@@ -2845,16 +3039,7 @@ Solo una cosa me es necesaria: amor.
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d23" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">23</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Cordero de Dios</div>
-          <div class="song-title">Cordero – Mejía</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Cordero de Dios que quitas el pecado del mundo,</p>
@@ -2873,17 +3058,7 @@ Solo una cosa me es necesaria: amor.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <div class="moment-header"><span class="moment-label">Comunión</span></div>
-
-    <a class="back-link" id="d24" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">24</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Verbum Panis<a class="yt-play-btn" href="#chords-block-d24" onclick="toggleChords('d24',true);setTimeout(function(){document.getElementById('chords-block-d24').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/wp-t_98g2Ng?t=13" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <div class="moment-header"><span class="moment-label">Comunión</span></div></div>
       <div class="song-body">
         <div class="strophe">
           <p>Antes del tiempo</p>
@@ -2929,8 +3104,8 @@ Solo una cosa me es necesaria: amor.
           <p><em>Verbum panis factum est</em> <span style="font-family:'Cormorant Garamond',serif;font-size:0.85em;opacity:0.55;font-style:italic;">(El Verbo se hizo pan)</span></p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d24" onclick="toggleChords('d24')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d24">
+        <button class="chords-toggle" id="chords-toggle-d33" onclick="toggleChords('d33')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d33">
           <pre><b>♫ Verbum Panis</b>
 
 <b>═══ INTRO ═══</b>
@@ -3067,16 +3242,7 @@ Verbum panis factum est
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d25" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">25</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Milagro de Amor</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Jesús, aquí presente en forma real</p>
@@ -3109,16 +3275,7 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d26" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">26</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Divino Manjar<a class="yt-play-btn" href="https://youtu.be/r8HKwwZjCl0?list=RDr8HKwwZjCl0&t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Son Tu cuerpo y Tu sangre, Señor</p>
@@ -3150,16 +3307,7 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d27" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">27</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Pescador de Hombres</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Tú has venido a la orilla,</p>
@@ -3193,16 +3341,7 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d28" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">28</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Me Has Seducido, Señor</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Señor, no soy nada.</p>
@@ -3237,16 +3376,7 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d29" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">29</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">En su Mesa hay Amor</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>El Señor nos ha reunido junto a Él</p>
@@ -3273,16 +3403,7 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d30" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">30</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Camino Firme</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Yo soy la luz del mundo,</p>
@@ -3327,22 +3448,53 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d31" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">31</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Te Hiciste Pan<a class="yt-play-btn" href="https://youtu.be/vaHHAXg5NEQ?t=12" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Estás aquí en este pan</p>
           <p>Estás presente en este vino</p>
         </div>
-        <div class="strophe">
+   
+
+
+    <a class="back-link" id="d39" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">39</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Exposición del Santísimo</div>
+          <div class="song-title">Anima Christi – Marco Frisina<a class="yt-play-btn" href="#chords-block-d39" onclick="toggleChords('d39',true);setTimeout(function(){document.getElementById('chords-block-d39').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d40" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">40</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Exposición del Santísimo</div>
+          <div class="song-title">Cantemos al Amor de los Amores<a class="yt-play-btn" href="#chords-block-d40" onclick="toggleChords('d40',true);setTimeout(function(){document.getElementById('chords-block-d40').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Rb1cYPb1ogY?t=36" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+    <a class="back-link" id="d41" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">41</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Adoración</div>
+          <div class="song-title">Oh Buen Jesús<a class="yt-play-btn" href="https://youtu.be/iXadPLBF5Ws?t=15" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      
+
+    <a class="back-link" id="d42" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">42</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Adoración</div>
+          <div class="song-title">Rey de Reyes</div>
+        </div>
+           <div class="strophe">
           <p>Te hiciste pan</p>
           <p>Te hiciste carne</p>
           <p>Para salvarme</p>
@@ -3380,16 +3532,7 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d32" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">32</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Pan de Vida, Pan de Fe</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Camino y desierto andamos</p>
@@ -3427,19 +3570,138 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>¿Señor, a quién iremos?</p>
+          <p>Si Tú eres nuestra vida.</p>
+          <p>¿Señor, a quién iremos?</p>
+          <p>Si Tú eres nuestro amor,</p>
+          <p>si Tú eres nuestro amor.</p>
+        </div>
+        <div class="strophe">
+          <p>Quién como Tú conoce</p>
+          <p>lo insondable de nuestro corazón.</p>
+          <p>A quién como a Ti le pesan</p>
+          <p>nuestros dolores, nuestros errores.</p>
+          <p>Y quién podría amar como Tú</p>
+          <p>nuestra carne débil,</p>
+          <p>nuestro barro frágil.</p>
+        </div>
+        <div class="chorus"><p>¿Señor, a quién iremos?…</p></div>
+        <div class="strophe">
+          <p>Quién como Tú confía</p>
+          <p>en la mecha que humea en nuestro interior.</p>
+          <p>Quién como Tú sostiene</p>
+          <p>nuestra esperanza… malherida</p>
+          <p>y nuestros anhelos insaciables.</p>
+          <p>Quién como Tú espera</p>
+          <p>nuestro sí de amor.</p>
+        </div>
+        <div class="chorus">
+          <p>¿Señor, a quién iremos?</p>
+          <p>Si Tú eres nuestra vida.</p>
+          <p>¿Señor, a quién iremos?</p>
+          <p>Si Tú eres nuestro amor,</p>
+          <p>si Tú eres nuestro amor.</p>
+        </div>
+        <div class="strophe">
+          <p>Iremos… si Tú eres nuestra vida.</p>
+          <p>Señor, ¿adónde iré?</p>
+          <p>¿Adónde iré? ¡Si eres la vida!</p>
+          <p>Señor, ¿adónde iré?</p>
+          <p>¿Adónde iré…</p>
+          <p>¡Señor!</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+        <button class="chords-toggle" id="chords-toggle-d31" onclick="toggleChords('d31')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d31">
+          <pre><b>♫ Señor, a Quién Iremos</b>
 
-    <div class="moment-header"><span class="moment-label">Salida</span></div>
+<b>═══ CORO (DO) ═══</b>
 
-    <a class="back-link" id="d33" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">33</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Salida</div>
-          <div class="song-title">Ave María (Verbum Panis)<a class="yt-play-btn" href="#chords-block-d33" onclick="toggleChords('d33',true);setTimeout(function(){document.getElementById('chords-block-d33').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/oylNSK8o9KA?t=25" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+¿Señor, a quién iremos?
+<span class="chord">DO</span>        <span class="chord">SOL</span>    <span class="chord">DO</span>
+Si tú eres nuestra vida.
+<span class="chord">REm</span>               <span class="chord">FA7</span> <span class="chord">SOL</span>
+¿Señor, a quién iremos?
+<span class="chord">LAm</span>       <span class="chord">REm</span>    <span class="chord">FA</span> <span class="chord">SOL</span>
+Si tú eres nuestro amor,
+   <span class="chord">FA</span>      <span class="chord">REm</span>      <span class="chord">SOL</span>
+si tú eres nuestro amor.
+<span class="chord">REm</span>        <span class="chord">SOL</span>      <span class="chord">DO</span>
+
+<b>═══ ESTROFA 1 ═══</b>
+
+Quién como tú conoce
+<span class="chord">LAm7</span>                 <span class="chord">SOL</span>
+lo insondable de nuestro corazón.
+              <span class="chord">FA</span>        <span class="chord">REm</span>  <span class="chord">SOL</span>
+A quién como a ti le pesan
+<span class="chord">MI7</span>                  <span class="chord">LAm</span>
+nuestros dolores, nuestros errores.
+<span class="chord">FA</span>              <span class="chord">DO</span>   <span class="chord">FA</span>        <span class="chord">RE5</span> <span class="chord">MI7</span>
+Y quién podría amar como Tú
+          <span class="chord">DO</span>        <span class="chord">FA</span>
+nuestra carne débil,
+<span class="chord">REm</span>           <span class="chord">LAm7</span>
+nuestro barro frágil.
+<span class="chord">FA</span>            <span class="chord">SOL</span>
+
+<b>(Rep. Coro)</b>
+
+<b>═══ ESTROFA 2 (modulación) ═══</b>
+
+<span class="chord">LA7</span>
+Quién como tú confía
+<span class="chord">RE</span>               <span class="chord">SOL</span>
+en la mecha que humea en nuestro interior.
+                 <span class="chord">MIm</span>                 <span class="chord">LA</span>
+Quién como tú sostiene
+           <span class="chord">FA7</span>    <span class="chord">SIm</span>
+nuestra esperanza… malherida
+<span class="chord">SOL</span>            <span class="chord">RE</span>      <span class="chord">MIm</span>   <span class="chord">FA</span>
+y nuestros anhelos insaciables.
+           <span class="chord">RE</span>           <span class="chord">SOL</span>
+Quién como tú espera
+<span class="chord">MIm</span>             <span class="chord">SIm</span>
+nuestro sí de amor.
+<span class="chord">SOL</span>     <span class="chord">MIm</span>    <span class="chord">FA7</span>
+
+<b>═══ CORO FINAL (RE) ═══</b>
+
+¿Señor, a quién iremos?
+<span class="chord">RE</span>        <span class="chord">LA</span>     <span class="chord">RE</span>
+Si tú eres nuestra vida.
+<span class="chord">SOL</span>                <span class="chord">MIm</span> <span class="chord">LA</span>
+¿Señor, a quién iremos?
+<span class="chord">SOL</span>         <span class="chord">MIm</span>   <span class="chord">SOL</span> <span class="chord">LA</span>
+Si tú eres nuestro amor,
+<span class="chord">SOL</span>        <span class="chord">MIm</span>      <span class="chord">LA</span>
+si tú eres nuestro amor.
+<span class="chord">SOL</span>        <span class="chord">LA</span>       <span class="chord">RE</span>
+
+<b>═══ CODA ═══</b>
+
+Iremos… si tú eres nuestra vida.
+<span class="chord">SOL</span>                  <span class="chord">MIm</span>     <span class="chord">LA</span>
+Señor, ¿adónde iré?
+  <span class="chord">RE</span>           <span class="chord">SOL</span>
+¿Adónde iré? ¡Si eres la vida!
+         <span class="chord">SIm</span>             <span class="chord">LA</span>
+Señor, ¿adónde iré?
+  <span class="chord">RE</span>           <span class="chord">SOL</span>
+¿Adónde iré…
+        <span class="chord">SIm</span> <span class="chord">LA</span>
+
+¡Señor!
+<span class="chord">RE</span></pre>
         </div>
       </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
+
+        <div class="moment-header"><span class="moment-label">Salida</span></div></div>
       <div class="song-body">
         <div class="chorus">
           <p>Ave María, ave</p>
@@ -3460,8 +3722,8 @@ Verbum panis factum est
         </div>
         <div class="chorus"><p>Ave María, ave / Ave María, ave. <em>(bis)</em></p></div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d33" onclick="toggleChords('d33')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d33">
+        <button class="chords-toggle" id="chords-toggle-d34" onclick="toggleChords('d34')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d34">
           <pre><b>♫ Ave María (Verbum Panis)</b>
 
 <b>═══ INTRO ═══</b>
@@ -3522,16 +3784,7 @@ ora pro nobis.
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d34" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">34</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Salida</div>
-          <div class="song-title">Tus Maravillas<a class="yt-play-btn" href="#chords-block-d34" onclick="toggleChords('d34',true);setTimeout(function(){document.getElementById('chords-block-d34').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/AQlpDb_dXkM?t=17" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Ahora puedes dejarme</p>
@@ -3560,8 +3813,8 @@ ora pro nobis.
         </div>
         <div class="chorus"><p>Ahora puedes dejarme… <em>(bis)</em></p></div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d34" onclick="toggleChords('d34')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d34">
+        <button class="chords-toggle" id="chords-toggle-d38" onclick="toggleChords('d38')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d38">
           <pre><b>♫ Tus Maravillas</b>
 
 <b>INTRO:</b>
@@ -3640,17 +3893,7 @@ cantará todas tus maravillas.
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-
-    <a class="back-link" id="d36" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">36</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Salida</div>
-          <div class="song-title">Madre del Silencio<a class="yt-play-btn" href="#chords-block-d36" onclick="toggleChords('d36',true);setTimeout(function(){document.getElementById('chords-block-d36').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5gfbm_8Ag9s?t=22" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Como una tarde tranquila,</p>
@@ -3753,18 +3996,7 @@ para escuchar su voz.                  <span class="chord">REm</span>-<span clas
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-
-    
-    <a class="back-link" id="d37" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">37</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Salida</div>
-          <div class="song-title">Dios te Salve María (Betsaida)<a class="yt-play-btn" href="#chords-block-d37" onclick="toggleChords('d37',true);setTimeout(function(){document.getElementById('chords-block-d37').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/kmULXNjCx00?t=5" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <p class="song-note" style="font-style:italic; font-size:0.85rem;">Tonalidad: SOL (+2)</p>
         <div class="chorus">
@@ -3829,8 +4061,8 @@ para escuchar su voz.                  <span class="chord">REm</span>-<span clas
           <p>Señora de nuestro camino…</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d37" onclick="toggleChords('d37')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d37">
+        <button class="chords-toggle" id="chords-toggle-d35" onclick="toggleChords('d35')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d35">
           <pre><b>♫ Dios te Salve María (Betsaida)</b>
 
 <b>⚠ TONALIDAD: SOL (+2)</b>
@@ -3883,20 +4115,83 @@ heridos por tanto pecar,
 Desde hoy hasta el día final de este peregrinar.
 <span class="chord">SOL</span>            <span class="chord">RE</span>         <span class="chord">DO</span>       <span class="chord">SOL</span></pre>
         </div>
-      </div>
-    </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
+      </d
 
-
-    <a class="back-link" id="d35" href="#dominical-index">Volver al índice</a>
+    <a class="back-link" id="d43" href="#dominical-index">Volver al índice</a>
     <div class="song-card">
       <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">35</div>
+        <div class="song-number">43</div>
         <div class="song-header-text">
-          <div class="song-moment-label">Salida</div>
-          <div class="song-title">Toda Hermosa<a class="yt-play-btn" href="#chords-block-d35" onclick="toggleChords('d35',true);setTimeout(function(){document.getElementById('chords-block-d35').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/5f9u2R06eWQ?t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Dame del Agua que Brota</div>
         </div>
-      </div>
+      
+    <a class="back-link" id="d44" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">44</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Granito de Mostaza</div>
+        </div>
+      
+    <a class="back-link" id="d45" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">45</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Jesús Está Pasando por Aquí</div>
+        </div>
+      
+
+    <a class="back-link" id="d46" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">46</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Mi Dios Está Vivo</div>
+        </div>
+      
+    <a class="back-link" id="d47" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">47</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Mi Mano Está Llena</div>
+        </div>
+      
+    <a class="back-link" id="d48" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">48</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Porque Cristo Ha Tomado Mi Vida</div>
+        </div>
+      
+    <a class="back-link" id="d49" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">49</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Que Viva Cristo</div>
+        </div>
+      
+    <a class="back-link" id="d50" href="#dominical-index">Volver al índice</a>
+    <div class="song-card">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">50</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Animación</div>
+          <div class="song-title">Vamos a Alabar al Señor</div>
+        </div>
+      iv>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <p class="song-note" style="font-style:italic; font-size:0.85rem;">Hermana Inés de Jesús · Capo +1</p>
         <div class="strophe">
@@ -3942,8 +4237,8 @@ Desde hoy hasta el día final de este peregrinar.
           <p>María, María.</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d35" onclick="toggleChords('d35')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d35">
+        <button class="chords-toggle" id="chords-toggle-d37" onclick="toggleChords('d37')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d37">
           <pre><b>♫ Toda Hermosa</b>
 
 <b>⚠ CAPO +1</b>
@@ -4031,17 +4326,7 @@ María, María.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-        <div class="moment-header"><span class="moment-label">Exposición del Santísimo</span></div>
-
-    <a class="back-link" id="d38" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">38</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Exposición del Santísimo</div>
-          <div class="song-title">Anima Christi – Marco Frisina<a class="yt-play-btn" href="#chords-block-d38" onclick="toggleChords('d38',true);setTimeout(function(){document.getElementById('chords-block-d38').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></div>
-        </div>
-      </div>
+        <div class="moment-header"><span class="moment-label">Exposición del Santísimo</span></div></div>
       <div class="song-body">
         <p class="song-note" style="font-style:italic; font-size:0.85rem;">⚠ CAPO 1</p>
         <div class="strophe">
@@ -4069,8 +4354,8 @@ María, María.
           <p>Sæculorum, amém</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d38" onclick="toggleChords('d38')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d38">
+        <button class="chords-toggle" id="chords-toggle-d39" onclick="toggleChords('d39')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d39">
           <pre><b>♫ Anima Christi – Marco Frisina</b>
 
 <b>⚠ CAPO 1</b>
@@ -4121,17 +4406,7 @@ Sæculorum, amém
         </div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-
-    <a class="back-link" id="d39" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">39</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Exposición del Santísimo</div>
-          <div class="song-title">Cantemos al Amor de los Amores<a class="yt-play-btn" href="#chords-block-d39" onclick="toggleChords('d39',true);setTimeout(function(){document.getElementById('chords-block-d39').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Rb1cYPb1ogY?t=36" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Cantemos al amor de los amores,</p>
@@ -4171,8 +4446,8 @@ Sæculorum, amém
         </div>
         <div class="strophe"><p>¡Gloria a Cristo Jesús!…</p></div>
         <div class="song-ornament">✦ ✦ ✦</div>
-        <button class="chords-toggle" id="chords-toggle-d39" onclick="toggleChords('d39')">Ver acordes ▾</button>
-        <div class="chords-block" id="chords-block-d39">
+        <button class="chords-toggle" id="chords-toggle-d40" onclick="toggleChords('d40')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d40">
           <pre><b>♫ Cantemos al Amor de los Amores</b>
 
 <b>═══ ESTROFA (mismos acordes en todas) ═══</b>
@@ -4244,18 +4519,7 @@ Dios del Amor
 
     <div class="moment-header" style="margin-top:3rem;"><span class="moment-label">✦ Momentos Especiales ✦</span></div>
 
-
-    <div class="moment-header"><span class="moment-label">Adoración</span></div>
-
-    <a class="back-link" id="d40" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">40</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Adoración</div>
-          <div class="song-title">Rey de Reyes</div>
-        </div>
-      </div>
+    <div class="moment-header"><span class="moment-label">Adoración</span></div></div>
       <div class="song-body">
         <div class="strophe">
           <p>Toda la tierra verá Tu amor</p>
@@ -4278,16 +4542,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d41" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">41</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Adoración</div>
-          <div class="song-title">Oh Buen Jesús<a class="yt-play-btn" href="https://youtu.be/iXadPLBF5Ws?t=15" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>¡Oh, buen Jesús! Yo creo firmemente</p>
@@ -4329,17 +4584,7 @@ Dios del Amor
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <div class="moment-header"><span class="moment-label">Animación</span></div>
-
-    <a class="back-link" id="d42" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">42</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Mi Dios Está Vivo</div>
-        </div>
-      </div>
+    <div class="moment-header"><span class="moment-label">Animación</span></div></div>
       <div class="song-body">
         <div class="strophe">
           <p>Mi Dios está vivo, Él no está muerto,</p>
@@ -4367,16 +4612,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d43" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">43</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Que Viva Cristo</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Viva la fe, viva la esperanza, viva el amor. <em>(x3)</em></p>
@@ -4389,16 +4625,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d44" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">44</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Granito de Mostaza</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Si tuviera fe,</p>
@@ -4428,16 +4655,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d45" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">45</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Mi Mano Está Llena</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Mi mano está llena de su bendición. <em>(bis)</em></p>
@@ -4465,16 +4683,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d46" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">46</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Porque Cristo Ha Tomado Mi Vida</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Cristo ha tomado mi vida y no la quiere soltar. <em>(x2)</em></p>
@@ -4490,16 +4699,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d47" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">47</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Dame del Agua que Brota</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Dame del agua que brota para la vida eterna. <em>(bis)</em></p>
@@ -4515,16 +4715,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d48" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">48</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Vamos a Alabar al Señor</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="chorus">
           <p>Vamos a alabar al Señor,</p>
@@ -4547,16 +4738,7 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
       </div>
     </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
-    <a class="back-link" id="d49" href="#dominical-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">49</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Jesús Está Pasando por Aquí</div>
-        </div>
-      </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a></div>
       <div class="song-body">
         <div class="strophe">
           <p>Jesús está pasando por aquí. <em>(x2)</em></p>
@@ -5525,5 +5707,48 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   }
 })();
 </script>
+
+<script>
+// ── FULLSCREEN ZOOM ─────────────────────────────
+(function() {
+  var ZOOM_STEP = 10; // percent
+  var ZOOM_MIN = 50;
+  var ZOOM_MAX = 200;
+
+  // Inject zoom controls into each chord block
+  document.querySelectorAll('.chords-block').forEach(function(block) {
+    var bar = document.createElement('div');
+    bar.className = 'fullscreen-zoom';
+    bar.innerHTML = '<button class="zoom-btn" data-zoom="-">−</button>' +
+      '<span class="zoom-label">100%</span>' +
+      '<button class="zoom-btn" data-zoom="+">+</button>';
+    block.appendChild(bar);
+
+    var pre = block.querySelector('pre');
+    var label = bar.querySelector('.zoom-label');
+    var currentZoom = 100;
+
+    bar.addEventListener('click', function(e) {
+      var btn = e.target.closest('.zoom-btn');
+      if (!btn || !pre) return;
+      var dir = btn.getAttribute('data-zoom');
+      if (dir === '+' && currentZoom < ZOOM_MAX) currentZoom += ZOOM_STEP;
+      if (dir === '-' && currentZoom > ZOOM_MIN) currentZoom -= ZOOM_STEP;
+      pre.style.fontSize = (currentZoom / 100) + 'em';
+      label.textContent = currentZoom + '%';
+    });
+
+    // Reset zoom when exiting fullscreen
+    document.addEventListener('fullscreenchange', function() {
+      if (!document.fullscreenElement) {
+        currentZoom = 100;
+        if (pre) pre.style.fontSize = '';
+        if (label) label.textContent = '100%';
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -972,6 +972,19 @@ body {
 <!-- ══════════════════════════════════════════════
      MAIN COVER
 ══════════════════════════════════════════════ -->
+
+<!-- ══ CHORD EDITOR ══ -->
+<div id="chord-editor-overlay">
+  <div id="chord-editor-toolbar">
+    <span id="chord-editor-title">Modo Edición</span>
+    <button class="editor-btn" id="editor-reset-btn">Restaurar original</button>
+    <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
+    <button class="editor-btn" id="editor-save-btn">Guardar</button>
+  </div>
+  <textarea id="chord-editor-textarea" spellcheck="false"></textarea>
+  <div id="chord-editor-status">Edita los acordes. Al guardar se subirán a la nube.</div>
+</div>
+
 <div class="main-cover">
   <div class="cover-cross"><svg viewBox="0 0 40 60" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:0.75em;height:1.1em;display:inline-block;vertical-align:middle;"><rect x="16" y="0" width="8" height="60" rx="1"/><rect x="0" y="18" width="40" height="8" rx="1"/></svg></div>
   <p class="cover-eyebrow">Coro Pacem Deus</p>
@@ -1094,7 +1107,9 @@ body {
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-r01" onclick="toggleChords('r01')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-r01">
-          <pre><b>═══ INTRO ═══</b>
+          <pre><b>♫ Los Niños Hebreos</b>
+
+<b>═══ INTRO ═══</b>
 
 <span class="chord">MIm</span>              | <span class="chord">RE7</span>          <span class="chord">SOL</span> <span class="chord">SI7</span> |
 <span class="chord">MIm</span>              | <span class="chord">LAm</span>    <span class="chord">FA#7</span>  <span class="chord">SI7</span>     |
@@ -1167,7 +1182,9 @@ Héroe valeroso y Dios de Israel.
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-r02" onclick="toggleChords('r02')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-r02">
-          <pre><span style="display:inline-block;background:#C8943C;color:#000;font-weight:bold;padding:0.3rem 0.8rem;border-radius:3px;font-size:1rem;letter-spacing:0.1em;">⚠ CAPO 3 (suena en DOm)</span>
+          <pre><b>♫ Shalom Hosanna</b>
+
+<span style="display:inline-block;background:#C8943C;color:#000;font-weight:bold;padding:0.3rem 0.8rem;border-radius:3px;font-size:1rem;letter-spacing:0.1em;">⚠ CAPO 3 (suena en DOm)</span>
 
 <b>═══ CORO ═══</b>
 
@@ -1519,7 +1536,9 @@ Shalom, hosanna.
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-r11" onclick="toggleChords('r11')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-r11">
-          <pre><b>═══ INTRO ═══</b>
+          <pre><b>♫ Ave María (Verbum Panis)</b>
+
+<b>═══ INTRO ═══</b>
 
 <span class="chord">RE</span> <span class="chord">LA</span> <span class="chord">MIm</span>  <span class="chord">SOL</span>
 <span class="chord">RE</span> <span class="chord">LA</span> <span class="chord">MIm</span>  <span class="chord">SOL/LA</span> <span class="chord">LA</span>
@@ -1693,7 +1712,9 @@ ora pro nobis.
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-j01" onclick="toggleChords('j01')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-j01">
-          <pre><b>═══ INTRO ═══</b>
+          <pre><b>♫ Verbum Panis</b>
+
+<b>═══ INTRO ═══</b>
 
 | <span class="chord">MIm</span>           |
 | <span class="chord">MIm</span>           |
@@ -1997,7 +2018,9 @@ Verbum panis factum est
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-j05" onclick="toggleChords('j05')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-j05">
-          <pre><b>INTRO:</b>
+          <pre><b>♫ Lava mis Pies Señor</b>
+
+<b>INTRO:</b>
 <span class="chord">SOL</span> <span class="chord">DO</span> 
 <span class="chord">LAm</span> <span class="chord">RE</span> <span class="chord">SOL</span> 
 <span class="chord">SOL</span>  <span class="chord">DO</span>
@@ -2399,7 +2422,9 @@ Lava mis pies Señor (fin)
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-j13" onclick="toggleChords('j13')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-j13">
-          <pre><b>═══ ESTROFA (mismos acordes en todas) ═══</b>
+          <pre><b>♫ Cantemos al Amor de los Amores</b>
+
+<b>═══ ESTROFA (mismos acordes en todas) ═══</b>
 
 1. Cantemos al Amor de los amores,
    <span class="chord">SOL</span>        <span class="chord">RE/FA#</span>       <span class="chord">MIm</span>
@@ -2668,7 +2693,9 @@ Dios del Amor
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-v04" onclick="toggleChords('v04')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-v04">
-          <pre><b>ESTROFA</b>
+          <pre><b>♫ Pan y Vino de Amor</b>
+
+<b>ESTROFA</b>
 Te ofrecemos Señor
      <span class="chord">E</span>
 Estas ofrendas de amor,
@@ -2997,7 +3024,9 @@ Nos alimentarás
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-v11" onclick="toggleChords('v11')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-v11">
-          <pre><b>INTRO:</b>
+          <pre><b>♫ Tus Maravillas</b>
+
+<b>INTRO:</b>
 <span class="chord">Lam</span> <span class="chord">mim</span> <span class="chord">FA</span> <span class="chord">DO</span>
 <span class="chord">Rem</span> <span class="chord">Lam</span> <span class="chord">FA</span> <span class="chord">SOL</span> //
 <span class="chord">Lam</span> <span class="chord">mim</span> <span class="chord">FA</span> <span class="chord">DO</span>
@@ -4086,6 +4115,129 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
 }
 .chords-block:fullscreen .fullscreen-close,
 .chords-block:-webkit-full-screen .fullscreen-close { display: flex; }
+
+/* ── Fullscreen zoom controls ── */
+.fullscreen-zoom {
+  display: none;
+  position: absolute;
+  top: 0.5rem;
+  right: 5rem;
+  gap: 0.4rem;
+  align-items: center;
+  z-index: 10;
+}
+.chords-block.fullscreen .fullscreen-zoom { display: flex; }
+.zoom-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(232,192,64,0.4);
+  background: rgba(26,26,26,0.8);
+  color: #E8C040;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.zoom-btn:hover { background: rgba(232,192,64,0.2); }
+.zoom-label {
+  color: #E8C040;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+
+/* ── CHORD EDITOR MODE ── */
+#chord-editor-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 400000;
+  background: #111;
+  flex-direction: column;
+}
+#chord-editor-overlay.open { display: flex; }
+#chord-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 1.2rem;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+#chord-editor-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: #C8943C;
+  flex: 1;
+  text-transform: uppercase;
+}
+.editor-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.45rem 1rem;
+  border-radius: 3px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#editor-save-btn {
+  background: #5C7A3A;
+  color: #fff;
+  border-color: #5C7A3A;
+}
+#editor-save-btn:hover { background: #4A6830; }
+#editor-cancel-btn {
+  background: transparent;
+  color: #aaa;
+  border-color: #555;
+}
+#editor-cancel-btn:hover { background: #222; }
+#editor-reset-btn {
+  background: transparent;
+  color: #C8943C;
+  border-color: #C8943C;
+}
+#editor-reset-btn:hover { background: rgba(200,148,60,0.1); }
+#chord-editor-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 1.5rem;
+  background: #111;
+  color: #E8E0C8;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  border: none;
+  outline: none;
+  resize: none;
+  tab-size: 4;
+}
+#chord-editor-status {
+  padding: 0.8rem 1.2rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  background: #222;
+  border-top: 2px solid #333;
+  color: #ccc;
+  flex-shrink: 0;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+#chord-editor-status.error { color: #FF6B6B; font-weight: 600; }
+#chord-editor-status.success { color: #8BC060; font-weight: 600; }
+
 </style>
 
 <script>
@@ -4320,7 +4472,7 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
   }
 
   // Inject transpose bar into a block
-  function injectTransposeBar(blockId) {
+  window.injectTransposeBar = function injectTransposeBar(blockId) {
     var block = document.getElementById('chords-block-' + blockId);
     if (!block || block.querySelector('.transpose-bar')) return;
 
@@ -4418,12 +4570,12 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
       '  body { padding: 1cm; }' +
       '  .chord-content { orphans: 2; widows: 2; }' +
       '}' +
-      '</style></head><body>' +
-      '<h1>' + title + '</h1>' +
-      '<div class="subtitle">Coro Pacem Deus — Parroquia de la Sagrada Familia</div>' +
+      '<\/style><\/head><body>' +
+      '<h1>' + title + '<\/h1>' +
+      '<div class="subtitle">Coro Pacem Deus — Parroquia de la Sagrada Familia<\/div>' +
       '<hr>' +
-      '<div class="chord-content">' + content + '</div>' +
-      '</body></html>');
+      '<div class="chord-content">' + content + '<\/div>' +
+      '<\/body><\/html>');
     win.document.close();
     setTimeout(function() { win.print(); }, 400);
   }
@@ -4449,7 +4601,7 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
     var opening = (forceOpen === true) ? true : !block.classList.contains('open');
     block.classList.toggle('open', opening);
     if (btn) btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
-    if (opening) injectTransposeBar(id);
+    if (opening) window.injectTransposeBar(id);
   };
 })();
 </script>
@@ -4550,5 +4702,373 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
   });
 })();
 </script>
+<script>
+var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
+
+// ── CHORD EDITOR MODE ─────────────────────────────
+(function() {
+  var overlay    = document.getElementById('chord-editor-overlay');
+  var textarea   = document.getElementById('chord-editor-textarea');
+  var status     = document.getElementById('chord-editor-status');
+  var saveBtn    = document.getElementById('editor-save-btn');
+  var cancelBtn  = document.getElementById('editor-cancel-btn');
+  var resetBtn   = document.getElementById('editor-reset-btn');
+  var titleEl    = document.getElementById('chord-editor-title');
+
+  var currentBlockId = null;
+  var originalHtml   = null;
+
+  // ── Valid chord roots (Latin notation) ──
+  var ROOTS = ['DO', 'RE', 'MI', 'FA', 'SOL', 'LA', 'SI'];
+  var ACCIDENTALS = ['#', 'b', '♭', '♯'];
+  // Build regex: root + optional accidental + optional quality + optional /bass
+  // Quality: m, 7, m7, maj7, dim, aug, sus2, sus4, 6, 9, 11, 13, add9, 5, 4, +, °
+  var rootPat = '(?:' + ROOTS.join('|') + ')';
+  var accPat  = '[#b♭♯]?';
+  var qualPat = '(?:m(?:aj)?7?|7|dim|aug|sus[24]|add9|[+°]|\\d+)?';
+  var bassPat = '(?:\\/' + rootPat + accPat + ')?';
+  var CHORD_RE = new RegExp('^' + rootPat + accPat + qualPat + bassPat + '$');
+
+  function isValidChord(token) {
+    // Clean up common separators
+    token = token.replace(/[()]/g, '').trim();
+    if (!token) return false;
+    // Handle compound: DO-MI7, LAm-LA7
+    var parts = token.split('-');
+    return parts.every(function(p) {
+      p = p.trim();
+      return p && CHORD_RE.test(p);
+    });
+  }
+
+  function isHeaderLine(line) {
+    var t = line.trim();
+    return t.startsWith('═') || t.startsWith('♫') || t.startsWith('⚠') ||
+           t.startsWith('(Rep') || t.startsWith('INTRO') || t.startsWith('//') ||
+           t === '' || /^\d+\./.test(t);
+  }
+
+  // ── Convert HTML pre content → plain text ──
+  function htmlToText(htmlStr) {
+    return htmlStr
+      .replace(/<b>(.*?)<\/b>/g, '$1')
+      .replace(/<span class="chord">(.*?)<\/span>/g, '$1')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>');
+  }
+
+  // ── Convert edited text → HTML with chord spans ──
+  function textToHtml(text) {
+    var lines = text.split('\n');
+    var result = [];
+    var errors = [];
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      var trimmed = line.trim();
+
+      // Headers → bold
+      if (/^[═♫⚠]/.test(trimmed) || /^═/.test(trimmed)) {
+        result.push('<b>' + escHtml(trimmed) + '</b>');
+        continue;
+      }
+
+      // Empty line
+      if (!trimmed) { result.push(''); continue; }
+
+      // Check if line is all chords (every non-space token is a chord)
+      var tokens = trimmed.split(/\s+/);
+      var allChords = tokens.length > 0 && tokens.every(function(t) {
+        return isValidChord(t);
+      });
+
+      if (allChords && tokens.length > 0) {
+        // Rebuild line preserving spacing, wrapping each chord
+        var rebuilt = line;
+        // Replace each chord token with <span class="chord">
+        // Work from right to left to preserve positions
+        var matches = [];
+        var re = /\S+/g;
+        var m;
+        while ((m = re.exec(line)) !== null) {
+          matches.push({ start: m.index, end: m.index + m[0].length, text: m[0] });
+        }
+        for (var j = matches.length - 1; j >= 0; j--) {
+          var mt = matches[j];
+          // Wrap compound chords (DO-MI7) — each part gets its own span
+          var chordParts = mt.text.split('-');
+          var wrapped = chordParts.map(function(cp) {
+            return '<span class="chord">' + escHtml(cp) + '</span>';
+          }).join('-');
+          rebuilt = rebuilt.substring(0, mt.start) + wrapped + rebuilt.substring(mt.end);
+        }
+        result.push(rebuilt);
+      } else {
+        // Check for mixed lines — if some tokens look like chords but not all
+        // This is a lyric line, pass as-is
+        result.push(escHtml(line));
+
+        // But validate: warn if a token looks chord-ish but isn't valid
+        tokens.forEach(function(t) {
+          if (/^[A-Z]{2,3}[#b]?[m7]/.test(t) && !isValidChord(t)) {
+            errors.push('Línea ' + (i+1) + ': "' + t + '" parece un acorde pero no es válido');
+          }
+        });
+      }
+    }
+
+    return { html: result.join('\n'), errors: errors };
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ── OPEN EDITOR ──
+  window.openChordEditor = function(blockId) {
+    currentBlockId = blockId;
+    var block = document.getElementById('chords-block-' + blockId);
+    if (!block) return;
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    // Exit browser fullscreen if active (chord block fullscreen)
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      var exitFS = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exitFS) exitFS.call(document);
+    }
+
+    // Store original for reset
+    originalHtml = pre.innerHTML;
+
+    // Convert to plain text
+    textarea.value = htmlToText(pre.innerHTML);
+    titleEl.textContent = 'Modo Edición — ' + (pre.querySelector('b') ? htmlToText(pre.querySelector('b').innerHTML) : blockId);
+    status.textContent = 'Edita los acordes. Al guardar se subirán a la nube.';
+    status.className = '';
+    cancelBtn.textContent = 'Cancelar';
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Request fullscreen on the editor overlay itself
+    setTimeout(function() {
+      var el = overlay;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      textarea.focus();
+    }, 100);
+  };
+
+  // ── SAVE ──
+  saveBtn.addEventListener('click', function() {
+    var result = textToHtml(textarea.value);
+
+    if (result.errors.length > 0) {
+      status.textContent = result.errors[0] + (result.errors.length > 1 ? ' (+' + (result.errors.length-1) + ' más)' : '');
+      status.className = 'error';
+      return;
+    }
+
+    var block = document.getElementById('chords-block-' + currentBlockId);
+    if (!block) return;
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    pre.innerHTML = result.html;
+    saveBtn.disabled = true;
+    status.textContent = '⏳ Guardando en la nube...';
+    status.className = '';
+
+    var saveId = currentBlockId;
+    var saveData = result.html;
+
+    // Step 1: Write to Firebase
+    fetch(FIREBASE_URL + '/chord-overrides/' + saveId + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(saveData)
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Error al escribir: HTTP ' + r.status);
+      status.textContent = '⏳ Verificando en la base de datos...';
+
+      // Step 2: Read back to confirm
+      return fetch(FIREBASE_URL + '/chord-overrides/' + saveId + '.json');
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Error al verificar: HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(saved) {
+      if (saved && saved.length > 10) {
+        try { localStorage.setItem('chord-cloud-' + saveId, saved); } catch(e) {}
+        status.textContent = '✓ Confirmado: acordes guardados en la base de datos (' + saveId + ')';
+        status.className = 'success';
+        saveBtn.disabled = false;
+        cancelBtn.textContent = 'Cerrar';
+      } else {
+        throw new Error('La verificación devolvió datos vacíos');
+      }
+    })
+    .catch(function(err) {
+      status.textContent = '✗ ' + err.message;
+      status.className = 'error';
+      saveBtn.disabled = false;
+    });
+  });
+
+  // ── CANCEL ──
+  cancelBtn.addEventListener('click', closeEditor);
+
+  // ── RESET ──
+  resetBtn.addEventListener('click', function() {
+    if (!currentBlockId) return;
+    // Restore original HTML
+    var block = document.getElementById('chords-block-' + currentBlockId);
+    if (block && originalHtml) {
+      var pre = block.querySelector('pre');
+      if (pre) pre.innerHTML = originalHtml;
+    }
+    // Remove from Firebase and cache
+    fetch(FIREBASE_URL + '/chord-overrides/' + currentBlockId + '.json', {
+      method: 'DELETE'
+    }).catch(function() {});
+    try { localStorage.removeItem('chord-cloud-' + currentBlockId); } catch(e) {}
+    textarea.value = htmlToText(originalHtml || '');
+    status.textContent = '✓ Restaurado al original (nube actualizada)';
+    status.className = 'success';
+  });
+
+  function closeEditor() {
+    // Exit fullscreen if editor is in fullscreen
+    if (document.fullscreenElement === overlay || document.webkitFullscreenElement === overlay) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    currentBlockId = null;
+    originalHtml = null;
+  }
+
+  // Escape key closes
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      closeEditor();
+    }
+  });
+
+
+  // ── LOAD CHORD OVERRIDES (2-layer: Firebase → inline) ──
+  // Layer 1: Firebase Realtime DB (cloud overrides) — highest priority
+  // Layer 2: Inline HTML (base version from zip) — fallback
+  // localStorage is used only as temp cache while Firebase loads
+  // Load overrides from Firebase
+  (function loadFirebaseOverrides() {
+    fetch(FIREBASE_URL + '/chord-overrides.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data) { console.log('[Chords] Firebase: sin overrides'); return; }
+        var ids = Object.keys(data);
+        console.log('[Chords] Firebase: ' + ids.length + ' override(s) cargado(s):', ids.join(', '));
+        ids.forEach(function(id) {
+          var block = document.getElementById('chords-block-' + id);
+          if (!block) { console.warn('[Chords] Bloque no encontrado: ' + id); return; }
+          var pre = block.querySelector('pre');
+          if (pre) {
+            pre.innerHTML = data[id];
+            try { localStorage.setItem('chord-cloud-' + id, data[id]); } catch(e) {}
+          }
+        });
+      })
+      .catch(function(err) { console.warn('[Chords] Firebase no disponible:', err.message); });
+
+    // While Firebase loads, apply local cache for instant render
+    document.querySelectorAll('.chords-block').forEach(function(block) {
+      var id = block.id.replace('chords-block-', '');
+      var pre = block.querySelector('pre');
+      if (!pre) return;
+      try {
+        var cached = localStorage.getItem('chord-cloud-' + id);
+        if (cached) pre.innerHTML = cached;
+      } catch(e) {}
+    });
+  })();
+
+
+  // ── INJECT "EDITAR" BUTTON INTO TRANSPOSE BARS ──
+  // The transpose bar is injected dynamically by injectTransposeBar().
+  // We'll add the edit button when the bar is created.
+  var origInject = window.injectTransposeBar;
+  if (origInject) {
+    window.injectTransposeBar = function(id) {
+      origInject(id);
+      // Check if edit button already exists
+      var block = document.getElementById('chords-block-' + id);
+      if (!block) return;
+      var bar = block.querySelector('.transpose-bar');
+      if (!bar || bar.querySelector('.editor-open-btn')) return;
+      var editBtn = document.createElement('button');
+      editBtn.className = 'editor-open-btn';
+      editBtn.textContent = 'Editar';
+      editBtn.style.cssText = 'margin-left:0.3rem;padding:0.2rem 0.6rem;font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;border:1px solid #C8943C;border-radius:2px;background:transparent;color:#C8943C;cursor:pointer;';
+      editBtn.addEventListener('click', function() { window.openChordEditor(id); });
+      // Insert after the expand button
+      var expandBtn = bar.querySelector('[data-action="expand"]');
+      if (expandBtn) {
+        expandBtn.parentNode.insertBefore(editBtn, expandBtn.nextSibling);
+      } else {
+        bar.appendChild(editBtn);
+      }
+    };
+  }
+})();
+</script>
+
+<script>
+// ── FULLSCREEN ZOOM ─────────────────────────────
+(function() {
+  var ZOOM_STEP = 10; // percent
+  var ZOOM_MIN = 50;
+  var ZOOM_MAX = 200;
+
+  // Inject zoom controls into each chord block
+  document.querySelectorAll('.chords-block').forEach(function(block) {
+    var bar = document.createElement('div');
+    bar.className = 'fullscreen-zoom';
+    bar.innerHTML = '<button class="zoom-btn" data-zoom="-">−</button>' +
+      '<span class="zoom-label">100%</span>' +
+      '<button class="zoom-btn" data-zoom="+">+</button>';
+    block.appendChild(bar);
+
+    var pre = block.querySelector('pre');
+    var label = bar.querySelector('.zoom-label');
+    var currentZoom = 100;
+
+    bar.addEventListener('click', function(e) {
+      var btn = e.target.closest('.zoom-btn');
+      if (!btn || !pre) return;
+      var dir = btn.getAttribute('data-zoom');
+      if (dir === '+' && currentZoom < ZOOM_MAX) currentZoom += ZOOM_STEP;
+      if (dir === '-' && currentZoom > ZOOM_MIN) currentZoom -= ZOOM_STEP;
+      pre.style.fontSize = (currentZoom / 100) + 'em';
+      label.textContent = currentZoom + '%';
+    });
+
+    // Reset zoom when exiting fullscreen
+    document.addEventListener('fullscreenchange', function() {
+      if (!document.fullscreenElement) {
+        currentZoom = 100;
+        if (pre) pre.style.fontSize = '';
+        if (label) label.textContent = '100%';
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
