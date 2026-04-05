@@ -1135,6 +1135,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 
 
 body.rehearsal-mode .chords-toggle { display: inline-block; }
+body.rehearsal-mode .editor-open-btn { display: inline-block !important; }
 body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 
 /* Transpose controls */
@@ -1515,12 +1516,47 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   border-color: #C8943C;
 }
 #editor-reset-btn:hover { background: rgba(200,148,60,0.1); }
-#chord-editor-textarea {
+/* ── TEXTAREA WRAPPER (highlight overlay) ── */
+#editor-textarea-wrapper {
+  position: relative;
   flex: 1;
-  width: 100%;
-  padding: 1.5rem;
+  min-height: 0;        /* needed for flex shrink */
+  overflow: hidden;
   background: #111;
+}
+
+/* Highlight div — sits behind the transparent textarea */
+#editor-highlight {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  padding: 1.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.7;
   color: #E8E0C8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;     /* scroll position synced via JS */
+  pointer-events: none;
+  z-index: 1;
+  tab-size: 4;
+  box-sizing: border-box;
+}
+/* Chord tokens in the editor */
+#editor-highlight .hl-chord  { color: #C8943C; font-weight: bold; }
+/* Header lines (═══, ♫, ⚠) */
+#editor-highlight .hl-header { color: rgba(200,148,60,0.55); }
+
+/* Textarea — transparent so the highlight shows through */
+#chord-editor-textarea {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  background: transparent;
+  color: transparent;           /* text hidden; highlight div shows it */
+  caret-color: #E8C040;         /* cursor still visible */
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.7;
@@ -1528,6 +1564,9 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   outline: none;
   resize: none;
   tab-size: 4;
+  z-index: 2;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 #chord-editor-status {
   padding: 0.8rem 1.2rem;
@@ -1547,9 +1586,10 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 
 
 /* ── Dev Mode ── */
+
+/* ── Dev Mode (inside Coro Mode) ── */
 body.dev-mode #editor-diagnose-btn { display: inline-block !important; }
 body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
-body.rehearsal-mode #editor-diagnose-btn { display: none !important; }
 </style>
 </head>
 <body style="overflow-x:clip;">
@@ -1659,7 +1699,11 @@ body.rehearsal-mode #editor-diagnose-btn { display: none !important; }
     <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
     <button class="editor-btn" id="editor-save-btn">Guardar</button>
   </div>
-  <textarea id="chord-editor-textarea" spellcheck="false"></textarea>
+  <!-- Syntax highlight overlay + textarea wrapper -->
+  <div id="editor-textarea-wrapper">
+    <div id="editor-highlight" aria-hidden="true"></div>
+    <textarea id="chord-editor-textarea" spellcheck="false"></textarea>
+  </div>
   <div id="chord-editor-status">Edita los acordes. Los cambios se guardarán localmente.</div>
 </div>
 
@@ -1720,7 +1764,7 @@ body.rehearsal-mode #editor-diagnose-btn { display: none !important; }
         <li><span class="idx-num">28</span><a href="#d28">Milagro de Amor</a></li>
         <li><span class="idx-num">29</span><a href="#d29">Pan de Vida, Pan de Fe</a></li>
         <li><span class="idx-num">30</span><a href="#d30">Pescador de Hombres</a></li>
-        <li><span class="idx-num">31</span><a href="#d31">Señor, a Quién Iremos</a><a class="yt-play-btn" href="#chords-block-d31" onclick="toggleChords('d31',true);setTimeout(function(){document.getElementById('chords-block-d31').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
+        <li><span class="idx-num">31</span><a href="#d31">Señor, a Quién Iremos</a><a class="yt-play-btn" href="#chords-block-d31" onclick="toggleChords('d31',true);setTimeout(function(){document.getElementById('chords-block-d31').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/N5LECNqQs7Q?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">32</span><a href="#d32">Te Hiciste Pan</a><a class="yt-play-btn" href="https://youtu.be/vaHHAXg5NEQ?t=12" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">33</span><a href="#d33">Verbum Panis</a><a class="yt-play-btn" href="#chords-block-d33" onclick="toggleChords('d33',true);setTimeout(function(){document.getElementById('chords-block-d33').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/wp-t_98g2Ng?t=13" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header"><span>Salida</span></li>
@@ -3241,7 +3285,7 @@ a tu amor, mi Dios, mi Rey.
         <div class="song-number">31</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Señor, a Quién Iremos<a class="yt-play-btn" href="#chords-block-d31" onclick="toggleChords('d31',true);setTimeout(function(){document.getElementById('chords-block-d31').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></div>
+          <div class="song-title">Señor, a Quién Iremos<a class="yt-play-btn" href="#chords-block-d31" onclick="toggleChords('d31',true);setTimeout(function(){document.getElementById('chords-block-d31').scrollIntoView({behavior:'smooth',block:'nearest'})},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/N5LECNqQs7Q?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -4906,12 +4950,15 @@ Dios del Amor
   }
 
   // ── INTRO ANIMATION (sello) ──────
-  function playRehearsalIntro(onDone) {
+  // Generic version — acepta cualquier label HTML. Usada por Modo Coro y Modo Dev.
+  window.playModeIntro = function(label, onDone) {
     var overlay = document.getElementById('rehearsal-intro');
+    var labelEl = overlay.querySelector('.ri-seal-label');
+    if (labelEl) labelEl.innerHTML = label;
+
     overlay.classList.remove('fade-out');
     overlay.classList.add('playing');
 
-    // After 2s, fade out and activate
     setTimeout(function() {
       overlay.classList.add('fade-out');
       setTimeout(function() {
@@ -4919,6 +4966,10 @@ Dios del Amor
         onDone();
       }, 550);
     }, 2000);
+  };
+
+  function playRehearsalIntro(onDone) {
+    window.playModeIntro('Modo<br>Coro', onDone);
   }
 
   function deactivateRehearsal() {
@@ -5413,10 +5464,51 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   var saveBtn    = document.getElementById('editor-save-btn');
   var cancelBtn  = document.getElementById('editor-cancel-btn');
   var resetBtn   = document.getElementById('editor-reset-btn');
-  var titleEl    = document.getElementById('chord-editor-title');
+  var titleEl      = document.getElementById('chord-editor-title');
+  var highlightDiv = document.getElementById('editor-highlight');
 
   var currentBlockId = null;
   var originalHtml   = null;
+
+  // ── Real-time syntax highlight ──────────────────────
+  // Parses the textarea content and renders chord lines in amber.
+  // Called on input, paste, scroll, and whenever editor content changes.
+  function refreshHighlight() {
+    if (!highlightDiv) return;
+    var lines = textarea.value.split('\n');
+    var htmlLines = lines.map(function(line) {
+      var trimmed = line.trim();
+
+      // Header lines (═══, ♫, ⚠)
+      if (/^[═♫⚠]/.test(trimmed)) {
+        return '<span class="hl-header">' + escHtml(line) + '</span>';
+      }
+
+      // Empty line
+      if (!trimmed) return '';
+
+      // Check if every token is a valid chord
+      var tokens = trimmed.split(/\s+/).filter(Boolean);
+      var allChords = tokens.length > 0 && tokens.every(function(t) {
+        return isValidChord(t);
+      });
+
+      if (allChords) {
+        // Color each chord token, preserving original spacing
+        return line.replace(/\S+/g, function(token) {
+          return '<span class="hl-chord">' + escHtml(normalizeChord(token)) + '</span>';
+        });
+      }
+
+      // Regular lyric line
+      return escHtml(line);
+    });
+
+    highlightDiv.innerHTML = htmlLines.join('\n');
+
+    // Sync scroll position with textarea
+    highlightDiv.scrollTop = textarea.scrollTop;
+  }
 
   // ── Chord notation standard ──
   // Major: ALL CAPS root → DO, RE7, SOL#, FA, SIb
@@ -5607,6 +5699,13 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  // ── INPUT / SCROLL → refresh highlight ──
+  // 'input' fires after typing AND after paste — covers both cases.
+  textarea.addEventListener('input', refreshHighlight);
+  textarea.addEventListener('scroll', function() {
+    if (highlightDiv) highlightDiv.scrollTop = textarea.scrollTop;
+  });
+
   // ── OPEN EDITOR ──
   window.openChordEditor = function(blockId) {
     currentBlockId = blockId;
@@ -5632,6 +5731,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
     // Convert to plain text
     textarea.value = htmlToText(pre.innerHTML);
+    refreshHighlight();  // render initial highlight
     titleEl.textContent = 'Modo Edición — ' + (pre.querySelector('b') ? htmlToText(pre.querySelector('b').innerHTML) : blockId);
     status.textContent = 'Edita los acordes. Al guardar se subirán a la nube.';
     status.className = '';
@@ -5693,6 +5793,9 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       });
       
       yesBtn.addEventListener('click', function() {
+        // Update the editor to show normalized text before saving
+        textarea.value = normalizedText;
+        refreshHighlight();
         doSave(result.html);
       });
       return;
@@ -5759,6 +5862,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       if (pre) pre.innerHTML = originalHtml;
     }
     textarea.value = htmlToText(originalHtml);
+    refreshHighlight();  // re-render highlight after reset
     status.textContent = '✓ Restaurado al estado anterior (sin cambios en la nube)';
     status.className = 'success';
   });
@@ -5791,38 +5895,6 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     currentBlockId = null;
     originalHtml = null;
   }
-
-
-            promises.push(p);
-            
-            // Also update the pre in the page if it exists
-            var block = document.getElementById('chords-block-' + id);
-            if (block) {
-              var pre = block.querySelector('pre');
-              if (pre) pre.innerHTML = repairedHtml;
-            }
-            
-            // Update cache
-            // no cache
-          }
-        });
-        
-        if (promises.length === 0) {
-          status.textContent = '✓ Todos los overrides ya están correctos (' + total + ' revisados).';
-          status.className = 'success';
-          return;
-        }
-        
-        return Promise.all(promises).then(function() {
-          status.textContent = '✓ Reparados ' + fixed + ' de ' + total + ' overrides. Los acordes ahora se muestran correctamente.';
-          status.className = 'success';
-        });
-      })
-      .catch(function(err) {
-        status.textContent = '✗ Error: ' + err.message;
-        status.className = 'error';
-      });
-  });
 
 
   // ── DIAGNOSE FIREBASE OVERRIDES (Dev Mode) ──
@@ -5909,7 +5981,6 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         status.textContent = '✗ Error: ' + err.message;
         status.className = 'error';
       });
-  });
   });
 
   // Escape key closes
@@ -6027,36 +6098,41 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 })();
 </script>
 
-
 <script>
-// ── DEV MODE (5 clicks on footer cross) ──
+// ── DEV MODE ──
+// Only activates inside Modo Coro. 5 clicks on footer ✝.
+// Shows "Diagnosticar" and "Restaurar Original (HTML)" buttons in chord editor.
+// Uses document-level listener with closest() — same pattern as Modo Coro trigger.
 (function() {
-  var crosses = document.querySelectorAll('.footer-icon');
-  var footer_cross = crosses.length > 0 ? crosses[crosses.length - 1] : null;
-  if (!footer_cross) return;
-  
-  var devClicks = 0;
-  var devTimer = null;
-  var devActive = false;
-  
-  footer_cross.style.cursor = 'default';
-  footer_cross.style.userSelect = 'none';
-  
-  footer_cross.addEventListener('click', function(e) {
-    e.preventDefault();
-    devClicks++;
-    if (devTimer) clearTimeout(devTimer);
-    devTimer = setTimeout(function() { devClicks = 0; }, 2000);
-    
-    if (devClicks >= 5 && !devActive) {
-      devClicks = 0;
-      devActive = true;
-      document.body.classList.add('dev-mode');
-      console.log('[Dev] Modo Dev activado');
+  var CLICKS_NEEDED = 5;
+  var CLICK_WINDOW  = 2000; // ms
+  var clicks = 0, timer = null;
+
+  document.addEventListener('click', function(e) {
+    // Must be clicking the footer ✝ icon
+    if (!e.target.closest('.ceremony-footer .footer-icon')) return;
+    // Must be inside Modo Coro
+    if (!document.body.classList.contains('rehearsal-mode')) return;
+
+    clicks++;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function() { clicks = 0; }, CLICK_WINDOW);
+
+    if (clicks >= CLICKS_NEEDED) {
+      clicks = 0;
+      // Play the same sello animation but with "Modo Dev" label
+      if (window.playModeIntro) {
+        window.playModeIntro('Modo<br>Dev', function() {
+          document.body.classList.add('dev-mode');
+          console.log('[Dev] Modo Dev activado');
+        });
+      } else {
+        // Fallback if animation not available
+        document.body.classList.add('dev-mode');
+        console.log('[Dev] Modo Dev activado (sin animación)');
+      }
     }
   });
 })();
 </script>
 
-</body>
-</html>

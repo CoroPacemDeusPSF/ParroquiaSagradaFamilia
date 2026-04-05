@@ -867,6 +867,10 @@ body {
 @media (max-width: 767px) {
   .pd-hamburger { display: flex; }
 }
+
+/* ── Dev Mode (inside Coro Mode) ── */
+body.dev-mode #editor-diagnose-btn { display: inline-block !important; }
+body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 </style>
 </head>
 <body>
@@ -986,6 +990,9 @@ body {
   <textarea id="chord-editor-textarea" spellcheck="false"></textarea>
   <div id="chord-editor-status">Edita los acordes. Al guardar se subirán a la nube.</div>
 </div>
+
+
+
 
 <div class="main-cover">
   <div class="cover-cross"><svg viewBox="0 0 40 60" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:0.75em;height:1.1em;display:inline-block;vertical-align:middle;"><rect x="16" y="0" width="8" height="60" rx="1"/><rect x="0" y="18" width="40" height="8" rx="1"/></svg></div>
@@ -3927,6 +3934,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 }
 .chord { color: #C8943C; font-weight: bold; }
 body.rehearsal-mode .chords-toggle { display: inline-block; }
+body.rehearsal-mode .editor-open-btn { display: inline-block !important; }
 
 /* Transpose controls */
 .transpose-bar {
@@ -4242,9 +4250,6 @@ body.rehearsal-mode .chords-toggle { display: inline-block; }
 
 
 /* ── Dev Mode ── */
-body.dev-mode #editor-diagnose-btn { display: inline-block !important; }
-body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
-body.rehearsal-mode #editor-diagnose-btn { display: none !important; }
 </style>
 
 <script>
@@ -5346,30 +5351,23 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 })();
 </script>
 
-
 <script>
-// ── DEV MODE (5 clicks on footer cross) ──
+// ── DEV MODE ──
+// Only activates inside Modo Coro. 5 clicks on footer ✝.
+// Shows "Diagnosticar" button in chord editor.
 (function() {
-  var crosses = document.querySelectorAll('.footer-icon');
-  var footer_cross = crosses.length > 0 ? crosses[crosses.length - 1] : null;
-  if (!footer_cross) return;
+  var cross = document.querySelector('.ceremony-footer .footer-icon');
+  if (!cross) return;
+  var clicks = 0, timer = null;
   
-  var devClicks = 0;
-  var devTimer = null;
-  var devActive = false;
-  
-  footer_cross.style.cursor = 'default';
-  footer_cross.style.userSelect = 'none';
-  
-  footer_cross.addEventListener('click', function(e) {
-    e.preventDefault();
-    devClicks++;
-    if (devTimer) clearTimeout(devTimer);
-    devTimer = setTimeout(function() { devClicks = 0; }, 2000);
-    
-    if (devClicks >= 5 && !devActive) {
-      devClicks = 0;
-      devActive = true;
+  cross.addEventListener('click', function() {
+    // Only count clicks if coro mode is active
+    if (!document.body.classList.contains('rehearsal-mode')) return;
+    clicks++;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function() { clicks = 0; }, 2000);
+    if (clicks >= 5) {
+      clicks = 0;
       document.body.classList.add('dev-mode');
       console.log('[Dev] Modo Dev activado');
     }
@@ -5377,5 +5375,3 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 })();
 </script>
 
-</body>
-</html>
