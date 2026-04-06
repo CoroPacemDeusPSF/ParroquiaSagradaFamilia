@@ -1337,7 +1337,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 
 /* ── MULTI-COLUMN CHORD LAYOUT (fullscreen) ── */
 .chords-multicolumn {
-  column-gap: 2.5rem;
+  column-gap: 1.5rem;
   column-fill: balance;
   width: 100%;
   padding: 0.5rem 1.5rem 3rem;
@@ -1777,11 +1777,12 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 /* Versión del cancionero — debajo del ícono de iglesia */
 .cancionero-version {
   font-family: 'Cinzel', serif;
-  font-size: 0.5rem;
-  letter-spacing: 0.25em;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  opacity: 0.25;
-  margin-top: 0.5rem;
+  color: #C8943C;
+  opacity: 0.7;
+  margin-top: 0.6rem;
   display: block;
 }
 </style>
@@ -1920,7 +1921,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">3.1.1</span>
+    <span class="cancionero-version">v 3.1.3</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -5380,8 +5381,16 @@ Dios del Amor
       function applyZoom(z) {
         currentZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
         zoomLabel.textContent = currentZoom + '%';
-        var pre = block.querySelector('pre:not(.mc-hidden), .chords-multicolumn');
-        if (pre) pre.style.fontSize = (currentZoom / 100) + 'em';
+        var fsEm = (currentZoom / 100) + 'em';
+        // Aplicar a lo que sea visible
+        var visible = block.querySelector('.chords-multicolumn') ||
+                      block.querySelector('pre:not(.mc-hidden)');
+        if (visible) visible.style.fontSize = fsEm;
+        // Si hay columnas activas, también actualizar el pre original
+        // (el MutationObserver lo detecta y rehace el layout)
+        if (block._mcPre) {
+          block._mcPre.style.fontSize = fsEm;
+        }
       }
       zoomMinus.addEventListener('click', function() { applyZoom(currentZoom - ZOOM_STEP); });
       zoomPlus.addEventListener('click',  function() { applyZoom(currentZoom + ZOOM_STEP); });
@@ -6431,25 +6440,29 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
 <script>
 // ── MULTI-COLUMN CHORD LAYOUT ────────────────────────
-// En fullscreen, calcula cuántas columnas necesita el contenido para
-// caber en la pantalla sin scroll (o con el mínimo posible).
-// Usa medición real de píxeles — sin umbrales arbitrarios de caracteres.
+// Distribuye el contenido en columnas al entrar a fullscreen.
+// El layout es 100% dinámico: responde a cualquier cambio de
+// tamaño (zoom del browser) o zoom interno (botones +/-).
+// Separa "exit de layout" (solo visual) del "exit completo"
+// (cierre de fullscreen) para mantener estado de usuario.
 (function() {
 
-  var MIN_COLS    = 2;    // columnas mínimas para activar el layout
-  var COL_PAD     = 52;   // px de padding horizontal por columna
-  var COL_GAP     = 40;   // debe coincidir con CSS column-gap (2.5rem ≈ 40px)
-  var TOOLBAR_H   = 70;   // altura aprox. de la barra sticky (transpose-bar)
+  var MIN_COLS  = 2;
+  var COL_PAD   = 8;    // px de padding por columna
+  var COL_GAP   = 24;   // debe coincidir con CSS column-gap (1.5rem)
+  var TOOLBAR_H = 70;
+  var DEBOUNCE  = 150;  // ms de espera antes de re-evaluar
 
-  // ── Mide el ancho real del contenido del <pre> en píxeles ──
+  // ── Mide el ancho real del contenido del <pre> ──
   function measurePreWidth(pre) {
     var cs    = window.getComputedStyle(pre);
     var clone = pre.cloneNode(true);
     clone.classList.remove('mc-hidden');
     clone.style.cssText = [
-      'position:absolute', 'top:-9999px', 'left:-9999px',
-      'visibility:hidden', 'white-space:pre', 'max-width:none',
-      'width:auto', 'overflow:visible',
+      'position:fixed', 'top:0', 'left:0',
+      'opacity:0', 'pointer-events:none',
+      'white-space:pre', 'max-width:none',
+      'width:auto', 'overflow:visible', 'z-index:-1',
       'font-family:' + cs.fontFamily,
       'font-size:'   + cs.fontSize,
       'line-height:' + cs.lineHeight,
@@ -6462,14 +6475,13 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     return w;
   }
 
-  // ── Mide la altura total del contenido en una sola columna ──
-  // (necesaria para calcular cuántas columnas se necesitan para que
-  // todo entre en la pantalla de una sola vista)
+  // ── Mide la altura total del contenido en columna única ──
   function measureContentHeight(sections, colW) {
     var temp = document.createElement('div');
     temp.style.cssText = [
-      'position:absolute', 'top:-9999px', 'left:-9999px',
-      'visibility:hidden', 'width:' + colW + 'px', 'column-count:1'
+      'position:fixed', 'top:0', 'left:0',
+      'opacity:0', 'pointer-events:none',
+      'width:' + colW + 'px', 'column-count:1', 'z-index:-1'
     ].join(';');
     sections.forEach(function(html) {
       var div = document.createElement('div');
@@ -6485,25 +6497,18 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     return h;
   }
 
-  // ── Divide el innerHTML en secciones (entre líneas en blanco) ──
+  // ── Divide el <pre> en secciones (entre líneas en blanco) ──
   function splitSections(html) {
     return html.split(/\n[ \t]*\n/).filter(function(s) { return s.trim(); });
   }
 
   // ── Calcula el column-count óptimo ──
-  // Maximiza columnas para que el contenido entre en la altura visible.
   function calcColumnCount(contentH, availableH, minColW, blockW) {
-    // Mínimo de columnas para que entre sin scroll
-    var byHeight   = Math.ceil(contentH / availableH);
-    // Máximo de columnas que caben horizontalmente
-    var byWidth    = Math.floor((blockW + COL_GAP) / (minColW + COL_GAP));
-    // Usar el mayor posible, sin exceder lo que cabe en ancho
-    var count      = Math.min(Math.max(byHeight, MIN_COLS), byWidth);
-
-    // Verificar que el ancho real de cada columna >= minColW
+    var byHeight = Math.ceil(contentH / availableH);
+    var byWidth  = Math.floor((blockW + COL_GAP) / (minColW + COL_GAP));
+    var count    = Math.min(Math.max(byHeight, MIN_COLS), byWidth);
     while (count > MIN_COLS) {
-      var actualW = (blockW - (count - 1) * COL_GAP) / count;
-      if (actualW >= minColW) break;
+      if ((blockW - (count - 1) * COL_GAP) / count >= minColW) break;
       count--;
     }
     return count;
@@ -6513,7 +6518,6 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     var wrapper = document.createElement('div');
     wrapper.className = 'chords-multicolumn';
     wrapper.style.columnCount = colCount;
-    wrapper.style.columnWidth = '';   // column-count es el que manda
     sections.forEach(function(html) {
       var div = document.createElement('div');
       div.className = 'chord-section';
@@ -6525,11 +6529,10 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     return wrapper;
   }
 
-  // ── Botón de toggle (inyectado en la transpose-bar) ──
+  // ── Toggle button ──
   function injectToggleBtn(block) {
     var bar = block.querySelector('.transpose-bar');
     if (!bar || bar.querySelector('.mc-toggle-btn')) return;
-
     var btn = document.createElement('button');
     btn.className = 'mc-toggle-btn fullscreen-btn';
     btn.title = 'Activar/desactivar columnas';
@@ -6543,37 +6546,69 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       btn.style.color = block._mcOff ? '#888' : '#C8943C';
       btn.style.borderColor = block._mcOff ? 'rgba(136,136,136,0.3)' : 'rgba(200,148,60,0.5)';
       if (block._mcOff) {
-        // Desactivar columnas — volver a vista única
-        if (block._mcWrapper) {
-          block._mcWrapper.parentNode.removeChild(block._mcWrapper);
-          block._mcWrapper = null;
-        }
-        if (block._mcPre) {
-          block._mcPre.classList.remove('mc-hidden');
-          block._mcPre = null;
-        }
+        exitMultiColumnLayout(block);
       } else {
-        // Reactivar columnas
         window.enterChordMultiColumn(block);
       }
     });
-    bar.appendChild(btn);
+    block.querySelector('.transpose-bar').appendChild(btn);
     block._mcToggleBtn = btn;
   }
 
   function removeToggleBtn(block) {
-    if (block._mcToggleBtn) {
-      if (block._mcToggleBtn.parentNode) block._mcToggleBtn.parentNode.removeChild(block._mcToggleBtn);
-      block._mcToggleBtn = null;
+    if (block._mcToggleBtn && block._mcToggleBtn.parentNode) {
+      block._mcToggleBtn.parentNode.removeChild(block._mcToggleBtn);
     }
+    block._mcToggleBtn = null;
   }
 
-  // ── Activar multi-column ──
+  // ── EXIT DE LAYOUT (solo visual, mantiene estado de usuario) ──
+  // Usado internamente para re-evaluar tras zoom o resize.
+  function exitMultiColumnLayout(block) {
+    if (block._mcMO) { block._mcMO.disconnect(); block._mcMO = null; }
+    if (block._mcWrapper && block._mcWrapper.parentNode) {
+      block._mcWrapper.parentNode.removeChild(block._mcWrapper);
+      block._mcWrapper = null;
+    }
+    if (block._mcPre) {
+      block._mcPre.classList.remove('mc-hidden');
+      // Mantener _mcPre apuntando al pre para uso posterior
+    }
+    block._mcMinColW  = null;
+    block._mcSections = null;
+  }
+
+  // ── EXIT COMPLETO (cierre de fullscreen) ──
+  window.exitChordMultiColumn = function(block) {
+    if (block._mcRO) { block._mcRO.disconnect(); block._mcRO = null; }
+    exitMultiColumnLayout(block);
+    block._mcPre  = null;
+    block._mcOff  = false;
+    if (block._revalTimer) { clearTimeout(block._revalTimer); block._revalTimer = null; }
+    removeToggleBtn(block);
+  };
+
+  // ── Re-evaluación con debounce ──
+  // Llamada tras cualquier cambio de tamaño o zoom.
+  function scheduleReeval(block) {
+    if (block._mcOff) return;
+    if (block._revalTimer) clearTimeout(block._revalTimer);
+    block._revalTimer = setTimeout(function() {
+      block._revalTimer = null;
+      exitMultiColumnLayout(block);
+      window.enterChordMultiColumn(block);
+    }, DEBOUNCE);
+  }
+
+  // ── ACTIVAR MULTI-COLUMN ──
   window.enterChordMultiColumn = function(block) {
-    var pre = block.querySelector('pre:not(.mc-hidden)');
+    // Obtener el pre actual (puede haber sido re-expuesto por exitMultiColumnLayout)
+    var pre = block._mcPre || block.querySelector('pre:not(.mc-hidden)');
     if (!pre) return;
-    if (block.querySelector('.chords-multicolumn')) return; // ya activo
-    if (block._mcOff) return;                               // desactivado por el usuario
+    // Asegurar que no tenga mc-hidden
+    pre.classList.remove('mc-hidden');
+    if (block._mcWrapper) return; // ya activo
+    if (block._mcOff)     return; // desactivado por usuario
 
     var minColW    = measurePreWidth(pre) + COL_PAD;
     var blockW     = block.clientWidth || window.innerWidth;
@@ -6581,13 +6616,15 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     var availableH = blockH - TOOLBAR_H;
     var sections   = splitSections(pre.innerHTML);
 
-    // ¿Caben al menos 2 columnas en ancho?
-    if (Math.floor((blockW + COL_GAP) / (minColW + COL_GAP)) < MIN_COLS) return;
+    if (Math.floor((blockW + COL_GAP) / (minColW + COL_GAP)) < MIN_COLS) {
+      // No caben columnas — guardar referencia al pre para futuros intentos
+      block._mcPre = pre;
+      return;
+    }
 
     var totalH   = measureContentHeight(sections, minColW);
     var colCount = calcColumnCount(totalH, availableH, minColW, blockW);
-
-    if (colCount < MIN_COLS) return;
+    if (colCount < MIN_COLS) { block._mcPre = pre; return; }
 
     var wrapper = buildWrapper(sections, colCount);
     pre.classList.add('mc-hidden');
@@ -6598,59 +6635,28 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     block._mcMinColW  = minColW;
     block._mcSections = sections;
 
-    // Inyectar botón de toggle
     injectToggleBtn(block);
 
-    // ── ResizeObserver: reacciona al zoom del navegador ──
-    if (window.ResizeObserver) {
-      block._mcRO = new ResizeObserver(function(entries) {
-        var newW = entries[0].contentRect.width;
-        var newH = entries[0].contentRect.height;
-        if (!block._mcOff && block._mcWrapper) {
-          // Recalcular con nuevas dimensiones
-          var newAvailH  = newH - TOOLBAR_H;
-          var newCols    = calcColumnCount(totalH, newAvailH, block._mcMinColW, newW);
-          if (newCols < MIN_COLS) {
-            window.exitChordMultiColumn(block);
-          } else {
-            block._mcWrapper.style.columnCount = newCols;
-          }
-        }
+    // ── ResizeObserver: re-evalúa en cualquier cambio de tamaño ──
+    // Cubre tanto zoom del browser como rotación de pantalla.
+    if (window.ResizeObserver && !block._mcRO) {
+      block._mcRO = new ResizeObserver(function() {
+        scheduleReeval(block);
       });
       block._mcRO.observe(block);
     }
 
-    // ── MutationObserver: reacciona al zoom interno (+/-) ──
+    // ── MutationObserver: re-evalúa si cambia el font-size del pre ──
+    // Disparado por los botones de zoom interno.
     block._mcMO = new MutationObserver(function() {
-      if (!block._mcOff) {
-        window.exitChordMultiColumn(block);
-        setTimeout(function() { window.enterChordMultiColumn(block); }, 30);
-      }
+      scheduleReeval(block);
     });
     block._mcMO.observe(pre, { attributes: true, attributeFilter: ['style'] });
   };
 
-  // ── Desactivar multi-column ──
-  window.exitChordMultiColumn = function(block) {
-    if (block._mcMO)      { block._mcMO.disconnect();  block._mcMO = null; }
-    if (block._mcRO)      { block._mcRO.disconnect();  block._mcRO = null; }
-    if (block._mcWrapper) {
-      if (block._mcWrapper.parentNode) block._mcWrapper.parentNode.removeChild(block._mcWrapper);
-      block._mcWrapper = null;
-    }
-    if (block._mcPre) {
-      block._mcPre.classList.remove('mc-hidden');
-      block._mcPre = null;
-    }
-    block._mcMinColW  = null;
-    block._mcSections = null;
-    // Resetear también el flag de "off" y el botón al cerrar fullscreen
-    block._mcOff = false;
-    removeToggleBtn(block);
-  };
-
 })();
 </script>
+
 
 
 
