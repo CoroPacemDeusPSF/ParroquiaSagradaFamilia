@@ -1797,6 +1797,254 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
   margin-top: 0.6rem;
   display: block;
 }
+
+/* ═══════════════════════════════════════════════
+   LYRICS EDITOR (Dev Mode)
+   ═══════════════════════════════════════════════ */
+
+/* Trigger button in song-header (only visible in Dev Mode) */
+.lyrics-edit-btn {
+  display: none;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  border: 1px solid #5BA05B;
+  background: transparent;
+  color: #5BA05B;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+.lyrics-edit-btn:hover { background: rgba(91,160,91,0.12); }
+body.dev-mode .lyrics-edit-btn { display: inline-flex !important; }
+
+/* Full-screen editor overlay */
+#lyrics-editor-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500000;
+  background: #0d1a0a;
+  flex-direction: column;
+}
+#lyrics-editor-overlay.open { display: flex; }
+
+/* Toolbar */
+#lyrics-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1.2rem;
+  background: #111e0f;
+  border-bottom: 1px solid rgba(91,160,91,0.3);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+#lyrics-editor-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: #6BB86B;
+  flex: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lyrics-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.9rem;
+  border-radius: 3px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+#lyrics-save-btn   { background: #3A6830; color: #fff; border-color: #3A6830; }
+#lyrics-save-btn:hover { background: #2E5228; }
+#lyrics-cancel-btn { background: transparent; color: #aaa; border-color: #555; }
+#lyrics-cancel-btn:hover { background: #1a2618; }
+#lyrics-preview-btn {
+  background: transparent;
+  color: #6BB86B;
+  border-color: rgba(107,184,107,0.4);
+}
+#lyrics-preview-btn.active {
+  background: rgba(107,184,107,0.12);
+  border-color: #6BB86B;
+}
+
+/* Split view: editor + preview */
+#lyrics-editor-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+#lyrics-editor-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid rgba(107,184,107,0.15);
+}
+#lyrics-editor-pane.full { flex: 1; }
+#lyrics-preview-pane {
+  flex: 1;
+  display: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.5rem;
+  background: #fff;
+  min-width: 0;
+}
+#lyrics-preview-pane.open { display: block; }
+
+/* Tag helper bar */
+#lyrics-tag-bar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  background: #0f1e0d;
+  border-bottom: 1px solid rgba(107,184,107,0.1);
+  overflow-x: auto;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+}
+.lyrics-tag-chip {
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 12px;
+  border: 1px solid;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.lyrics-tag-chip:hover { opacity: 0.85; }
+
+/* Textarea */
+#lyrics-editor-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 1.2rem 1.4rem;
+  background: #0d1a0a;
+  color: #D8E8D0;
+  font-family: 'Proza Libre', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Status bar */
+#lyrics-editor-status {
+  padding: 0.65rem 1.2rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  background: #0f1e0d;
+  border-top: 2px solid rgba(107,184,107,0.2);
+  color: #8BB88B;
+  flex-shrink: 0;
+  min-height: 2.4rem;
+  display: flex;
+  align-items: center;
+}
+#lyrics-editor-status.success { color: #6BB86B; }
+#lyrics-editor-status.error   { color: #E87070; }
+
+/* ── TAG STYLES IN PREVIEW ── */
+.lp-section {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin: 1.1rem 0 0.3rem;
+  padding-bottom: 0.15rem;
+  display: block;
+}
+.lp-intro, .lp-outro  { color: #999; font-style: italic; border-bottom: 1px solid #e0e0e0; }
+.lp-verso, .lp-estrofa { color: #7a5a00; border-bottom: 1px dotted #C8943C44; }
+.lp-pre-coro  { color: #5a7a5a; padding-left: 1rem; border-left: 2px solid #5a7a5a88; }
+.lp-coro      { color: #7a5200; font-weight: 700; border-bottom: 2px solid #C8943C; }
+.lp-puente    { color: #2a6a7a; border-bottom: 1px solid #2a6a7a88; }
+.lp-final { color: #999; border-bottom: 1px solid #ccc; }
+.lp-modulacion { color: #6a3a9a; border-bottom: 1px dashed #9a60ca; }
+.lp-instrumental { color: #aaa; font-style: italic; }
+
+/* Preview lyrics body */
+#lyrics-preview-pane .song-body {
+  background: #fff;
+  padding: 0;
+  max-width: 520px;
+  margin: 0 auto;
+}
+#lyrics-preview-pane .strophe p,
+#lyrics-preview-pane .chorus p {
+  color: #1a1a1a;
+  font-family: 'Proza Libre', sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.8;
+  margin: 0;
+}
+#lyrics-preview-pane .chorus p { font-weight: 500; }
+
+/* Mobile: stack editor/preview vertically */
+@media (max-width: 767px) {
+  #lyrics-editor-body { flex-direction: column; }
+  #lyrics-editor-pane { border-right: none; border-bottom: 1px solid rgba(107,184,107,0.15); }
+  #lyrics-preview-pane { flex: none; height: 45vh; }
+}
+
+.lyric-spacer{height:.75em;min-height:.75em;margin:0;display:block}
+.lyrics-tag-chip{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.1em;padding:.25rem .65rem;border-radius:12px;border:1.5px solid;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;opacity:.85}
+.lyrics-tag-chip:hover{opacity:1;transform:translateY(-1px)}.lyrics-tag-chip:active{transform:translateY(0)}
+.ltc-neutral{color:#C8C8C8;background:rgba(200,200,200,.08);border-color:rgba(200,200,200,.4)}
+.ltc-estrofa{color:#C8943C;background:rgba(200,148,60,.1);border-color:rgba(200,148,60,.55)}
+.ltc-precoro{color:#8FC878;background:rgba(107,184,107,.1);border-color:rgba(107,184,107,.5)}
+.ltc-coro{color:#F0D060;background:rgba(240,208,60,.12);border-color:rgba(240,208,60,.6);font-weight:700}
+.ltc-puente{color:#70C8D8;background:rgba(70,180,200,.1);border-color:rgba(70,180,200,.5)}
+.ltc-interludio{color:#4A9FB0;background:rgba(40,140,160,.1);border-color:rgba(40,140,160,.5)}
+.ltc-final{color:#C8C8C8;background:rgba(200,200,200,.06);border-color:rgba(200,200,200,.35)}
+.ltc-hombre{color:#7AB8E8;background:rgba(90,155,200,.15);border-color:rgba(90,155,200,.6)}
+.ltc-mujer{color:#E898B8;background:rgba(200,120,144,.15);border-color:rgba(200,120,144,.6)}
+.ltc-ambos{color:#78C878;background:rgba(91,160,91,.15);border-color:rgba(91,160,91,.6)}
+.ltc-mod{color:#C888E8;background:rgba(180,100,220,.12);border-color:rgba(180,100,220,.5)}
+.ltc-sep{width:1px;align-self:stretch;background:rgba(255,255,255,.15);margin:.1rem .2rem;flex-shrink:0}
+#cpd-history-panel{position:absolute;top:0;right:0;bottom:0;width:min(360px,96vw);z-index:10;background:#111;border-left:2px solid rgba(200,148,60,.35);display:flex;flex-direction:column;transform:translateX(110%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+#cpd-history-panel.open{transform:translateX(0)}
+#cpd-history-panel-toolbar{display:flex;align-items:center;gap:.6rem;padding:.7rem 1rem;background:#1a1a0f;border-bottom:1px solid rgba(200,148,60,.25);flex-shrink:0}
+#cpd-history-panel-title{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.18em;color:#C8943C;text-transform:uppercase;flex:1}
+#cpd-history-close-btn{background:transparent;border:1px solid #555;color:#aaa;font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.1em;padding:.3rem .7rem;border-radius:3px;cursor:pointer}
+#cpd-history-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.5rem}
+.cpd-hist-item{display:flex;align-items:center;gap:.5rem;padding:.6rem .7rem;border-radius:4px;border:1px solid #2a2a1a;margin-bottom:.4rem;background:#161610;transition:all .15s}
+.cpd-hist-item:hover{border-color:rgba(200,148,60,.4);background:#1e1e14}.cpd-hist-item.selected{border-color:#C8943C;background:#221e12}
+.cpd-hist-date{flex:1;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.06em;color:#C8B080;line-height:1.5}
+.cpd-hist-date span{display:block;color:#888;font-size:.55rem}
+.cpd-hist-load-btn{font-family:'Cinzel',serif;font-size:.5rem;padding:.25rem .6rem;border:1px solid rgba(200,148,60,.5);border-radius:3px;background:transparent;color:#C8943C;cursor:pointer;flex-shrink:0}
+.cpd-hist-load-btn:hover{background:rgba(200,148,60,.12)}
+#cpd-history-status{padding:.5rem 1rem;font-family:'Cinzel',serif;font-size:.6rem;color:#888;border-top:1px solid #222;flex-shrink:0;min-height:2rem}
+.cpd-hist-empty{text-align:center;padding:2rem 1rem;font-family:'Cinzel',serif;font-size:.62rem;color:#555}
+#editor-history-btn,#lyrics-history-btn{display:none}
+body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inline-flex!important}
+#lyrics-preview-btn{background:#fff;color:#2a4a2a;border-color:#ddd}
+#lyrics-preview-btn.active{background:#fff;color:#2a4a2a;border-color:#aaa;box-shadow:inset 0 1px 3px rgba(0,0,0,.15)}
 </style>
 </head>
 <body style="overflow-x:clip;">
@@ -1896,7 +2144,56 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 </div>
 
 
+
+<!-- ══ LYRICS EDITOR OVERLAY (Dev Mode) ══ -->
+<div id="lyrics-editor-overlay">
+  <div id="lyrics-editor-toolbar">
+    <span id="lyrics-editor-title">Editar Letra</span>
+    <button class="lyrics-btn" id="lyrics-history-btn" style="border-color:rgba(200,30,30,.7);color:#E05050;background:rgba(200,30,30,.08);">Historial</button>
+    <button class="lyrics-btn" id="lyrics-preview-btn" title="Mostrar/ocultar vista previa">👁 Vista Previa</button>
+    <button class="lyrics-btn" id="lyrics-cancel-btn">Cancelar</button>
+    <button class="lyrics-btn" id="lyrics-save-btn">Guardar</button>
+  </div>
+  <!-- Tag chip bar -->
+  <div id="lyrics-tag-bar">
+    <button class="lyrics-tag-chip ltc-neutral" data-tag="Intro">[Intro]</button>
+    <span class="ltc-sep"></span>
+    <button class="lyrics-tag-chip ltc-estrofa" data-tag="Estrofa 1">[Estrofa 1]</button>
+    <button class="lyrics-tag-chip ltc-estrofa" data-tag="Estrofa 2">[Estrofa 2]</button>
+    <button class="lyrics-tag-chip ltc-estrofa" data-tag="Estrofa 3">[Estrofa 3]</button>
+    <span class="ltc-sep"></span>
+    <button class="lyrics-tag-chip ltc-precoro" data-tag="Pre-Coro">[Pre-Coro]</button>
+    <button class="lyrics-tag-chip ltc-coro" data-tag="Coro">[Coro]</button>
+    <button class="lyrics-tag-chip ltc-coro" data-tag="Coro 2">[Coro 2]</button>
+    <span class="ltc-sep"></span>
+    <button class="lyrics-tag-chip ltc-puente" data-tag="Puente">[Puente]</button>
+    <button class="lyrics-tag-chip ltc-interludio" data-tag="Interludio">[Interludio]</button>
+    <span class="ltc-sep"></span>
+    <button class="lyrics-tag-chip ltc-final" data-tag="Final">[Final]</button>
+    <span class="ltc-sep"></span>
+    <button class="lyrics-tag-chip ltc-hombre" data-tag="Hombre">[Hombre]</button>
+    <button class="lyrics-tag-chip ltc-mujer"  data-tag="Mujer">[Mujer]</button>
+    <button class="lyrics-tag-chip ltc-ambos"  data-tag="Ambos">[Ambos]</button>
+    <span class="ltc-sep"></span>
+    <button class="lyrics-tag-chip ltc-mod" data-tag="Modulación">[Modulación]</button>
+    <button class="lyrics-tag-chip ltc-mod" data-tag="Instrumental">[Instrumental]</button>
+  </div>
+  <!-- Editor + Preview -->
+  <div id="lyrics-editor-body">
+    <div id="lyrics-editor-pane">
+      <textarea id="lyrics-editor-textarea" spellcheck="false"
+        placeholder="Escribe la letra aquí usando [Tags] para marcar secciones...&#10;&#10;[Estrofa 1]&#10;Primera línea...&#10;&#10;[Coro]&#10;Coro aquí..."></textarea>
+    </div>
+    <div id="lyrics-preview-pane">
+      <div id="lyrics-preview-content" class="song-body"></div>
+    </div>
+  </div>
+  <div id="lyrics-editor-status">Escribe la letra. Usa los chips para insertar secciones.</div>
+</div>
+
 <!-- ══ CHORD EDITOR ══ -->
+<div id="cpd-history-panel"><div id="cpd-history-panel-toolbar"><span id="cpd-history-panel-title">Historial</span><button id="cpd-history-close-btn">Cerrar ✕</button></div><div id="cpd-history-list"><div class="cpd-hist-empty">Cargando...</div></div><div id="cpd-history-status"></div></div>
+
 <div id="chord-editor-overlay">
   <div id="chord-editor-toolbar">
     <span id="chord-editor-title">Modo Edición</span>
@@ -1904,6 +2201,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
     <button class="editor-btn" id="editor-reload-btn" style="border-color:#7B52AB;color:#7B52AB;display:none;" title="Fuerza recarga de todos los overrides desde Firebase">Recargar Acordes de Firebase</button>
     <button class="editor-btn" id="editor-reset-btn">Restaurar original</button>
     <button class="editor-btn" id="editor-reset-html-btn" style="display:none;border-color:#E74C3C;color:#E74C3C;">Restaurar Original (HTML)</button>
+    <button class="editor-btn" id="editor-history-btn" style="border-color:rgba(200,30,30,.7);color:#E05050;background:rgba(200,30,30,.08);">Historial</button>
     <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
     <button class="editor-btn" id="editor-save-btn">Guardar</button>
   </div>
@@ -1933,7 +2231,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v 3.2.0</span>
+    <span class="cancionero-version">v 3.2.2r2</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -1969,6 +2267,8 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
         <li><span class="idx-num">00</span><a href="#d58">Como Lo Hizo María</a><a class="yt-play-btn" href="#chords-block-d58" onclick="toggleChords('d58',true);setTimeout(function(){document.getElementById('chords-block-d58').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
         <li><span class="idx-num">00</span><a href="#d59">Con Amor Te Presento, Señor</a></li>
         <li><span class="idx-num">11</span><a href="#d11">Cristo Mío</a><a class="yt-play-btn" href="#chords-block-d11" onclick="toggleChords('d11',true);setTimeout(function(){document.getElementById('chords-block-d11').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
+        <li><span class="idx-num">00</span><a href="#d80">El Alfarero</a></li>
+        <li><span class="idx-num">26</span><a href="#d26">En su Mesa hay Amor</a></li>
         <li><span class="idx-num">00</span><a href="#d60">Esto que Te Doy</a><a class="yt-play-btn" href="#chords-block-d60" onclick="toggleChords('d60',true);setTimeout(function(){document.getElementById('chords-block-d60').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
         <li><span class="idx-num">12</span><a href="#d12">Feliz Encuentro</a><a class="yt-play-btn" href="#chords-block-d12" onclick="toggleChords('d12',true);setTimeout(function(){document.getElementById('chords-block-d12').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/Wl85TQpniyg?t=8" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">00</span><a href="#d61">Ofrenda de Amor</a></li>
@@ -1980,6 +2280,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
         <li><span class="idx-num">00</span><a href="#d63">Son Para Ti</a></li>
         <li><span class="idx-num">00</span><a href="#d64">Te Consagro</a></li>
         <li><span class="idx-num">17</span><a href="#d17">Tomad Señor y Recibid</a></li>
+        <li><span class="idx-num">00</span><a href="#d81">Tómame, Señor</a></li>
         <li class="index-moment-header"><span>Santo</span></li>
         <li><span class="idx-num">18</span><a href="#d18">Sanctus – Verbum Panis</a><a class="yt-play-btn" href="https://youtu.be/CwZCvXp7bwE?t=9" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">19</span><a href="#d19">Santo – Alfonso Luna</a></li>
@@ -1993,7 +2294,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
         <li><span class="idx-num">00</span><a href="#d66">Aquí Estoy, Señor</a></li>
         <li><span class="idx-num">24</span><a href="#d24">Camino Firme</a></li>
         <li><span class="idx-num">25</span><a href="#d25">Divino Manjar</a><a class="yt-play-btn" href="https://youtu.be/r8HKwwZjCl0?list=RDr8HKwwZjCl0&t=34" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
-        <li><span class="idx-num">26</span><a href="#d26">En su Mesa hay Amor</a></li>
+
         <li><span class="idx-num">00</span><a href="#d67">Incomparable</a><a class="yt-play-btn" href="#chords-block-d67" onclick="toggleChords('d67',true);setTimeout(function(){document.getElementById('chords-block-d67').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/FEBZr0akYI4?t=7" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">27</span><a href="#d27">Me Has Seducido, Señor</a><a class="yt-play-btn" href="#chords-block-d27" onclick="toggleChords('d27',true);setTimeout(function(){document.getElementById('chords-block-d27').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
         <li><span class="idx-num">28</span><a href="#d28">Milagro de Amor</a></li>
@@ -2029,14 +2330,14 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
         <li><span class="idx-num">42</span><a href="#d42">Rey de Reyes</a></li>
         <li class="index-moment-header"><span>Animación</span></li>
         <li><span class="idx-num">43</span><a href="#d43">Dame del Agua que Brota</a></li>
-        <li><span class="idx-num">00</span><a href="#d80">El Alfarero</a></li>
+
         <li><span class="idx-num">44</span><a href="#d44">Granito de Mostaza</a></li>
         <li><span class="idx-num">45</span><a href="#d45">Jesús Está Pasando por Aquí</a></li>
         <li><span class="idx-num">46</span><a href="#d46">Mi Dios Está Vivo</a></li>
         <li><span class="idx-num">47</span><a href="#d47">Mi Mano Está Llena</a></li>
         <li><span class="idx-num">48</span><a href="#d48">Porque Cristo Ha Tomado Mi Vida</a></li>
         <li><span class="idx-num">49</span><a href="#d49">Que Viva Cristo</a></li>
-        <li><span class="idx-num">00</span><a href="#d81">Tómame, Señor</a></li>
+
         <li><span class="idx-num">50</span><a href="#d50">Vamos a Alabar al Señor</a></li>
         
   </div>
@@ -3201,6 +3502,85 @@ eres salvación, ¡eres Señor! (bis)</pre>
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
+    <a class="back-link" id="d80" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-080">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">00</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">El Alfarero</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Gracias quiero darte por amarme,</p>
+          <p>gracias quiero darte yo a Ti, Señor,</p>
+          <p>hoy soy feliz porque Te conocí,</p>
+          <p>gracias por amarme a mí también.</p>
+        </div>
+        <div class="chorus">
+          <p>Yo quiero ser, Señor amado,</p>
+          <p>como el barro en manos del alfarero.</p>
+          <p>Toma mi vida, hazla de nuevo.</p>
+          <p>Yo quiero ser un vaso nuevo.</p>
+          <p>Toma mi vida, hazla de nuevo.</p>
+        </div>
+        <div class="strophe">
+          <p>Te conocí y Te amé.</p>
+          <p>Te pedí perdón y me escuchaste.</p>
+          <p>Sí, Te ofendí; perdóname, Señor,</p>
+          <p>pues Te amo y nunca Te olvidaré.</p>
+        </div>
+        <div class="chorus">
+          <p>Yo quiero ser, Señor amado,</p>
+          <p>como el barro en manos del alfarero.</p>
+          <p>Toma mi vida, hazla de nuevo.</p>
+          <p>Yo quiero ser un vaso nuevo.</p>
+          <p>Toma mi vida, hazla de nuevo.</p>
+          <p>Yo quiero ser un vaso nuevo.</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
+
+    <a class="back-link" id="d26" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-026">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">26</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">En su Mesa hay Amor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>El Señor nos ha reunido junto a Él</p>
+          <p>El Señor nos ha invitado a estar con Él</p>
+        </div>
+        <div class="chorus">
+          <p>En Su mesa hay amor</p>
+          <p>La promesa del perdón</p>
+          <p>y en el vino y pan su corazón <em>(bis)</em></p>
+        </div>
+        <div class="strophe">
+          <p>Cuando, Señor, Tu voz</p>
+          <p>llega en silencio a mí</p>
+          <p>y mis hermanos me hablan de ti</p>
+          <p>Sé que a mi lado estás,</p>
+          <p>te sientas junto a mí</p>
+          <p>Acoges mi vida y mi oración</p>
+        </div>
+        <div class="strophe">
+          <p>El Señor nos ha reunido junto a Él</p>
+          <p>El Señor nos ha invitado a estar con Él</p>
+        </div>
+        <div class="chorus"><p>En Su mesa hay amor…</p></div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
+
     <a class="back-link" id="d60" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-060">
       <div class="song-header"><div class="song-header-bar"></div>
@@ -3956,6 +4336,46 @@ a tu amor, mi Dios, mi Rey.
       </div>
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
+
+    <a class="back-link" id="d81" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-081">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">00</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Ofertorio</div>
+          <div class="song-title">Tómame, Señor</div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Oh, Señor, muéstrame el camino que debo de seguir,</p>
+          <p>ilumíname el sendero que me llevará hasta Ti.</p>
+          <p>Señor, estoy cansado de buscar y no encontrar,</p>
+          <p>Señor, dame Tu mano, en Ti quiero descansar.</p>
+        </div>
+        <div class="chorus">
+          <p>PORQUE EN TI SEÑOR, LO QUE NO HALLABA ENCONTRÉ,</p>
+          <p>PORQUE EN TI SEÑOR, LA VERDAD YO PUDE VER.</p>
+          <p>TÓMAME SEÑOR, LLÉVAME CONTIGO,</p>
+          <p>MUÉSTRAME TU AMOR, SIN TI YO ESTOY PERDIDO.</p>
+          <p>TÓMAME, SEÑOR.</p>
+        </div>
+        <div class="strophe">
+          <p>Oh, Señor, mi alma Te desea, ella tiene sed de Ti.</p>
+          <p>Yo mi corazón Te abro, para que mores en mí.</p>
+          <p>Señor, Te doy mi vida, haz lo que quieras de mí,</p>
+          <p>Señor, estoy dispuesto, en Ti yo quiero vivir.</p>
+        </div>
+        <div class="chorus">
+          <p>TÓMAME, SEÑOR, LLÉVAME CONTIGO,</p>
+          <p>AL LUGAR A DONDE PUEDA CONTEMPLARTE.</p>
+          <p>TÓMAME, SEÑOR, LLÉVAME CONTIGO,</p>
+          <p>NO PERMITAS QUE NADA ME APARTE DE TI. (BIS)</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
     <div class="moment-header"><span class="moment-label">Santo</span></div>
 
 
@@ -4345,42 +4765,6 @@ Te alabe, por los siglos, amén.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <a class="back-link" id="d26" href="#dominical-index">Volver al índice</a>
-    <div class="song-card" data-chord-id="cpd-026">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">26</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">En su Mesa hay Amor</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>El Señor nos ha reunido junto a Él</p>
-          <p>El Señor nos ha invitado a estar con Él</p>
-        </div>
-        <div class="chorus">
-          <p>En Su mesa hay amor</p>
-          <p>La promesa del perdón</p>
-          <p>y en el vino y pan su corazón <em>(bis)</em></p>
-        </div>
-        <div class="strophe">
-          <p>Cuando, Señor, Tu voz</p>
-          <p>llega en silencio a mí</p>
-          <p>y mis hermanos me hablan de ti</p>
-          <p>Sé que a mi lado estás,</p>
-          <p>te sientas junto a mí</p>
-          <p>Acoges mi vida y mi oración</p>
-        </div>
-        <div class="strophe">
-          <p>El Señor nos ha reunido junto a Él</p>
-          <p>El Señor nos ha invitado a estar con Él</p>
-        </div>
-        <div class="chorus"><p>En Su mesa hay amor…</p></div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
 
     <a class="back-link" id="d67" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-067">
@@ -6994,47 +7378,6 @@ Aleluya.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <a class="back-link" id="d80" href="#dominical-index">Volver al índice</a>
-    <div class="song-card" data-chord-id="cpd-080">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">00</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">El Alfarero</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Gracias quiero darte por amarme,</p>
-          <p>gracias quiero darte yo a Ti, Señor,</p>
-          <p>hoy soy feliz porque Te conocí,</p>
-          <p>gracias por amarme a mí también.</p>
-        </div>
-        <div class="chorus">
-          <p>Yo quiero ser, Señor amado,</p>
-          <p>como el barro en manos del alfarero.</p>
-          <p>Toma mi vida, hazla de nuevo.</p>
-          <p>Yo quiero ser un vaso nuevo.</p>
-          <p>Toma mi vida, hazla de nuevo.</p>
-        </div>
-        <div class="strophe">
-          <p>Te conocí y Te amé.</p>
-          <p>Te pedí perdón y me escuchaste.</p>
-          <p>Sí, Te ofendí; perdóname, Señor,</p>
-          <p>pues Te amo y nunca Te olvidaré.</p>
-        </div>
-        <div class="chorus">
-          <p>Yo quiero ser, Señor amado,</p>
-          <p>como el barro en manos del alfarero.</p>
-          <p>Toma mi vida, hazla de nuevo.</p>
-          <p>Yo quiero ser un vaso nuevo.</p>
-          <p>Toma mi vida, hazla de nuevo.</p>
-          <p>Yo quiero ser un vaso nuevo.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
 
     <a class="back-link" id="d44" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-044">
@@ -7231,45 +7574,6 @@ Aleluya.
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
-    <a class="back-link" id="d81" href="#dominical-index">Volver al índice</a>
-    <div class="song-card" data-chord-id="cpd-081">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">00</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Tómame, Señor</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Oh, Señor, muéstrame el camino que debo de seguir,</p>
-          <p>ilumíname el sendero que me llevará hasta Ti.</p>
-          <p>Señor, estoy cansado de buscar y no encontrar,</p>
-          <p>Señor, dame Tu mano, en Ti quiero descansar.</p>
-        </div>
-        <div class="chorus">
-          <p>PORQUE EN TI SEÑOR, LO QUE NO HALLABA ENCONTRÉ,</p>
-          <p>PORQUE EN TI SEÑOR, LA VERDAD YO PUDE VER.</p>
-          <p>TÓMAME SEÑOR, LLÉVAME CONTIGO,</p>
-          <p>MUÉSTRAME TU AMOR, SIN TI YO ESTOY PERDIDO.</p>
-          <p>TÓMAME, SEÑOR.</p>
-        </div>
-        <div class="strophe">
-          <p>Oh, Señor, mi alma Te desea, ella tiene sed de Ti.</p>
-          <p>Yo mi corazón Te abro, para que mores en mí.</p>
-          <p>Señor, Te doy mi vida, haz lo que quieras de mí,</p>
-          <p>Señor, estoy dispuesto, en Ti yo quiero vivir.</p>
-        </div>
-        <div class="chorus">
-          <p>TÓMAME, SEÑOR, LLÉVAME CONTIGO,</p>
-          <p>AL LUGAR A DONDE PUEDA CONTEMPLARTE.</p>
-          <p>TÓMAME, SEÑOR, LLÉVAME CONTIGO,</p>
-          <p>NO PERMITAS QUE NADA ME APARTE DE TI. (BIS)</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#dominical-index">Volver al índice</a>
 
     <a class="back-link" id="d50" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-050">
@@ -8397,14 +8701,12 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
     var saveId = currentBlockId;
     var chordKey = getChordKey(saveId);
+    window._currentChordEditorCpdId = chordKey;
+    window.chordHtmlToText = htmlToText;
+    window.refreshChordHighlight = refreshHighlight;
 
-    fetch(FIREBASE_URL + '/chord-overrides/' + chordKey + '.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(htmlContent)
-    })
-    .then(function(r) {
-      if (!r.ok) throw new Error('Error al escribir: HTTP ' + r.status);
+    window.CPDHistory.saveWithHistory('chord', chordKey, htmlContent)
+    .then(function() {
       status.textContent = '⏳ Verificando en la base de datos...';
       return fetch(FIREBASE_URL + '/chord-overrides/' + chordKey + '.json');
     })
@@ -8985,6 +9287,412 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
 
 
+
+<script>
+// ── CPD HISTORY ──────────────────────────────────────
+window.CPDHistory = (function() {
+  var FB = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
+  function formatTs(ms) {
+    var d=new Date(ms);
+    return ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()]+' '+d.getDate()+' '+
+      ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][d.getMonth()]+
+      ' '+d.getFullYear()+' — '+String(d.getHours()).padStart(2,'0')+':'+
+      String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')+'.'+
+      String(d.getMilliseconds()).padStart(3,'0');
+  }
+  function saveWithHistory(type,id,content) {
+    var ap=type==='chord'?'/chord-overrides/':'/lyrics-overrides/';
+    var hp=type==='chord'?'/chord-history/':'/lyrics-history/';
+    var ts=Date.now();
+    return Promise.all([
+      fetch(FB+ap+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(content)}),
+      fetch(FB+hp+id+'/'+ts+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:content,savedAt:ts})})
+    ]).then(function(rs){rs.forEach(function(r){if(!r.ok) throw new Error('Firebase HTTP '+r.status);});});
+  }
+  function loadHistory(type,id) {
+    return fetch(FB+(type==='chord'?'/chord-history/':'/lyrics-history/')+id+'.json')
+      .then(function(r){return r.json();}).then(function(data){
+        if(!data||typeof data!=='object') return [];
+        return Object.keys(data).map(function(ts){var e=data[ts],tsn=parseInt(ts,10);
+          return{ts:tsn,content:typeof e==='object'?e.content:e,label:formatTs(tsn)};
+        }).sort(function(a,b){return b.ts-a.ts;});
+      });
+  }
+  var panel=document.getElementById('cpd-history-panel');
+  var pList=document.getElementById('cpd-history-list');
+  var pSt=document.getElementById('cpd-history-status');
+  var pTitle=document.getElementById('cpd-history-panel-title');
+  document.getElementById('cpd-history-close-btn').addEventListener('click',function(){panel.classList.remove('open');});
+  function open(type,id,onSelect) {
+    var ov=document.getElementById(type==='chord'?'chord-editor-overlay':'lyrics-editor-overlay');
+    if(ov&&panel.parentNode!==ov) ov.appendChild(panel);
+    pTitle.textContent='Historial '+(type==='chord'?'Acordes':'Letra')+' — '+id;
+    pList.innerHTML='<div class="cpd-hist-empty">Cargando...</div>';
+    pSt.textContent=''; panel.classList.add('open');
+    loadHistory(type,id).then(function(vs){
+      if(!vs.length){pList.innerHTML='<div class="cpd-hist-empty">Sin versiones aún.</div>';return;}
+      pSt.textContent=vs.length+' versión'+(vs.length>1?'es':'');
+      pList.innerHTML='';
+      vs.forEach(function(v,i){
+        var item=document.createElement('div');item.className='cpd-hist-item';
+        var pts=v.label.split(' — ');
+        var de=document.createElement('div');de.className='cpd-hist-date';
+        de.innerHTML=pts[0]+'<span>'+(pts[1]||'')+'</span>';
+        if(i===0){var b=document.createElement('span');b.textContent=' ← actual';b.style.cssText='font-size:.48rem;color:#6BB86B;font-style:italic;';de.appendChild(b);}
+        var lb=document.createElement('button');lb.className='cpd-hist-load-btn';lb.textContent='Cargar';
+        lb.addEventListener('click',function(e){
+          e.stopPropagation();
+          pList.querySelectorAll('.cpd-hist-item').forEach(function(el){el.classList.remove('selected');});
+          item.classList.add('selected');
+          if(onSelect) onSelect(v.content,v.label);
+          pSt.textContent='✓ '+v.label+'. Revisa y guarda.';
+        });
+        item.appendChild(de);item.appendChild(lb);pList.appendChild(item);
+      });
+    }).catch(function(){pList.innerHTML='<div class="cpd-hist-empty">Error al cargar.</div>';});
+  }
+  var chHB=document.getElementById('editor-history-btn');
+  var lyHB=document.getElementById('lyrics-history-btn');
+  if(chHB) chHB.addEventListener('click',function(){
+    var id=window._currentChordEditorCpdId;if(!id)return;
+    open('chord',id,function(c){var ta=document.getElementById('chord-editor-textarea');
+      if(ta&&window.chordHtmlToText){ta.value=window.chordHtmlToText(c);if(window.refreshChordHighlight)window.refreshChordHighlight();}});
+  });
+  if(lyHB) lyHB.addEventListener('click',function(){
+    var id=window._currentLyricsEditorCpdId;if(!id)return;
+    open('lyrics',id,function(c){var ta=document.getElementById('lyrics-editor-textarea');
+      if(ta){ta.value=c;ta.dispatchEvent(new Event('input'));}});
+  });
+  return{formatTs:formatTs,saveWithHistory:saveWithHistory,loadHistory:loadHistory,open:open};
+})();
+</script>
+
+<script>
+// ── LYRICS EDITOR (Dev Mode) ──────────────────────────
+// Edita la letra de los cantos y persiste en Firebase.
+// Ruta Firebase: /lyrics-overrides/{cpd-id}
+// Independiente del sistema de acordes.
+(function() {
+
+  var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
+
+  // ── DOM refs ──
+  var overlay    = document.getElementById('lyrics-editor-overlay');
+  var textarea   = document.getElementById('lyrics-editor-textarea');
+  var statusEl   = document.getElementById('lyrics-editor-status');
+  var titleEl    = document.getElementById('lyrics-editor-title');
+  var saveBtn    = document.getElementById('lyrics-save-btn');
+  var cancelBtn  = document.getElementById('lyrics-cancel-btn');
+  var previewBtn = document.getElementById('lyrics-preview-btn');
+  var previewPane = document.getElementById('lyrics-preview-pane');
+  var previewContent = document.getElementById('lyrics-preview-content');
+  var tagBar     = document.getElementById('lyrics-tag-bar');
+
+  var currentCpdId = null;  // e.g. 'cpd-031'
+  var currentCard  = null;  // the song-card DOM element
+  var isPreviewOpen = false;
+
+  // ── TAG → CSS class mapping ──
+  var TAG_CLASSES = {
+    'intro': 'lp-intro', 'verso': 'lp-verso',
+    'estrofa': 'lp-estrofa', 'pre-coro': 'lp-pre-coro',
+    'coro': 'lp-coro', 'puente': 'lp-puente',
+    'modulacion': 'lp-modulacion', 'modulación': 'lp-modulacion',
+    'final': 'lp-final', 'instrumental': 'lp-instrumental', 'interludio': 'lp-puente'
+  };
+
+  function tagClass(tagName) {
+    var key = tagName.toLowerCase().replace(/\s+\d+$/, '').trim(); // strip number suffix
+    return TAG_CLASSES[key] || 'lp-estrofa';
+  }
+
+  // ── Sub-tags de voz: color inline sin abrir div nuevo ──
+  var VOICE_COLORS = { 'hombre':'#5A9BC8', 'mujer':'#C87090', 'ambos':'#5BA05B' };
+  function isVoiceTag(tag) { return !!VOICE_COLORS[tag.toLowerCase()]; }
+
+  // ── Convert lyrics text → song-body HTML ──
+  function lyricsTextToHtml(text) {
+    var lines=text.split('\n'), html='', inDiv=false, divCls='strophe', voiceColor=null;
+    function openDiv(cls) {
+      if(inDiv) closeDiv();
+      divCls=cls; inDiv=true; voiceColor=null;
+      html+='<div class="'+cls+'">\n';
+    }
+    function closeDiv() { if(!inDiv) return; html+='</div>\n'; inDiv=false; voiceColor=null; }
+    lines.forEach(function(raw) {
+      var t=raw.trim();
+      if (!t) { if(inDiv) html+='  <p class="lyric-spacer"></p>\n'; return; }
+      var m=t.match(/^\[([^\]]+)\]$/);
+      if (m) {
+        var tag=m[1], key=tag.toLowerCase();
+        if (isVoiceTag(tag)) { voiceColor=VOICE_COLORS[key]; if(!inDiv) openDiv('strophe'); }
+        else {
+          openDiv(/^coro(\s|$)/i.test(key)?'chorus':'strophe');
+          var ld=html.lastIndexOf('<div class="'+divCls+'">');
+          html=html.slice(0,ld)+'<span class="lp-section '+tagClass(tag)+'">'+escHtml(tag)+'</span>\n'+html.slice(ld);
+          voiceColor=null;
+        }
+        return;
+      }
+      if(!inDiv) openDiv('strophe');
+      var pa=voiceColor?' style="color:'+voiceColor+';" data-voice="'+voiceColor+'"':'';
+      html+='  <p'+pa+'>'+escHtml(t)+'</p>\n';
+    });
+    closeDiv(); return html;
+  }
+
+  // ── Mapa color → voz ──
+  var COLOR_TO_VOICE={'#5a9bc8':'Hombre','#5A9BC8':'Hombre','#c87090':'Mujer','#C87090':'Mujer','#5ba05b':'Ambos','#5BA05B':'Ambos'};
+  // ── Convert song-body HTML → lyrics text ──
+  function htmlToLyricsText(songBodyEl) {
+    var lines=[], coroN=0, estN=0;
+    Array.from(songBodyEl.childNodes).forEach(function(node) {
+      if(node.nodeType!==1) return;
+      var cls=node.className||'';
+      if(/song-ornament|chords-toggle|chords-block|lp-section/.test(cls)) return;
+      if(/chorus/.test(cls))  { coroN++; lines.push(coroN>1?'[Coro '+coroN+']':'[Coro]'); }
+      else if(/strophe/.test(cls)) { estN++; lines.push(estN>1?'[Estrofa '+estN+']':'[Estrofa 1]'); }
+      var lastV=null;
+      Array.from(node.querySelectorAll('p')).forEach(function(p) {
+        if(p.classList&&p.classList.contains('lyric-spacer')){ lines.push(''); return; }
+        var raw=p.getAttribute('data-voice')||(p.style&&p.style.color)||null;
+        var v=raw?(COLOR_TO_VOICE[raw]||null):null;
+        if(v!==lastV){ if(v) lines.push('['+v+']'); lastV=v; }
+        var txt=p.textContent.trim(); if(txt) lines.push(txt);
+      });
+      lines.push('');
+    });
+    while(lines.length&&!lines[lines.length-1]) lines.pop();
+    return lines.join('\n');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Real-time preview ──
+  function refreshPreview() {
+    if (!isPreviewOpen) return;
+    previewContent.innerHTML = lyricsTextToHtml(textarea.value);
+  }
+
+  // ── Tag chip insertion ──
+  tagBar.addEventListener('click', function(e) {
+    var chip = e.target.closest('.lyrics-tag-chip');
+    if (!chip) return;
+    var tag = '[' + chip.dataset.tag + ']';
+    var start = textarea.selectionStart;
+    var end   = textarea.selectionEnd;
+    var val   = textarea.value;
+    // Insert tag on its own line
+    var before = val.slice(0, start);
+    var after  = val.slice(end);
+    var prefix = before.length && !before.endsWith('\n') ? '\n' : '';
+    var insert = prefix + tag + '\n';
+    textarea.value = before + insert + after;
+    var cur = start + insert.length;
+    textarea.selectionStart = textarea.selectionEnd = cur;
+    textarea.focus();
+    refreshPreview();
+  });
+
+  // ── Preview toggle ──
+  previewBtn.addEventListener('click', function() {
+    isPreviewOpen = !isPreviewOpen;
+    previewPane.classList.toggle('open', isPreviewOpen);
+    previewBtn.classList.toggle('active', isPreviewOpen);
+    document.getElementById('lyrics-editor-pane').style.flex = isPreviewOpen ? '' : '1';
+    if (isPreviewOpen) refreshPreview();
+  });
+
+  // ── Live preview on input ──
+  textarea.addEventListener('input', refreshPreview);
+
+  // ── Mobile keyboard: keep editor visible above keyboard ──
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function() {
+      if (!overlay.classList.contains('open')) return;
+      var vv = window.visualViewport;
+      overlay.style.height = vv.height + 'px';
+      overlay.style.top    = vv.offsetTop + 'px';
+    });
+    window.visualViewport.addEventListener('scroll', function() {
+      if (!overlay.classList.contains('open')) return;
+      var vv = window.visualViewport;
+      overlay.style.top = vv.offsetTop + 'px';
+    });
+  }
+
+  // ── OPEN editor ──
+  window.openLyricsEditor = function(cpdId) {
+    currentCpdId = cpdId;
+    window._currentLyricsEditorCpdId = cpdId;
+    currentCard  = document.querySelector('.song-card[data-chord-id="' + cpdId + '"]');
+    if (!currentCard) return;
+
+    var titleText = currentCard.querySelector('.song-title');
+    var songTitle = titleText ? titleText.textContent.replace(/[\u{1D11E}▾▴♫𝄞]/gu, '').trim() : cpdId;
+    titleEl.textContent = 'Editar Letra — ' + songTitle;
+    statusEl.textContent = 'Cargando...';
+    statusEl.className = '';
+
+    // Reset preview state
+    isPreviewOpen = false;
+    previewPane.classList.remove('open');
+    previewBtn.classList.remove('active');
+    cancelBtn.textContent = 'Cancelar';
+
+    overlay.classList.add('open');
+    overlay.style.height = '';
+    overlay.style.top    = '';
+
+    // Request fullscreen
+    if (overlay.requestFullscreen)           overlay.requestFullscreen();
+    else if (overlay.webkitRequestFullscreen) overlay.webkitRequestFullscreen();
+
+    // Load from Firebase first, fall back to current HTML
+    fetch(FIREBASE_URL + '/lyrics-overrides/' + cpdId + '.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data && typeof data === 'string' && data.length > 0) {
+          textarea.value = data;
+          statusEl.textContent = '✓ Letra cargada desde Firebase. Edita y guarda.';
+        } else {
+          // Convert existing HTML body to text
+          var body = currentCard.querySelector('.song-body');
+          textarea.value = body ? htmlToLyricsText(body) : '';
+          statusEl.textContent = 'Letra convertida del HTML. Edita y guarda para persistir.';
+        }
+        textarea.focus();
+      })
+      .catch(function() {
+        var body = currentCard.querySelector('.song-body');
+        textarea.value = body ? htmlToLyricsText(body) : '';
+        statusEl.textContent = 'Sin conexión Firebase. Letra cargada del HTML.';
+        textarea.focus();
+      });
+  };
+
+  // ── SAVE ──
+  saveBtn.addEventListener('click', function() {
+    if (!currentCpdId) return;
+    var text = textarea.value.trim();
+    if (!text) { statusEl.textContent = '✗ La letra está vacía.'; statusEl.className = 'error'; return; }
+
+    statusEl.textContent = '⏳ Guardando en Firebase...'; statusEl.className = '';
+    saveBtn.disabled = true;
+
+    window.CPDHistory.saveWithHistory('lyrics', currentCpdId, text)
+    .then(function() {
+      applyLyricsOverride(currentCpdId, text);
+      statusEl.textContent = '✓ Letra guardada correctamente (' + currentCpdId + ')';
+      statusEl.className = 'success';
+      saveBtn.disabled = false;
+      cancelBtn.textContent = 'Cerrar';
+    })
+    .catch(function(err) {
+      statusEl.textContent = '✗ Error al guardar: ' + err.message;
+      statusEl.className = 'error';
+      saveBtn.disabled = false;
+    });
+  });
+
+  // ── CANCEL / CLOSE ──
+  function closeLyricsEditor() {
+    if (document.fullscreenElement === overlay || document.webkitFullscreenElement === overlay) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+    overlay.classList.remove('open');
+    overlay.style.height = '';
+    overlay.style.top    = '';
+    currentCpdId = null;
+    currentCard  = null;
+    textarea.value = '';
+    previewContent.innerHTML = '';
+    isPreviewOpen = false;
+    previewPane.classList.remove('open');
+    previewBtn.classList.remove('active');
+  }
+  cancelBtn.addEventListener('click', closeLyricsEditor);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeLyricsEditor();
+  });
+
+  // ── APPLY override to DOM ──
+  function applyLyricsOverride(cpdId, text) {
+    var card = document.querySelector('.song-card[data-chord-id="' + cpdId + '"]');
+    if (!card) return;
+    var body = card.querySelector('.song-body');
+    if (!body) return;
+
+    var newHtml = lyricsTextToHtml(text);
+
+    // Preserve the ornament, chords-toggle and chords-block
+    var ornament = body.querySelector('.song-ornament');
+    var chordsToggle = body.querySelector('.chords-toggle');
+    var chordsBlock  = body.querySelector('.chords-block');
+
+    body.innerHTML = newHtml;
+
+    if (ornament)     body.appendChild(ornament);
+    if (chordsToggle) body.appendChild(chordsToggle);
+    if (chordsBlock)  body.appendChild(chordsBlock);
+
+    console.log('[Lyrics] Override aplicado: ' + cpdId);
+  }
+
+  // ── LOAD overrides from Firebase on page load ──
+  (function loadLyricsOverrides() {
+    fetch(FIREBASE_URL + '/lyrics-overrides.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data) return;
+        Object.keys(data).forEach(function(cpdId) {
+          if (data[cpdId]) applyLyricsOverride(cpdId, data[cpdId]);
+        });
+        console.log('[Lyrics] Overrides aplicados:', Object.keys(data).length);
+      })
+      .catch(function() { /* Firebase not available */ });
+  })();
+
+  // ── INJECT "Editar Letra" button into each song-card (Dev Mode) ──
+  // Injected lazily the first time Dev Mode activates
+  var lyricsButtonsInjected = false;
+  function injectLyricsButtons() {
+    if (lyricsButtonsInjected) return;
+    lyricsButtonsInjected = true;
+
+    document.querySelectorAll('.song-card[data-chord-id]').forEach(function(card) {
+      var cpdId = card.getAttribute('data-chord-id');
+      var btn = document.createElement('button');
+      btn.className = 'lyrics-edit-btn';
+      btn.title = 'Editar letra (' + cpdId + ')';
+      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Letra';
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window.openLyricsEditor(cpdId);
+      });
+      // Add to song-header-text after song-title
+      var headerText = card.querySelector('.song-header-text');
+      if (headerText) headerText.appendChild(btn);
+    });
+  }
+
+  // Watch for dev-mode class on body
+  var bodyObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      if (m.attributeName === 'class' && document.body.classList.contains('dev-mode')) {
+        injectLyricsButtons();
+      }
+    });
+  });
+  bodyObserver.observe(document.body, { attributes: true });
+  // Also check immediately if already in dev-mode
+  if (document.body.classList.contains('dev-mode')) injectLyricsButtons();
+
+})();
+</script>
 
 <script>
 // ── AUTO-NUMERACIÓN DE CANTOS ──────────────────────
