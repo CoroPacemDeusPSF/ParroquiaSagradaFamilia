@@ -1588,7 +1588,8 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 /* ── Dev Mode ── */
 
 /* ── Dev Mode (inside Coro Mode) ── */
-body.dev-mode #editor-diagnose-btn { display: inline-block !important; }
+body.dev-mode #editor-diagnose-btn  { display: inline-block !important; }
+body.dev-mode #editor-reload-btn    { display: inline-block !important; }
 body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 </style>
 </head>
@@ -1694,6 +1695,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
   <div id="chord-editor-toolbar">
     <span id="chord-editor-title">Modo Edición</span>
     <button class="editor-btn" id="editor-diagnose-btn" style="border-color:#4A90D9;color:#4A90D9;display:none;">Diagnosticar</button>
+    <button class="editor-btn" id="editor-reload-btn" style="border-color:#7B52AB;color:#7B52AB;display:none;" title="Fuerza recarga de todos los overrides desde Firebase">Recargar Acordes de Firebase</button>
     <button class="editor-btn" id="editor-reset-btn">Restaurar original</button>
     <button class="editor-btn" id="editor-reset-html-btn" style="display:none;border-color:#E74C3C;color:#E74C3C;">Restaurar Original (HTML)</button>
     <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
@@ -5884,6 +5886,41 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     });
   });
 
+  // ── RELOAD FIREBASE OVERRIDES (Dev Mode) ──
+  document.getElementById('editor-reload-btn').addEventListener('click', function() {
+    status.textContent = '⏳ Recargando overrides desde Firebase...';
+    status.className = '';
+    // Replace loadFirebaseOverrides with a version that reports to status
+    fetch(FIREBASE_URL + '/chord-overrides.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data) {
+          status.textContent = 'Firebase vacío — no hay overrides que aplicar.';
+          status.className = '';
+          return;
+        }
+        var applied = 0;
+        document.querySelectorAll('.chords-block').forEach(function(block) {
+          var blockId = block.id.replace('chords-block-', '');
+          var slug = getChordKey(blockId);
+          if (data[slug]) {
+            var pre = block.querySelector('pre');
+            if (pre) {
+              pre.innerHTML = data[slug];
+              applied++;
+              console.log('[Dev] Override recargado: ' + slug + ' → ' + blockId);
+            }
+          }
+        });
+        status.textContent = '✓ ' + applied + ' override(s) recargados desde Firebase. Los cambios ya son visibles en el cancionero.';
+        status.className = 'success';
+      })
+      .catch(function(err) {
+        status.textContent = '✗ Error al recargar: ' + err.message;
+        status.className = 'error';
+      });
+  });
+
   function closeEditor() {
     // Exit fullscreen if editor is in fullscreen
     if (document.fullscreenElement === overlay || document.webkitFullscreenElement === overlay) {
@@ -5925,10 +5962,20 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
             var chordCount = (content.match(/<span class="chord">/g) || []).length;
             var lineCount = content.split('\n').length;
             
+            // Plain-text preview (first 12 non-empty lines)
+            var plainText = content
+              .replace(/<b>(.*?)<\/b>/g, '$1')
+              .replace(/<span class="chord">(.*?)<\/span>/g, '$1')
+              .replace(/<[^>]+>/g, '')
+              .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
             lines.push('Clave: ' + key);
             lines.push('  Título: ' + title);
             lines.push('  Tamaño: ' + content.length + ' chars | ' + lineCount + ' líneas | ' + chordCount + ' acordes formateados');
             lines.push('  Tiene spans: ' + (hasSpans ? 'SÍ' : 'NO ⚠'));
+            lines.push('  Contenido:');
+            plainText.split('\n').filter(function(l) { return l.trim(); })
+              .forEach(function(pl) { lines.push('    ' + pl); });
             lines.push('');
           });
         }
@@ -5973,6 +6020,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         lines.push('\n═══ FIN ═══');
         
         textarea.value = lines.join('\n');
+        refreshHighlight();  // show diagnostic text through the highlight overlay
         titleEl.textContent = 'Diagnóstico Dev';
         status.textContent = '✓ Diagnóstico completo — ' + (data ? Object.keys(data).length : 0) + ' overrides en Firebase';
         status.className = 'success';
@@ -5999,7 +6047,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   // Layer 2: Inline HTML (base version from zip) — fallback
   // localStorage is used only as temp cache while Firebase loads
   // Load overrides from Firebase
-  (function loadFirebaseOverrides() {
+  window.loadFirebaseOverrides = function loadFirebaseOverrides() {
     fetch(FIREBASE_URL + '/chord-overrides.json')
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -6024,7 +6072,8 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       .catch(function(err) { console.warn('[Chords] Firebase no disponible:', err.message); });
 
     // No cache — Firebase loads directly
-  })();
+  };
+  window.loadFirebaseOverrides(); // run on page load
 
 
     // ── INJECT "EDITAR" BUTTON INTO TRANSPOSE BARS ──
