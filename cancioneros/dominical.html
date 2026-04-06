@@ -1240,7 +1240,8 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
   padding: 1rem;
   display: block;
-  touch-action: auto;               /* deja al browser manejar todos los gestos nativamente */
+  touch-action: pan-y pinch-zoom;   /* pan vertical + pinch zoom nativo */
+  overscroll-behavior: contain;      /* evita scroll del fondo sin bloquear zoom */
 }
 .chords-block.fullscreen pre {
   background: transparent;
@@ -1339,6 +1340,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 .chords-multicolumn {
   column-gap: 1.5rem;
   column-fill: balance;
+  font-size: 0.9rem;   /* base zoom 100% — applyZoom lo sobreescribe */
   width: 100%;
   padding: 0.5rem 1.5rem 3rem;
   box-sizing: border-box;
@@ -1357,7 +1359,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 .chord-section pre {
   white-space: pre;
   font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+  font-size: 1em;   /* hereda del wrapper — permite que el zoom funcione */
   line-height: 1.7;
   color: #e0d0b0;
   background: none;
@@ -1921,7 +1923,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v 3.1.4</span>
+    <span class="cancionero-version">v 3.1.5</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -5377,16 +5379,22 @@ Dios del Amor
       zoomBar.appendChild(zoomPlus);
       block.appendChild(zoomBar);
 
-      var ZOOM_STEP = 10, ZOOM_MIN = 60, ZOOM_MAX = 220, currentZoom = 100;
+      var ZOOM_STEP = 10, ZOOM_MIN = 70, ZOOM_MAX = 200, currentZoom = 100;
       function applyZoom(z) {
         currentZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
         zoomLabel.textContent = currentZoom + '%';
-        block._zoomFsEm = (currentZoom / 100) + 'em';
+        // Escalar desde la base (0.9rem) con la proporción de zoom.
+        // Usar rem proporcional garantiza que el texto escale correctamente
+        // tanto en el wrapper (multi-col) como en el pre (single-col).
+        var zoomRem = (0.9 * currentZoom / 100).toFixed(3) + 'rem';
+        block._zoomFsEm = zoomRem;  // reutilizado por enterChordMultiColumn
+
         var wrapper = block.querySelector('.chords-multicolumn');
         var pre = block._mcPre || block.querySelector('pre:not(.mc-hidden)');
-        if (wrapper) wrapper.style.fontSize = block._zoomFsEm;
-        if (pre)     pre.style.fontSize     = block._zoomFsEm;
-        // Circuito directo — sin MutationObserver
+        if (wrapper) wrapper.style.fontSize = zoomRem;
+        if (pre)     pre.style.fontSize     = zoomRem;
+
+        // Re-evaluar columnas con nuevo tamaño de fuente
         window.scheduleChordReeval && window.scheduleChordReeval(block);
       }
       zoomMinus.addEventListener('click', function() { applyZoom(currentZoom - ZOOM_STEP); });
@@ -5438,7 +5446,6 @@ Dios del Amor
           // ── Restaurar ──
           window.exitChordMultiColumn && window.exitChordMultiColumn(block);
           block.classList.remove('fullscreen');
-          document.body.style.overflow = '';
           expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
           if (document.fullscreenElement || document.webkitFullscreenElement) {
             if (document.exitFullscreen) document.exitFullscreen();
@@ -5447,7 +5454,8 @@ Dios del Amor
         } else {
           // ── Expandir ──
           block.classList.add('fullscreen');
-          document.body.style.overflow = 'hidden';
+          // No bloquear body.overflow — eso bloquea el pinch-zoom en Android.
+          // overscroll-behavior:contain en el bloque evita scroll del fondo.
           block.scrollTop = 0;
           expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>Restaurar';
           var el = block;
@@ -5543,7 +5551,6 @@ Dios del Amor
         if (fsBtn) fsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
         window.exitChordMultiColumn && window.exitChordMultiColumn(fs);
         fs.classList.remove('fullscreen');
-        document.body.style.overflow = '';
       }
     }
   }
