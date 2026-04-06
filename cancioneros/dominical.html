@@ -2197,11 +2197,11 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
 <div id="chord-editor-overlay">
   <div id="chord-editor-toolbar">
     <span id="chord-editor-title">Modo Edición</span>
+    <button class="editor-btn" id="editor-history-btn" style="border-color:rgba(200,30,30,.7);color:#E05050;background:rgba(200,30,30,.08);">Historial</button>
     <button class="editor-btn" id="editor-diagnose-btn" style="border-color:#4A90D9;color:#4A90D9;display:none;">Diagnosticar</button>
     <button class="editor-btn" id="editor-reload-btn" style="border-color:#7B52AB;color:#7B52AB;display:none;" title="Fuerza recarga de todos los overrides desde Firebase">Recargar Acordes de Firebase</button>
     <button class="editor-btn" id="editor-reset-btn">Restaurar original</button>
     <button class="editor-btn" id="editor-reset-html-btn" style="display:none;border-color:#E74C3C;color:#E74C3C;">Restaurar Original (HTML)</button>
-    <button class="editor-btn" id="editor-history-btn" style="border-color:rgba(200,30,30,.7);color:#E05050;background:rgba(200,30,30,.08);">Historial</button>
     <button class="editor-btn" id="editor-cancel-btn">Cancelar</button>
     <button class="editor-btn" id="editor-save-btn">Guardar</button>
   </div>
@@ -2231,7 +2231,7 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v 3.2.2r2</span>
+    <span class="cancionero-version">v 3.2.2r4</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -8592,6 +8592,10 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   // ── OPEN EDITOR ──
   window.openChordEditor = function(blockId) {
     currentBlockId = blockId;
+    // Exponer el cpd-id para CPDHistory (historial de acordes)
+    window._currentChordEditorCpdId = getChordKey(blockId);
+    window.chordHtmlToText = htmlToText;
+    window.refreshChordHighlight = refreshHighlight;
     var block = document.getElementById('chords-block-' + blockId);
     if (!block) return;
     var pre = block.querySelector('pre');
