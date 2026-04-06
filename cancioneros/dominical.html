@@ -630,6 +630,11 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  column-gap: 0.4rem;
 }
 .ceremony.ramos  .song-title { color: #F5F0DC; }
 .ceremony.jueves .song-title { color: #F0E0C8; }
@@ -1232,8 +1237,10 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   margin: 0;
   background: #1a1a1a;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
   padding: 1rem;
   display: block;
+  touch-action: auto;               /* deja al browser manejar todos los gestos nativamente */
 }
 .chords-block.fullscreen pre {
   background: transparent;
@@ -1327,6 +1334,47 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 }
 .chords-block:fullscreen .fullscreen-close,
 .chords-block:-webkit-full-screen .fullscreen-close { display: flex; }
+
+/* ── MULTI-COLUMN CHORD LAYOUT (fullscreen) ── */
+.chords-multicolumn {
+  column-gap: 2.5rem;
+  column-fill: balance;
+  width: 100%;
+  padding: 0.5rem 1.5rem 3rem;
+  box-sizing: border-box;
+  column-rule: 1px solid rgba(200,148,60,0.15);
+}
+/* Each section must never break across columns */
+.chord-section {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  display: table;        /* most reliable cross-browser for break-inside */
+  width: 100%;
+  margin-bottom: 1.4em;
+  overflow: hidden;      /* red de seguridad: corta cualquier desborde residual */
+}
+.chord-section pre {
+  white-space: pre;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #e0d0b0;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;      /* nunca desbordar fuera de la columna */
+  tab-size: 4;
+}
+.chord-section pre .chord { color: #E8C040; font-weight: bold; }
+.chord-section pre b      { font-weight: bold; }
+/* Toggle button — activo por defecto al entrar en fullscreen */
+.mc-toggle-btn { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+/* When multi-column is active, remove the single-column max-width on the original pre */
+.chords-block.fullscreen pre.mc-hidden,
+.chords-block:fullscreen pre.mc-hidden,
+.chords-block:-webkit-full-screen pre.mc-hidden { display: none; }
 
 ' +
       '* { margin: 0; padding: 0; box-sizing: border-box; }' +
@@ -1426,40 +1474,6 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 
 
 /* ── Fullscreen zoom controls ── */
-.fullscreen-zoom {
-  display: none;
-  position: absolute;
-  top: 0.5rem;
-  right: 5rem;
-  gap: 0.4rem;
-  align-items: center;
-  z-index: 10;
-}
-.chords-block.fullscreen .fullscreen-zoom { display: flex; }
-.zoom-btn {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  border: 1px solid rgba(232,192,64,0.4);
-  background: rgba(26,26,26,0.8);
-  color: #E8C040;
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.zoom-btn:hover { background: rgba(232,192,64,0.2); }
-.zoom-label {
-  color: #E8C040;
-  font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.1em;
-  min-width: 2.5rem;
-  text-align: center;
-}
-
 /* ── CHORD EDITOR MODE ── */
 #chord-editor-overlay {
   display: none;
@@ -1568,6 +1582,62 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   box-sizing: border-box;
   overflow-y: auto;
 }
+/* ── DIAGNOSE PANEL ── */
+#editor-diagnose-panel {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #0d1117;
+  flex-direction: column;
+  border: 1px solid #4A90D9;
+}
+#editor-diagnose-panel.open { display: flex; }
+
+#editor-diagnose-panel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.2rem;
+  background: #161b22;
+  border-bottom: 1px solid #4A90D9;
+  flex-shrink: 0;
+}
+#editor-diagnose-panel-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #4A90D9;
+}
+#editor-diagnose-panel-close {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #4A90D9;
+  border-radius: 2px;
+  background: transparent;
+  color: #4A90D9;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#editor-diagnose-panel-close:hover { background: rgba(74,144,217,0.15); }
+
+#editor-diagnose-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
 #chord-editor-status {
   padding: 0.8rem 1.2rem;
   font-family: 'Cinzel', serif;
@@ -1591,6 +1661,129 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 body.dev-mode #editor-diagnose-btn  { display: inline-block !important; }
 body.dev-mode #editor-reload-btn    { display: inline-block !important; }
 body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
+
+/* ═══════════════════════════════════════════════
+   MOBILE / TABLET — ajustes para pantallas táctiles
+   ═══════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Song header compacto */
+  .song-title    { font-size: 1rem; }
+  .song-number   { font-size: 1.8rem; }
+  .song-header   { padding: 0.9rem 1rem 0.9rem 1.4rem; gap: 0.8rem; }
+
+  /* Botones de la canción — área táctil mínima 44px */
+  .yt-play-btn svg { width: 24px; height: 24px; }
+
+  /* Barra de transposición: envolver en móvil */
+  .transpose-bar { flex-wrap: wrap; gap: 0.4rem 0.5rem; }
+
+  /* Botones − / + más grandes para dedos */
+  .transpose-btn { width: 40px; height: 40px; font-size: 1.1rem; }
+
+  /* Fullscreen: barra sticky envolvente */
+  .chords-block.fullscreen .transpose-bar,
+  .chords-block:fullscreen .transpose-bar,
+  .chords-block:-webkit-full-screen .transpose-bar {
+    flex-wrap: wrap;
+    padding: 0.6rem 1rem;
+    gap: 0.4rem 0.6rem;
+    justify-content: flex-start;
+  }
+
+  /* Botones con ícono + texto en fullscreen:
+     ocultar el texto en móvil, dejar solo el ícono */
+  .fullscreen-btn,
+  .mc-toggle-btn,
+  .print-chords-btn {
+    font-size: 0;     /* oculta texto inline sin afectar el SVG */
+    gap: 0;
+    padding: 0.45rem;
+    min-width: 36px;
+    min-height: 36px;
+    justify-content: center;
+  }
+  .fullscreen-btn svg,
+  .mc-toggle-btn svg,
+  .print-chords-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Editor-open-btn en móvil */
+  .editor-open-btn {
+    font-size: 0.45rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  /* Acordes: fuente un poco más grande para leer en móvil */
+  .chords-block pre {
+    font-size: 0.95rem;
+  }
+  .chords-block.fullscreen pre,
+  .chords-block:fullscreen pre {
+    font-size: 1rem;
+    max-width: none;   /* sin restricción de ancho en móvil */
+    padding: 0 0.5rem 3rem;
+  }
+}
+
+/* Tablet ancha: ajuste intermedio */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .chords-block.fullscreen .transpose-bar,
+  .chords-block:fullscreen .transpose-bar {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+    padding: 0.7rem 1.5rem;
+  }
+}
+
+/* ── CONTROLES DE ZOOM (fullscreen) ── */
+/* Visibles solo en fullscreen — permiten ajustar tamaño de fuente en táctil */
+.fs-zoom-bar {
+  display: none;
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  z-index: 100002;
+  align-items: center;
+  gap: 0;
+  background: rgba(30,30,30,0.9);
+  border: 1px solid rgba(200,148,60,0.35);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+.chords-block.fullscreen .fs-zoom-bar,
+.chords-block:fullscreen .fs-zoom-bar,
+.chords-block:-webkit-full-screen .fs-zoom-bar { display: flex; }
+.fs-zoom-btn {
+  width: 44px; height: 44px;
+  background: none; border: none;
+  color: #C8943C; font-size: 1.3rem; font-weight: bold;
+  cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+.fs-zoom-btn:hover, .fs-zoom-btn:active { background: rgba(200,148,60,0.18); }
+.fs-zoom-divider { width: 1px; height: 24px; background: rgba(200,148,60,0.25); flex-shrink: 0; }
+.fs-zoom-label {
+  font-family: 'Cinzel', serif; font-size: 0.55rem;
+  letter-spacing: 0.1em; color: #C8943C;
+  padding: 0 0.6rem; min-width: 3rem; text-align: center;
+  pointer-events: none;
+}
+/* Versión del cancionero — debajo del ícono de iglesia */
+.cancionero-version {
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.25;
+  margin-top: 0.5rem;
+  display: block;
+}
 </style>
 </head>
 <body style="overflow-x:clip;">
@@ -1706,6 +1899,14 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
     <div id="editor-highlight" aria-hidden="true"></div>
     <textarea id="chord-editor-textarea" spellcheck="false"></textarea>
   </div>
+  <!-- Diagnose panel — separate from textarea, never editable -->
+  <div id="editor-diagnose-panel">
+    <div id="editor-diagnose-panel-toolbar">
+      <span id="editor-diagnose-panel-title">Diagnóstico Dev</span>
+      <button id="editor-diagnose-panel-close">✕ Cerrar</button>
+    </div>
+    <pre id="editor-diagnose-panel-content"></pre>
+  </div>
   <div id="chord-editor-status">Edita los acordes. Los cambios se guardarán localmente.</div>
 </div>
 
@@ -1719,6 +1920,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
+    <span class="cancionero-version">3.1.1</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -1971,7 +2173,6 @@ Maranatha, Maranatha.
     <a class="back-link" id="d04" href="#dominical-index">Volver al índice</a>
 
 
-    <a class="back-link" id="d04" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-004">
       <div class="song-header"><div class="song-header-bar"></div>
         <div class="song-number">04</div>
@@ -2009,7 +2210,6 @@ Maranatha, Maranatha.
       </div>
     </div>
 
-    <a class="back-link" id="d03" href="#dominical-index">Volver al índice</a>
 
     <a class="back-link" id="d05" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-005">
@@ -2102,7 +2302,6 @@ es todo nuestro y nosotros de Dios.
       </div>
     </div>
 
-    <a class="back-link" id="d05" href="#dominical-index">Volver al índice</a>
     <div class="moment-header"><span class="moment-label">Piedad</span></div>
 
 
@@ -2652,7 +2851,6 @@ cuando haya tempestad.
       </div>
     </div>
 
-    <a class="back-link" id="d17" href="#dominical-index">Volver al índice</a>
     <a class="back-link" id="d15" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-015">
       <div class="song-header"><div class="song-header-bar"></div>
@@ -5152,6 +5350,49 @@ Dios del Amor
     var block = document.getElementById('chords-block-' + blockId);
     if (!block || block.querySelector('.transpose-bar')) return;
 
+    // ── Zoom táctil (esquina inferior derecha en fullscreen) ──
+    if (!block.querySelector('.fs-zoom-bar')) {
+      var zoomBar   = document.createElement('div');
+      zoomBar.className = 'fs-zoom-bar';
+      var zoomMinus = document.createElement('button');
+      zoomMinus.className = 'fs-zoom-btn';
+      zoomMinus.textContent = '−';
+      zoomMinus.setAttribute('aria-label', 'Reducir texto');
+      var zoomLabel = document.createElement('span');
+      zoomLabel.className = 'fs-zoom-label';
+      zoomLabel.textContent = '100%';
+      var zoomDiv   = document.createElement('div');
+      zoomDiv.className = 'fs-zoom-divider';
+      var zoomDiv2  = document.createElement('div');
+      zoomDiv2.className = 'fs-zoom-divider';
+      var zoomPlus  = document.createElement('button');
+      zoomPlus.className = 'fs-zoom-btn';
+      zoomPlus.textContent = '+';
+      zoomPlus.setAttribute('aria-label', 'Ampliar texto');
+      zoomBar.appendChild(zoomMinus);
+      zoomBar.appendChild(zoomDiv);
+      zoomBar.appendChild(zoomLabel);
+      zoomBar.appendChild(zoomDiv2);
+      zoomBar.appendChild(zoomPlus);
+      block.appendChild(zoomBar);
+
+      var ZOOM_STEP = 10, ZOOM_MIN = 60, ZOOM_MAX = 220, currentZoom = 100;
+      function applyZoom(z) {
+        currentZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+        zoomLabel.textContent = currentZoom + '%';
+        var pre = block.querySelector('pre:not(.mc-hidden), .chords-multicolumn');
+        if (pre) pre.style.fontSize = (currentZoom / 100) + 'em';
+      }
+      zoomMinus.addEventListener('click', function() { applyZoom(currentZoom - ZOOM_STEP); });
+      zoomPlus.addEventListener('click',  function() { applyZoom(currentZoom + ZOOM_STEP); });
+      // Reset zoom al salir de fullscreen
+      document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          applyZoom(100);
+        }
+      });
+    }
+
     var bar = document.createElement('div');
     bar.className = 'transpose-bar';
     bar.innerHTML =
@@ -5187,14 +5428,43 @@ Dios del Amor
       } else if (print) {
         printChords(blockId);
       } else if (expand) {
-        block.classList.add('fullscreen');
-        document.body.style.overflow = 'hidden';
-        block.scrollTop = 0;
-        // Fullscreen API — oculta barra del navegador
-        var el = block;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        if (block.classList.contains('fullscreen')) {
+          // ── Restaurar ──
+          window.exitChordMultiColumn && window.exitChordMultiColumn(block);
+          block.classList.remove('fullscreen');
+          document.body.style.overflow = '';
+          expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
+          if (document.fullscreenElement || document.webkitFullscreenElement) {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          }
+        } else {
+          // ── Expandir ──
+          block.classList.add('fullscreen');
+          document.body.style.overflow = 'hidden';
+          block.scrollTop = 0;
+          expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>Restaurar';
+          var el = block;
+          if (el.requestFullscreen) el.requestFullscreen();
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+          // Esperar al menos 60ms para que el CSS fullscreen aplique (crítico en PC),
+        // luego reintentar si las dimensiones no están listas (necesario en móvil)
+        setTimeout(function() {
+          (function tryEnter(attempts) {
+            var w = block.clientWidth, h = block.clientHeight;
+            if ((w < 100 || h < 100) && attempts < 5) {
+              setTimeout(function() { tryEnter(attempts + 1); }, 80);
+            } else {
+              window.enterChordMultiColumn && window.enterChordMultiColumn(block);
+            }
+          })(0);
+        }, 60);
+        }
       } else if (close) {
+        // El botón ✕ sigue funcionando igual (por si acaso)
+        var fsBtn = bar.querySelector('.fullscreen-btn');
+        if (fsBtn) fsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
+        window.exitChordMultiColumn && window.exitChordMultiColumn(block);
         block.classList.remove('fullscreen');
         document.body.style.overflow = '';
         if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -5262,6 +5532,10 @@ Dios del Amor
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
       var fs = document.querySelector('.chords-block.fullscreen');
       if (fs) {
+        // Resetear botón Expandir/Restaurar
+        var fsBtn = fs.querySelector('.fullscreen-btn');
+        if (fsBtn) fsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
+        window.exitChordMultiColumn && window.exitChordMultiColumn(fs);
         fs.classList.remove('fullscreen');
         document.body.style.overflow = '';
       }
@@ -5467,7 +5741,9 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   var cancelBtn  = document.getElementById('editor-cancel-btn');
   var resetBtn   = document.getElementById('editor-reset-btn');
   var titleEl      = document.getElementById('chord-editor-title');
-  var highlightDiv = document.getElementById('editor-highlight');
+  var highlightDiv   = document.getElementById('editor-highlight');
+  var diagnosePanel  = document.getElementById('editor-diagnose-panel');
+  var diagnosePre    = document.getElementById('editor-diagnose-panel-content');
 
   var currentBlockId = null;
   var originalHtml   = null;
@@ -5886,6 +6162,12 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     });
   });
 
+  // ── CLOSE DIAGNOSE PANEL ──
+  document.getElementById('editor-diagnose-panel-close').addEventListener('click', function() {
+    diagnosePanel.classList.remove('open');
+    diagnosePre.textContent = '';
+  });
+
   // ── RELOAD FIREBASE OVERRIDES (Dev Mode) ──
   document.getElementById('editor-reload-btn').addEventListener('click', function() {
     status.textContent = '⏳ Recargando overrides desde Firebase...';
@@ -5922,6 +6204,9 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   });
 
   function closeEditor() {
+    // Close diagnose panel if open
+    diagnosePanel.classList.remove('open');
+    diagnosePre.textContent = '';
     // Exit fullscreen if editor is in fullscreen
     if (document.fullscreenElement === overlay || document.webkitFullscreenElement === overlay) {
       if (document.exitFullscreen) document.exitFullscreen();
@@ -6019,9 +6304,9 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         
         lines.push('\n═══ FIN ═══');
         
-        textarea.value = lines.join('\n');
-        refreshHighlight();  // show diagnostic text through the highlight overlay
-        titleEl.textContent = 'Diagnóstico Dev';
+        // Show results in the dedicated panel — never touches the textarea
+        diagnosePre.textContent = lines.join('\n');
+        diagnosePanel.classList.add('open');
         status.textContent = '✓ Diagnóstico completo — ' + (data ? Object.keys(data).length : 0) + ' overrides en Firebase';
         status.className = 'success';
       })
@@ -6105,47 +6390,6 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 })();
 </script>
 
-<script>
-// ── FULLSCREEN ZOOM ─────────────────────────────
-(function() {
-  var ZOOM_STEP = 10; // percent
-  var ZOOM_MIN = 50;
-  var ZOOM_MAX = 200;
-
-  // Inject zoom controls into each chord block
-  document.querySelectorAll('.chords-block').forEach(function(block) {
-    var bar = document.createElement('div');
-    bar.className = 'fullscreen-zoom';
-    bar.innerHTML = '<button class="zoom-btn" data-zoom="-">−</button>' +
-      '<span class="zoom-label">100%</span>' +
-      '<button class="zoom-btn" data-zoom="+">+</button>';
-    block.appendChild(bar);
-
-    var pre = block.querySelector('pre');
-    var label = bar.querySelector('.zoom-label');
-    var currentZoom = 100;
-
-    bar.addEventListener('click', function(e) {
-      var btn = e.target.closest('.zoom-btn');
-      if (!btn || !pre) return;
-      var dir = btn.getAttribute('data-zoom');
-      if (dir === '+' && currentZoom < ZOOM_MAX) currentZoom += ZOOM_STEP;
-      if (dir === '-' && currentZoom > ZOOM_MIN) currentZoom -= ZOOM_STEP;
-      pre.style.fontSize = (currentZoom / 100) + 'em';
-      label.textContent = currentZoom + '%';
-    });
-
-    // Reset zoom when exiting fullscreen
-    document.addEventListener('fullscreenchange', function() {
-      if (!document.fullscreenElement) {
-        currentZoom = 100;
-        if (pre) pre.style.fontSize = '';
-        if (label) label.textContent = '100%';
-      }
-    });
-  });
-})();
-</script>
 
 <script>
 // ── DEV MODE ──
@@ -6185,3 +6429,245 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 })();
 </script>
 
+<script>
+// ── MULTI-COLUMN CHORD LAYOUT ────────────────────────
+// En fullscreen, calcula cuántas columnas necesita el contenido para
+// caber en la pantalla sin scroll (o con el mínimo posible).
+// Usa medición real de píxeles — sin umbrales arbitrarios de caracteres.
+(function() {
+
+  var MIN_COLS    = 2;    // columnas mínimas para activar el layout
+  var COL_PAD     = 52;   // px de padding horizontal por columna
+  var COL_GAP     = 40;   // debe coincidir con CSS column-gap (2.5rem ≈ 40px)
+  var TOOLBAR_H   = 70;   // altura aprox. de la barra sticky (transpose-bar)
+
+  // ── Mide el ancho real del contenido del <pre> en píxeles ──
+  function measurePreWidth(pre) {
+    var cs    = window.getComputedStyle(pre);
+    var clone = pre.cloneNode(true);
+    clone.classList.remove('mc-hidden');
+    clone.style.cssText = [
+      'position:absolute', 'top:-9999px', 'left:-9999px',
+      'visibility:hidden', 'white-space:pre', 'max-width:none',
+      'width:auto', 'overflow:visible',
+      'font-family:' + cs.fontFamily,
+      'font-size:'   + cs.fontSize,
+      'line-height:' + cs.lineHeight,
+      'letter-spacing:' + cs.letterSpacing,
+      'tab-size:4'
+    ].join(';');
+    document.body.appendChild(clone);
+    var w = clone.scrollWidth;
+    document.body.removeChild(clone);
+    return w;
+  }
+
+  // ── Mide la altura total del contenido en una sola columna ──
+  // (necesaria para calcular cuántas columnas se necesitan para que
+  // todo entre en la pantalla de una sola vista)
+  function measureContentHeight(sections, colW) {
+    var temp = document.createElement('div');
+    temp.style.cssText = [
+      'position:absolute', 'top:-9999px', 'left:-9999px',
+      'visibility:hidden', 'width:' + colW + 'px', 'column-count:1'
+    ].join(';');
+    sections.forEach(function(html) {
+      var div = document.createElement('div');
+      div.className = 'chord-section';
+      var p = document.createElement('pre');
+      p.innerHTML = html;
+      div.appendChild(p);
+      temp.appendChild(div);
+    });
+    document.body.appendChild(temp);
+    var h = temp.scrollHeight;
+    document.body.removeChild(temp);
+    return h;
+  }
+
+  // ── Divide el innerHTML en secciones (entre líneas en blanco) ──
+  function splitSections(html) {
+    return html.split(/\n[ \t]*\n/).filter(function(s) { return s.trim(); });
+  }
+
+  // ── Calcula el column-count óptimo ──
+  // Maximiza columnas para que el contenido entre en la altura visible.
+  function calcColumnCount(contentH, availableH, minColW, blockW) {
+    // Mínimo de columnas para que entre sin scroll
+    var byHeight   = Math.ceil(contentH / availableH);
+    // Máximo de columnas que caben horizontalmente
+    var byWidth    = Math.floor((blockW + COL_GAP) / (minColW + COL_GAP));
+    // Usar el mayor posible, sin exceder lo que cabe en ancho
+    var count      = Math.min(Math.max(byHeight, MIN_COLS), byWidth);
+
+    // Verificar que el ancho real de cada columna >= minColW
+    while (count > MIN_COLS) {
+      var actualW = (blockW - (count - 1) * COL_GAP) / count;
+      if (actualW >= minColW) break;
+      count--;
+    }
+    return count;
+  }
+
+  function buildWrapper(sections, colCount) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'chords-multicolumn';
+    wrapper.style.columnCount = colCount;
+    wrapper.style.columnWidth = '';   // column-count es el que manda
+    sections.forEach(function(html) {
+      var div = document.createElement('div');
+      div.className = 'chord-section';
+      var p = document.createElement('pre');
+      p.innerHTML = html;
+      div.appendChild(p);
+      wrapper.appendChild(div);
+    });
+    return wrapper;
+  }
+
+  // ── Botón de toggle (inyectado en la transpose-bar) ──
+  function injectToggleBtn(block) {
+    var bar = block.querySelector('.transpose-bar');
+    if (!bar || bar.querySelector('.mc-toggle-btn')) return;
+
+    var btn = document.createElement('button');
+    btn.className = 'mc-toggle-btn fullscreen-btn';
+    btn.title = 'Activar/desactivar columnas';
+    btn.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">' +
+      '<rect x="3" y="3" width="7" height="18" rx="1"/>' +
+      '<rect x="14" y="3" width="7" height="18" rx="1"/>' +
+      '</svg>Columnas';
+    btn.addEventListener('click', function() {
+      block._mcOff = !block._mcOff;
+      btn.style.color = block._mcOff ? '#888' : '#C8943C';
+      btn.style.borderColor = block._mcOff ? 'rgba(136,136,136,0.3)' : 'rgba(200,148,60,0.5)';
+      if (block._mcOff) {
+        // Desactivar columnas — volver a vista única
+        if (block._mcWrapper) {
+          block._mcWrapper.parentNode.removeChild(block._mcWrapper);
+          block._mcWrapper = null;
+        }
+        if (block._mcPre) {
+          block._mcPre.classList.remove('mc-hidden');
+          block._mcPre = null;
+        }
+      } else {
+        // Reactivar columnas
+        window.enterChordMultiColumn(block);
+      }
+    });
+    bar.appendChild(btn);
+    block._mcToggleBtn = btn;
+  }
+
+  function removeToggleBtn(block) {
+    if (block._mcToggleBtn) {
+      if (block._mcToggleBtn.parentNode) block._mcToggleBtn.parentNode.removeChild(block._mcToggleBtn);
+      block._mcToggleBtn = null;
+    }
+  }
+
+  // ── Activar multi-column ──
+  window.enterChordMultiColumn = function(block) {
+    var pre = block.querySelector('pre:not(.mc-hidden)');
+    if (!pre) return;
+    if (block.querySelector('.chords-multicolumn')) return; // ya activo
+    if (block._mcOff) return;                               // desactivado por el usuario
+
+    var minColW    = measurePreWidth(pre) + COL_PAD;
+    var blockW     = block.clientWidth || window.innerWidth;
+    var blockH     = block.clientHeight || window.innerHeight;
+    var availableH = blockH - TOOLBAR_H;
+    var sections   = splitSections(pre.innerHTML);
+
+    // ¿Caben al menos 2 columnas en ancho?
+    if (Math.floor((blockW + COL_GAP) / (minColW + COL_GAP)) < MIN_COLS) return;
+
+    var totalH   = measureContentHeight(sections, minColW);
+    var colCount = calcColumnCount(totalH, availableH, minColW, blockW);
+
+    if (colCount < MIN_COLS) return;
+
+    var wrapper = buildWrapper(sections, colCount);
+    pre.classList.add('mc-hidden');
+    block.insertBefore(wrapper, pre);
+
+    block._mcWrapper  = wrapper;
+    block._mcPre      = pre;
+    block._mcMinColW  = minColW;
+    block._mcSections = sections;
+
+    // Inyectar botón de toggle
+    injectToggleBtn(block);
+
+    // ── ResizeObserver: reacciona al zoom del navegador ──
+    if (window.ResizeObserver) {
+      block._mcRO = new ResizeObserver(function(entries) {
+        var newW = entries[0].contentRect.width;
+        var newH = entries[0].contentRect.height;
+        if (!block._mcOff && block._mcWrapper) {
+          // Recalcular con nuevas dimensiones
+          var newAvailH  = newH - TOOLBAR_H;
+          var newCols    = calcColumnCount(totalH, newAvailH, block._mcMinColW, newW);
+          if (newCols < MIN_COLS) {
+            window.exitChordMultiColumn(block);
+          } else {
+            block._mcWrapper.style.columnCount = newCols;
+          }
+        }
+      });
+      block._mcRO.observe(block);
+    }
+
+    // ── MutationObserver: reacciona al zoom interno (+/-) ──
+    block._mcMO = new MutationObserver(function() {
+      if (!block._mcOff) {
+        window.exitChordMultiColumn(block);
+        setTimeout(function() { window.enterChordMultiColumn(block); }, 30);
+      }
+    });
+    block._mcMO.observe(pre, { attributes: true, attributeFilter: ['style'] });
+  };
+
+  // ── Desactivar multi-column ──
+  window.exitChordMultiColumn = function(block) {
+    if (block._mcMO)      { block._mcMO.disconnect();  block._mcMO = null; }
+    if (block._mcRO)      { block._mcRO.disconnect();  block._mcRO = null; }
+    if (block._mcWrapper) {
+      if (block._mcWrapper.parentNode) block._mcWrapper.parentNode.removeChild(block._mcWrapper);
+      block._mcWrapper = null;
+    }
+    if (block._mcPre) {
+      block._mcPre.classList.remove('mc-hidden');
+      block._mcPre = null;
+    }
+    block._mcMinColW  = null;
+    block._mcSections = null;
+    // Resetear también el flag de "off" y el botón al cerrar fullscreen
+    block._mcOff = false;
+    removeToggleBtn(block);
+  };
+
+})();
+</script>
+
+
+
+<script>
+// ── AUTO-NUMERACIÓN DE CANTOS ──────────────────────
+// Numera song-number e idx-num en orden DOM al cargar.
+// Permite insertar cantos en cualquier posición sin tocar números manualmente.
+(function() {
+  // Numerar cards del cancionero (01, 02, 03...)
+  document.querySelectorAll('.song-card').forEach(function(card, i) {
+    var numEl = card.querySelector('.song-number');
+    if (numEl) numEl.textContent = String(i + 1).padStart(2, '0');
+  });
+
+  // Numerar entradas del índice (01, 02, 03...)
+  document.querySelectorAll('.index-list .idx-num').forEach(function(el, i) {
+    el.textContent = String(i + 1).padStart(2, '0');
+  });
+})();
+</script>
