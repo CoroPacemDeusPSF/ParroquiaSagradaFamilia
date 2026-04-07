@@ -1127,9 +1127,11 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   transition: all 0.2s;
 }
 .chords-toggle:hover { background: rgba(67,160,71,0.08); }
-.chords-block { display: none; margin-top: 0.8rem; }
-.chords-block.open { display: block; }
+.chords-block { display: block; margin-top: 0.8rem; }
+.chords-block.open { display: block; }  /* compatible con toggleChords */
 .chords-block pre {
+  user-select: none;
+  -webkit-user-select: none;
   font-family: 'Courier New', monospace;
   font-size: 0.82rem;
   line-height: 1.7;
@@ -1145,6 +1147,8 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 .chord { color: #C8943C; font-weight: bold; }
 
 
+/* chords-toggle oculto en modo lectura — el bloque ya es visible */
+.chords-toggle { display: none; }
 body.rehearsal-mode .chords-toggle { display: inline-block; }
 body.rehearsal-mode .editor-open-btn { display: inline-block !important; }
 body.rehearsal-mode .yt-play-btn { display: inline-flex; }
@@ -1250,6 +1254,8 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   overscroll-behavior: contain;      /* evita scroll del fondo sin bloquear zoom */
 }
 .chords-block.fullscreen pre {
+  user-select: text;
+  -webkit-user-select: text;
   background: transparent;
   border-left: none;
   color: #e0d0b0;
@@ -1736,6 +1742,8 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   /* Acordes: fuente un poco más grande para leer en móvil */
   .chords-block pre {
+  user-select: none;
+  -webkit-user-select: none;
     font-size: 0.95rem;
   }
   .chords-block.fullscreen pre,
@@ -2270,7 +2278,7 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v 3.2.4r3</span>
+    <span class="cancionero-version">v 3.2.4r4</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
