@@ -931,7 +931,11 @@ body.dev-mode #rehearsal-badge .badge-dev { display: block !important; }
 .yt-play-btn:hover { opacity: 1; }
 .yt-play-btn svg { width: 20px; height: 20px; }
 
-body.rehearsal-mode .yt-play-btn { display: inline-flex; }
+/* Partitura (acordes): siempre visible */
+.yt-play-btn[href^="#chords-block"] { display: inline-flex; }
+/* YouTube: solo en Modo Coro */
+.yt-play-btn[href*="youtu"] { display: none; }
+body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
 
 /* Confirm dialog */
 #rehearsal-confirm {
@@ -1127,11 +1131,9 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   transition: all 0.2s;
 }
 .chords-toggle:hover { background: rgba(67,160,71,0.08); }
-.chords-block { display: block; margin-top: 0.8rem; }
-.chords-block.open { display: block; }  /* compatible con toggleChords */
+.chords-block { display: none; margin-top: 0.8rem; }
+.chords-block.open { display: block; }
 .chords-block pre {
-  user-select: none;
-  -webkit-user-select: none;
   font-family: 'Courier New', monospace;
   font-size: 0.82rem;
   line-height: 1.7;
@@ -1147,11 +1149,11 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
 .chord { color: #C8943C; font-weight: bold; }
 
 
-/* chords-toggle oculto en modo lectura — el bloque ya es visible */
-.chords-toggle { display: none; }
+/* chords-toggle siempre visible */
+.chords-toggle { display: inline-block; }
 body.rehearsal-mode .chords-toggle { display: inline-block; }
 body.rehearsal-mode .editor-open-btn { display: inline-block !important; }
-body.rehearsal-mode .yt-play-btn { display: inline-flex; }
+body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Coro */
 
 /* Transpose controls */
 .transpose-bar {
@@ -1254,8 +1256,6 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }
   overscroll-behavior: contain;      /* evita scroll del fondo sin bloquear zoom */
 }
 .chords-block.fullscreen pre {
-  user-select: text;
-  -webkit-user-select: text;
   background: transparent;
   border-left: none;
   color: #e0d0b0;
@@ -1742,8 +1742,6 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   /* Acordes: fuente un poco más grande para leer en móvil */
   .chords-block pre {
-  user-select: none;
-  -webkit-user-select: none;
     font-size: 0.95rem;
   }
   .chords-block.fullscreen pre,
@@ -2278,7 +2276,7 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v 3.2.4r4</span>
+    <span class="cancionero-version">v 3.2.5</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -2339,8 +2337,11 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
         <li><span class="idx-num">19</span><a href="#d19">Santo – Alfonso Luna</a></li>
         <li><span class="idx-num">20</span><a href="#d20">Santo – Fones</a><a class="yt-play-btn" href="https://youtu.be/Vwy0tw6u3Qw?t=4" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li class="index-moment-header"><a class="idx-section-link" href="#sec-cordero">Cordero de Dios</a></li>
+        <li><span class="idx-num">00</span><a href="#d94">Agnus Dei – Verbum Panis</a><a class="yt-play-btn" href="#chords-block-d94" onclick="toggleChords('d94',true);setTimeout(function(){document.getElementById('chords-block-d94').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/CdRBYJqenyY" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">21</span><a href="#d21">Cordero – Dynamis</a><a class="yt-play-btn" href="https://youtu.be/U7QvUW2A5mg?t=14" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
+        <li><span class="idx-num">00</span><a href="#d95">Cordero – Marco Frisina</a><a class="yt-play-btn" href="#chords-block-d95" onclick="toggleChords('d95',true);setTimeout(function(){document.getElementById('chords-block-d95').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/vqb8-PV57E8?t=312" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">22</span><a href="#d22">Cordero – Mejía</a></li>
+        <li><span class="idx-num">00</span><a href="#d96">Cordero Piadoso</a><a class="yt-play-btn" href="#chords-block-d96" onclick="toggleChords('d96',true);setTimeout(function(){document.getElementById('chords-block-d96').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/O-jRzHnUk0E?t=16" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></li>
         <li><span class="idx-num">23</span><a href="#d23">Oh Cordero de Dios</a></li>
         <li class="index-moment-header"><a class="idx-section-link" href="#sec-comunion">Comunión</a></li>
         <li><span class="idx-num">00</span><a href="#d65">Alma de Cristo</a><a class="yt-play-btn" href="#chords-block-d65" onclick="toggleChords('d65',true);setTimeout(function(){document.getElementById('chords-block-d65').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a></li>
@@ -4772,6 +4773,77 @@ Tuyo soy, tuyo soy</pre>
 
 
 
+
+    <a class="back-link" id="d94" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-094" data-added="2026-04-07">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">00</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero de Dios</div>
+          <div class="song-title">Agnus Dei – Verbum Panis<a class="yt-play-btn" href="#chords-block-d94" onclick="toggleChords('d94',true);setTimeout(function(){document.getElementById('chords-block-d94').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/CdRBYJqenyY" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Dona nobis dona nobis pacem</p>
+          <p>dona nobis dona nobis pacem (x5)</p>
+        </div>
+        <div class="strophe">
+          <p>Agnus Dei</p>
+          <p>qui tollis peccata mundi</p>
+          <p>miserere</p>
+          <p>miserere nobis</p>
+        </div>
+        <div class="strophe">
+          <p>Dona nobis dona nobis pacem</p>
+          <p>Dona nobis dona nobis pacem (x3)</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+        <button class="chords-toggle" id="chords-toggle-d94" onclick="toggleChords('d94')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d94">
+          <pre><b>♫ Agnus Dei – Verbum Panis</b>
+
+<b>═══ INTRO ═══</b>
+
+<span class="chord">Fa#m</span> <span class="chord">MI</span> <span class="chord">RE</span>   <span class="chord">MI</span>
+
+<b>═══ PARTE 1 ═══</b>
+
+Dona nobis dona nobis pacem
+<span class="chord">Fa#m</span>                   <span class="chord">MI</span>
+dona nobis dona nobis pacem
+<span class="chord">RE</span>                     <span class="chord">MI</span>
+(x5)
+
+<b>═══ ESTROFA ═══</b>
+
+Agnus Dei
+<span class="chord">Fa#m</span>                   <span class="chord">MI</span>
+qui tollis peccata mundi
+<span class="chord">RE</span>                     <span class="chord">MI</span>
+miserere
+<span class="chord">Fa#m</span>                   <span class="chord">MI</span>
+miserere nobis
+<span class="chord">RE</span>                     <span class="chord">MI</span>
+
+<b>═══ INSTRUMENTAL ═══</b>
+
+<span class="chord">RE#m</span>   <span class="chord">DO#</span>
+<span class="chord">SI</span>
+<span class="chord">RE#m</span>   <span class="chord">DO#</span>
+<span class="chord">SI</span>     <span class="chord">RE#m</span>
+
+<b>═══ PARTE 2 ═══</b>
+
+Dona nobis dona nobis pacem
+<span class="chord">Solm</span>                   <span class="chord">FA</span>
+Dona nobis dona nobis pacem
+<span class="chord">MIb</span>                    <span class="chord">FA</span>
+(x3)</pre>
+        </div>
+      </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
     <a class="back-link" id="d21" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-021">
       <div class="song-header"><div class="song-header-bar"></div>
@@ -4803,6 +4875,62 @@ Tuyo soy, tuyo soy</pre>
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
+    <a class="back-link" id="d95" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-095" data-added="2026-04-07">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">00</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero de Dios</div>
+          <div class="song-title">Cordero – Marco Frisina<a class="yt-play-btn" href="#chords-block-d95" onclick="toggleChords('d95',true);setTimeout(function(){document.getElementById('chords-block-d95').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/vqb8-PV57E8?t=312" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Cordero de Dios tú que quitas</p>
+          <p>el pecado del mundo</p>
+          <p>Misere Nobis (Bis)</p>
+        </div>
+        <div class="strophe">
+          <p>Cordero de Dios tú que quitas</p>
+          <p>el pecado del mundo</p>
+          <p>Dona Nobis Pacem (Bis)</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+        <button class="chords-toggle" id="chords-toggle-d95" onclick="toggleChords('d95')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d95">
+          <pre><b>♫ Cordero – Marco Frisina</b>
+
+<b>═══ INTRO ═══</b>
+
+<span class="chord">LA</span>
+
+<b>═══ ESTROFA 1 ═══</b>
+
+Cordero de Dios tú que quitas
+<span class="chord">Rem</span>            <span class="chord">DO</span>    <span class="chord">SIb</span>
+el pecado del mundo
+<span class="chord">Rem</span>        <span class="chord">SIb</span>   <span class="chord">LA</span>
+Misere Nobis
+<span class="chord">FA</span>        <span class="chord">DO</span>        <span class="chord">Solm</span>        <span class="chord">Rem</span>
+Misere Nobis
+<span class="chord">SIb</span>       <span class="chord">DO</span>        <span class="chord">Rem</span>
+(Bis)
+
+<b>═══ ESTROFA 2 ═══</b>
+
+Cordero de Dios tú que quitas
+<span class="chord">Rem</span> <span class="chord">FA</span>      <span class="chord">Lam</span>       <span class="chord">DO</span>
+el pecado del mundo
+<span class="chord">Solm</span>           <span class="chord">LA</span>
+Dona Nobis Pacem
+<span class="chord">FA</span>        <span class="chord">DO</span>        <span class="chord">Solm</span>        <span class="chord">Rem</span>
+Dona Nobis Pacem
+<span class="chord">SIb</span>       <span class="chord">DO</span>        <span class="chord">Rem</span> <span class="chord">Dom</span> <span class="chord">Rem</span></pre>
+        </div>
+      </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
+
     <a class="back-link" id="d22" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-022">
       <div class="song-header"><div class="song-header-bar"></div>
@@ -4826,6 +4954,69 @@ Tuyo soy, tuyo soy</pre>
           <p>danos la paz, danos la paz, danos la paz.</p>
         </div>
         <div class="song-ornament">✦ ✦ ✦</div>
+      </div>
+    </div>
+    <a class="back-link" href="#dominical-index">Volver al índice</a>
+
+    <a class="back-link" id="d96" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-096" data-added="2026-04-07">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">00</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Cordero de Dios</div>
+          <div class="song-title">Cordero Piadoso<a class="yt-play-btn" href="#chords-block-d96" onclick="toggleChords('d96',true);setTimeout(function(){document.getElementById('chords-block-d96').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/O-jRzHnUk0E?t=16" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="strophe">
+          <p>Cordero de Dios</p>
+          <p>que quitas el pecado del mundo</p>
+          <p>Ten Piedad, Ten piedad</p>
+          <p>Ten piedad de nosotros</p>
+        </div>
+        <div class="strophe">
+          <p>Cordero de Dios</p>
+          <p>que quitas el pecado del mundo</p>
+          <p>Danos, La Paz</p>
+          <p>Danos la... paz</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+        <button class="chords-toggle" id="chords-toggle-d96" onclick="toggleChords('d96')">Ver acordes ▾</button>
+        <div class="chords-block" id="chords-block-d96">
+          <pre><b>♫ Cordero Piadoso</b>
+
+<b>═══ INTRO ═══</b>
+
+<span class="chord">DO#m7</span>   <span class="chord">RE7</span> <span class="chord">SOL#7</span>
+
+<b>═══ ESTROFA 1 ═══</b>
+
+Cordero de Dios
+<span class="chord">DO#m7</span>        <span class="chord">SOL#7</span>
+que quitas el pecado del mundo
+<span class="chord">RE#m7</span>        <span class="chord">SOL#7</span>  <span class="chord">DO#m7</span>  <span class="chord">Sim7</span>
+Ten Piedad,    Ten piedad
+<span class="chord">DO#7</span>  <span class="chord">Fa#m7</span>  <span class="chord">SI7</span>    <span class="chord">MImaj7</span> <span class="chord">LAmaj7</span>
+Ten piedad de nosotros
+       <span class="chord">RE#m7</span> <span class="chord">SOL#7</span>  <span class="chord">DO#m7</span>  <span class="chord">SOL#7</span>
+
+<b>═══ ESTROFA 2 ═══</b>
+
+Cordero de Dios
+<span class="chord">DO#m7</span>        <span class="chord">SOL#7</span>
+que quitas el pecado del mundo
+<span class="chord">RE#m7</span>        <span class="chord">SOL#7</span>  <span class="chord">DO#m7</span>  <span class="chord">Sim7</span>
+Danos,     La Paz
+<span class="chord">DO#7</span> <span class="chord">Fa#m7</span>  <span class="chord">SI7</span>    <span class="chord">MImaj7</span> <span class="chord">LAmaj7</span>
+Danos la... paz
+ <span class="chord">RE#m7</span> <span class="chord">SOL#7</span>
+
+<b>═══ OUTRO ═══</b>
+
+<span class="chord">MImaj7</span>   <span class="chord">LAmaj7</span>
+<span class="chord">MImaj7</span>   <span class="chord">LAmaj7</span>
+<span class="chord">DO#m7</span></pre>
+        </div>
       </div>
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
