@@ -1148,6 +1148,69 @@ body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
 }
 .chord { color: #C8943C; font-weight: bold; }
 
+/* ── Título de canción en bloque de acordes (línea con ♫) ── */
+.chords-block pre b.chord-title {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #C8943C;
+  letter-spacing: 0.08em;
+  padding-bottom: 0;
+  margin: 0 0 -1.394rem;
+  border-bottom: 1px solid rgba(200, 148, 60, 0.35);
+  white-space: normal;
+}
+
+/* ── Encabezado de sección en bloque de acordes (═══ SECCIÓN ═══) ── */
+.chords-block pre b.chord-section {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #43A047;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 -1.394rem;
+  padding: 0.1rem 0.5rem;
+  background: rgba(67, 160, 71, 0.07);
+  border-left: 2px solid #43A047;
+  border-radius: 0 2px 2px 0;
+  white-space: normal;
+}
+
+/* ── Indicador de Capo / Cejilla ── */
+.chords-block pre b.chord-capo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #7C3F00;
+  letter-spacing: 0.1em;
+  background: rgba(200,148,60,0.18);
+  border: 1.5px solid rgba(200,148,60,0.55);
+  border-radius: 20px;
+  padding: 0.15rem 0.65rem 0.15rem 0.4rem;
+  margin: 0 0 -1.394rem;
+  white-space: normal;
+  box-shadow: 0 1px 3px rgba(200,148,60,0.2);
+}
+.chords-block pre b.chord-capo::before {
+  content: '';
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1.2em;
+  height: 1.2em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='2' y='5' width='20' height='4' rx='2' fill='%23C8943C'/%3E%3Crect x='2' y='5' width='20' height='4' rx='2' fill='none' stroke='%237C3F00' stroke-width='0.5'/%3E%3Cline x1='6' y1='9' x2='6' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='10' y1='9' x2='10' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='14' y1='9' x2='14' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='18' y1='9' x2='18' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='4' y1='12' x2='20' y2='12' stroke='%23C8943C' stroke-width='0.5' stroke-dasharray='2 2' opacity='0.4'/%3E%3Cline x1='4' y1='16' x2='20' y2='16' stroke='%23C8943C' stroke-width='0.5' stroke-dasharray='2 2' opacity='0.4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+
+
 
 /* chords-toggle siempre visible */
 .chords-toggle { display: inline-block; }
@@ -1584,6 +1647,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Cor
 #editor-highlight .hl-chord  { color: #C8943C; font-weight: bold; }
 /* Header lines (═══, ♫, ⚠) */
 #editor-highlight .hl-header { color: rgba(200,148,60,0.55); }
+.hl-capo   { color: #7C3F00; font-weight: bold; background: rgba(200,148,60,0.15); border-radius: 3px; padding: 0 2px; }
 
 /* Textarea — transparent so the highlight shows through */
 #chord-editor-textarea {
@@ -2123,6 +2187,9 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* ── Botón expandir todos — solo en Dev Mode ── */
+body.dev-mode #btn-expand-all { display: inline-block !important; }
 </style>
 </head>
 <body style="overflow-x:clip;">
@@ -2149,6 +2216,13 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
     <button class="font-size-btn" id="font-decrease" title="Reducir letra">A−</button>
     <button class="font-size-btn" id="font-increase" title="Agrandar letra">A+</button>
   </div>
+  <button id="btn-expand-all" title="Expandir todos los acordes"
+    style="display:none;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.15em;
+           text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:4px;
+           border:1px solid #B45309;color:#B45309;background:transparent;
+           cursor:pointer;" onclick="expandAllChords(this)">
+    Exp. Acordes
+  </button>
   <div class="pd-share-wrap" style="position:relative;">
     <button class="pd-share-btn" onclick="pdShare(this)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -2315,7 +2389,7 @@ body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inli
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v 3.2.11</span>
+    <span class="cancionero-version"</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -6717,7 +6791,7 @@ Verbum panis factum est
         <div class="chords-block" id="chords-block-d71">
           <pre><b>♫ Yo Soy el Camino Firme</b>
 
-<b>⚠ TONALIDAD: Capo +2</b>
+<b>* Capo +2 *</b>
 
 <b>═══ SECCIÓN A (Tono: Lam) ═══</b>
 
@@ -7146,7 +7220,7 @@ ahora y en la hora de nuestra muerte, amén.
         <div class="chords-block" id="chords-block-d35">
           <pre><b>♫ Dios te Salve María (Betsaida)</b>
 
-<b>⚠ TONALIDAD: SOL (+2)</b>
+<b>* Capo +2 (SOL) *</b>
 
 <b>═══ CORO ═══</b>
 
@@ -7486,7 +7560,7 @@ para escuchar su voz.                  <span class="chord">Rem</span>-<span clas
         <div class="chords-block" id="chords-block-d74">
           <pre><b>♫ María, Tú</b>
 
-<b>⚠ TONALIDAD: Capo +3</b>
+<b>* Capo +3 *</b>
 
 <b>═══ ESTROFA 1 ═══</b>
 
@@ -9421,7 +9495,10 @@ Aleluya.
     var opening = (forceOpen === true) ? true : !block.classList.contains('open');
     block.classList.toggle('open', opening);
     if (btn) btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
-    if (opening) window.injectTransposeBar(id);
+    if (opening) {
+      window.injectTransposeBar(id);
+      window.decorateChordBlock(block);
+    }
   };
 })();
 </script>
@@ -9633,6 +9710,11 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         return '<span class="hl-header">' + escHtml(line) + '</span>';
       }
 
+      // Capo lines: * Capo +N *
+      if (/^\*\s.+\s\*$/.test(trimmed)) {
+        return '<span class="hl-capo">' + escHtml(line) + '</span>';
+      }
+
       // Empty line
       if (!trimmed) return '';
 
@@ -9834,7 +9916,8 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       var trimmed = line.trim();
 
       // Headers → bold
-      if (/^[═♫⚠]/.test(trimmed) || /^═/.test(trimmed)) {
+      // Incluye: ═══ secciones ═══ | ♫ título | ⚠ avisos | * Capo +N * 
+      if (/^[═♫⚠]/.test(trimmed) || /^═/.test(trimmed) || /^\*\s.*\s\*$/.test(trimmed)) {
         result.push('<b>' + escHtml(trimmed) + '</b>');
         continue;
       }
@@ -10009,6 +10092,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     if (!pre) return;
 
     pre.innerHTML = htmlContent;
+    if (window.decorateChordBlock) window.decorateChordBlock(block);
     saveBtn.disabled = true;
     status.textContent = '⏳ Guardando en la nube...';
     status.className = '';
@@ -10054,7 +10138,10 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     var block = document.getElementById('chords-block-' + currentBlockId);
     if (block) {
       var pre = block.querySelector('pre');
-      if (pre) pre.innerHTML = originalHtml;
+      if (pre) {
+        pre.innerHTML = originalHtml;
+        if (window.decorateChordBlock) window.decorateChordBlock(block);
+      }
     }
     textarea.value = htmlToText(originalHtml);
     refreshHighlight();  // re-render highlight after reset
@@ -10106,6 +10193,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
             var pre = block.querySelector('pre');
             if (pre) {
               pre.innerHTML = data[slug];
+              if (window.decorateChordBlock) window.decorateChordBlock(block);
               applied++;
               console.log('[Dev] Override recargado: ' + slug + ' → ' + blockId);
             }
@@ -10265,6 +10353,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
             var pre = block.querySelector('pre');
             if (pre) {
               pre.innerHTML = data[slug];
+              if (window.decorateChordBlock) window.decorateChordBlock(block);
               // no cache
               console.log('[Chords] Override aplicado: ' + slug + ' → ' + blockId);
             }
@@ -11153,6 +11242,70 @@ window.CPDHistory = (function() {
 
 })();
 </script>
+
+<script>
+// ── DECORACIÓN DE BLOQUES DE ACORDES ─────────────────────────────────
+// Clasifica los <b> dentro de <pre> según su contenido:
+//   • Contiene ♫  → clase chord-title  (título de la canción)
+//   • Contiene ═  → clase chord-section (encabezado de sección)
+// Se llama al abrir un bloque (toggleChords) y al cargar la página.
+// ─────────────────────────────────────────────────────────────────────
+window.decorateChordBlock = function(block) {
+  if (!block) return;
+  var pre = block.querySelector('pre');
+  if (!pre) return;
+  pre.querySelectorAll('b').forEach(function(b) {
+    var txt = b.textContent.trim();
+    if (txt.indexOf('♫') !== -1) {
+      b.classList.add('chord-title');
+    } else if (/^\*\s.+\s\*$/.test(txt)) {
+      b.classList.add('chord-capo');
+      // Quitar los asteriscos del texto visible, conservar solo el contenido
+      b.childNodes.forEach(function(node) {
+        if (node.nodeType === 3) {
+          node.nodeValue = node.nodeValue.replace(/^\*\s*/, '').replace(/\s*\*$/, '');
+        }
+      });
+    } else if (txt.indexOf('═') !== -1) {
+      b.classList.add('chord-section');
+    }
+  });
+};
+
+// Decorar todos los bloques abiertos al cargar (por si acaso)
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.chords-block.open').forEach(function(block) {
+    window.decorateChordBlock(block);
+  });
+});
+</script>
+<script>
+// ── EXPANDIR / COLAPSAR TODOS LOS ACORDES (Dev Mode) ────────────────────────
+function expandAllChords(btn) {
+  var allBlocks = document.querySelectorAll('.chords-block');
+  // Detectar estado actual: si alguno está cerrado, expandir todos; si todos abiertos, colapsar
+  var anyClose = Array.prototype.some.call(allBlocks, function(b) {
+    return !b.classList.contains('open');
+  });
+
+  allBlocks.forEach(function(block) {
+    var id = block.id.replace('chords-block-', '');
+    if (anyClose) {
+      // Abrir: usar toggleChords para respetar injectTransposeBar y decoración
+      if (!block.classList.contains('open')) toggleChords(id, true);
+    } else {
+      // Colapsar
+      block.classList.remove('open');
+      var tBtn = document.getElementById('chords-toggle-' + id);
+      if (tBtn) tBtn.textContent = 'Ver acordes ▾';
+    }
+  });
+
+  // Actualizar label del botón
+  btn.textContent = anyClose ? 'Col. Acordes' : 'Exp. Acordes';
+}
+</script>
+
 
 
 
