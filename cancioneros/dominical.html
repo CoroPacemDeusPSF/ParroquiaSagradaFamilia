@@ -14,7 +14,7 @@
 <title>Cancionero Dominical – Coro Pacem Deus</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 <style>
-body{overflow-x:clip;max-width:100vw}
+body{overflow-x:clip;max-width:100%}
 
 /* ═══════════════════════════════════════════════
    ROOT & RESET
@@ -2463,7 +2463,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.20r6</span>
+    <span class="cancionero-version">v3.2.20r8</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -10874,29 +10874,7 @@ Aleluya.
   });
 })();
 </script>
-<script>
-// ── CHORDS TOGGLE + TRANSPOSE ─────────────────────
-(function() {
-  // ── Chromatic scale (Latin notation) ──
-  var NOTES = ['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
-  // Flats → sharps mapping for lookup
-  var FLAT_MAP = {'REb':'DO#','MIb':'RE#','FAb':'MI','SOLb':'FA#','LAb':'SOL#','SIb':'LA#','DOb':'SI'};
 
-  // Parse a chord string into { root, rootIndex, suffix, bass, bassIndex }
-  function parseChord(txt) {
-    var t = txt.trim();
-    if (!t) return null;
-
-    // Split on slash for bass note (but not at position 0)
-    var mainPart = t, bassPart = '';
-    var slashIdx = t.indexOf('/');
-    if (slashIdx > 0) {
-      mainPart = t.substring(0, slashIdx);
-      bassPart = t.substring(slashIdx + 1);
-    }
-
-
-</script>
 
 <script>
 // ── CHORDS TOGGLE + TRANSPOSE ─────────────────────
