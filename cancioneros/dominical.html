@@ -2272,6 +2272,20 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 .lit-card .lit-theme{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:.9rem;color:#D4C8A0;margin-top:6px}
 .lit-card .lit-loading{font-size:.65rem;color:rgba(200,148,60,.4);font-style:italic}
 .lit-card .lit-error{font-size:.65rem;color:rgba(200,148,60,.45);font-style:italic}
+
+/* ── Psalm audio player ── */
+.psalm-player{display:none;width:100%;max-width:calc(100vw - 3rem);margin:0.35rem auto 0;background:rgba(14,26,12,0.85);border:1px solid rgba(107,158,74,0.2);border-radius:4px;padding:0.5rem 0.65rem;font-family:'Cinzel',serif}
+.psalm-player.visible{display:flex;align-items:center;gap:0.5rem}
+.psalm-play-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;padding:0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.psalm-play-btn svg{width:20px;height:20px;fill:#6B9E4A;transition:fill 0.2s}
+.psalm-play-btn:hover svg{fill:#8BC064}
+.psalm-player-mid{flex:1;display:flex;flex-direction:column;gap:0.2rem;min-width:0}
+.psalm-progress-wrap{width:100%;height:6px;background:rgba(107,158,74,0.12);border-radius:3px;cursor:pointer;overflow:hidden}
+.psalm-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#4A7A3A,#6B9E4A);border-radius:3px;transition:width 0.15s linear}
+.psalm-time{font-size:0.45rem;letter-spacing:0.1em;color:rgba(160,170,150,0.6)}
+.psalm-close-btn{width:22px;height:22px;border:none;background:none;cursor:pointer;padding:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:0.4;transition:opacity 0.2s}
+.psalm-close-btn:hover{opacity:0.8}
+.psalm-close-btn svg{width:12px;height:12px;stroke:rgba(160,170,150,0.8);stroke-width:2;fill:none}
 #lit-psalm-btn:hover{background:rgba(107,158,74,0.12)!important;border-color:rgba(107,158,74,0.4)!important;}
 
 
@@ -2486,7 +2500,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.23r9</span>
+    <span class="cancionero-version">v3.2.23r11</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -13915,12 +13929,36 @@ async function aiSend(){
     var psUrl=getPsalmUrl(lit.n,lit.ci,lit.t);
     var psBtn=document.getElementById('lit-psalm-btn');
     if(psBtn&&psUrl){psBtn.style.display='flex';psBtn.onclick=function(e){e.stopPropagation();
+      var wrap=document.getElementById('psalm-player');
+      if(!wrap){
+        /* Build custom player */
+        wrap=document.createElement('div');wrap.id='psalm-player';wrap.className='psalm-player';
+        wrap.innerHTML='<button class="psalm-play-btn" id="psalm-pp"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></button>'
+          +'<div class="psalm-player-mid"><div class="psalm-progress-wrap" id="psalm-pw"><div class="psalm-progress-bar" id="psalm-pb"></div></div>'
+          +'<div class="psalm-time" id="psalm-tm">0:00 / 0:00</div></div>'
+          +'<button class="psalm-close-btn" id="psalm-cl"><svg viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>';
+        psBtn.parentNode.insertBefore(wrap,psBtn.nextSibling);
+        var au=document.createElement('audio');au.id='lit-psalm-audio';wrap.appendChild(au);
+        var pp=document.getElementById('psalm-pp'),pb=document.getElementById('psalm-pb'),
+            pw=document.getElementById('psalm-pw'),tm=document.getElementById('psalm-tm'),
+            cl=document.getElementById('psalm-cl');
+        function fmt(s){var m=Math.floor(s/60),ss=Math.floor(s%60);return m+':'+(ss<10?'0':'')+ss;}
+        au.addEventListener('timeupdate',function(){
+          if(au.duration){pb.style.width=(au.currentTime/au.duration*100)+'%';tm.textContent=fmt(au.currentTime)+' / '+fmt(au.duration);}
+        });
+        au.addEventListener('ended',function(){pp.innerHTML='<svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>';});
+        pp.addEventListener('click',function(ev){ev.stopPropagation();
+          if(au.paused){au.play();pp.innerHTML='<svg viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';}
+          else{au.pause();pp.innerHTML='<svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>';}
+        });
+        pw.addEventListener('click',function(ev){ev.stopPropagation();
+          if(au.duration){var r=ev.offsetX/pw.offsetWidth;au.currentTime=r*au.duration;}
+        });
+        cl.addEventListener('click',function(ev){ev.stopPropagation();au.pause();au.src='';wrap.classList.remove('visible');});
+      }
       var au=document.getElementById('lit-psalm-audio');
-      if(!au){au=document.createElement('audio');au.id='lit-psalm-audio';au.controls=true;
-        au.style.cssText='width:100%;max-width:calc(100vw - 3rem);margin:0.4rem auto 0;display:block;border-radius:3px;height:2.2rem;';
-        psBtn.parentNode.insertBefore(au,psBtn.nextSibling);}
-      if(au.src&&au.src.indexOf(psUrl)!==-1&&!au.paused){au.pause();return;}
-      au.src=psUrl;au.play();
+      au.src=psUrl;au.play();wrap.classList.add('visible');
+      document.getElementById('psalm-pp').innerHTML='<svg viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';
     };
     }else if(psBtn){psBtn.style.display='none';}
   }
