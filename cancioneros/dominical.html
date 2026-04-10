@@ -13840,7 +13840,7 @@ async function aiSend(){
     h+='<div class="lit-gospel"><span class="lit-color-dot" style="background:'+(COL[lit.c]||'#F5F5F0')+'"></span>Evangelio: '+lit.ev+'</div>';
     h+='<div class="lit-theme">\u00ab'+lit.tema+'\u00bb</div>';
     var dd=parseInt(key.slice(8,10)),mm=parseInt(key.slice(5,7)),yyyy=key.slice(0,4);
-    card.setAttribute('onclick','window.open("https://www.dominicos.org/predicacion/homilia/'+dd+'-'+mm+'-'+yyyy+'/lecturas/","_blank")');
+    card.setAttribute('onclick','window.open("https://www.dominicos.org/predicacion/homilia/'+dd+'-'+mm+'-'+yyyy+'/lecturas/#:~:text=Salmo","_blank")');
     card.title='Ver lecturas del domingo';
     card.innerHTML=h;setTimeout(function(){card.classList.add('lit-visible');},50);
   }
