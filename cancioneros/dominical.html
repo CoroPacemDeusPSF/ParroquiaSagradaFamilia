@@ -1871,7 +1871,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
   text-transform: uppercase;
   color: #C8943C;
   opacity: 0.7;
-  margin-top: 0.6rem;
+  margin-top: 0.1rem;
   display: block;
 }
 
@@ -2260,7 +2260,8 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 .lit-card .lit-error{font-size:.65rem;color:rgba(200,148,60,.45);font-style:italic}
 
 /* ── Liturgical card animation ── */
-.lit-card{opacity:0;transition:opacity 2s ease}
+.lit-card{opacity:0;transition:opacity 3s ease;cursor:pointer;text-decoration:none;display:block}
+.lit-card:hover{background:rgba(200,148,60,.12)}
 .lit-card.lit-visible{opacity:1}
 </style>
 </head>
@@ -2461,7 +2462,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version"</span>
+    <span class="cancionero-version">v3.2.20</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -13436,7 +13437,7 @@ async function aiSend(){
   var COL={'Blanco':'#F5F5F0','Verde':'#4A7A3A','Morado':'#6A3D7A','Rojo':'#A03030','Rosa':'#C07090'};
   function pad(n){return n<10?'0'+n:''+n;}
   function nextSun(){var d=new Date();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-  function render(lit){
+  function render(lit,key){
     var card=document.getElementById('lit-card');if(!card)return;
     var h='<div class="lit-season">'+lit.t+' \u00b7 Ciclo '+lit.ci+'</div>';
     h+='<div class="lit-name">'+lit.n+'</div>';
@@ -13444,12 +13445,15 @@ async function aiSend(){
     h+='<div class="lit-divider"></div>';
     h+='<div class="lit-gospel"><span class="lit-color-dot" style="background:'+(COL[lit.c]||'#F5F5F0')+'"></span>Evangelio: '+lit.ev+'</div>';
     h+='<div class="lit-theme">\u00ab'+lit.tema+'\u00bb</div>';
+    var mm=key.slice(5,7),dd=key.slice(8,10),yy=key.slice(2,4);
+    card.setAttribute('onclick','window.open("https://bible.usccb.org/es/bible/lecturas/'+mm+dd+yy+'.cfm","_blank")');
+    card.title='Ver lecturas del domingo en USCCB';
     card.innerHTML=h;setTimeout(function(){card.classList.add('lit-visible');},50);
   }
   function go(){
     var card=document.getElementById('lit-card');if(!card)return;
     var key=nextSun();
-    if(D[key]){render(D[key]);return;}
+    if(D[key]){render(D[key],key);return;}
     /* If exact date not found, try Gemini as fallback */
     card.innerHTML='<div class="lit-loading">Consultando calendario lit\u00fargico\u2026</div>';
     var sun=new Date(key+'T12:00:00');
@@ -13460,7 +13464,7 @@ async function aiSend(){
       body:JSON.stringify({contents:[{role:'user',parts:[{text:'Para el domingo '+dh+' calendario lit\u00fargico cat\u00f3lico, responde SOLO JSON: {"t":"Pascua","n":"nombre","e":"especial o vacio","c":"Blanco","ev":"Jn 20,19-31","tema":"frase","ci":"A"}'}]}],tools:[{google_search:{}}],generationConfig:{temperature:0,maxOutputTokens:300}})
     }).then(function(r){return r.json();}).then(function(data){
       var text='';data.candidates[0].content.parts.forEach(function(p){if(p.text)text+=p.text;});
-      var m=text.match(/\{[\s\S]*\}/);if(m)render(JSON.parse(m[0]));
+      var m=text.match(/\{[\s\S]*\}/);if(m)render(JSON.parse(m[0]),key);
       else card.innerHTML='<div class="lit-error">Calendario no disponible</div>';
     }).catch(function(){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';});
   }
