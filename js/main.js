@@ -2,6 +2,15 @@
    PACEM DEUS — main.js
 ═══════════════════════════════════════════ */
 
+// ── TOP PANEL TABS (Cancioneros / Salmos) ────
+function showTopPanel(panelId, btn) {
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.top-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  var panel = document.getElementById(panelId);
+  if (panel) panel.classList.add('active');
+}
+
 // ── YEAR TABS ─────────────────────────────────
 function showYear(year) {
   document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
