@@ -14,7 +14,7 @@
 <title>Cancionero Dominical – Coro Pacem Deus</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 <style>
-body{overflow-x:clip;max-width:100%}
+html{overflow-x:hidden}
 
 /* ═══════════════════════════════════════════════
    ROOT & RESET
@@ -2263,6 +2263,12 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 .lit-card{opacity:0;transition:opacity 3s ease;cursor:pointer;text-decoration:none;display:block;max-width:calc(100vw - 3rem);box-sizing:border-box}
 .lit-card:hover{background:rgba(200,148,60,.12)}
 .lit-card.lit-visible{opacity:1}
+
+@media (max-width: 480px) {
+  #pd-back-bar { padding-left: 0.8rem !important; padding-right: 0.8rem !important; gap: 0.5rem !important; }
+  .pd-share-btn span, .pd-share-btn { font-size: 0 !important; width: 28px; padding: 0.3rem !important; justify-content: center; }
+  .pd-share-btn svg { font-size: initial; }
+}
 </style>
 </head>
 <body style="overflow-x:clip;">
@@ -2274,13 +2280,14 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
   border-bottom: 1px solid rgba(120,160,70,0.2);
   display: flex; align-items: center;
   padding: 0.6rem 1.5rem; gap: 1rem;
-  overflow-x: hidden;
   font-family: 'Cinzel', serif;
 ">
   <a href="../index.html" target="_parent" style="
     display: flex; align-items: center; gap: 0.5rem;
     color: #A8C878; text-decoration: none; font-size: 0.68rem;
     letter-spacing: 0.25em; text-transform: uppercase;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; flex-shrink: 1;
     transition: color 0.2s;
   " onmouseover="this.style.color='#C8E8A0'" onmouseout="this.style.color='#A8C878'">
     ← Coro Pacem Deus
@@ -2463,7 +2470,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.20r8</span>
+    <span class="cancionero-version">v3.2.20r10</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
