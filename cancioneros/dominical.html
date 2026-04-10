@@ -14,7 +14,7 @@
 <title>Cancionero Dominical – Coro Pacem Deus</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 <style>
-html,body{overflow-x:clip;max-width:100vw}
+body{overflow-x:clip;max-width:100vw}
 
 /* ═══════════════════════════════════════════════
    ROOT & RESET
@@ -2246,6 +2246,22 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 .ai-sug{background:#252A22;border:1px solid rgba(107,158,74,.15);border-radius:8px;padding:8px 12px;color:#A0B890;cursor:pointer;font-size:.75rem;text-align:left;transition:all .15s}
 .ai-sug:hover{background:#2A3926;border-color:rgba(107,158,74,.35)}
 @media(max-width:480px){.ai-panel{right:8px;left:8px;bottom:78px;width:auto;max-height:70vh}}
+
+/* ── Liturgical card (portada) ── */
+.lit-card{margin:1.5rem auto 0;max-width:340px;background:rgba(200,148,60,.08);border:1px solid rgba(200,148,60,.2);border-radius:10px;padding:16px 20px;text-align:center;position:relative;z-index:2}
+.lit-card .lit-season{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.25em;text-transform:uppercase;color:#C8943C;margin-bottom:8px}
+.lit-card .lit-name{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.08em;color:#E8DCC0;margin-bottom:4px}
+.lit-card .lit-special{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#C8943C;margin-bottom:10px}
+.lit-card .lit-divider{width:50px;height:1px;background:rgba(200,148,60,.35);margin:0 auto 10px}
+.lit-card .lit-gospel{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.08em;color:#B8A880}
+.lit-card .lit-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;border:1px solid rgba(200,148,60,.4);vertical-align:middle;margin-right:5px}
+.lit-card .lit-theme{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:.9rem;color:#D4C8A0;margin-top:6px}
+.lit-card .lit-loading{font-size:.65rem;color:rgba(200,148,60,.4);font-style:italic}
+.lit-card .lit-error{font-size:.65rem;color:rgba(200,148,60,.45);font-style:italic}
+
+/* ── Liturgical card animation ── */
+.lit-card{opacity:0;transition:opacity 2s ease}
+.lit-card.lit-visible{opacity:1}
 </style>
 </head>
 <body style="overflow-x:clip;">
@@ -2323,9 +2339,9 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
   <button class="pd-nav-close" id="pd-nav-close" onclick="document.getElementById('pd-nav-overlay').classList.remove('open');document.getElementById('pd-hamburger').classList.remove('open');document.body.style.overflow='';">✕</button>
   <div class="pd-nav-divider"></div>
   <a href="../index.html?from=dominical#cancioneros" target="_parent">Cancioneros</a>
-  <a href="semana_santa_2026.html">Semana Santa 2026</a>
-  <a href="navidad_2025.html">Navidad 2025</a>
-  <a href="vigilia_pascual_2024.html">Vigilia Pascual 2024</a>
+  <a href="../index.html?from=dominical#about" target="_parent">¿Quiénes Somos?</a>
+  <a href="../index.html?from=dominical#contacto" target="_parent" style="display:flex;align-items:center;gap:0.5rem;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Contacto</a>
+  <div class="pd-nav-divider"></div>
 </div>
 
 
@@ -2449,6 +2465,9 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
+    <div class="lit-card" id="lit-card">
+      <div class="lit-loading" id="lit-loading">Consultando el calendario litúrgico...</div>
+    </div>
   </div>
 
   <!-- INDEX -->
@@ -3583,7 +3602,7 @@ Ky  -  rie...         e  -  le  -  i  -  son
         <div class="song-number">00</div>
         <div class="song-header-text">
           <div class="song-moment-label">Piedad</div>
-          <div class="song-title">Kyrie Eléison – M. Frisina<a class="yt-play-btn" href="#chords-block-d101" onclick="toggleChords('d101',true);setTimeout(function(){document.getElementById('chords-block-d101').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/0inh_I9UKbc?t=3" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/Tdm8MHfEzTE?t=17" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+          <div class="song-title">Kyrie Eléison – M. Frisina<a class="yt-play-btn" href="#chords-block-d101" onclick="toggleChords('d101',true);setTimeout(function(){document.getElementById('chords-block-d101').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/0inh_I9UKbc?t=3" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a><a class="yt-play-btn" href="https://youtu.be/Tdm8MHfEzTE?t=15" target="_blank" title="Ver referencia 2 en YouTube" style="color:#43A047;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -12936,13 +12955,14 @@ window.CPDHistory = (function() {
           : '';
 
         // Botón YouTube (si la card tiene link de YouTube)
-        var ytEl  = titleEl ? titleEl.querySelector('.yt-play-btn[href*="youtu"]') : null;
+        var ytEls = titleEl ? titleEl.querySelectorAll('.yt-play-btn[href*="youtu"]') : [];
         var ytBtn = '';
-        if (ytEl) {
-          ytBtn = '<a class="yt-play-btn" href="' + ytEl.getAttribute('href') + '"' +
-                  ' target="_blank" title="Ver referencia en YouTube"' +
-                  ' style="color:#FF0000;">' + SVG_YT + '<\/a>';
-        }
+        ytEls.forEach(function(el){
+          var c=el.style.color||'#FF0000';
+          ytBtn+='<a class="yt-play-btn" href="'+el.getAttribute('href')+'"'+
+            ' target="_blank" title="'+(el.getAttribute('title')||'Ver referencia en YouTube')+'"'+
+            ' style="color:'+c+';">'+SVG_YT+'<\/a>';
+        });
 
         // Construir el <li>
         var li = document.createElement('li');
@@ -13214,5 +13234,237 @@ async function aiSend(){
   document.getElementById('ai-send-btn').disabled=false;
   document.getElementById('ai-input').focus();
 }
+</script>
+
+<script>
+// ── HAMBURGER MENU ──
+(function() {
+  var btn     = document.getElementById('pd-hamburger');
+  var overlay = document.getElementById('pd-nav-overlay');
+  var closeBtn = document.getElementById('pd-nav-close');
+
+  if (!btn || !overlay || !closeBtn) return;
+
+  function openMenu() {
+    btn.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    btn.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', openMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeMenu();
+  });
+})();
+</script>
+
+
+<script>
+/* ── Liturgical card (3-year calendar) ── */
+(function(){
+  var D={
+    '2025-11-30':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mt 24,37-44',tema:'Estad preparados',ci:'A'},
+    '2025-12-07':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mt 3,1-12',tema:'Convertíos, porque el Reino está cerca',ci:'A'},
+    '2025-12-14':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Mt 11,2-11',tema:'¿Eres Tú el que ha de venir?',ci:'A'},
+    '2025-12-21':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Mt 1,18-24',tema:'Le pondrás por nombre Jesús',ci:'A'},
+    '2025-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ci:'A'},
+    '2025-12-28':{t:'Navidad',n:'Sagrada Familia',e:'',c:'Blanco',ev:'Mt 2,13-15.19-23',tema:'Levántate, toma al niño y a su madre',ci:'A'},
+    '2026-01-04':{t:'Navidad',n:'II Domingo de Navidad',e:'',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ci:'A'},
+    '2026-01-06':{t:'Navidad',n:'Epifanía del Señor',e:'Solemnidad',c:'Blanco',ev:'Mt 2,1-12',tema:'Hemos venido a adorarlo',ci:'A'},
+    '2026-01-11':{t:'Ordinario',n:'Bautismo del Señor',e:'',c:'Blanco',ev:'Mt 3,13-17',tema:'Este es mi Hijo amado',ci:'A'},
+    '2026-01-18':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 1,29-34',tema:'He ahí el Cordero de Dios',ci:'A'},
+    '2026-01-25':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Mt 4,12-23',tema:'Venid conmigo',ci:'A'},
+    '2026-02-01':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 5,1-12a',tema:'Bienaventurados los pobres de espíritu',ci:'A'},
+    '2026-02-08':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 5,13-16',tema:'Vosotros sois la luz del mundo',ci:'A'},
+    '2026-02-15':{t:'Ordinario',n:'VI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 5,17-37',tema:'Se dijo… pero yo os digo',ci:'A'},
+    '2026-02-22':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Mt 4,1-11',tema:'No solo de pan vive el hombre',ci:'A'},
+    '2026-03-01':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Mt 17,1-9',tema:'Este es mi Hijo amado; escuchadlo',ci:'A'},
+    '2026-03-08':{t:'Cuaresma',n:'III Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 4,5-42',tema:'Dame de beber',ci:'A'},
+    '2026-03-15':{t:'Cuaresma',n:'IV Domingo de Cuaresma',e:'Laetare',c:'Rosa',ev:'Jn 9,1-41',tema:'Yo soy la luz del mundo',ci:'A'},
+    '2026-03-22':{t:'Cuaresma',n:'V Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 11,1-45',tema:'Yo soy la resurrección y la vida',ci:'A'},
+    '2026-03-29':{t:'Cuaresma',n:'Domingo de Ramos',e:'Pasión del Señor',c:'Rojo',ev:'Mt 26,14—27,66',tema:'Dios mío, ¿por qué me has abandonado?',ci:'A'},
+    '2026-04-05':{t:'Pascua',n:'Domingo de Pascua',e:'Resurrección del Señor',c:'Blanco',ev:'Jn 20,1-9',tema:'Vio y creyó',ci:'A'},
+    '2026-04-12':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'¡Señor mío y Dios mío!',ci:'A'},
+    '2026-04-19':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 21,1-19',tema:'Señor, Tú sabes que Te quiero',ci:'A'},
+    '2026-04-26':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,27-30',tema:'Mis ovejas escuchan mi voz',ci:'A'},
+    '2026-05-03':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 13,31-33a.34-35',tema:'Amaos los unos a los otros',ci:'A'},
+    '2026-05-10':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,23-29',tema:'Mi paz os dejo',ci:'A'},
+    '2026-05-17':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Mt 28,16-20',tema:'Id y haced discípulos',ci:'A'},
+    '2026-05-24':{t:'Pascua',n:'Domingo de Pentecostés',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Espíritu Santo',ci:'A'},
+    '2026-05-31':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es mío',ci:'A'},
+    '2026-06-07':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ci:'A'},
+    '2026-06-14':{t:'Ordinario',n:'XI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 9,36—10,8',tema:'La mies es abundante',ci:'A'},
+    '2026-06-21':{t:'Ordinario',n:'XII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,26-33',tema:'No tengáis miedo',ci:'A'},
+    '2026-06-28':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,37-42',tema:'El que no toma su cruz no es digno de mí',ci:'A'},
+    '2026-07-05':{t:'Ordinario',n:'XIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 11,25-30',tema:'Venid a mí los que estáis cansados',ci:'A'},
+    '2026-07-12':{t:'Ordinario',n:'XV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 13,1-23',tema:'El sembrador salió a sembrar',ci:'A'},
+    '2026-07-19':{t:'Ordinario',n:'XVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 13,24-43',tema:'Dejad crecer juntos trigo y cizaña',ci:'A'},
+    '2026-07-26':{t:'Ordinario',n:'XVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 13,44-52',tema:'Un tesoro escondido en el campo',ci:'A'},
+    '2026-08-02':{t:'Ordinario',n:'XVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 14,13-21',tema:'Dadles vosotros de comer',ci:'A'},
+    '2026-08-09':{t:'Ordinario',n:'XIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 14,22-33',tema:'¡Ánimo, soy yo, no temáis!',ci:'A'},
+    '2026-08-16':{t:'Ordinario',n:'XX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 15,21-28',tema:'Mujer, qué grande es tu fe',ci:'A'},
+    '2026-08-23':{t:'Ordinario',n:'XXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 16,13-20',tema:'Tú eres Pedro',ci:'A'},
+    '2026-08-30':{t:'Ordinario',n:'XXII Domingo del Tiempo Ordinario',e:'Santa Rosa de Lima',c:'Verde',ev:'Mt 16,21-27',tema:'El que quiera venir conmigo, que cargue con su cruz',ci:'A'},
+    '2026-09-06':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 18,15-20',tema:'Donde dos o tres están reunidos en mi nombre',ci:'A'},
+    '2026-09-13':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 18,21-35',tema:'Perdona setenta veces siete',ci:'A'},
+    '2026-09-20':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 20,1-16',tema:'¿Vas a tener envidia porque yo soy bueno?',ci:'A'},
+    '2026-09-27':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,28-32',tema:'Los publicanos y las prostitutas os preceden',ci:'A'},
+    '2026-10-04':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,33-43',tema:'La piedra que desecharon los constructores',ci:'A'},
+    '2026-10-11':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,1-14',tema:'Muchos son los llamados, pocos los elegidos',ci:'A'},
+    '2026-10-18':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,15-21',tema:'Dad al César lo que es del César',ci:'A'},
+    '2026-10-25':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,34-40',tema:'Amarás al Señor tu Dios con todo tu corazón',ci:'A'},
+    '2026-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados',ci:'A'},
+    '2026-11-08':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,1-13',tema:'Llegó el esposo; salid a recibirlo',ci:'A'},
+    '2026-11-15':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,14-30',tema:'Bien, siervo bueno y fiel',ci:'A'},
+    '2026-11-22':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Mt 25,31-46',tema:'Lo que hicisteis con uno de estos pequeños, conmigo lo hicisteis',ci:'A'},
+    '2026-11-29':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mc 13,33-37',tema:'Velad, porque no sabéis cuándo llegará el dueño',ci:'B'},
+    '2026-12-06':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mc 1,1-8',tema:'Preparad el camino del Señor',ci:'B'},
+    '2026-12-13':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Jn 1,6-8.19-28',tema:'En medio de vosotros hay uno que no conocéis',ci:'B'},
+    '2026-12-20':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,26-38',tema:'Alégrate, llena de gracia',ci:'B'},
+    '2026-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ci:'B'},
+    '2026-12-27':{t:'Navidad',n:'Sagrada Familia',e:'',c:'Blanco',ev:'Lc 2,22-40',tema:'El niño crecía lleno de sabiduría',ci:'B'},
+    '2027-01-03':{t:'Navidad',n:'II Domingo de Navidad',e:'',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ci:'B'},
+    '2027-01-10':{t:'Navidad',n:'Bautismo del Señor',e:'',c:'Blanco',ev:'Mc 1,7-11',tema:'Tú eres mi Hijo amado',ci:'B'},
+    '2027-01-17':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 1,35-42',tema:'Hemos encontrado al Mesías',ci:'B'},
+    '2027-01-24':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Mc 1,14-20',tema:'Venid conmigo y os haré pescadores de hombres',ci:'B'},
+    '2027-01-31':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 1,21-28',tema:'Enseñaba con autoridad',ci:'B'},
+    '2027-02-07':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 1,29-39',tema:'Curó a muchos enfermos',ci:'B'},
+    '2027-02-14':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Mc 1,12-15',tema:'Convertíos y creed en el Evangelio',ci:'B'},
+    '2027-02-21':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Mc 9,2-10',tema:'Este es mi Hijo amado',ci:'B'},
+    '2027-02-28':{t:'Cuaresma',n:'III Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 2,13-25',tema:'Destruid este templo y en tres días lo levantaré',ci:'B'},
+    '2027-03-07':{t:'Cuaresma',n:'IV Domingo de Cuaresma',e:'Laetare',c:'Rosa',ev:'Jn 3,14-21',tema:'Tanto amó Dios al mundo',ci:'B'},
+    '2027-03-14':{t:'Cuaresma',n:'V Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 12,20-33',tema:'Si el grano de trigo cae en tierra y muere, da mucho fruto',ci:'B'},
+    '2027-03-21':{t:'Cuaresma',n:'Domingo de Ramos',e:'Pasión del Señor',c:'Rojo',ev:'Mc 14,1—15,47',tema:'Verdaderamente este hombre era Hijo de Dios',ci:'B'},
+    '2027-03-28':{t:'Pascua',n:'Domingo de Pascua',e:'Resurrección del Señor',c:'Blanco',ev:'Jn 20,1-9',tema:'Vio y creyó',ci:'B'},
+    '2027-04-04':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'¡Señor mío y Dios mío!',ci:'B'},
+    '2027-04-11':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Lc 24,35-48',tema:'Así estaba escrito: el Mesías padecerá',ci:'B'},
+    '2027-04-18':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,11-18',tema:'Yo soy el buen pastor',ci:'B'},
+    '2027-04-25':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 15,1-8',tema:'Yo soy la vid, vosotros los sarmientos',ci:'B'},
+    '2027-05-02':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 15,9-17',tema:'Amaos unos a otros como yo os he amado',ci:'B'},
+    '2027-05-09':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Mc 16,15-20',tema:'Id al mundo entero y proclamad el Evangelio',ci:'B'},
+    '2027-05-16':{t:'Pascua',n:'Domingo de Pentecostés',e:'Solemnidad',c:'Rojo',ev:'Jn 15,26-27;16,12-15',tema:'El Espíritu de la verdad os guiará',ci:'B'},
+    '2027-05-23':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Mt 28,16-20',tema:'Bautizadlos en el nombre del Padre, del Hijo y del Espíritu Santo',ci:'B'},
+    '2027-05-30':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Mc 14,12-16.22-26',tema:'Esto es mi Cuerpo; esta es mi Sangre',ci:'B'},
+    '2027-06-06':{t:'Ordinario',n:'X Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 3,20-35',tema:'El que haga la voluntad de Dios es mi hermano',ci:'B'},
+    '2027-06-13':{t:'Ordinario',n:'XI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 4,26-34',tema:'La semilla brota y crece sin que él sepa cómo',ci:'B'},
+    '2027-06-20':{t:'Ordinario',n:'XII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 4,35-41',tema:'¿Aún no tenéis fe?',ci:'B'},
+    '2027-06-27':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 5,21-43',tema:'Niña, a ti te digo, levántate',ci:'B'},
+    '2027-07-04':{t:'Ordinario',n:'XIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 6,1-6',tema:'No desprecian a un profeta más que en su tierra',ci:'B'},
+    '2027-07-11':{t:'Ordinario',n:'XV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 6,7-13',tema:'Los envió de dos en dos',ci:'B'},
+    '2027-07-18':{t:'Ordinario',n:'XVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 6,30-34',tema:'Eran como ovejas sin pastor',ci:'B'},
+    '2027-07-25':{t:'Ordinario',n:'XVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,1-15',tema:'Repartió a los que estaban sentados todo lo que quisieron',ci:'B'},
+    '2027-08-01':{t:'Ordinario',n:'XVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,24-35',tema:'Yo soy el pan de vida',ci:'B'},
+    '2027-08-08':{t:'Ordinario',n:'XIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,41-51',tema:'Yo soy el pan vivo bajado del cielo',ci:'B'},
+    '2027-08-15':{t:'Ordinario',n:'Asunción de la Virgen María',e:'Solemnidad',c:'Blanco',ev:'Lc 1,39-56',tema:'El Poderoso ha hecho obras grandes por mí',ci:'B'},
+    '2027-08-22':{t:'Ordinario',n:'XXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,60-69',tema:'Señor, ¿a quién iremos? Tú tienes palabras de vida eterna',ci:'B'},
+    '2027-08-29':{t:'Ordinario',n:'XXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 7,1-8.14-15.21-23',tema:'Dejáis el mandamiento de Dios para aferraros a la tradición',ci:'B'},
+    '2027-09-05':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 7,31-37',tema:'Hace oír a los sordos y hablar a los mudos',ci:'B'},
+    '2027-09-12':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 8,27-35',tema:'¿Quién decís que soy yo? — Tú eres el Cristo',ci:'B'},
+    '2027-09-19':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 9,30-37',tema:'El que quiera ser primero, que sea el último',ci:'B'},
+    '2027-09-26':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 9,38-43.45.47-48',tema:'El que no está contra nosotros está a favor',ci:'B'},
+    '2027-10-03':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,2-16',tema:'Lo que Dios ha unido que no lo separe el hombre',ci:'B'},
+    '2027-10-10':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,17-30',tema:'Vende lo que tienes y sígueme',ci:'B'},
+    '2027-10-17':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,35-45',tema:'El Hijo del hombre no vino a ser servido sino a servir',ci:'B'},
+    '2027-10-24':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,46-52',tema:'Maestro, que pueda ver',ci:'B'},
+    '2027-10-31':{t:'Ordinario',n:'XXXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 12,28-34',tema:'Amarás al Señor tu Dios con todo tu corazón',ci:'B'},
+    '2027-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados',ci:'B'},
+    '2027-11-07':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 12,38-44',tema:'Esta viuda pobre ha echado más que todos',ci:'B'},
+    '2027-11-14':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 13,24-32',tema:'El cielo y la tierra pasarán, pero mis palabras no pasarán',ci:'B'},
+    '2027-11-21':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Jn 18,33-37',tema:'Mi Reino no es de este mundo',ci:'B'},
+    '2027-11-28':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Lc 21,25-28.34-36',tema:'Levantaos, alzad la cabeza; se acerca vuestra liberación',ci:'C'},
+    '2027-12-05':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Lc 3,1-6',tema:'Todos verán la salvación de Dios',ci:'C'},
+    '2027-12-12':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Lc 3,10-18',tema:'¿Qué debemos hacer?',ci:'C'},
+    '2027-12-19':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,39-45',tema:'Bendita tú entre las mujeres',ci:'C'},
+    '2027-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ci:'C'},
+    '2028-01-01':{t:'Navidad',n:'Santa María Madre de Dios',e:'Solemnidad',c:'Blanco',ev:'Lc 2,16-21',tema:'Le pusieron por nombre Jesús',ci:'C'},
+    '2028-01-08':{t:'Navidad',n:'Bautismo del Señor',e:'',c:'Blanco',ev:'Lc 3,15-16.21-22',tema:'Tú eres mi Hijo amado',ci:'C'},
+    '2028-01-15':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 2,1-12',tema:'La madre de Jesús le dijo: No tienen vino',ci:'C'},
+    '2028-01-22':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Lc 1,1-4;4,14-21',tema:'Hoy se ha cumplido esta Escritura',ci:'C'},
+    '2028-01-29':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 4,21-30',tema:'Ningún profeta es aceptado en su tierra',ci:'C'},
+    '2028-02-05':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 5,1-11',tema:'Rema mar adentro y echad vuestras redes',ci:'C'},
+    '2028-02-12':{t:'Ordinario',n:'VI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,17.20-26',tema:'Bienaventurados los pobres',ci:'C'},
+    '2028-02-19':{t:'Ordinario',n:'VII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,27-38',tema:'Amad a vuestros enemigos',ci:'C'},
+    '2028-02-27':{t:'Ordinario',n:'VIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,39-45',tema:'De la abundancia del corazón habla la boca',ci:'C'},
+    '2028-03-05':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 4,1-13',tema:'No solo de pan vive el hombre',ci:'C'},
+    '2028-03-12':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 9,28-36',tema:'Este es mi Hijo, el elegido; escuchadlo',ci:'C'},
+    '2028-03-19':{t:'Cuaresma',n:'III Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 13,1-9',tema:'Si no os convertís, todos pereceréis',ci:'C'},
+    '2028-03-26':{t:'Cuaresma',n:'IV Domingo de Cuaresma',e:'Laetare',c:'Rosa',ev:'Lc 15,1-3.11-32',tema:'Este hijo mío estaba muerto y ha revivido',ci:'C'},
+    '2028-04-02':{t:'Cuaresma',n:'V Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 8,1-11',tema:'El que esté sin pecado que tire la primera piedra',ci:'C'},
+    '2028-04-09':{t:'Cuaresma',n:'Domingo de Ramos',e:'Pasión del Señor',c:'Rojo',ev:'Lc 22,14—23,56',tema:'Padre, en Tus manos encomiendo mi espíritu',ci:'C'},
+    '2028-04-16':{t:'Pascua',n:'Domingo de Pascua',e:'Resurrección del Señor',c:'Blanco',ev:'Jn 20,1-9',tema:'Vio y creyó',ci:'C'},
+    '2028-04-23':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'¡Señor mío y Dios mío!',ci:'C'},
+    '2028-04-30':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 21,1-19',tema:'Señor, Tú lo sabes todo; Tú sabes que Te quiero',ci:'C'},
+    '2028-05-07':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,27-30',tema:'Mis ovejas escuchan mi voz',ci:'C'},
+    '2028-05-14':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 13,31-33a.34-35',tema:'Os doy un mandamiento nuevo: que os améis',ci:'C'},
+    '2028-05-21':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,23-29',tema:'El Espíritu Santo os enseñará todo',ci:'C'},
+    '2028-05-25':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Lc 24,46-53',tema:'Seréis mis testigos',ci:'C'},
+    '2028-06-04':{t:'Pascua',n:'Domingo de Pentecostés',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Espíritu Santo',ci:'C'},
+    '2028-06-11':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es mío',ci:'C'},
+    '2028-06-18':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ci:'C'},
+    '2028-06-25':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 9,51-62',tema:'Te seguiré adondequiera que vayas',ci:'C'},
+    '2028-07-02':{t:'Ordinario',n:'XIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 10,1-12.17-20',tema:'La mies es abundante',ci:'C'},
+    '2028-07-09':{t:'Ordinario',n:'XV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 10,25-37',tema:'¿Quién es mi prójimo?',ci:'C'},
+    '2028-07-16':{t:'Ordinario',n:'XVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 10,38-42',tema:'María ha elegido la mejor parte',ci:'C'},
+    '2028-07-23':{t:'Ordinario',n:'XVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 11,1-13',tema:'Señor, enséñanos a orar',ci:'C'},
+    '2028-07-30':{t:'Ordinario',n:'XVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 12,13-21',tema:'La vida no depende de los bienes',ci:'C'},
+    '2028-08-06':{t:'Ordinario',n:'Transfiguración del Señor',e:'Fiesta',c:'Blanco',ev:'Lc 9,28-36',tema:'Este es mi Hijo, el elegido',ci:'C'},
+    '2028-08-13':{t:'Ordinario',n:'XIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 12,32-48',tema:'Estad preparados',ci:'C'},
+    '2028-08-15':{t:'Ordinario',n:'Asunción de la Virgen María',e:'Solemnidad',c:'Blanco',ev:'Lc 1,39-56',tema:'El Poderoso ha hecho obras grandes por mí',ci:'C'},
+    '2028-08-20':{t:'Ordinario',n:'XX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 12,49-53',tema:'He venido a traer fuego a la tierra',ci:'C'},
+    '2028-08-27':{t:'Ordinario',n:'XXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 13,22-30',tema:'Vendrán de oriente y occidente',ci:'C'},
+    '2028-09-03':{t:'Ordinario',n:'XXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 14,1.7-14',tema:'El que se humilla será enaltecido',ci:'C'},
+    '2028-09-10':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 14,25-33',tema:'El que no renuncia a todo no puede ser mi discípulo',ci:'C'},
+    '2028-09-17':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 15,1-32',tema:'Habrá más alegría en el cielo por un pecador que se convierta',ci:'C'},
+    '2028-09-24':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 16,1-13',tema:'No podéis servir a Dios y al dinero',ci:'C'},
+    '2028-10-01':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 16,19-31',tema:'Recibiste bienes y Lázaro males',ci:'C'},
+    '2028-10-08':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 17,5-10',tema:'Auméntanos la fe',ci:'C'},
+    '2028-10-15':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 17,11-19',tema:'¿No ha habido quien volviera a dar gloria a Dios?',ci:'C'},
+    '2028-10-22':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 18,1-8',tema:'Dios hará justicia a sus elegidos',ci:'C'},
+    '2028-10-29':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 18,9-14',tema:'Oh Dios, ten compasión de este pecador',ci:'C'},
+    '2028-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados',ci:'C'},
+    '2028-11-05':{t:'Ordinario',n:'XXXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 19,1-10',tema:'El Hijo del hombre vino a buscar y salvar lo que estaba perdido',ci:'C'},
+    '2028-11-12':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 20,27-38',tema:'No es Dios de muertos sino de vivos',ci:'C'},
+    '2028-11-19':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 21,5-19',tema:'Con vuestra perseverancia salvaréis vuestras almas',ci:'C'},
+    '2028-11-26':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Lc 23,35-43',tema:'Hoy estarás conmigo en el paraíso',ci:'C'}
+  };
+  var COL={'Blanco':'#F5F5F0','Verde':'#4A7A3A','Morado':'#6A3D7A','Rojo':'#A03030','Rosa':'#C07090'};
+  function pad(n){return n<10?'0'+n:''+n;}
+  function nextSun(){var d=new Date();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function render(lit){
+    var card=document.getElementById('lit-card');if(!card)return;
+    var h='<div class="lit-season">'+lit.t+' \u00b7 Ciclo '+lit.ci+'</div>';
+    h+='<div class="lit-name">'+lit.n+'</div>';
+    if(lit.e)h+='<div class="lit-special">'+lit.e+'</div>';
+    h+='<div class="lit-divider"></div>';
+    h+='<div class="lit-gospel"><span class="lit-color-dot" style="background:'+(COL[lit.c]||'#F5F5F0')+'"></span>Evangelio: '+lit.ev+'</div>';
+    h+='<div class="lit-theme">\u00ab'+lit.tema+'\u00bb</div>';
+    card.innerHTML=h;setTimeout(function(){card.classList.add('lit-visible');},50);
+  }
+  function go(){
+    var card=document.getElementById('lit-card');if(!card)return;
+    var key=nextSun();
+    if(D[key]){render(D[key]);return;}
+    /* If exact date not found, try Gemini as fallback */
+    card.innerHTML='<div class="lit-loading">Consultando calendario lit\u00fargico\u2026</div>';
+    var sun=new Date(key+'T12:00:00');
+    var dh=sun.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    if(typeof _gk!=='function'){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';return;}
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+_gk(),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{role:'user',parts:[{text:'Para el domingo '+dh+' calendario lit\u00fargico cat\u00f3lico, responde SOLO JSON: {"t":"Pascua","n":"nombre","e":"especial o vacio","c":"Blanco","ev":"Jn 20,19-31","tema":"frase","ci":"A"}'}]}],tools:[{google_search:{}}],generationConfig:{temperature:0,maxOutputTokens:300}})
+    }).then(function(r){return r.json();}).then(function(data){
+      var text='';data.candidates[0].content.parts.forEach(function(p){if(p.text)text+=p.text;});
+      var m=text.match(/\{[\s\S]*\}/);if(m)render(JSON.parse(m[0]));
+      else card.innerHTML='<div class="lit-error">Calendario no disponible</div>';
+    }).catch(function(){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
+})();
 </script>
 
