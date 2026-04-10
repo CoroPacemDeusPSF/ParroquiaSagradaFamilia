@@ -46,7 +46,7 @@
      NAV
 ══════════════════════════════════════════ -->
 <nav class="site-nav">
-  <a href="#inicio" class="nav-logo">Pacem Deus</a>
+  <a href="#inicio" class="nav-logo">Pacem Deus <span style="font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;color:var(--gold);opacity:0.5;vertical-align:baseline;margin-left:0.3rem;">v3.2.23r15</span></a>
   <ul class="nav-links">
     <li><a href="#inicio">Inicio</a></li>
     <li><a href="#cancioneros">Cancioneros</a></li>
@@ -396,34 +396,13 @@
   <div class="top-panel" id="panel-salmos">
     <div style="max-width:520px;margin:0 auto;padding:0 1.5rem;">
 
-      <!-- Salmos intro -->
-      <div style="text-align:center;margin-bottom:2rem;">
-        <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;opacity:0.7;">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H60M6.5 2H60v60H6.5A2.5 2.5 0 0 1 4 59.5v-55A2.5 2.5 0 0 1 6.5 2z" transform="scale(0.95) translate(1,1)"/>
-          <line x1="14" y1="14" x2="50" y2="14"/>
-          <line x1="14" y1="22" x2="46" y2="22"/>
-          <line x1="14" y1="30" x2="42" y2="30"/>
-          <line x1="14" y1="38" x2="48" y2="38"/>
-          <line x1="14" y1="46" x2="38" y2="46"/>
-        </svg>
-        <p style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:400;color:var(--brown);margin-bottom:0.4rem;">
-          Salmos Responsoriales
-        </p>
-        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--brown-lt);max-width:380px;margin:0 auto 1.2rem;">
-          Salmos cantados para cada domingo del a&#241;o lit&#250;rgico &middot; Ciclos A, B y C
-        </p>
-        <p style="font-family:'EB Garamond',serif;font-size:0.9rem;color:var(--brown-lt);line-height:1.7;max-width:420px;margin:0 auto 1.5rem;">
-          Audios del Libro del Salmista (Editorial PAX/PPC) con 206 salmos responsoriales organizados por ciclo lit&#250;rgico. Incluye calendario interactivo y reproductor de audio.
-        </p>
-      </div>
-
-      <!-- Salmos card -->
-      <div class="event-card" style="border:1px solid rgba(200,148,60,0.35);background:rgba(200,148,60,0.04);">
+      <!-- Salmos card (arriba) -->
+      <div class="event-card" style="border:1px solid rgba(200,148,60,0.35);background:rgba(200,148,60,0.04);margin-bottom:2rem;">
         <div class="event-card-header">
           <span class="event-icon"><svg viewBox="0 0 64 64" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M16 8h32v48H16z"/><path d="M24 8V4h16v4"/><line x1="24" y1="20" x2="40" y2="20"/><line x1="24" y1="28" x2="40" y2="28"/><line x1="24" y1="36" x2="36" y2="36"/><path d="M44 40c0 6-4 10-8 12s-8 0-8-4"/></svg></span>
           <div class="event-header-text">
             <div class="event-date">Libro del Salmista &middot; PAX/PPC</div>
-            <div class="event-name">Explorar Salmos</div>
+            <div class="event-name">Salmos Responsoriales</div>
           </div>
         </div>
         <div class="event-card-body">
@@ -456,11 +435,17 @@
         </div>
       </div>
 
-      <!-- Cycle badges -->
-      <div style="display:flex;justify-content:center;gap:0.8rem;margin-top:1.5rem;">
-        <span style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);background:rgba(200,148,60,0.08);border:1px solid rgba(200,148,60,0.2);border-radius:2px;padding:0.35rem 0.8rem;">Ciclo A &middot; 2025-26</span>
-        <span style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);background:rgba(200,148,60,0.08);border:1px solid rgba(200,148,60,0.2);border-radius:2px;padding:0.35rem 0.8rem;">Ciclo B &middot; 2026-27</span>
-        <span style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);background:rgba(200,148,60,0.08);border:1px solid rgba(200,148,60,0.2);border-radius:2px;padding:0.35rem 0.8rem;">Ciclo C &middot; 2027-28</span>
+      <!-- Descripci&#243;n (abajo) -->
+      <div style="text-align:center;">
+        <p style="font-family:'EB Garamond',serif;font-size:0.9rem;color:var(--brown-lt);line-height:1.7;max-width:420px;margin:0 auto 1.5rem;">
+          206 salmos responsoriales cantados del Libro del Salmista (Editorial PAX/PPC), organizados por ciclo lit&#250;rgico. Calendario interactivo con reproductor de audio.
+        </p>
+        <!-- Cycle badges -->
+        <div style="display:flex;justify-content:center;gap:0.8rem;flex-wrap:wrap;">
+          <span style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);background:rgba(200,148,60,0.08);border:1px solid rgba(200,148,60,0.2);border-radius:2px;padding:0.35rem 0.8rem;">Ciclo A &middot; 2025-26</span>
+          <span style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);background:rgba(200,148,60,0.08);border:1px solid rgba(200,148,60,0.2);border-radius:2px;padding:0.35rem 0.8rem;">Ciclo B &middot; 2026-27</span>
+          <span style="font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);background:rgba(200,148,60,0.08);border:1px solid rgba(200,148,60,0.2);border-radius:2px;padding:0.35rem 0.8rem;">Ciclo C &middot; 2027-28</span>
+        </div>
       </div>
 
     </div>
