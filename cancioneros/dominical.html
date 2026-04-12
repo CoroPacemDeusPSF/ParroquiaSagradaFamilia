@@ -1262,6 +1262,7 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Cor
   font-size: 0.6rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  flex-wrap: wrap;
 }
 .transpose-btn {
   width: 28px;
@@ -1608,11 +1609,12 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Cor
 #chord-editor-toolbar {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.6rem 1.2rem;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
   background: #1a1a1a;
   border-bottom: 1px solid #333;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 #chord-editor-title {
   font-family: 'Cinzel', serif;
@@ -1620,18 +1622,23 @@ body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Cor
   letter-spacing: 0.15em;
   color: #C8943C;
   flex: 1;
+  min-width: 0;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .editor-btn {
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.45rem 1rem;
+  padding: 0.35rem 0.7rem;
   border-radius: 3px;
   border: 1px solid;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 #editor-save-btn {
   background: #5C7A3A;
@@ -1950,8 +1957,8 @@ body.dev-mode .lyrics-edit-btn { display: inline-flex !important; }
 #lyrics-editor-toolbar {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 1.2rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
   background: #111e0f;
   border-bottom: 1px solid rgba(91,160,91,0.3);
   flex-shrink: 0;
@@ -2519,8 +2526,8 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
 
   <div class="ceremony-cover">
-    <div class="ceremony-icon" id="pd-coro-trigger" style="cursor:pointer;"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.23r21</span>
+    <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
+    <span class="cancionero-version">v3.2.23r22</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -11593,9 +11600,14 @@ Aleluya.
           // overscroll-behavior:contain en el bloque evita scroll del fondo.
           block.scrollTop = 0;
           expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>Restaurar';
-          var el = block;
-          if (el.requestFullscreen) el.requestFullscreen();
-          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+          // On touch devices, skip native fullscreen — CSS .fullscreen class handles it.
+          // Native fullscreen on tablets causes issues with multi-column layout dimensions.
+          var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+          if (!isTouch) {
+            var el = block;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+          }
           // Esperar al menos 60ms para que el CSS fullscreen aplique (crítico en PC),
         // luego reintentar si las dimensiones no están listas (necesario en móvil)
         setTimeout(function() {
@@ -12646,17 +12658,16 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
 
 <script>
 // ── DEV MODE ──
-// Only activates inside Modo Coro. 5 clicks on footer ✝.
+// Only activates inside Modo Coro. 5 clicks on version number (below church icon).
 // Shows "Diagnosticar" and "Restaurar Original (HTML)" buttons in chord editor.
-// Uses document-level listener with closest() — same pattern as Modo Coro trigger.
 (function() {
   var CLICKS_NEEDED = 5;
   var CLICK_WINDOW  = 2000; // ms
   var clicks = 0, timer = null;
 
   document.addEventListener('click', function(e) {
-    // Must be clicking the footer ✝ icon
-    if (!e.target.closest('.ceremony-footer .footer-icon')) return;
+    // Must be clicking the version number
+    if (!e.target.closest('.cancionero-version')) return;
     // Must be inside Modo Coro
     if (!document.body.classList.contains('rehearsal-mode')) return;
 
