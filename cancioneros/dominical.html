@@ -2527,7 +2527,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.23r22</span>
+    <span class="cancionero-version">v3.2.23r24</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -11600,14 +11600,9 @@ Aleluya.
           // overscroll-behavior:contain en el bloque evita scroll del fondo.
           block.scrollTop = 0;
           expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>Restaurar';
-          // On touch devices, skip native fullscreen — CSS .fullscreen class handles it.
-          // Native fullscreen on tablets causes issues with multi-column layout dimensions.
-          var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-          if (!isTouch) {
-            var el = block;
-            if (el.requestFullscreen) el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-          }
+          var el = block;
+          if (el.requestFullscreen) el.requestFullscreen();
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
           // Esperar al menos 60ms para que el CSS fullscreen aplique (crítico en PC),
         // luego reintentar si las dimensiones no están listas (necesario en móvil)
         setTimeout(function() {
@@ -11930,8 +11925,8 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
         return '<span class="hl-capo">' + escHtml(line) + '</span>';
       }
 
-      // Dynamic lines: # Forte #, # Piano #, etc.
-      if (/^#\s.+\s#$/.test(trimmed)) {
+      // Dynamic lines: # Forte # or ## Forte ##
+      if (/^#{1,2}\s.+\s#{1,2}$/.test(trimmed)) {
         return '<span class="hl-dynamic">' + escHtml(line) + '</span>';
       }
 
@@ -12118,7 +12113,7 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   function htmlToText(htmlStr) {
     return htmlStr
       .replace(/<b class="chord-capo">(.*?)<\/b>/g, '* $1 *')
-      .replace(/<b class="chord-dynamic">(.*?)<\/b>/g, '# $1 #')
+      .replace(/<b class="chord-dynamic">(.*?)<\/b>/g, '## $1 ##')
       .replace(/<b[^>]*>(.*?)<\/b>/g, '$1')
       .replace(/<span class="chord">(.*?)<\/span>/g, '$1')
       .replace(/<[^>]+>/g, '')
@@ -12150,8 +12145,8 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       }
 
       // Dynamics → bold (will be decorated as chord-dynamic)
-      // Incluye: # Forte # | # Piano # | # Crescendo #
-      if (/^#\s.+\s#$/.test(trimmed)) {
+      // Incluye: # Forte # | ## Forte ## | # Piano #
+      if (/^#{1,2}\s.+\s#{1,2}$/.test(trimmed)) {
         result.push('<b>' + escHtml(trimmed) + '</b>');
         continue;
       }
@@ -13525,12 +13520,12 @@ window.decorateChordBlock = function(block) {
           node.nodeValue = node.nodeValue.replace(/^\*\s*/, '').replace(/\s*\*$/, '');
         }
       });
-    } else if (/^#\s.+\s#$/.test(txt)) {
+    } else if (/^#{1,2}\s.+\s#{1,2}$/.test(txt)) {
       b.classList.add('chord-dynamic');
-      // Quitar los # del texto visible, conservar solo el contenido
+      // Quitar los # o ## del texto visible, conservar solo el contenido
       b.childNodes.forEach(function(node) {
         if (node.nodeType === 3) {
-          node.nodeValue = node.nodeValue.replace(/^#\s*/, '').replace(/\s*#$/, '');
+          node.nodeValue = node.nodeValue.replace(/^#{1,2}\s*/, '').replace(/\s*#{1,2}$/, '');
         }
       });
     } else if (txt.indexOf('═') !== -1) {
