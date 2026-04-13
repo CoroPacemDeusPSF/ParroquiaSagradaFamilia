@@ -2602,6 +2602,13 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
     ← Coro Pacem Deus
   </a>
   <span style="margin-left:auto;"></span>
+  <button id="pd-search-btn" title="Buscar canción" style="
+    background:none;border:1px solid rgba(168,200,120,0.3);border-radius:50%;
+    width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:#A8C878;transition:all 0.2s;flex-shrink:0;
+  " onclick="window.PDSearch.toggle()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </button>
   <div id="font-size-controls" style="display:flex;align-items:center;gap:0.3rem;">
     <button class="font-size-btn" id="font-decrease" title="Reducir letra">A−</button>
     <button class="font-size-btn" id="font-increase" title="Agrandar letra">A+</button>
@@ -2770,6 +2777,32 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 </div>
 
 <!-- ══════════════════════════════════════════
+     SONG SEARCH OVERLAY
+══════════════════════════════════════════ -->
+<div id="pd-search-overlay" style="
+  display:none;position:fixed;inset:0;z-index:99998;
+  background:rgba(14,26,12,0.95);backdrop-filter:blur(12px);
+  flex-direction:column;padding:0;
+">
+  <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1.2rem;
+    border-bottom:1px solid rgba(120,160,70,0.2);flex-shrink:0;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A8C878" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="pd-search-input" type="text" placeholder="Buscar canción..." autocomplete="off" style="
+      flex:1;background:transparent;border:none;outline:none;
+      font-family:'EB Garamond',serif;font-size:1.1rem;color:#E8D8B8;
+      caret-color:#C8943C;
+    ">
+    <button onclick="window.PDSearch.close()" style="
+      background:none;border:none;color:#A8C878;font-size:1.4rem;cursor:pointer;
+      padding:0 0.3rem;line-height:1;
+    ">&times;</button>
+  </div>
+  <div id="pd-search-results" style="
+    flex:1;overflow-y:auto;padding:0.5rem 0;
+  "></div>
+</div>
+
+<!-- ══════════════════════════════════════════
      SETLIST EDGE PANEL
 ══════════════════════════════════════════ -->
 <div class="sl-overlay" id="sl-overlay" onclick="window.SL.close()"></div>
@@ -2804,7 +2837,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r5</span>
+    <span class="cancionero-version">v3.2.24r6</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -14662,5 +14695,122 @@ async function aiSend(){
     confirmAdd: confirmAdd,
     closeDialog: closeDialog
   };
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════
+   SONG SEARCH — Coro Pacem Deus
+   Available in all modes.
+═══════════════════════════════════════ */
+(function() {
+  'use strict';
+  var overlay = document.getElementById('pd-search-overlay');
+  var input   = document.getElementById('pd-search-input');
+  var results = document.getElementById('pd-search-results');
+  var isOpen  = false;
+
+  /* ── Build song index (once) ── */
+  var songs = [];
+  document.querySelectorAll('.song-card').forEach(function(card) {
+    var titleEl = card.querySelector('.song-title');
+    var title = '';
+    if (titleEl) {
+      titleEl.childNodes.forEach(function(n) {
+        if (n.nodeType === 3) title += n.textContent;
+      });
+    }
+    title = title.trim();
+    if (!title) return;
+
+    var momentEl = card.querySelector('.song-moment-label');
+    var moment = momentEl ? momentEl.textContent.trim() : '';
+    var cpd = card.dataset.chordId || '';
+
+    /* Find anchor before card */
+    var anchor = card.previousElementSibling;
+    while (anchor && !anchor.id) anchor = anchor.previousElementSibling;
+    var anchorId = anchor ? anchor.id : '';
+
+    songs.push({ title: title, moment: moment, cpd: cpd, anchorId: anchorId, card: card });
+  });
+
+  /* ── Normalize for search (remove accents) ── */
+  function norm(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  /* ── Render results ── */
+  function render(query) {
+    var q = norm(query);
+    var filtered = q ? songs.filter(function(s) {
+      return norm(s.title).indexOf(q) !== -1;
+    }) : songs;
+
+    var html = '';
+    filtered.forEach(function(s) {
+      html += '<div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem 1.2rem;' +
+        'cursor:pointer;border-bottom:1px solid rgba(120,160,70,0.08);transition:background 0.15s;"' +
+        ' onmouseover="this.style.background=\'rgba(200,148,60,0.1)\'"' +
+        ' onmouseout="this.style.background=\'none\'"' +
+        ' onclick="window.PDSearch.goTo(\'' + s.anchorId + '\',\'' + s.cpd + '\')">' +
+        '<span style="font-family:\'Cinzel\',serif;font-size:0.45rem;letter-spacing:0.12em;' +
+        'text-transform:uppercase;color:rgba(168,200,120,0.5);width:5rem;flex-shrink:0;">' + s.moment + '<\/span>' +
+        '<span style="font-family:\'EB Garamond\',serif;font-size:1rem;color:#E8D8B8;">' + s.title + '<\/span>' +
+        '<\/div>';
+    });
+
+    if (q && !filtered.length) {
+      html = '<div style="text-align:center;padding:2rem;color:rgba(168,200,120,0.4);' +
+        'font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:1rem;">' +
+        'Sin resultados para \u00ab' + query + '\u00bb<\/div>';
+    }
+    results.innerHTML = html;
+  }
+
+  /* ── Open / Close ── */
+  function open() {
+    isOpen = true;
+    overlay.style.display = 'flex';
+    input.value = '';
+    render('');
+    setTimeout(function() { input.focus(); }, 50);
+  }
+
+  function close() {
+    isOpen = false;
+    overlay.style.display = 'none';
+    input.value = '';
+  }
+
+  function toggle() { isOpen ? close() : open(); }
+
+  /* ── Go to song ── */
+  function goTo(anchorId, cpd) {
+    close();
+    var target = anchorId ? document.getElementById(anchorId) : null;
+    var card = cpd ? document.querySelector('[data-chord-id="' + cpd + '"]') : null;
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    /* Flash */
+    if (card) {
+      card.style.transition = 'box-shadow 0.3s';
+      card.style.boxShadow = '0 0 0 3px #C8943C, 0 4px 20px rgba(200,148,60,0.4)';
+      setTimeout(function() { card.style.boxShadow = ''; }, 1500);
+    }
+  }
+
+  /* ── Input handler ── */
+  input.addEventListener('input', function() { render(input.value); });
+
+  /* ── Keyboard ── */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && isOpen) close();
+  });
+
+  /* ── Public API ── */
+  window.PDSearch = { open: open, close: close, toggle: toggle, goTo: goTo };
 })();
 </script>
