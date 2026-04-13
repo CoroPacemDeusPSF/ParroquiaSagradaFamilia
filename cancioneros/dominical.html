@@ -2804,7 +2804,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r3</span>
+    <span class="cancionero-version">v3.2.24r5</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -11575,6 +11575,7 @@ Aleluya.
       badge.addEventListener('animationend', function() {
         badge.classList.remove('entrance');
       }, { once: true });
+      try { localStorage.setItem('pdMode', 'coro'); } catch(e) {}
     });
   }
 
@@ -11609,6 +11610,7 @@ Aleluya.
     document.getElementById('rehearsal-confirm').classList.remove('open');
     // Close edge panel if open
     if (window.SL) window.SL.close();
+    try { localStorage.removeItem('pdMode'); } catch(e) {}
   }
 
   function deactivateDevOnly() {
@@ -11616,7 +11618,23 @@ Aleluya.
     document.getElementById('rehearsal-confirm').classList.remove('open');
     // Close edge panel if open (will reopen as Coro-only, tab stays)
     if (window.SL) window.SL.close();
+    try { localStorage.setItem('pdMode', 'coro'); } catch(e) {}
   }
+
+  // ── RESTORE MODE ON PAGE LOAD (silent, no animation) ──
+  (function restoreMode() {
+    try {
+      var saved = localStorage.getItem('pdMode');
+      if (!saved) return;
+      active = true;
+      document.body.classList.add('rehearsal-mode');
+      document.getElementById('rehearsal-badge').classList.add('active');
+      if (saved === 'dev') {
+        document.body.classList.add('dev-mode');
+      }
+      console.log('[Mode] Restaurado: ' + saved);
+    } catch(e) {}
+  })();
 
   // Badge click → show confirm dialog (mensaje según modo activo)
   document.getElementById('rehearsal-badge').addEventListener('click', function() {
@@ -12970,11 +12988,13 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       if (window.playModeIntro) {
         window.playModeIntro('Modo<br>Dev', function() {
           document.body.classList.add('dev-mode');
+          try { localStorage.setItem('pdMode', 'dev'); } catch(e) {}
           console.log('[Dev] Modo Dev activado');
         });
       } else {
         // Fallback if animation not available
         document.body.classList.add('dev-mode');
+        try { localStorage.setItem('pdMode', 'dev'); } catch(e) {}
         console.log('[Dev] Modo Dev activado (sin animación)');
       }
     }
@@ -14384,7 +14404,11 @@ async function aiSend(){
     { id: 'comunion-1', label: 'Comunión',  sub: '1' },
     { id: 'comunion-2', label: 'Comunión',  sub: '2' },
     { id: 'comunion-3', label: 'Comunión',  sub: '3' },
-    { id: 'salida',     label: 'Salida' }
+    { id: 'salida',     label: 'Salida' },
+    { id: 'especial-1', label: 'Especial', sub: '1' },
+    { id: 'especial-2', label: 'Especial', sub: '2' },
+    { id: 'especial-3', label: 'Especial', sub: '3' },
+    { id: 'especial-4', label: 'Especial', sub: '4' }
   ];
 
   /* ── TAG → MOMENT MAPPING ── */
@@ -14399,7 +14423,12 @@ async function aiSend(){
     'Cordero de Dios': 'cordero',
     'Comunión': 'comunion',
     'Adoración/Acción de Gracias': 'comunion',
-    'Salida': 'salida'
+    'Salida': 'salida',
+    'Animación': 'especial',
+    'Momentos especiales': 'especial',
+    '✦ Momentos Especiales ✦': 'especial',
+    'Exposición del Santísimo': 'especial',
+    'Adoración eucarística': 'especial'
   };
 
   /* ── STATE ── */
