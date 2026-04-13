@@ -1264,6 +1264,7 @@ body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
 }
 .sl-tab svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
 body.rehearsal-mode .sl-tab { display: flex; }
+.sl-tab-hidden { display: none !important; }
 .sl-tab:hover { width: 28px; }
 
 /* Panel drawer */
@@ -11603,9 +11604,19 @@ Aleluya.
 
   function deactivateRehearsal() {
     active = false;
+    document.body.classList.remove('dev-mode');
     document.body.classList.remove('rehearsal-mode');
     document.getElementById('rehearsal-badge').classList.remove('active');
     document.getElementById('rehearsal-confirm').classList.remove('open');
+    // Close edge panel if open
+    if (window.SL) window.SL.close();
+  }
+
+  function deactivateDevOnly() {
+    document.body.classList.remove('dev-mode');
+    document.getElementById('rehearsal-confirm').classList.remove('open');
+    // Close edge panel if open (will reopen as Coro-only, tab stays)
+    if (window.SL) window.SL.close();
   }
 
   // Badge click → show confirm dialog (mensaje según modo activo)
@@ -11616,7 +11627,14 @@ Aleluya.
     document.getElementById('rehearsal-confirm').classList.add('open');
   });
 
-  document.getElementById('confirm-yes').addEventListener('click', deactivateRehearsal);
+  // Confirm yes → step down: Dev→Coro, or Coro→Normal
+  document.getElementById('confirm-yes').addEventListener('click', function() {
+    if (document.body.classList.contains('dev-mode')) {
+      deactivateDevOnly();
+    } else {
+      deactivateRehearsal();
+    }
+  });
   document.getElementById('confirm-no').addEventListener('click', function() {
     document.getElementById('rehearsal-confirm').classList.remove('open');
   });
@@ -14495,13 +14513,13 @@ async function aiSend(){
     isOpen = true;
     panel.classList.add('open');
     overlay.classList.add('open');
-    tab.style.display = 'none';
+    tab.classList.add('sl-tab-hidden');
   }
   function closePanel() {
     isOpen = false;
     panel.classList.remove('open');
     overlay.classList.remove('open');
-    if (document.body.classList.contains('rehearsal-mode')) tab.style.display = 'flex';
+    tab.classList.remove('sl-tab-hidden');
   }
   function togglePanel() {
     isOpen ? closePanel() : openPanel();
