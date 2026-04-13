@@ -1245,6 +1245,257 @@ body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
 
 
 
+/* ── SETLIST EDGE PANEL ────────────────────── */
+/* Tab handle (visible in Coro mode) */
+.sl-tab {
+  display: none;
+  position: fixed;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 90000;
+  width: 22px; height: 64px;
+  background: rgba(200,148,60,0.85);
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 12px rgba(0,0,0,0.3);
+  transition: width 0.2s;
+}
+.sl-tab svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+body.rehearsal-mode .sl-tab { display: flex; }
+.sl-tab:hover { width: 28px; }
+
+/* Panel drawer */
+.sl-panel {
+  position: fixed;
+  left: -280px; top: 0; bottom: 0;
+  width: 280px;
+  z-index: 89999;
+  background: rgba(20,16,12,0.97);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(200,148,60,0.25);
+  box-shadow: 4px 0 30px rgba(0,0,0,0.5);
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sl-panel.open { left: 0; }
+
+/* Panel header */
+.sl-header {
+  padding: 1rem 1rem 0.7rem;
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+  flex-shrink: 0;
+}
+.sl-header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #C8943C;
+  margin-bottom: 0.15rem;
+}
+.sl-header-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(232,192,112,0.7);
+}
+
+/* Slots container */
+.sl-slots {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+/* Individual slot */
+.sl-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(200,148,60,0.08);
+  min-height: 2.4rem;
+}
+.sl-moment {
+  font-family: 'Cinzel', serif;
+  font-size: 0.45rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(200,148,60,0.6);
+  width: 4.5rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.sl-song {
+  flex: 1;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  color: #E8D8B8;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  transition: color 0.2s;
+}
+.sl-song:hover { color: #C8943C; }
+.sl-song.empty {
+  color: rgba(200,148,60,0.25);
+  cursor: default;
+  font-style: italic;
+}
+.sl-remove {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(200,100,100,0.5);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 0.2rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.sl-remove:hover { color: #E05050; }
+body.dev-mode .sl-remove { display: block; }
+
+/* Clear all button */
+.sl-clear {
+  display: none;
+  margin: 0.5rem 1rem 1rem;
+  padding: 0.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #E05050;
+  background: rgba(200,50,50,0.08);
+  border: 1px solid rgba(200,50,50,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: center;
+  flex-shrink: 0;
+}
+.sl-clear:hover { background: rgba(200,50,50,0.15); }
+body.dev-mode .sl-clear { display: block; }
+
+/* Panel overlay (tap outside to close) */
+.sl-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 89998;
+  background: rgba(0,0,0,0.3);
+}
+.sl-overlay.open { display: block; }
+
+/* ── ADD-TO-SETLIST DIALOG ── */
+.sl-dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.sl-dialog-overlay.open { display: flex; }
+.sl-dialog {
+  background: #1a1a1a;
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 4px;
+  max-width: 320px;
+  width: 100%;
+  padding: 1.2rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.sl-dialog-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #C8943C;
+  margin-bottom: 0.8rem;
+}
+.sl-dialog-song {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  color: #E8D8B8;
+  margin-bottom: 0.8rem;
+}
+.sl-dialog-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+.sl-dialog-slot-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+  background: rgba(200,148,60,0.06);
+  border: 1px solid rgba(200,148,60,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #E8D8B8;
+}
+.sl-dialog-slot-btn:hover { background: rgba(200,148,60,0.15); border-color: #C8943C; }
+.sl-dialog-slot-btn.suggested { border-color: #C8943C; background: rgba(200,148,60,0.12); }
+.sl-dialog-slot-btn .sl-btn-current {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.7rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(200,148,60,0.5);
+  font-style: italic;
+}
+.sl-dialog-cancel {
+  width: 100%;
+  padding: 0.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+  background: transparent;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.sl-dialog-cancel:hover { background: rgba(136,136,136,0.1); }
+
+/* ── "+" button in index (Dev mode only) ── */
+.idx-add-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  color: #C8943C;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: all 0.15s;
+}
+.idx-add-btn:hover { background: rgba(200,148,60,0.15); }
+body.dev-mode .idx-add-btn { display: inline-flex; }
+
 /* chords-toggle siempre visible */
 .chords-toggle { display: inline-block; }
 body.rehearsal-mode .chords-toggle { display: inline-block; }
@@ -2517,6 +2768,32 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
   <div id="chord-editor-status">Edita los acordes. Los cambios se guardarán localmente.</div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     SETLIST EDGE PANEL
+══════════════════════════════════════════ -->
+<div class="sl-overlay" id="sl-overlay" onclick="window.SL.close()"></div>
+<div class="sl-tab" id="sl-tab" onclick="window.SL.toggle()">
+  <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+</div>
+<div class="sl-panel" id="sl-panel">
+  <div class="sl-header">
+    <div class="sl-header-title">Setlist Dominical</div>
+    <div class="sl-header-date" id="sl-date"></div>
+  </div>
+  <div class="sl-slots" id="sl-slots"></div>
+  <button class="sl-clear" id="sl-clear" onclick="window.SL.clearAll()">Borrar todo</button>
+</div>
+
+<!-- Add-to-setlist dialog -->
+<div class="sl-dialog-overlay" id="sl-dialog-overlay">
+  <div class="sl-dialog">
+    <div class="sl-dialog-title">Agregar al setlist</div>
+    <div class="sl-dialog-song" id="sl-dialog-song"></div>
+    <div class="sl-dialog-slots" id="sl-dialog-slots"></div>
+    <button class="sl-dialog-cancel" onclick="window.SL.closeDialog()">Cancelar</button>
+  </div>
+</div>
+
 <div class="ceremony dominical active" id="ceremony-dominical">
   <!-- Animated background: soft golden light particles -->
   <canvas id="pd-dominical-canvas" style="
@@ -2527,7 +2804,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.23r24</span>
+    <span class="cancionero-version">v3.2.24</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -13464,10 +13741,12 @@ window.CPDHistory = (function() {
 
         // Construir el <li>
         var li = document.createElement('li');
+        var cpdId = card.dataset.chordId || '';
         li.innerHTML =
           '<span class="idx-num">' + String(globalN).padStart(2, '0') + '<\/span>' +
           '<a href="#' + d + '">' + titleTxt + '<\/a>' +
-          sparkleHtml + chordBtn + ytBtn;
+          sparkleHtml + chordBtn + ytBtn +
+          '<button class="idx-add-btn" title="Agregar al setlist" onclick="window.SL&&window.SL.addSong(\'' + cpdId + '\')">+<\/button>';
         frag.appendChild(li);
       });
     });
@@ -14065,3 +14344,280 @@ async function aiSend(){
 })();
 </script>
 
+<script>
+/* ═══════════════════════════════════════════════════
+   SETLIST EDGE PANEL — Coro Pacem Deus
+   Visible: Modo Coro | Editable: Modo Dev
+   Firebase: /setlist/{yyyy-mm-dd}/{slot-id}
+═══════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  /* ── SLOT DEFINITIONS ── */
+  var SLOTS = [
+    { id: 'entrada-1',  label: 'Entrada',   sub: '1' },
+    { id: 'entrada-2',  label: 'Entrada',   sub: '2' },
+    { id: 'piedad',     label: 'Piedad' },
+    { id: 'gloria',     label: 'Gloria' },
+    { id: 'evangelio',  label: 'Evangelio' },
+    { id: 'ofertorio-1',label: 'Ofertorio', sub: '1' },
+    { id: 'ofertorio-2',label: 'Ofertorio', sub: '2' },
+    { id: 'santo',      label: 'Santo' },
+    { id: 'cordero',    label: 'Cordero' },
+    { id: 'comunion-1', label: 'Comunión',  sub: '1' },
+    { id: 'comunion-2', label: 'Comunión',  sub: '2' },
+    { id: 'comunion-3', label: 'Comunión',  sub: '3' },
+    { id: 'salida',     label: 'Salida' }
+  ];
+
+  /* ── TAG → MOMENT MAPPING ── */
+  var TAG_MAP = {
+    'Entrada': 'entrada',
+    'Piedad': 'piedad',
+    'Gloria': 'gloria',
+    'Aleluya': 'evangelio',
+    'Aclamación del Evangelio': 'evangelio',
+    'Ofertorio': 'ofertorio',
+    'Santo': 'santo',
+    'Cordero de Dios': 'cordero',
+    'Comunión': 'comunion',
+    'Adoración/Acción de Gracias': 'comunion',
+    'Salida': 'salida'
+  };
+
+  /* ── STATE ── */
+  var setlistData = {}; // slot-id → { cpd, title }
+  var isOpen = false;
+  var touchStartX = 0;
+
+  /* ── ELEMENTS ── */
+  var panel   = document.getElementById('sl-panel');
+  var overlay = document.getElementById('sl-overlay');
+  var tab     = document.getElementById('sl-tab');
+  var slotsEl = document.getElementById('sl-slots');
+  var dateEl  = document.getElementById('sl-date');
+
+  /* ── DATE HELPERS ── */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function getNextSunday() {
+    var d = new Date();
+    var dy = d.getDay();
+    d.setDate(d.getDate() + (dy === 0 ? 0 : 7 - dy));
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function formatDate(key) {
+    var parts = key.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return d.getDate() + ' de ' + months[d.getMonth()] + ' de ' + d.getFullYear();
+  }
+
+  var SUNDAY_KEY = getNextSunday();
+  var FB_PATH = '/setlist/' + SUNDAY_KEY;
+
+  /* ── RENDER SLOTS ── */
+  function renderSlots() {
+    var html = '';
+    SLOTS.forEach(function(slot) {
+      var data = setlistData[slot.id];
+      var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
+      if (data) {
+        html += '<div class="sl-slot">' +
+          '<span class="sl-moment">' + label + '<\/span>' +
+          '<span class="sl-song" onclick="window.SL.goTo(\'' + data.cpd + '\')">' + data.title + '<\/span>' +
+          '<button class="sl-remove" onclick="window.SL.remove(\'' + slot.id + '\')" title="Quitar">&times;<\/button>' +
+          '<\/div>';
+      } else {
+        html += '<div class="sl-slot">' +
+          '<span class="sl-moment">' + label + '<\/span>' +
+          '<span class="sl-song empty">---<\/span>' +
+          '<\/div>';
+      }
+    });
+    slotsEl.innerHTML = html;
+  }
+
+  /* ── FIREBASE ── */
+  function loadFromFirebase() {
+    fetch(FIREBASE_URL + FB_PATH + '.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data) { setlistData = {}; renderSlots(); return; }
+        setlistData = {};
+        Object.keys(data).forEach(function(slotId) {
+          if (data[slotId]) setlistData[slotId] = data[slotId];
+        });
+        renderSlots();
+        console.log('[Setlist] Cargado:', Object.keys(setlistData).length, 'cantos');
+      })
+      .catch(function(err) {
+        console.warn('[Setlist] Firebase error:', err.message);
+        renderSlots();
+      });
+  }
+
+  function saveSlot(slotId, cpd, title) {
+    setlistData[slotId] = { cpd: cpd, title: title };
+    renderSlots();
+    fetch(FIREBASE_URL + FB_PATH + '/' + slotId + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpd: cpd, title: title })
+    }).then(function() {
+      console.log('[Setlist] Guardado:', slotId, '→', title);
+    }).catch(function(err) {
+      console.warn('[Setlist] Error guardando:', err.message);
+    });
+  }
+
+  function removeSlot(slotId) {
+    delete setlistData[slotId];
+    renderSlots();
+    fetch(FIREBASE_URL + FB_PATH + '/' + slotId + '.json', {
+      method: 'DELETE'
+    }).catch(function(err) {
+      console.warn('[Setlist] Error borrando:', err.message);
+    });
+  }
+
+  function clearAll() {
+    setlistData = {};
+    renderSlots();
+    fetch(FIREBASE_URL + FB_PATH + '.json', {
+      method: 'DELETE'
+    }).catch(function(err) {
+      console.warn('[Setlist] Error limpiando:', err.message);
+    });
+  }
+
+  /* ── PANEL OPEN/CLOSE ── */
+  function openPanel() {
+    isOpen = true;
+    panel.classList.add('open');
+    overlay.classList.add('open');
+    tab.style.display = 'none';
+  }
+  function closePanel() {
+    isOpen = false;
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+    if (document.body.classList.contains('rehearsal-mode')) tab.style.display = 'flex';
+  }
+  function togglePanel() {
+    isOpen ? closePanel() : openPanel();
+  }
+
+  /* ── SWIPE DETECTION ── */
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (!document.body.classList.contains('rehearsal-mode')) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (!isOpen && touchStartX < 30 && dx > 60) openPanel();
+    else if (isOpen && dx < -60) closePanel();
+  }, { passive: true });
+
+  /* Escape key */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && isOpen) closePanel();
+  });
+
+  /* ── GO TO SONG ── */
+  function goToSong(cpd) {
+    closePanel();
+    var card = document.querySelector('[data-chord-id="' + cpd + '"]');
+    if (!card) return;
+    /* Find the anchor before the card */
+    var anchor = card.previousElementSibling;
+    while (anchor && !anchor.id) anchor = anchor.previousElementSibling;
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    /* Flash effect */
+    card.style.transition = 'box-shadow 0.3s';
+    card.style.boxShadow = '0 0 0 3px #C8943C, 0 4px 20px rgba(200,148,60,0.4)';
+    setTimeout(function() { card.style.boxShadow = ''; }, 1500);
+  }
+
+  /* ── ADD SONG DIALOG ── */
+  var dialogOverlay = document.getElementById('sl-dialog-overlay');
+  var dialogSongEl  = document.getElementById('sl-dialog-song');
+  var dialogSlotsEl = document.getElementById('sl-dialog-slots');
+  var pendingAdd = null; // { cpd, title, moment }
+
+  function detectMoment(card) {
+    var momentEl = card.querySelector('.song-moment-label');
+    var momentText = momentEl ? momentEl.textContent.trim() : '';
+    return TAG_MAP[momentText] || null;
+  }
+
+  function openAddDialog(cpd, title, suggestedMoment) {
+    pendingAdd = { cpd: cpd, title: title };
+    dialogSongEl.textContent = '\u00ab' + title + '\u00bb';
+
+    var html = '';
+    SLOTS.forEach(function(slot) {
+      var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
+      var current = setlistData[slot.id] ? setlistData[slot.id].title : '';
+      var isSuggested = suggestedMoment && slot.id.indexOf(suggestedMoment) === 0;
+      html += '<button class="sl-dialog-slot-btn' + (isSuggested ? ' suggested' : '') + '" onclick="window.SL.confirmAdd(\'' + slot.id + '\')">' +
+        '<span>' + label + (isSuggested ? ' \u2190' : '') + '<\/span>' +
+        (current ? '<span class="sl-btn-current">' + current + '<\/span>' : '') +
+        '<\/button>';
+    });
+    dialogSlotsEl.innerHTML = html;
+    dialogOverlay.classList.add('open');
+  }
+
+  function confirmAdd(slotId) {
+    if (!pendingAdd) return;
+    saveSlot(slotId, pendingAdd.cpd, pendingAdd.title);
+    closeDialog();
+  }
+
+  function closeDialog() {
+    dialogOverlay.classList.remove('open');
+    pendingAdd = null;
+  }
+
+  /* Click outside dialog */
+  dialogOverlay.addEventListener('click', function(e) {
+    if (e.target === dialogOverlay) closeDialog();
+  });
+
+  /* ── INIT ── */
+  dateEl.textContent = formatDate(SUNDAY_KEY);
+  renderSlots();
+  loadFromFirebase();
+
+  /* ── PUBLIC API ── */
+  window.SL = {
+    open: openPanel,
+    close: closePanel,
+    toggle: togglePanel,
+    goTo: goToSong,
+    remove: removeSlot,
+    clearAll: clearAll,
+    addSong: function(cpd) {
+      var card = document.querySelector('[data-chord-id="' + cpd + '"]');
+      if (!card) return;
+      var titleEl = card.querySelector('.song-title');
+      var title = '';
+      if (titleEl) {
+        titleEl.childNodes.forEach(function(n) {
+          if (n.nodeType === 3) title += n.textContent;
+        });
+      }
+      title = title.trim();
+      var moment = detectMoment(card);
+      openAddDialog(cpd, title, moment);
+    },
+    confirmAdd: confirmAdd,
+    closeDialog: closeDialog
+  };
+})();
+</script>

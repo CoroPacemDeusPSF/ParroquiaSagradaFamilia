@@ -50,17 +50,7 @@ const modalIframe = document.getElementById('modal-iframe');
 const modalTitle = document.getElementById('modal-title');
 
 function openCancionero(url, title) {
-  const isMobile = window.innerWidth < 768;
-  if (isMobile) {
-    // Mobile: open in new tab
-    window.open(url, '_blank');
-  } else {
-    // Desktop: iframe modal
-    modalTitle.textContent = title;
-    modalIframe.src = url;
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
+  window.location.href = url;
 }
 
 function closeModal() {
