@@ -182,7 +182,7 @@ body {
 
 .tab-btn {
   flex: 1;
-  max-width: 280px;
+  max-width: 310px;
   padding: 1rem 1.5rem;
   border: none;
   background: transparent;
@@ -1270,9 +1270,9 @@ body.rehearsal-mode .sl-tab { display: flex; }
 /* Panel drawer */
 .sl-panel {
   position: fixed;
-  left: -290px;
+  left: -320px;
   top: 50%; transform: translateY(-50%);
-  width: 280px;
+  width: 310px;
   max-height: 88vh;
   z-index: 89999;
   background: #FAF5EC;
@@ -1300,6 +1300,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
   background: linear-gradient(180deg, #C8943C 0%, #B08030 100%);
   flex-shrink: 0;
   border-radius: 0 1rem 0 0;
+  position: relative;
 }
 .sl-header::after {
   content: '─────── ✦ ───────';
@@ -1361,7 +1362,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
 .sl-song {
   flex: 1;
   font-family: 'EB Garamond', serif;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 500;
   color: #504A44;
   cursor: pointer;
@@ -1421,6 +1422,11 @@ body.dev-mode .sl-clear { display: block; }
   background: rgba(0,0,0,0.3);
 }
 .sl-overlay.open { display: block; }
+/* Cuando el panel está pineado, el overlay no debe oscurecer ni capturar clicks */
+.sl-overlay.sl-overlay-pinned {
+  background: transparent;
+  pointer-events: none;
+}
 
 /* ── ADD-TO-SETLIST DIALOG ── */
 .sl-dialog-overlay {
@@ -1525,6 +1531,87 @@ body.dev-mode .sl-clear { display: block; }
 }
 .idx-add-btn:hover { background: rgba(200,148,60,0.15); }
 body.dev-mode .idx-add-btn { display: inline-flex; }
+
+/* "+" button next to song titles - dynamic injection by SL module */
+.song-add-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(200,148,60,0.4);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #C8943C;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+  transition: all 0.15s;
+  font-family: inherit;
+  padding: 0;
+}
+.song-add-btn:hover {
+  background: rgba(200,148,60,0.18);
+  border-color: rgba(200,148,60,0.7);
+  transform: scale(1.05);
+}
+body.dev-mode .song-add-btn { display: inline-flex; }
+
+/* Pin button on edge panel header */
+.sl-pin-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+  z-index: 1;
+}
+.sl-pin-btn svg { width: 14px; height: 14px; transform: rotate(45deg); transition: transform 0.25s; }
+.sl-pin-btn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.12); }
+.sl-pin-btn.pinned {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  border-color: #fff;
+}
+.sl-pin-btn.pinned svg { transform: rotate(0deg); }
+
+/* Botón "+" en el título de la canción (mismo estilo que idx-add-btn pero adaptado al título) */
+.song-add-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(200,148,60,0.4);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #C8943C;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  transition: all 0.15s;
+  font-family: inherit;
+  padding: 0;
+}
+.song-add-btn:hover {
+  background: rgba(200,148,60,0.18);
+  border-color: rgba(200,148,60,0.7);
+  transform: scale(1.05);
+}
+body.dev-mode .song-add-btn { display: inline-flex; }
 
 /* chords-toggle siempre visible */
 .chords-toggle { display: inline-block; }
@@ -2129,7 +2216,7 @@ body.dev-mode #editor-reset-html-btn { display: inline-block !important; }
 
   /* Acordes: fuente un poco más grande para leer en móvil */
   .chords-block pre {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
   }
   .chords-block.fullscreen pre,
   .chords-block:fullscreen pre {
@@ -2834,12 +2921,15 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 <!-- ══════════════════════════════════════════
      SETLIST EDGE PANEL
 ══════════════════════════════════════════ -->
-<div class="sl-overlay" id="sl-overlay" onclick="window.SL.close()"></div>
+<div class="sl-overlay" id="sl-overlay" onclick="if (window.SL && !window.SL.isPinned()) window.SL.close();"></div>
 <div class="sl-tab" id="sl-tab" onclick="window.SL.toggle()">
   <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
 </div>
 <div class="sl-panel" id="sl-panel">
   <div class="sl-header">
+    <button class="sl-pin-btn" id="sl-pin-btn" onclick="window.SL.togglePin()" title="Mantener panel abierto" aria-label="Fijar panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+    </button>
     <div class="sl-header-title">SetList Actual</div>
   </div>
   <div class="sl-slots" id="sl-slots"></div>
@@ -2866,7 +2956,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r26</span>
+    <span class="cancionero-version">v3.2.24r30</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -6186,7 +6276,7 @@ a tu amor, mi Dios, mi Rey.
         <div class="song-number">00</div>
         <div class="song-header-text">
           <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Tómame Señor – Jesed<a class="yt-play-btn" href="#chords-block-d81" onclick="toggleChords('d81',true);setTimeout(function(){document.getElementById('chords-block-d81').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/CXqnTitRpls" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+          <div class="song-title">Tómame Señor – Jesed<a class="yt-play-btn" href="#chords-block-d81" onclick="toggleChords('d81',true);setTimeout(function(){document.getElementById('chords-block-d81').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/eZFyvkKaUCc?t=15" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -9057,7 +9147,7 @@ como los he amado yo.
         <div class="song-number">00</div>
         <div class="song-header-text">
           <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Yo soy el Pan de Vida<a class="yt-play-btn" href="#chords-block-d98" onclick="toggleChords('d98',true);setTimeout(function(){document.getElementById('chords-block-d98').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/GqHmoXa2Kss?t=16" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+          <div class="song-title">Yo le Resucitaré<a class="yt-play-btn" href="#chords-block-d98" onclick="toggleChords('d98',true);setTimeout(function(){document.getElementById('chords-block-d98').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/GqHmoXa2Kss?t=16" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
         </div>
       </div>
       <div class="song-body">
@@ -9098,7 +9188,7 @@ como los he amado yo.
         <div class="song-ornament">✦ ✦ ✦</div>
         <button class="chords-toggle" id="chords-toggle-d98" onclick="toggleChords('d98')">Ver acordes ▾</button>
         <div class="chords-block" id="chords-block-d98">
-          <pre><b>♫ Yo soy el Pan de Vida (Yo le Resucitaré)</b>
+          <pre><b>♫ Yo le Resucitaré</b>
 
 <b>═══ INTRO ═══</b>
 
@@ -9157,7 +9247,7 @@ tendrá Vida Eterna.</pre>
     </div>
     <button class="context-toggle" id="context-toggle-d98" onclick="toggleContext('d98')">Ver contexto litúrgico ▾</button>
     <div class="context-block" id="context-block-d98">
-      <p class="ctx-title">Yo soy el Pan de Vida</p>
+      <p class="ctx-title">Yo le Resucitaré</p>
       <div class="ctx-section">
         <div class="ctx-label">Fundamento bíblico</div>
         <div class="ctx-text"><p>«Yo Soy el Pan de Vida» es una cita directa de <strong>Juan 6,35</strong>, el corazón del discurso eucarístico de Jesús en la sinagoga de Cafarnaúm. Es la declaración más explícita de Cristo sobre el sentido de la Eucaristía — Él mismo es el pan que sacia el hambre más profunda del ser humano: el hambre de Dios, de sentido, de eternidad.</p>
@@ -15389,7 +15479,9 @@ async function aiSend(){
   /* ── STATE ── */
   var setlistData = {}; // slot-id → { cpd, title }
   var isOpen = false;
+  var isPinned = false;
   var touchStartX = 0;
+  var PIN_KEY = 'pdSetlistPinned';
 
   /* ── ELEMENTS ── */
   var panel   = document.getElementById('sl-panel');
@@ -15515,17 +15607,18 @@ async function aiSend(){
     if (!document.body.classList.contains('rehearsal-mode')) return;
     var dx = e.changedTouches[0].clientX - touchStartX;
     if (!isOpen && touchStartX < 30 && dx > 60) openPanel();
-    else if (isOpen && dx < -60) closePanel();
+    else if (isOpen && dx < -60 && !isPinned) closePanel();
   }, { passive: true });
 
-  /* Escape key */
+  /* Escape key — respeta el pin */
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && isOpen) closePanel();
+    if (e.key === 'Escape' && isOpen && !isPinned) closePanel();
   });
 
   /* ── GO TO SONG ── */
   function goToSong(cpd) {
-    closePanel();
+    /* Solo cierra si NO está pineado */
+    if (!isPinned) closePanel();
     var card = document.querySelector('[data-chord-id="' + cpd + '"]');
     if (!card) return;
     /* Find the anchor before the card */
@@ -15588,9 +15681,66 @@ async function aiSend(){
     if (e.target === dialogOverlay) closeDialog();
   });
 
+  /* ── PIN PANEL ── */
+  function togglePin() {
+    isPinned = !isPinned;
+    updatePinUI();
+    try {
+      if (isPinned) localStorage.setItem(PIN_KEY, '1');
+      else localStorage.removeItem(PIN_KEY);
+    } catch (e) {}
+  }
+  function updatePinUI() {
+    var btn = document.getElementById('sl-pin-btn');
+    if (!btn) return;
+    btn.classList.toggle('pinned', isPinned);
+    btn.title = isPinned ? 'Panel fijo (click para soltar)' : 'Mantener panel abierto';
+    /* Cuando está pineado, oculta el overlay para permitir interacción
+       con el cancionero detrás del panel (especialmente útil en PC) */
+    if (isPinned) overlay.classList.add('sl-overlay-pinned');
+    else overlay.classList.remove('sl-overlay-pinned');
+  }
+  function restorePinState() {
+    try {
+      isPinned = localStorage.getItem(PIN_KEY) === '1';
+    } catch (e) { isPinned = false; }
+    updatePinUI();
+    /* Si estaba pineado y el modo Coro está activo, abre el panel automáticamente */
+    if (isPinned && document.body.classList.contains('rehearsal-mode')) {
+      openPanel();
+    }
+  }
+
+  /* ── INJECT "+" BUTTONS NEXT TO SONG TITLES ── */
+  /* Idempotent: only adds buttons to cards that don't have one yet. */
+  function injectAddButtons() {
+    var cards = document.querySelectorAll('.song-card[data-chord-id]');
+    cards.forEach(function(card) {
+      var titleEl = card.querySelector('.song-title');
+      if (!titleEl) return;
+      /* Skip if already injected */
+      if (titleEl.querySelector('.song-add-btn')) return;
+      var cpd = card.dataset.chordId;
+      if (!cpd) return;
+      var btn = document.createElement('button');
+      btn.className = 'song-add-btn';
+      btn.title = 'Agregar al setlist';
+      btn.setAttribute('aria-label', 'Agregar al setlist');
+      btn.textContent = '+';
+      btn.addEventListener('click', function(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        window.SL.addSong(cpd);
+      });
+      titleEl.appendChild(btn);
+    });
+  }
+
   /* ── INIT ── */
   renderSlots();
   loadFromFirebase();
+  restorePinState();
+  injectAddButtons();
 
   /* ── PUBLIC API ── */
   window.SL = {
@@ -15600,6 +15750,9 @@ async function aiSend(){
     goTo: goToSong,
     remove: removeSlot,
     clearAll: clearAll,
+    togglePin: togglePin,
+    isPinned: function() { return isPinned; },
+    injectAddButtons: injectAddButtons,
     addSong: function(cpd) {
       var card = document.querySelector('[data-chord-id="' + cpd + '"]');
       if (!card) return;
