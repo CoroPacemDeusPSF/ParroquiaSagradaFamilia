@@ -1422,6 +1422,11 @@ body.dev-mode .sl-clear { display: block; }
   background: rgba(0,0,0,0.3);
 }
 .sl-overlay.open { display: block; }
+/* Cuando el panel está pineado, el overlay no debe oscurecer ni capturar clicks */
+.sl-overlay.sl-overlay-pinned {
+  background: transparent;
+  pointer-events: none;
+}
 
 /* ── ADD-TO-SETLIST DIALOG ── */
 .sl-dialog-overlay {
@@ -2916,7 +2921,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 <!-- ══════════════════════════════════════════
      SETLIST EDGE PANEL
 ══════════════════════════════════════════ -->
-<div class="sl-overlay" id="sl-overlay" onclick="window.SL.close()"></div>
+<div class="sl-overlay" id="sl-overlay" onclick="if (window.SL && !window.SL.isPinned()) window.SL.close();"></div>
 <div class="sl-tab" id="sl-tab" onclick="window.SL.toggle()">
   <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
 </div>
@@ -2951,7 +2956,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r29</span>
+    <span class="cancionero-version">v3.2.24r30</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -15602,12 +15607,12 @@ async function aiSend(){
     if (!document.body.classList.contains('rehearsal-mode')) return;
     var dx = e.changedTouches[0].clientX - touchStartX;
     if (!isOpen && touchStartX < 30 && dx > 60) openPanel();
-    else if (isOpen && dx < -60) closePanel();
+    else if (isOpen && dx < -60 && !isPinned) closePanel();
   }, { passive: true });
 
-  /* Escape key */
+  /* Escape key — respeta el pin */
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && isOpen) closePanel();
+    if (e.key === 'Escape' && isOpen && !isPinned) closePanel();
   });
 
   /* ── GO TO SONG ── */
@@ -15690,6 +15695,10 @@ async function aiSend(){
     if (!btn) return;
     btn.classList.toggle('pinned', isPinned);
     btn.title = isPinned ? 'Panel fijo (click para soltar)' : 'Mantener panel abierto';
+    /* Cuando está pineado, oculta el overlay para permitir interacción
+       con el cancionero detrás del panel (especialmente útil en PC) */
+    if (isPinned) overlay.classList.add('sl-overlay-pinned');
+    else overlay.classList.remove('sl-overlay-pinned');
   }
   function restorePinState() {
     try {
