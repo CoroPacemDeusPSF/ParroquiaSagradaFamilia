@@ -1348,7 +1348,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
   font-size: 0.45rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #7A5A1E;
+  color: #4A3210;
   width: 4.5rem;
   flex-shrink: 0;
   line-height: 1.2;
@@ -1368,7 +1368,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
 }
 .sl-song:hover { color: #C8943C; }
 .sl-song.empty {
-  color: rgba(180,140,80,0.35);
+  color: rgba(120,90,40,0.7);
   cursor: default;
   font-style: italic;
   font-weight: 400;
@@ -1654,7 +1654,7 @@ body.dev-mode .song-add-btn { display: inline-flex; }
 
 /* Empty/placeholder slots */
 .sl-slot-empty .sl-song.empty {
-  color: rgba(120,90,30,0.45);
+  color: rgba(120,90,40,0.7);
   font-style: italic;
   font-size: 0.78rem;
 }
@@ -3118,7 +3118,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r34</span>
+    <span class="cancionero-version">v3.2.24r36</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -15669,7 +15669,7 @@ async function aiSend(){
     { id: 'entrada-2',  label: 'Entrada',   sub: '2' },
     { id: 'piedad',     label: 'Piedad',    defaultEmpty: true },
     { id: 'gloria',     label: 'Gloria',    defaultEmpty: true,  liturgical: 'gloria' },
-    { id: 'evangelio',  label: 'Aleluya',   defaultEmpty: true,  liturgical: 'aleluya' },
+    { id: 'evangelio',  label: 'Evangelio', defaultEmpty: true,  liturgical: 'aleluya' },
     { id: 'ofertorio-1',label: 'Ofertorio', defaultEmpty: true },
     { id: 'ofertorio-2',label: 'Ofertorio', sub: '2' },
     { id: 'santo',      label: 'Santo',     defaultEmpty: true },
@@ -15689,7 +15689,7 @@ async function aiSend(){
     'Entrada':   'sec-entrada',
     'Piedad':    'sec-piedad',
     'Gloria':    'sec-gloria',
-    'Aleluya':   'sec-aleluya',
+    'Evangelio': 'sec-aleluya',
     'Ofertorio': 'sec-ofertorio',
     'Santo':     'sec-santo',
     'Cordero':   'sec-cordero',
