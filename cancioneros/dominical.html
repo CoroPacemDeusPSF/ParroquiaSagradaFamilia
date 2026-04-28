@@ -13,22 +13,28 @@
 </script>
 <title>Cancionero Dominical – Coro Pacem Deus</title>
 
-<!-- Open Graph / WhatsApp / Social Preview -->
+<!-- Open Graph / WhatsApp / Social Preview
+     IMPORTANTE: og:image y twitter:image DEBEN ser URLs absolutas con http(s)://
+     Los crawlers de WhatsApp y muchos otros NO resuelven rutas relativas
+     (verificado en docs y reportes de la comunidad: WhatsApp ignora silenciosamente
+     y muestra la URL sin preview). og:url también se da explícita para canonicalización.
+     Si el sitio cambia de dominio, ajustar las 3 URLs absolutas a continuación. -->
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Coro Pacem Deus">
+<meta property="og:locale" content="es_PE">
 <meta property="og:title" content="Cancionero Dominical — Coro Pacem Deus">
 <meta property="og:description" content="103 cantos organizados por momento litúrgico · Acordes · Contexto bíblico · Parroquia de la Sagrada Familia">
-<!-- Rutas relativas: el crawler las resuelve contra la URL de la página, así
-     funcionan en GitHub Pages, en local, o si el sitio se moviera de dominio.
-     Omitimos og:url a propósito para que el crawler use la URL real desde la
-     que cargó la página (canonicalización dinámica, no hardcodeada). -->
-<meta property="og:image" content="../img/og-dominical.png">
+<meta property="og:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png">
+<meta property="og:image:secure_url" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Cancionero Dominical — Coro Pacem Deus — Parroquia de la Sagrada Familia">
+<meta property="og:url" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/cancioneros/dominical.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Cancionero Dominical — Coro Pacem Deus">
 <meta name="twitter:description" content="103 cantos organizados por momento litúrgico · Acordes · Contexto bíblico">
-<meta name="twitter:image" content="../img/og-dominical.png">
+<meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png">
 <meta name="description" content="Cancionero Dominical del Coro Pacem Deus — 103 cantos con acordes, contexto litúrgico y referencias bíblicas para la celebración eucarística. Parroquia de la Sagrada Familia.">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 <style>
@@ -3391,7 +3397,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.25r6</span>
+    <span class="cancionero-version">v3.2.25r7</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
