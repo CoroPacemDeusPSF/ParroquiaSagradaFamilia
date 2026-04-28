@@ -1308,7 +1308,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
 .sl-header-title {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 0.84rem;
   letter-spacing: 0.015em;
   color: #fff;
   margin-bottom: 0.15rem;
@@ -1317,23 +1317,22 @@ body.rehearsal-mode .sl-tab { display: flex; }
   line-height: 1.3;
 }
 /* Indicador "vigente" — punto dorado pulsante que precede al nombre litúrgico
-   en el modo actual. Comunica visualmente "este es el setlist en curso" sin
-   necesidad de texto explícito; ausente en el modo histórico. */
+   en la línea inferior del header. Comunica visualmente "este es el setlist en
+   curso" sin texto. Calibrado para acompañar Cormorant italic ~0.78rem. */
 .sl-now-dot {
   display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 0.42rem;
+  height: 0.42rem;
   border-radius: 50%;
   background: #d4a04a;
   box-shadow: 0 0 0 0 rgba(212, 160, 74, 0.7);
-  vertical-align: middle;
-  margin-right: 0.5rem;
-  margin-bottom: 0.15rem;
+  vertical-align: 0.05em;
+  margin-right: 0.4rem;
   animation: sl-now-pulse 2.2s ease-out infinite;
 }
 @keyframes sl-now-pulse {
   0%   { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0.7); }
-  70%  { box-shadow: 0 0 0 8px rgba(212, 160, 74, 0); }
+  70%  { box-shadow: 0 0 0 7px rgba(212, 160, 74, 0); }
   100% { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0); }
 }
 .sl-header-date {
@@ -1601,46 +1600,6 @@ body.dev-mode .song-add-btn { display: inline-flex; }
 }
 .sl-pin-btn.pinned svg { transform: rotate(0deg); }
 
-/* Inline arrows in the divider line (history navigation) */
-.sl-divider-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-top: 0.4rem;
-}
-.sl-divider-orn {
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.55);
-  font-family: 'Cinzel', serif;
-}
-.sl-hist-arrow-inline {
-  background: none;
-  border: 1px solid rgba(255,255,255,0.35);
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 0.95rem;
-  line-height: 1;
-  font-family: serif;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.15s;
-}
-.sl-hist-arrow-inline:hover:not(.disabled) {
-  background: rgba(255,255,255,0.2);
-  border-color: #fff;
-}
-.sl-hist-arrow-inline.disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
 /* Header sub-info: tiempo litúrgico, mes mariano */
 .sl-header-date {
   font-size: 0.7rem;
@@ -1651,14 +1610,6 @@ body.dev-mode .song-add-btn { display: inline-flex; }
   margin-top: 0.15rem;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-}
-.sl-season {
-  font-size: 0.55rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.7);
-  margin-top: 0.25rem;
-  font-family: 'Cinzel', serif;
 }
 .sl-marian {
   font-size: 0.55rem;
@@ -1672,17 +1623,91 @@ body.dev-mode .song-add-btn { display: inline-flex; }
   padding: 2px 8px;
   display: inline-block;
 }
-/* Tema del evangelio del domingo (cita), aparece bajo el título litúrgico */
+/* Última línea del encabezado: contiene el contenido principal flanqueado por
+   flechas de navegación a ambos extremos. Se usa tanto en modo actual (con
+   cita evangélica) como en modo histórico (con nombre litúrgico + contador). */
 .sl-tema {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  padding: 0 0.15rem;
+}
+.sl-tema-text {
+  flex: 1;
+  text-align: center;
+  /* Estilo por defecto: cita evangélica (modo actual) */
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.78rem;
   color: rgba(255, 230, 180, 0.92);
   letter-spacing: 0.01em;
-  margin-top: 0.35rem;
-  padding: 0 0.4rem;
+  padding: 0 0.2rem;
   text-shadow: 0 1px 2px rgba(40, 20, 0, 0.35);
   line-height: 1.25;
+}
+/* Variante modo histórico: nombre litúrgico en mayúsculas + contador inline */
+.sl-tema-text.is-hist {
+  font-family: 'Cinzel', serif;
+  font-style: normal;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(40, 20, 0, 0.4);
+}
+/* Contador "n / total" embebido en la línea del histórico */
+.sl-tema-text .sl-counter {
+  opacity: 0.6;
+  margin-left: 0.55em;
+  letter-spacing: 0.08em;
+  font-size: 0.92em;
+}
+/* Flecha de navegación: prominente, dorada, claramente clickeable.
+   Se usa en ambos modos (actual e histórico) para mantener consistencia visual. */
+.sl-tema-nav {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 160, 74, 0.18);
+  border: 1px solid rgba(212, 160, 74, 0.55);
+  color: #f1c075;
+  font-family: serif;
+  font-style: normal;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.sl-tema-nav:hover {
+  background: rgba(212, 160, 74, 0.42);
+  border-color: rgba(212, 160, 74, 0.95);
+  color: #ffd89a;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(212, 160, 74, 0.4);
+}
+.sl-tema-nav:active {
+  transform: scale(0.96);
+}
+.sl-tema-nav.disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: transparent;
+}
+/* Espaciador invisible: ocupa el mismo ancho que una flecha real, manteniendo
+   el contenido centrado cuando solo hay una flecha activa. */
+.sl-tema-nav-spacer {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
 }
 
 /* Empty/placeholder slots */
@@ -3151,7 +3176,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r43</span>
+    <span class="cancionero-version">v3.2.24r48</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -15820,33 +15845,42 @@ async function aiSend(){
     var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[SUNDAY_KEY]) || null;
     var liturgicalName = litData && litData.n ? litData.n : season.name;
 
-    /* Header info: (si aplica) Mes Mariano + tema del evangelio + flechas históricas inline */
+    /* Tema del evangelio del domingo: ahora ocupa la POSICIÓN SUPERIOR (heredando el
+       estilo prominente Cormorant 600 1.05rem). El tema, como cita escritural, se
+       convierte en el "headline" espiritual del setlist actual. */
+    var titleContent = (litData && litData.tema)
+      ? '&ldquo;' + litData.tema + '&rdquo;'
+      : liturgicalName;  /* fallback defensivo si la fecha no tiene tema en el JSON */
+
+    /* Mes Mariano: queda en su posición intermedia (sin cambios) */
     var headerInfo = '';
     if (isMarian) {
       headerInfo += '<div class="sl-marian">✦ Mes Mariano ✦</div>';
     }
-    /* Tema del evangelio del domingo, tomado del JSON litúrgico */
-    if (litData && litData.tema) {
-      headerInfo += '<div class="sl-tema">&ldquo;' + litData.tema + '&rdquo;</div>';
-    }
-    /* Línea de separador con flechas de historial integradas (única línea de separador) */
-    var hasHistory = historyDates.length > 0;
-    var arrowsLeft = hasHistory
-      ? '<button class="sl-hist-arrow-inline" onclick="window.SL.showHistory()" title="Ver setlists anteriores">‹</button>'
-      : '<span class="sl-hist-arrow-inline disabled">‹</span>';
-    headerInfo += '<div class="sl-divider-row">' +
-        arrowsLeft +
-        '<span class="sl-divider-orn">─── ✦ ───</span>' +
-        '<span class="sl-hist-arrow-inline disabled">›</span>' +
+
+    /* Nombre litúrgico: ahora ocupa la POSICIÓN INFERIOR (heredando el estilo
+       Cormorant italic 0.78rem). Las flechas de navegación al histórico se sitúan
+       en sus extremos. El indicador "•" pulsante dorado (setlist vigente) acompaña
+       al nombre litúrgico, ya que el nombre identifica al setlist en sí. */
+    var leftNav = historyDates.length > 0
+      ? '<button class="sl-tema-nav" onclick="window.SL.showHistory()" ' +
+            'title="Ver setlists anteriores" aria-label="Ver setlists anteriores">‹</button>'
+      : '<span class="sl-tema-nav-spacer" aria-hidden="true"></span>';
+    var rightNav = '<span class="sl-tema-nav-spacer" aria-hidden="true"></span>';
+    headerInfo += '<div class="sl-tema">' +
+        leftNav +
+        '<span class="sl-tema-text">' +
+          '<span class="sl-now-dot" aria-label="Setlist actual"></span>' +
+          liturgicalName +
+        '</span>' +
+        rightNav +
       '</div>';
 
     var titleEl = panel.querySelector('.sl-header-title');
     if (titleEl) {
-      /* Indicador visual pulsante (.sl-now-dot) reemplaza al texto "SetList Actual";
-         comunica que este es el setlist vigente sin necesidad de etiqueta. El nombre
-         litúrgico pasa a ser el protagonista del header. */
-      titleEl.innerHTML = '<span class="sl-now-dot" aria-label="Setlist actual"></span>' +
-        liturgicalName + headerInfo;
+      /* El tema (cita escritural) toma el lugar prominente del título;
+         el nombre litúrgico desciende a la línea inferior italic. */
+      titleEl.innerHTML = titleContent + headerInfo;
     }
 
     var html = '';
@@ -15973,7 +16007,14 @@ async function aiSend(){
   var currentView = 'current'; // 'current' | 'history'
 
   function loadHistory() {
-    /* Trae todas las fechas del nodo /setlist y filtra las últimas 4 ANTES del próximo domingo */
+    /* Trae todas las fechas del nodo /setlist y filtra las últimas 4 ANTES del domingo actual.
+       
+       Garantías de "solo el último setlist de cada semana":
+       1. La clave en Firebase es siempre SUNDAY_KEY (computado por getNextSunday()),
+          por lo que múltiples guardados dentro de una misma semana SOBRESCRIBEN la misma
+          entrada (un solo registro por semana, por construcción del modelo de datos).
+       2. Como red de seguridad, filtramos explícitamente las fechas que no caen en domingo
+          (defensa frente a posibles entradas legacy con un esquema de claves distinto). */
     return fetch(FIREBASE_URL + '/setlist.json?shallow=true')
       .then(function(r) { return r.json(); })
       .then(function(keys) {
@@ -15981,6 +16022,12 @@ async function aiSend(){
         var allDates = Object.keys(keys).filter(function(k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); });
         /* Solo fechas estrictamente anteriores al domingo actual */
         allDates = allDates.filter(function(d) { return d < SUNDAY_KEY; });
+        /* Solo domingos (red de seguridad: getDay() === 0 en parseo local-safe) */
+        allDates = allDates.filter(function(d) {
+          var p = d.split('-');
+          var dt = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+          return dt.getDay() === 0;
+        });
         allDates.sort(function(a, b) { return b.localeCompare(a); }); /* desc */
         historyDates = allDates.slice(0, 4);
       })
@@ -16040,22 +16087,38 @@ async function aiSend(){
     var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[dateKey]) || null;
     var liturgicalName = litData && litData.n ? litData.n : '';
 
-    /* Header en modo histórico con flechas inline */
+    /* Header en modo histórico: misma estructura que el modo actual.
+       Las flechas de navegación se sitúan en los extremos de la última línea
+       de texto (nombre litúrgico + contador inline) para mantener consistencia
+       visual entre ambos modos. */
     var titleEl = panel.querySelector('.sl-header-title');
     if (titleEl) {
-      var leftArrow = historyIndex < historyDates.length - 1
-        ? '<button class="sl-hist-arrow-inline" onclick="window.SL.historyPrev()" title="Anterior">‹</button>'
-        : '<span class="sl-hist-arrow-inline disabled">‹</span>';
+      /* Flecha izquierda: navegar a un histórico MÁS ANTIGUO */
+      var canGoOlder = historyIndex < historyDates.length - 1;
+      var leftArrow = canGoOlder
+        ? '<button class="sl-tema-nav" onclick="window.SL.historyPrev()" ' +
+              'title="Más antiguo" aria-label="Más antiguo">‹</button>'
+        : '<span class="sl-tema-nav disabled" aria-hidden="true">‹</span>';
+
+      /* Flecha derecha: navegar a un histórico MÁS RECIENTE,
+         o salir al modo actual si ya estamos en el más reciente. */
       var rightArrow = historyIndex > 0
-        ? '<button class="sl-hist-arrow-inline" onclick="window.SL.historyNext()" title="Siguiente">›</button>'
-        : '<button class="sl-hist-arrow-inline" onclick="window.SL.exitHistory()" title="Volver al actual">›</button>';
-      var nameLine = liturgicalName ? '<div class="sl-season">' + liturgicalName + '</div>' : '';
+        ? '<button class="sl-tema-nav" onclick="window.SL.historyNext()" ' +
+              'title="Más reciente" aria-label="Más reciente">›</button>'
+        : '<button class="sl-tema-nav" onclick="window.SL.exitHistory()" ' +
+              'title="Volver al actual" aria-label="Volver al actual">›</button>';
+
+      /* Contenido central: nombre litúrgico (si existe) + contador "n / total" */
+      var counterTxt = '<span class="sl-counter">' + (historyIndex + 1) + ' / ' + historyDates.length + '</span>';
+      var centerTxt = liturgicalName
+        ? liturgicalName + counterTxt
+        : counterTxt;
+
       titleEl.innerHTML = 'Histórico' +
         '<div class="sl-header-date">' + formatDate(dateKey) + '</div>' +
-        nameLine +
-        '<div class="sl-divider-row">' +
+        '<div class="sl-tema">' +
           leftArrow +
-          '<span class="sl-divider-orn">' + (historyIndex + 1) + ' / ' + historyDates.length + '</span>' +
+          '<span class="sl-tema-text is-hist">' + centerTxt + '</span>' +
           rightArrow +
         '</div>';
     }
@@ -16261,7 +16324,11 @@ async function aiSend(){
   /* ── INIT ── */
   renderSlots();
   loadFromFirebase();
-  loadHistory();
+  /* loadHistory() es asíncrono; cuando resuelve, repintamos para que el chip
+     "‹ Histórico" aparezca en el header del modo actual si hay setlists previos. */
+  loadHistory().then(function() {
+    if (currentView === 'current') renderSlots();
+  });
   restorePinState();
   injectAddButtons();
 
