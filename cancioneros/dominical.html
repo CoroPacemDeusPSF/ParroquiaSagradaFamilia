@@ -1306,14 +1306,35 @@ body.rehearsal-mode .sl-tab { display: flex; }
   position: relative;
 }
 .sl-header-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.015em;
   color: #fff;
   margin-bottom: 0.15rem;
   text-shadow: 0 1px 2px rgba(40,20,0,0.4);
   text-align: center;
+  line-height: 1.3;
+}
+/* Indicador "vigente" — punto dorado pulsante que precede al nombre litúrgico
+   en el modo actual. Comunica visualmente "este es el setlist en curso" sin
+   necesidad de texto explícito; ausente en el modo histórico. */
+.sl-now-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #d4a04a;
+  box-shadow: 0 0 0 0 rgba(212, 160, 74, 0.7);
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  margin-bottom: 0.15rem;
+  animation: sl-now-pulse 2.2s ease-out infinite;
+}
+@keyframes sl-now-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0.7); }
+  70%  { box-shadow: 0 0 0 8px rgba(212, 160, 74, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0); }
 }
 .sl-header-date {
   font-family: 'Cormorant Garamond', serif;
@@ -1650,6 +1671,18 @@ body.dev-mode .song-add-btn { display: inline-flex; }
   border-radius: 1rem;
   padding: 2px 8px;
   display: inline-block;
+}
+/* Tema del evangelio del domingo (cita), aparece bajo el título litúrgico */
+.sl-tema {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(255, 230, 180, 0.92);
+  letter-spacing: 0.01em;
+  margin-top: 0.35rem;
+  padding: 0 0.4rem;
+  text-shadow: 0 1px 2px rgba(40, 20, 0, 0.35);
+  line-height: 1.25;
 }
 
 /* Empty/placeholder slots */
@@ -3118,7 +3151,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r38</span>
+    <span class="cancionero-version">v3.2.24r43</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -15327,8 +15360,8 @@ async function aiSend(){
     '2026-05-10':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,15-21',tema:'No os dejaré huérfanos',ant:'Aclamad al Señor, tierra entera',ci:'A'},
     '2026-05-17':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Mt 28,16-20',tema:'Id y haced discípulos',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'A'},
     '2026-05-24':{t:'Pascua',n:'Domingo de Pentecostés',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Espíritu Santo',ant:'Envía Tu Espíritu, Señor, y repuebla la faz de la tierra',ci:'A'},
-    '2026-05-31':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es mío',ant:'¡A Ti gloria y alabanza por los siglos!',ci:'A'},
-    '2026-06-07':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ant:'Glorifica al Señor, Jerusalén',ci:'A'},
+    '2026-05-31':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 3,16-18',tema:'Tanto amó Dios al mundo',ant:'¡A Ti gloria y alabanza por los siglos!',ci:'A'},
+    '2026-06-07':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Jn 6,51-58',tema:'Mi carne es verdadera comida y mi sangre verdadera bebida',ant:'Glorifica al Señor, Jerusalén',ci:'A'},
     '2026-06-14':{t:'Ordinario',n:'XI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 9,36—10,8',tema:'La mies es abundante',ant:'Nosotros somos su pueblo y ovejas de su rebaño',ci:'A'},
     '2026-06-21':{t:'Ordinario',n:'XII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,26-33',tema:'No tengáis miedo',ant:'Señor, que me escuche Tu gran bondad',ci:'A'},
     '2026-06-28':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,37-42',tema:'El que no toma su cruz no es digno de mí',ant:'Cantaré eternamente las misericordias del Señor',ci:'A'},
@@ -15412,7 +15445,9 @@ async function aiSend(){
     '2027-12-12':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Lc 3,10-18',tema:'¿Qué debemos hacer?',ant:'Gritad jubilosos, porque es grande en medio de ti el Santo de Israel',ci:'C'},
     '2027-12-19':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,39-45',tema:'Bendita tú entre las mujeres',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'C'},
     '2027-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'C'},
+    '2027-12-26':{t:'Navidad',n:'Sagrada Familia',e:'Fiesta',c:'Blanco',ev:'Lc 2,41-52',tema:'Sus padres lo encontraron en el templo, sentado en medio de los maestros',ant:'Dichosos los que temen al Señor y siguen sus caminos',ci:'C'},
     '2028-01-01':{t:'Navidad',n:'Santa María Madre de Dios',e:'Solemnidad',c:'Blanco',ev:'Lc 2,16-21',tema:'Le pusieron por nombre Jesús',ant:'Que Dios tenga piedad y nos bendiga',ci:'C'},
+    '2028-01-02':{t:'Navidad',n:'Epifanía del Señor',e:'Solemnidad',c:'Blanco',ev:'Mt 2,1-12',tema:'Hemos venido a adorarlo',ant:'Se postrarán ante Ti, Señor, todos los pueblos de la tierra',ci:'C'},
     '2028-01-09':{t:'Navidad',n:'Bautismo del Señor',e:'',c:'Blanco',ev:'Lc 3,15-16.21-22',tema:'Tú eres mi Hijo amado',ant:'El Señor bendice a su pueblo con la paz',ci:'C'},
     '2028-01-16':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 2,1-12',tema:'La madre de Jesús le dijo: No tienen vino',ant:'Contad las maravillas del Señor a todas las naciones',ci:'C'},
     '2028-01-23':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Lc 1,1-4;4,14-21',tema:'Hoy se ha cumplido esta Escritura',ant:'Tus palabras, Señor, son espíritu y vida',ci:'C'},
@@ -15461,7 +15496,13 @@ async function aiSend(){
     '2028-11-05':{t:'Ordinario',n:'XXXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 19,1-10',tema:'El Hijo del hombre vino a buscar y salvar lo que estaba perdido',ant:'Bendeciré Tu nombre por siempre, Dios mío, mi Rey',ci:'C'},
     '2028-11-12':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 20,27-38',tema:'No es Dios de muertos sino de vivos',ant:'Al despertar me saciaré de Tu semblante, Señor',ci:'C'},
     '2028-11-19':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 21,5-19',tema:'Con vuestra perseverancia salvaréis vuestras almas',ant:'El Señor llega para regir los pueblos con rectitud',ci:'C'},
-    '2028-11-26':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Lc 23,35-43',tema:'Hoy estarás conmigo en el paraíso',ant:'Vamos alegres a la casa del Señor',ci:'C'}
+    '2028-11-26':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Lc 23,35-43',tema:'Hoy estarás conmigo en el paraíso',ant:'Vamos alegres a la casa del Señor',ci:'C'},
+    '2028-12-03':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mt 24,37-44',tema:'Estad preparados',ant:'Vamos alegres a la casa del Señor',ci:'A'},
+    '2028-12-10':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mt 3,1-12',tema:'Convertíos, porque el Reino está cerca',ant:'Que en sus días florezca la justicia y la paz abunde eternamente',ci:'A'},
+    '2028-12-17':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Mt 11,2-11',tema:'¿Eres Tú el que ha de venir?',ant:'Ven, Señor, a salvarnos',ci:'A'},
+    '2028-12-24':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Mt 1,18-24',tema:'Le pondrás por nombre Jesús',ant:'Va a entrar el Señor; Él es el Rey de la gloria',ci:'A'},
+    '2028-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'A'},
+    '2028-12-31':{t:'Navidad',n:'Sagrada Familia',e:'Fiesta',c:'Blanco',ev:'Mt 2,13-15.19-23',tema:'Levántate, toma al niño y a su madre',ant:'Dichosos los que temen al Señor y siguen sus caminos',ci:'A'}
   };
   var COL={'Blanco':'#F5F5F0','Verde':'#4A7A3A','Morado':'#6A3D7A','Rojo':'#A03030','Rosa':'#C07090'};
   function pad(n){return n<10?'0'+n:''+n;}
@@ -15779,10 +15820,14 @@ async function aiSend(){
     var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[SUNDAY_KEY]) || null;
     var liturgicalName = litData && litData.n ? litData.n : season.name;
 
-    /* Header info: nombre litúrgico + (si aplica) Mes Mariano + flechas históricas inline */
-    var headerInfo = '<div class="sl-season">' + liturgicalName + '</div>';
+    /* Header info: (si aplica) Mes Mariano + tema del evangelio + flechas históricas inline */
+    var headerInfo = '';
     if (isMarian) {
       headerInfo += '<div class="sl-marian">✦ Mes Mariano ✦</div>';
+    }
+    /* Tema del evangelio del domingo, tomado del JSON litúrgico */
+    if (litData && litData.tema) {
+      headerInfo += '<div class="sl-tema">&ldquo;' + litData.tema + '&rdquo;</div>';
     }
     /* Línea de separador con flechas de historial integradas (única línea de separador) */
     var hasHistory = historyDates.length > 0;
@@ -15797,8 +15842,11 @@ async function aiSend(){
 
     var titleEl = panel.querySelector('.sl-header-title');
     if (titleEl) {
-      /* En modo "actual" no mostramos fecha (ahorra una línea); el nombre litúrgico ya identifica el domingo */
-      titleEl.innerHTML = 'SetList Actual' + headerInfo;
+      /* Indicador visual pulsante (.sl-now-dot) reemplaza al texto "SetList Actual";
+         comunica que este es el setlist vigente sin necesidad de etiqueta. El nombre
+         litúrgico pasa a ser el protagonista del header. */
+      titleEl.innerHTML = '<span class="sl-now-dot" aria-label="Setlist actual"></span>' +
+        liturgicalName + headerInfo;
     }
 
     var html = '';
