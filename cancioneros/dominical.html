@@ -1255,19 +1255,45 @@ body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
   left: 0; top: 50%;
   transform: translateY(-50%);
   z-index: 90000;
-  width: 22px; height: 64px;
-  background: rgba(200,148,60,0.85);
-  border-radius: 0 6px 6px 0;
+  width: 26px; height: 64px;
+  background: linear-gradient(135deg, #d4a04a 0%, #b8862e 60%, #d4a04a 100%);
+  border-radius: 0 8px 8px 0;
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.3);
-  transition: width 0.2s;
+  box-shadow: 2px 2px 14px rgba(200,148,60,0.55), 0 0 0 1px rgba(255,225,170,0.18) inset;
+  /* "Latido espontáneo": pulso doble al INICIO del ciclo (0-16%) para que el
+     evento `animationiteration` (que dispara en cada loop) coincida exactamente
+     con el momento del palpitar. Resto del ciclo en reposo. Ciclo de 3.5s. */
+  animation: sl-tab-heartbeat 3.5s ease-out infinite;
+  transition: width 0.2s, box-shadow 0.2s;
 }
-.sl-tab svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+.sl-tab svg {
+  width: 14px; height: 14px;
+  stroke: #fff; fill: none; stroke-width: 2;
+  /* La nota musical SVG late en perfecta sincronía con el tab */
+  animation: sl-tab-icon-pulse 3.5s ease-out infinite;
+}
+@keyframes sl-tab-heartbeat {
+  0%            { transform: translateY(-50%) scale(1); }
+  4%            { transform: translateY(-50%) scale(1.09); }
+  8%            { transform: translateY(-50%) scale(1); }
+  12%           { transform: translateY(-50%) scale(1.06); }
+  16%, 100%     { transform: translateY(-50%) scale(1); }
+}
+@keyframes sl-tab-icon-pulse {
+  0%            { transform: scale(1); }
+  4%            { transform: scale(1.22); }
+  8%            { transform: scale(1); }
+  12%           { transform: scale(1.15); }
+  16%, 100%     { transform: scale(1); }
+}
 body.rehearsal-mode .sl-tab { display: flex; }
 .sl-tab-hidden { display: none !important; }
-.sl-tab:hover { width: 28px; }
+.sl-tab:hover {
+  width: 32px;
+  box-shadow: 3px 3px 18px rgba(200,148,60,0.8), 0 0 0 1px rgba(255,225,170,0.3) inset;
+}
 
 /* Panel drawer */
 .sl-panel {
@@ -2904,10 +2930,195 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 #lit-psalm-btn:hover{background:rgba(107,158,74,0.12)!important;border-color:rgba(107,158,74,0.4)!important;}
 
 
-/* ── Liturgical card animation ── */
-.lit-card{opacity:0;transition:opacity 3s ease;cursor:pointer;text-decoration:none;display:block;max-width:calc(100vw - 3rem);box-sizing:border-box}
-.lit-card:hover{background:rgba(200,148,60,.12)}
-.lit-card.lit-visible{opacity:1}
+/* ── Liturgical card: portal de entrada + halo sacro radiando HACIA AFUERA ──
+   El halo continuo se logra con `box-shadow` multicapa (3 niveles de difusión)
+   en lugar de un radial-gradient interior. Esto garantiza que la luz
+   se proyecte FUERA del contorno de la card, no hacia adentro.
+   Capas: 18px (núcleo) · 40px (medio) · 70px (aura externa). */
+.lit-card {
+  /* Estado inicial: oculta, comprimida, desenfocada (preparada para emerger) */
+  opacity: 0;
+  transform: scale(0.55) rotate(-2deg);
+  filter: blur(8px);
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  max-width: calc(100vw - 3rem);
+  box-sizing: border-box;
+  /* Transiciones suaves para hover/click; la entrada la maneja la animación */
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.lit-card:hover {
+  background: rgba(200,148,60,.14);
+  transform: scale(1.018);
+}
+.lit-card.lit-visible {
+  /* Dos animaciones en paralelo: una controla transform/opacity/filter (entrada),
+     la otra controla box-shadow (halo continuo). No colisionan al actuar
+     sobre propiedades distintas. El halo arranca con un retraso de 0.6s
+     para que la entrada portal haga su show antes.
+     Ciclo total: 25s con ratio 4:1 (reposo:activo) — ver keyframes abajo. */
+  animation:
+    lit-portal-emerge 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    lit-halo-radiate 25s ease-in-out 0.6s infinite;
+}
+/* Portal emergence: aparición desde el centro con scale + rotación + blur.
+   NO toca box-shadow (queda libre para la animación del halo). */
+@keyframes lit-portal-emerge {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) rotate(-2deg);
+    filter: blur(8px);
+  }
+  35% {
+    opacity: 0.55;
+    transform: scale(1.07) rotate(1deg);
+    filter: blur(2px);
+  }
+  65% {
+    transform: scale(0.985) rotate(0);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+    filter: blur(0);
+  }
+}
+/* Halo radiando HACIA AFUERA mediante 3 sombras concéntricas:
+     • capa 1 (18px): brillo cálido inmediato al borde
+     • capa 2 (40px): aura media
+     • capa 3 (70px): resplandor difuso lejano
+   Las tres respiran en sincronía (0% ↔ 50% del ciclo de 4s).
+   Color celeste rgb(170,220,240) — evoca la luz divina del cielo, en
+   contraste con el dorado cálido del borde de la card. La intensidad fue
+   calibrada al ~70% del nivel previo para evitar que sature visualmente. */
+/* Halo radiando HACIA AFUERA mediante 3 sombras concéntricas:
+     • capa 1 (18→30px): brillo cálido inmediato al borde
+     • capa 2 (40→60px): aura media
+     • capa 3 (70→100px): resplandor difuso lejano
+   Color celeste rgb(170,220,240) — luz mariana/divina, en contraste con el
+   dorado cálido del marco de la card.
+   
+   Patrón temporal en ratio 4:1 (reposo:activo) sobre ciclo de 25 segundos:
+     • 0 - 16%  (4s):  ascenso LENTO desde reposo hasta el pico (ignite contemplativo)
+     • 16%      :      pico instantáneo de máximo esplendor
+     • 16 - 20% (1s):  descenso rápido al reposo
+     • 20 - 100% (20s): reposo prolongado en intensidad mínima
+   
+   El ascenso ocupa el inicio del ciclo (no el final) para que el primer
+   destello sea visible inmediatamente después del 0.6s de delay, en vez
+   de esperar 20s al primer florecimiento. */
+@keyframes lit-halo-radiate {
+  0% {
+    box-shadow:
+      0 0 18px 4px   rgba(170,220,240,0.14),
+      0 0 40px 10px  rgba(170,220,240,0.06),
+      0 0 70px 20px  rgba(170,220,240,0.02);
+  }
+  16% {
+    box-shadow:
+      0 0 30px 8px   rgba(170,220,240,0.29),
+      0 0 60px 18px  rgba(170,220,240,0.13),
+      0 0 100px 32px rgba(170,220,240,0.06);
+  }
+  20%, 100% {
+    box-shadow:
+      0 0 18px 4px   rgba(170,220,240,0.14),
+      0 0 40px 10px  rgba(170,220,240,0.06),
+      0 0 70px 20px  rgba(170,220,240,0.02);
+  }
+}
+
+/* ── Salmo button: remolino musical de entrada + bounce sutil ──
+   La aparición se dispara cuando JS añade la clase .fx-visible (vía
+   MutationObserver al detectar el cambio de display:none → flex). */
+#lit-psalm-btn {
+  position: relative !important;
+  overflow: visible !important;
+}
+#lit-psalm-btn.fx-visible {
+  animation:
+    salmo-whirlwind 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    salmo-bounce 3s ease-in-out 2.5s infinite;
+}
+@keyframes salmo-whirlwind {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-180deg);
+    filter: blur(10px);
+  }
+  60% {
+    opacity: 0.85;
+    transform: scale(1.06) rotate(8deg);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+    filter: blur(0);
+  }
+}
+/* Bounce: pulso doble al INICIO del ciclo (0-16%) para sincronizar con
+   el evento `animationiteration` de JS. Resto del ciclo en reposo. */
+@keyframes salmo-bounce {
+  0%            { transform: translateY(0) scale(1); }
+  4%            { transform: translateY(-3.5px) scale(1.018); }
+  8%            { transform: translateY(0) scale(1); }
+  12%           { transform: translateY(-2px) scale(1.01); }
+  16%, 100%     { transform: translateY(0) scale(1); }
+}
+
+/* ── Notas musicales emanando ──
+   Compartido entre tab (dorado) y salmo (verde). Los offsets de movimiento
+   se controlan vía custom properties para variar trayectoria por nota. */
+.fx-note {
+  position: absolute;
+  font-family: 'Apple Symbols','Segoe UI Symbol','DejaVu Sans',serif;
+  font-size: 0.95rem;
+  font-weight: normal;
+  pointer-events: none;
+  opacity: 0;
+  text-shadow: 0 0 6px currentColor;
+  z-index: 5;
+  animation: fx-note-float 2.7s ease-out forwards;
+  will-change: transform, opacity;
+}
+.fx-note.fx-tab-note {
+  position: fixed;
+  color: #f0c075;
+  z-index: 90001;
+}
+.fx-note.fx-salmo-note {
+  color: #8BC064;
+}
+@keyframes fx-note-float {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(0); }
+  18%  { opacity: 0.9; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fx-dx, 15px), var(--fx-dy, -50px)) rotate(var(--fx-rot, 12deg));
+  }
+}
+
+/* ── Accesibilidad: respeta preferencia del usuario ──
+   Si el sistema indica reduced-motion, desactivamos toda animación constante. */
+@media (prefers-reduced-motion: reduce) {
+  .sl-tab,
+  .sl-tab svg,
+  .lit-card,
+  .lit-card::before,
+  #lit-psalm-btn.fx-visible,
+  .fx-note {
+    animation: none !important;
+  }
+  .lit-card.lit-visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none !important;
+  }
+}
 
 @media (max-width: 480px) {
   #pd-back-bar { padding-left: 0.8rem !important; padding-right: 0.8rem !important; gap: 0.5rem !important; }
@@ -3176,7 +3387,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r48</span>
+    <span class="cancionero-version">v3.2.25r5</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -15654,6 +15865,142 @@ async function aiSend(){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
   /* Exponer el calendario litúrgico para que otros módulos (como Setlist) lean nombres exactos. */
   window.LITURGICAL_DATA = D;
+})();
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   EmanationFX — efectos mágicos para elementos interactivos clave:
+     • Edge tab: emisión espontánea de notas musicales doradas
+     • Salmo button: emisión espontánea de notas verdes + entrada whirlwind
+   La card litúrgica (Evangelio) NO emite notas (por elección de diseño:
+   solo halo de luz para preservar el carácter sacro). El halo es 100% CSS.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  /* Repertorio de glifos: caracteres unicode (no emojis) renderizados en
+     fuente serif/symbol del sistema, monocromáticos y livianos. */
+  var GLYPHS = ['\u266A','\u266B','\u2669','\u266C']; // ♪ ♫ ♩ ♬
+
+  /* Si el usuario prefiere movimiento reducido, omitimos por completo
+     la emisión de notas (la respiración del halo y el latido se desactivan
+     vía CSS @media prefers-reduced-motion). */
+  var prm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (prm.matches) return;
+
+  /* Spawn helper interno: ejecuta inmediatamente o tras un delay */
+  function _doSpawn(opts) {
+    var n = document.createElement('span');
+    n.className = 'fx-note ' + (opts.cls || '');
+    n.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+    n.style.left = opts.x + 'px';
+    n.style.top  = opts.y + 'px';
+    /* Variación por nota: deriva horizontal ±15px, vertical -50 a -75px,
+       rotación final ±20°. Da el carácter "espontáneo" requerido. */
+    n.style.setProperty('--fx-dx',  (Math.random() * 30 - 8) + 'px');
+    n.style.setProperty('--fx-dy',  (-50 - Math.random() * 25) + 'px');
+    n.style.setProperty('--fx-rot', (Math.random() * 40 - 20) + 'deg');
+    opts.parent.appendChild(n);
+    setTimeout(function(){
+      if (n.parentNode) n.parentNode.removeChild(n);
+    }, opts.lifetime || 2800);
+  }
+
+  /* ── Spawner público: si opts.delay > 0 difiere la creación.
+     Útil para escalonar 2-3 notas saliendo del mismo elemento por pulso. */
+  function spawnNote(opts) {
+    if (opts.delay) {
+      setTimeout(function(){ _doSpawn(opts); }, opts.delay);
+    } else {
+      _doSpawn(opts);
+    }
+  }
+
+  /* Emite un "burst" de notas escalonadas desde un elemento.
+     count: número de notas (default 2-3 aleatorio)
+     stagger: ms entre notas (default 90ms) */
+  function spawnBurst(target, cls, count, stagger) {
+    count = count || (2 + Math.floor(Math.random() * 2));
+    stagger = stagger || 90;
+    var rect = target.getBoundingClientRect();
+    var isFixed = (cls === 'fx-tab-note'); /* tab usa coordenadas viewport */
+    for (var i = 0; i < count; i++) {
+      var x, y, parent;
+      if (isFixed) {
+        parent = document.body;
+        x = rect.right + 2;
+        y = rect.top + 8 + Math.random() * Math.max(0, rect.height - 16);
+      } else {
+        parent = target;
+        x = 10 + Math.random() * Math.max(20, target.offsetWidth - 20);
+        y = 4 + Math.random() * 14;
+      }
+      spawnNote({ parent: parent, cls: cls, x: x, y: y, delay: i * stagger });
+    }
+  }
+
+  /* ── Sincronización notas ↔ pulsos ──
+     En lugar de usar setInterval (que se desfasaría con respecto a la
+     animación CSS), nos enganchamos al evento `animationiteration` que
+     dispara EXACTAMENTE al completar cada loop. Como los keyframes están
+     diseñados para palpitar al inicio del ciclo (0-16%), las notas que
+     emitimos en cada iteration coinciden con el momento visual del pulso. */
+  function bindSyncedNotes() {
+    var tab = document.getElementById('sl-tab');
+    if (tab) {
+      tab.addEventListener('animationiteration', function(e) {
+        if (e.animationName !== 'sl-tab-heartbeat') return;
+        if (!document.body.classList.contains('rehearsal-mode')) return;
+        if (tab.classList.contains('sl-tab-hidden')) return;
+        spawnBurst(tab, 'fx-tab-note');
+      });
+    }
+
+    var btn = document.getElementById('lit-psalm-btn');
+    if (btn) {
+      btn.addEventListener('animationiteration', function(e) {
+        if (e.animationName !== 'salmo-bounce') return;
+        if (!btn.style.display || btn.style.display === 'none') return;
+        spawnBurst(btn, 'fx-salmo-note');
+      });
+    }
+  }
+
+  /* ── Hook de entrada whirlwind para el salmo ──
+     Detectamos el cambio inline display:none → flex mediante MutationObserver
+     y disparamos la animación añadiendo .fx-visible (con reflow forzado para
+     que la animación se reinicie aunque la clase ya estuviera presente). */
+  function watchSalmoVisibility() {
+    var btn = document.getElementById('lit-psalm-btn');
+    if (!btn) return;
+    var lastDisplay = btn.style.display;
+    function trigger() {
+      btn.classList.remove('fx-visible');
+      /* Force reflow para reiniciar animación si la clase ya existía */
+      void btn.offsetWidth;
+      btn.classList.add('fx-visible');
+    }
+    new MutationObserver(function(){
+      var d = btn.style.display;
+      if (d !== lastDisplay) {
+        lastDisplay = d;
+        if (d && d !== 'none') trigger();
+      }
+    }).observe(btn, { attributes: true, attributeFilter: ['style'] });
+    /* Caso defensivo: si por timing el botón ya está visible al cargar el módulo */
+    if (btn.style.display && btn.style.display !== 'none') trigger();
+  }
+
+  function init() {
+    bindSyncedNotes();
+    watchSalmoVisibility();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
 </script>
 
