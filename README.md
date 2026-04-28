@@ -762,6 +762,8 @@ body {
     border-bottom: none !important;
     padding: 0.8rem 0 0.2rem !important;
     list-style: none;
+    /* Compensar la barra sticky superior cuando se hace scroll programático */
+    scroll-margin-top: 70px;
   }
   .toc-moment-header::before,
   .index-moment-header::before {
@@ -1284,13 +1286,14 @@ body.rehearsal-mode .sl-tab { display: flex; }
   flex-direction: column;
   overflow: hidden;
 }
+/* Variable para la altura aprox de la barra sticky superior (pd-back-bar) */
 @media (max-height: 700px) {
-  .sl-panel { top: 0; transform: none; max-height: 100vh; max-height: 100dvh; border-radius: 0 1rem 1rem 0; }
-  .sl-header { padding-top: max(1.2rem, env(safe-area-inset-top, 1.2rem)); }
+  .sl-panel { top: 50px; transform: none; max-height: calc(100vh - 50px); max-height: calc(100dvh - 50px); border-radius: 0 1rem 1rem 0; }
+  .sl-header { padding-top: 1.2rem; }
 }
 @media (max-width: 600px) {
-  .sl-panel { top: 0; transform: none; max-height: 100vh; max-height: 100dvh; border-radius: 0; }
-  .sl-header { padding-top: max(1.2rem, env(safe-area-inset-top, 1.2rem)); border-radius: 0; }
+  .sl-panel { top: 50px; transform: none; max-height: calc(100vh - 50px); max-height: calc(100dvh - 50px); border-radius: 0; }
+  .sl-header { padding-top: 1.2rem; border-radius: 0; }
 }
 .sl-panel.open { left: 0; }
 
@@ -1302,24 +1305,35 @@ body.rehearsal-mode .sl-tab { display: flex; }
   border-radius: 0 1rem 0 0;
   position: relative;
 }
-.sl-header::after {
-  content: '─────── ✦ ───────';
-  display: block;
-  text-align: center;
-  font-size: 0.5rem;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.4);
-  padding-top: 0.4rem;
-}
 .sl-header-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 0.84rem;
+  letter-spacing: 0.015em;
   color: #fff;
   margin-bottom: 0.15rem;
   text-shadow: 0 1px 2px rgba(40,20,0,0.4);
   text-align: center;
+  line-height: 1.3;
+}
+/* Indicador "vigente" — punto dorado pulsante que precede al nombre litúrgico
+   en la línea inferior del header. Comunica visualmente "este es el setlist en
+   curso" sin texto. Calibrado para acompañar Cormorant italic ~0.78rem. */
+.sl-now-dot {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #d4a04a;
+  box-shadow: 0 0 0 0 rgba(212, 160, 74, 0.7);
+  vertical-align: 0.05em;
+  margin-right: 0.4rem;
+  animation: sl-now-pulse 2.2s ease-out infinite;
+}
+@keyframes sl-now-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0.7); }
+  70%  { box-shadow: 0 0 0 7px rgba(212, 160, 74, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0); }
 }
 .sl-header-date {
   font-family: 'Cormorant Garamond', serif;
@@ -1354,7 +1368,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
   font-size: 0.45rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #7A5A1E;
+  color: #4A3210;
   width: 4.5rem;
   flex-shrink: 0;
   line-height: 1.2;
@@ -1374,7 +1388,7 @@ body.rehearsal-mode .sl-tab { display: flex; }
 }
 .sl-song:hover { color: #C8943C; }
 .sl-song.empty {
-  color: rgba(180,140,80,0.35);
+  color: rgba(120,90,40,0.7);
   cursor: default;
   font-style: italic;
   font-weight: 400;
@@ -1585,6 +1599,212 @@ body.dev-mode .song-add-btn { display: inline-flex; }
   border-color: #fff;
 }
 .sl-pin-btn.pinned svg { transform: rotate(0deg); }
+
+/* Header sub-info: tiempo litúrgico, mes mariano */
+.sl-header-date {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  color: rgba(255,255,255,0.85);
+  margin-top: 0.15rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+.sl-marian {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-top: 0.15rem;
+  font-family: 'Cinzel', serif;
+  background: rgba(255,255,255,0.18);
+  border-radius: 1rem;
+  padding: 2px 8px;
+  display: inline-block;
+}
+/* Última línea del encabezado: contiene el contenido principal flanqueado por
+   flechas de navegación a ambos extremos. Se usa tanto en modo actual (con
+   cita evangélica) como en modo histórico (con nombre litúrgico + contador). */
+.sl-tema {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  padding: 0 0.15rem;
+}
+.sl-tema-text {
+  flex: 1;
+  text-align: center;
+  /* Estilo por defecto: cita evangélica (modo actual) */
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(255, 230, 180, 0.92);
+  letter-spacing: 0.01em;
+  padding: 0 0.2rem;
+  text-shadow: 0 1px 2px rgba(40, 20, 0, 0.35);
+  line-height: 1.25;
+}
+/* Variante modo histórico: nombre litúrgico en mayúsculas + contador inline */
+.sl-tema-text.is-hist {
+  font-family: 'Cinzel', serif;
+  font-style: normal;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(40, 20, 0, 0.4);
+}
+/* Contador "n / total" embebido en la línea del histórico */
+.sl-tema-text .sl-counter {
+  opacity: 0.6;
+  margin-left: 0.55em;
+  letter-spacing: 0.08em;
+  font-size: 0.92em;
+}
+/* Flecha de navegación: prominente, dorada, claramente clickeable.
+   Se usa en ambos modos (actual e histórico) para mantener consistencia visual. */
+.sl-tema-nav {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 160, 74, 0.18);
+  border: 1px solid rgba(212, 160, 74, 0.55);
+  color: #f1c075;
+  font-family: serif;
+  font-style: normal;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.sl-tema-nav:hover {
+  background: rgba(212, 160, 74, 0.42);
+  border-color: rgba(212, 160, 74, 0.95);
+  color: #ffd89a;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(212, 160, 74, 0.4);
+}
+.sl-tema-nav:active {
+  transform: scale(0.96);
+}
+.sl-tema-nav.disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: transparent;
+}
+/* Espaciador invisible: ocupa el mismo ancho que una flecha real, manteniendo
+   el contenido centrado cuando solo hay una flecha activa. */
+.sl-tema-nav-spacer {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
+}
+
+/* Empty/placeholder slots */
+.sl-slot-empty .sl-song.empty {
+  color: rgba(120,90,40,0.7);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+
+/* Clickable moment label — dotted underline always visible to indicate it's a link */
+.sl-moment.clickable {
+  cursor: pointer;
+  transition: color 0.15s, text-shadow 0.15s, text-decoration-color 0.15s;
+  text-decoration: underline dotted rgba(255,255,255,0.4);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.sl-moment.clickable:hover {
+  color: #fff;
+  text-decoration: underline solid #fff;
+  text-decoration-thickness: 1px;
+  text-shadow: 0 1px 4px rgba(30,15,0,0.7);
+}
+
+/* Liturgical warning icon */
+.sl-warn {
+  display: inline-block;
+  margin-left: 0.35em;
+  color: #D88A20;
+  font-size: 0.85em;
+  cursor: help;
+}
+.sl-hint {
+  display: inline-block;
+  margin-left: 0.35em;
+  color: #B86090;
+  font-size: 0.95em;
+  cursor: help;
+}
+
+/* "Nuevo" badge inside slot */
+.sl-new-badge {
+  display: inline-block;
+  margin-left: 0.4em;
+  color: #C8943C;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+/* History view: navigation in header (legacy classes kept for the back arrow only) */
+.sl-hist-arrow, .sl-hist-back {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  font-family: serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s;
+}
+.sl-hist-arrow:hover:not(:disabled), .sl-hist-back:hover {
+  background: rgba(255,255,255,0.3);
+  border-color: #fff;
+}
+.sl-hist-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* History "+" add button (replaces × in history view) */
+.sl-add-from-hist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200,148,60,0.18);
+  border: 1px solid rgba(200,148,60,0.5);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #B08030;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.sl-add-from-hist:hover {
+  background: rgba(200,148,60,0.35);
+  color: #7A5A1E;
+  transform: scale(1.05);
+}
 
 /* Botón "+" en el título de la canción (mismo estilo que idx-add-btn pero adaptado al título) */
 .song-add-btn {
@@ -2956,7 +3176,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r30</span>
+    <span class="cancionero-version">v3.2.24r48</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -14763,6 +14983,7 @@ window.CPDHistory = (function() {
       // ── Header de sección ──
       var headerLi  = document.createElement('li');
       headerLi.className = 'index-moment-header';
+      headerLi.setAttribute('data-section', sectionId); /* para SL.scrollToIndex */
       headerLi.innerHTML =
         '<a class="idx-section-link" href="#' + sectionId + '">' + section + '<\/a>' +
         '<span class="idx-section-count">(' + count + ')<\/span>';
@@ -15160,12 +15381,12 @@ async function aiSend(){
     '2026-04-12':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'¡Señor mío y Dios mío!',ant:'Dad gracias al Señor porque es bueno, porque es eterna su misericordia',ci:'A'},
     '2026-04-19':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 21,1-19',tema:'Señor, Tú sabes que Te quiero',ant:'Señor, me enseñarás el sendero de la vida',ci:'A'},
     '2026-04-26':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,27-30',tema:'Mis ovejas escuchan mi voz',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
-    '2026-05-03':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 13,31-33a.34-35',tema:'Amaos los unos a los otros',ant:'Que Tu misericordia, Señor, venga sobre nosotros, como lo esperamos de Ti',ci:'A'},
-    '2026-05-10':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,23-29',tema:'Mi paz os dejo',ant:'Aclamad al Señor, tierra entera',ci:'A'},
+    '2026-05-03':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,1-12',tema:'Yo soy el Camino, la Verdad y la Vida',ant:'Que Tu misericordia, Señor, venga sobre nosotros, como lo esperamos de Ti',ci:'A'},
+    '2026-05-10':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,15-21',tema:'No os dejaré huérfanos',ant:'Aclamad al Señor, tierra entera',ci:'A'},
     '2026-05-17':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Mt 28,16-20',tema:'Id y haced discípulos',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'A'},
     '2026-05-24':{t:'Pascua',n:'Domingo de Pentecostés',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Espíritu Santo',ant:'Envía Tu Espíritu, Señor, y repuebla la faz de la tierra',ci:'A'},
-    '2026-05-31':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es mío',ant:'¡A Ti gloria y alabanza por los siglos!',ci:'A'},
-    '2026-06-07':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ant:'Glorifica al Señor, Jerusalén',ci:'A'},
+    '2026-05-31':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 3,16-18',tema:'Tanto amó Dios al mundo',ant:'¡A Ti gloria y alabanza por los siglos!',ci:'A'},
+    '2026-06-07':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Jn 6,51-58',tema:'Mi carne es verdadera comida y mi sangre verdadera bebida',ant:'Glorifica al Señor, Jerusalén',ci:'A'},
     '2026-06-14':{t:'Ordinario',n:'XI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 9,36—10,8',tema:'La mies es abundante',ant:'Nosotros somos su pueblo y ovejas de su rebaño',ci:'A'},
     '2026-06-21':{t:'Ordinario',n:'XII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,26-33',tema:'No tengáis miedo',ant:'Señor, que me escuche Tu gran bondad',ci:'A'},
     '2026-06-28':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,37-42',tema:'El que no toma su cruz no es digno de mí',ant:'Cantaré eternamente las misericordias del Señor',ci:'A'},
@@ -15249,14 +15470,16 @@ async function aiSend(){
     '2027-12-12':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Lc 3,10-18',tema:'¿Qué debemos hacer?',ant:'Gritad jubilosos, porque es grande en medio de ti el Santo de Israel',ci:'C'},
     '2027-12-19':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,39-45',tema:'Bendita tú entre las mujeres',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'C'},
     '2027-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'C'},
+    '2027-12-26':{t:'Navidad',n:'Sagrada Familia',e:'Fiesta',c:'Blanco',ev:'Lc 2,41-52',tema:'Sus padres lo encontraron en el templo, sentado en medio de los maestros',ant:'Dichosos los que temen al Señor y siguen sus caminos',ci:'C'},
     '2028-01-01':{t:'Navidad',n:'Santa María Madre de Dios',e:'Solemnidad',c:'Blanco',ev:'Lc 2,16-21',tema:'Le pusieron por nombre Jesús',ant:'Que Dios tenga piedad y nos bendiga',ci:'C'},
-    '2028-01-08':{t:'Navidad',n:'Bautismo del Señor',e:'',c:'Blanco',ev:'Lc 3,15-16.21-22',tema:'Tú eres mi Hijo amado',ant:'El Señor bendice a su pueblo con la paz',ci:'C'},
-    '2028-01-15':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 2,1-12',tema:'La madre de Jesús le dijo: No tienen vino',ant:'Contad las maravillas del Señor a todas las naciones',ci:'C'},
-    '2028-01-22':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Lc 1,1-4;4,14-21',tema:'Hoy se ha cumplido esta Escritura',ant:'Tus palabras, Señor, son espíritu y vida',ci:'C'},
-    '2028-01-29':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 4,21-30',tema:'Ningún profeta es aceptado en su tierra',ant:'Mi boca contará Tu salvación, Señor',ci:'C'},
-    '2028-02-05':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 5,1-11',tema:'Rema mar adentro y echad vuestras redes',ant:'Delante de los ángeles tañeré para Ti, Señor',ci:'C'},
-    '2028-02-12':{t:'Ordinario',n:'VI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,17.20-26',tema:'Bienaventurados los pobres',ant:'Dichoso el hombre que ha puesto su confianza en el Señor',ci:'C'},
-    '2028-02-19':{t:'Ordinario',n:'VII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,27-38',tema:'Amad a vuestros enemigos',ant:'El Señor es compasivo y misericordioso',ci:'C'},
+    '2028-01-02':{t:'Navidad',n:'Epifanía del Señor',e:'Solemnidad',c:'Blanco',ev:'Mt 2,1-12',tema:'Hemos venido a adorarlo',ant:'Se postrarán ante Ti, Señor, todos los pueblos de la tierra',ci:'C'},
+    '2028-01-09':{t:'Navidad',n:'Bautismo del Señor',e:'',c:'Blanco',ev:'Lc 3,15-16.21-22',tema:'Tú eres mi Hijo amado',ant:'El Señor bendice a su pueblo con la paz',ci:'C'},
+    '2028-01-16':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 2,1-12',tema:'La madre de Jesús le dijo: No tienen vino',ant:'Contad las maravillas del Señor a todas las naciones',ci:'C'},
+    '2028-01-23':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Lc 1,1-4;4,14-21',tema:'Hoy se ha cumplido esta Escritura',ant:'Tus palabras, Señor, son espíritu y vida',ci:'C'},
+    '2028-01-30':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 4,21-30',tema:'Ningún profeta es aceptado en su tierra',ant:'Mi boca contará Tu salvación, Señor',ci:'C'},
+    '2028-02-06':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 5,1-11',tema:'Rema mar adentro y echad vuestras redes',ant:'Delante de los ángeles tañeré para Ti, Señor',ci:'C'},
+    '2028-02-13':{t:'Ordinario',n:'VI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,17.20-26',tema:'Bienaventurados los pobres',ant:'Dichoso el hombre que ha puesto su confianza en el Señor',ci:'C'},
+    '2028-02-20':{t:'Ordinario',n:'VII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,27-38',tema:'Amad a vuestros enemigos',ant:'El Señor es compasivo y misericordioso',ci:'C'},
     '2028-02-27':{t:'Ordinario',n:'VIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,39-45',tema:'De la abundancia del corazón habla la boca',ant:'Es bueno darte gracias, Señor',ci:'C'},
     '2028-03-05':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 4,1-13',tema:'No solo de pan vive el hombre',ant:'Quédate conmigo, Señor, en la tribulación',ci:'C'},
     '2028-03-12':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 9,28-36',tema:'Este es mi Hijo, el elegido; escuchadlo',ant:'El Señor es mi luz y mi salvación',ci:'C'},
@@ -15270,7 +15493,7 @@ async function aiSend(){
     '2028-05-07':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,27-30',tema:'Mis ovejas escuchan mi voz',ant:'Nosotros somos su pueblo y ovejas de su rebaño',ci:'C'},
     '2028-05-14':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 13,31-33a.34-35',tema:'Os doy un mandamiento nuevo: que os améis',ant:'Bendeciré Tu nombre por siempre, Dios mío, mi Rey',ci:'C'},
     '2028-05-21':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,23-29',tema:'El Espíritu Santo os enseñará todo',ant:'Oh, Dios, que te alaben los pueblos, que todos los pueblos te alaben',ci:'C'},
-    '2028-05-25':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Lc 24,46-53',tema:'Seréis mis testigos',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'C'},
+    '2028-05-28':{t:'Pascua',n:'La Ascensión del Señor',e:'Solemnidad',c:'Blanco',ev:'Lc 24,46-53',tema:'Seréis mis testigos',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'C'},
     '2028-06-04':{t:'Pascua',n:'Domingo de Pentecostés',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Espíritu Santo',ant:'Envía Tu Espíritu, Señor, y repuebla la faz de la tierra',ci:'C'},
     '2028-06-11':{t:'Ordinario',n:'Santísima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es mío',ant:'¡Señor, Dios nuestro, qué admirable es Tu nombre en toda la tierra!',ci:'C'},
     '2028-06-18':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ant:'Tú eres sacerdote eterno, según el rito de Melquisedec',ci:'C'},
@@ -15298,7 +15521,13 @@ async function aiSend(){
     '2028-11-05':{t:'Ordinario',n:'XXXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 19,1-10',tema:'El Hijo del hombre vino a buscar y salvar lo que estaba perdido',ant:'Bendeciré Tu nombre por siempre, Dios mío, mi Rey',ci:'C'},
     '2028-11-12':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 20,27-38',tema:'No es Dios de muertos sino de vivos',ant:'Al despertar me saciaré de Tu semblante, Señor',ci:'C'},
     '2028-11-19':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 21,5-19',tema:'Con vuestra perseverancia salvaréis vuestras almas',ant:'El Señor llega para regir los pueblos con rectitud',ci:'C'},
-    '2028-11-26':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Lc 23,35-43',tema:'Hoy estarás conmigo en el paraíso',ant:'Vamos alegres a la casa del Señor',ci:'C'}
+    '2028-11-26':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Lc 23,35-43',tema:'Hoy estarás conmigo en el paraíso',ant:'Vamos alegres a la casa del Señor',ci:'C'},
+    '2028-12-03':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mt 24,37-44',tema:'Estad preparados',ant:'Vamos alegres a la casa del Señor',ci:'A'},
+    '2028-12-10':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mt 3,1-12',tema:'Convertíos, porque el Reino está cerca',ant:'Que en sus días florezca la justicia y la paz abunde eternamente',ci:'A'},
+    '2028-12-17':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Mt 11,2-11',tema:'¿Eres Tú el que ha de venir?',ant:'Ven, Señor, a salvarnos',ci:'A'},
+    '2028-12-24':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Mt 1,18-24',tema:'Le pondrás por nombre Jesús',ant:'Va a entrar el Señor; Él es el Rey de la gloria',ci:'A'},
+    '2028-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'A'},
+    '2028-12-31':{t:'Navidad',n:'Sagrada Familia',e:'Fiesta',c:'Blanco',ev:'Mt 2,13-15.19-23',tema:'Levántate, toma al niño y a su madre',ant:'Dichosos los que temen al Señor y siguen sus caminos',ci:'A'}
   };
   var COL={'Blanco':'#F5F5F0','Verde':'#4A7A3A','Morado':'#6A3D7A','Rojo':'#A03030','Rosa':'#C07090'};
   function pad(n){return n<10?'0'+n:''+n;}
@@ -15423,6 +15652,8 @@ async function aiSend(){
     }).catch(function(){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
+  /* Exponer el calendario litúrgico para que otros módulos (como Setlist) lean nombres exactos. */
+  window.LITURGICAL_DATA = D;
 })();
 </script>
 
@@ -15436,25 +15667,102 @@ async function aiSend(){
   'use strict';
 
   /* ── SLOT DEFINITIONS ── */
+  /* ── LITURGICAL CALENDAR ──
+     Calcula el tiempo litúrgico de una fecha dada.
+     Algoritmo de Pascua: Meeus/Jones/Butcher (válido para el calendario gregoriano). */
+  function easterSunday(year) {
+    var a = year % 19;
+    var b = Math.floor(year / 100);
+    var c = year % 100;
+    var d = Math.floor(b / 4);
+    var e = b % 4;
+    var f = Math.floor((b + 8) / 25);
+    var g = Math.floor((b - f + 1) / 3);
+    var h = (19 * a + b - d - g + 15) % 30;
+    var i = Math.floor(c / 4);
+    var k = c % 4;
+    var l = (32 + 2 * e + 2 * i - h - k) % 7;
+    var m = Math.floor((a + 11 * h + 22 * l) / 451);
+    var month = Math.floor((h + l - 7 * m + 114) / 31);
+    var day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month - 1, day);
+  }
+  function diffDays(a, b) { return Math.round((a - b) / 86400000); }
+  function getLiturgicalSeason(date) {
+    var year = date.getFullYear();
+    var easter = easterSunday(year);
+    var ashWed = new Date(easter); ashWed.setDate(easter.getDate() - 46);
+    var holyThu = new Date(easter); holyThu.setDate(easter.getDate() - 3);
+    var holySat = new Date(easter); holySat.setDate(easter.getDate() - 1);
+    var pentecost = new Date(easter); pentecost.setDate(easter.getDate() + 49);
+    /* Adviento: 4 domingos antes de Navidad (25 dic) */
+    var christmas = new Date(year, 11, 25);
+    var advStart = new Date(christmas);
+    var dow = christmas.getDay() === 0 ? 7 : christmas.getDay();
+    advStart.setDate(christmas.getDate() - dow - 21);
+    /* Bautismo del Señor: domingo después del 6 de enero (Epifanía) */
+    var epiphany = new Date(year, 0, 6);
+    var baptism = new Date(epiphany);
+    var ed = epiphany.getDay();
+    baptism.setDate(epiphany.getDate() + (ed === 0 ? 7 : 7 - ed));
+
+    if (date >= holyThu && date <= holySat) return { name: 'Triduo Pascual', code: 'triduo' };
+    if (date >= ashWed && date < holyThu) return { name: 'Cuaresma', code: 'cuaresma' };
+    if (date >= easter && date <= pentecost) return { name: 'Tiempo Pascual', code: 'pascua' };
+    if (date >= advStart && date < christmas) return { name: 'Adviento', code: 'adviento' };
+    if (date >= christmas || date <= baptism) return { name: 'Navidad', code: 'navidad' };
+    return { name: 'Tiempo Ordinario', code: 'ordinario' };
+  }
+  /* Reglas litúrgicas: ¿Aplica Gloria? ¿Aleluya? */
+  function appliesGloria(season) {
+    /* No Gloria en Adviento ni Cuaresma. Sí en Triduo (Jueves Santo y Vigilia Pascual). */
+    return season.code !== 'adviento' && season.code !== 'cuaresma';
+  }
+  function appliesAleluya(season) {
+    /* No Aleluya en Cuaresma (se sustituye por aclamación). */
+    return season.code !== 'cuaresma';
+  }
+  /* Mes Mariano: solo mayo en Perú (octubre es Señor de los Milagros / mes morado). */
+  function isMarianMonth(date) {
+    return date.getMonth() === 4; /* mayo = 4 */
+  }
+
+
+  /* SLOTS canónicos. defaultEmpty=true → siempre se muestra como placeholder vacío.
+     Los demás slots solo aparecen cuando tienen un canto asignado. */
   var SLOTS = [
-    { id: 'entrada-1',  label: 'Entrada',   sub: '1' },
+    { id: 'entrada-1',  label: 'Entrada',   defaultEmpty: true },
     { id: 'entrada-2',  label: 'Entrada',   sub: '2' },
-    { id: 'piedad',     label: 'Piedad' },
-    { id: 'gloria',     label: 'Gloria' },
-    { id: 'evangelio',  label: 'Evangelio' },
-    { id: 'ofertorio-1',label: 'Ofertorio', sub: '1' },
+    { id: 'piedad',     label: 'Piedad',    defaultEmpty: true },
+    { id: 'gloria',     label: 'Gloria',    defaultEmpty: true,  liturgical: 'gloria' },
+    { id: 'evangelio',  label: 'Evangelio', defaultEmpty: true,  liturgical: 'aleluya' },
+    { id: 'ofertorio-1',label: 'Ofertorio', defaultEmpty: true },
     { id: 'ofertorio-2',label: 'Ofertorio', sub: '2' },
-    { id: 'santo',      label: 'Santo' },
-    { id: 'cordero',    label: 'Cordero' },
-    { id: 'comunion-1', label: 'Comunión',  sub: '1' },
+    { id: 'santo',      label: 'Santo',     defaultEmpty: true },
+    { id: 'cordero',    label: 'Cordero',   defaultEmpty: true },
+    { id: 'comunion-1', label: 'Comunión',  defaultEmpty: true },
     { id: 'comunion-2', label: 'Comunión',  sub: '2' },
     { id: 'comunion-3', label: 'Comunión',  sub: '3' },
-    { id: 'salida',     label: 'Salida' },
+    { id: 'salida',     label: 'Salida',    defaultEmpty: true },
     { id: 'especial-1', label: 'Especial', sub: '1' },
     { id: 'especial-2', label: 'Especial', sub: '2' },
     { id: 'especial-3', label: 'Especial', sub: '3' },
     { id: 'especial-4', label: 'Especial', sub: '4' }
   ];
+
+  /* Map de slot.label → id de sección en el cancionero (para clic en etiqueta) */
+  var LABEL_TO_SECTION = {
+    'Entrada':   'sec-entrada',
+    'Piedad':    'sec-piedad',
+    'Gloria':    'sec-gloria',
+    'Evangelio': 'sec-aleluya',
+    'Ofertorio': 'sec-ofertorio',
+    'Santo':     'sec-santo',
+    'Cordero':   'sec-cordero',
+    'Comunión':  'sec-comunion',
+    'Salida':    'sec-salida',
+    'Especial':  'sec-momentos'
+  };
 
   /* ── TAG → MOMENT MAPPING ── */
   var TAG_MAP = {
@@ -15507,25 +15815,134 @@ async function aiSend(){
   var SUNDAY_KEY = getNextSunday();
   var FB_PATH = '/setlist/' + SUNDAY_KEY;
 
-  /* ── RENDER SLOTS ── */
+  /* ── HELPERS DE BADGES ──
+     "✦ Nuevo" reusa la misma lógica del cancionero: data-added en los últimos 60 días. */
+  var NEW_DAYS = 60;
+  function isNewSong(cpd) {
+    var card = document.querySelector('[data-chord-id="' + cpd + '"]');
+    if (!card || !card.dataset.added) return false;
+    var added = new Date(card.dataset.added);
+    if (isNaN(added.getTime())) return false;
+    var diffMs = Date.now() - added.getTime();
+    return diffMs <= NEW_DAYS * 86400000;
+  }
+
+  /* ── RENDER SLOTS ──
+     Modo "actual": muestra placeholders por defecto + cantos asignados con advertencias.
+     Modo "histórico": muestra solo los cantos que existieron en ese setlist, con botón "agregar al actual". */
   function renderSlots() {
+    if (currentView === 'history') {
+      renderHistoryView();
+      return;
+    }
+    /* Determinar tiempo litúrgico del próximo domingo */
+    var sundayDate = parseDateKey(SUNDAY_KEY);
+    var season = getLiturgicalSeason(sundayDate);
+    var isMarian = isMarianMonth(sundayDate);
+
+    /* Nombre litúrgico exacto desde el objeto D del módulo de calendario.
+       Si no existe el dato, cae al nombre genérico del tiempo. */
+    var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[SUNDAY_KEY]) || null;
+    var liturgicalName = litData && litData.n ? litData.n : season.name;
+
+    /* Tema del evangelio del domingo: ahora ocupa la POSICIÓN SUPERIOR (heredando el
+       estilo prominente Cormorant 600 1.05rem). El tema, como cita escritural, se
+       convierte en el "headline" espiritual del setlist actual. */
+    var titleContent = (litData && litData.tema)
+      ? '&ldquo;' + litData.tema + '&rdquo;'
+      : liturgicalName;  /* fallback defensivo si la fecha no tiene tema en el JSON */
+
+    /* Mes Mariano: queda en su posición intermedia (sin cambios) */
+    var headerInfo = '';
+    if (isMarian) {
+      headerInfo += '<div class="sl-marian">✦ Mes Mariano ✦</div>';
+    }
+
+    /* Nombre litúrgico: ahora ocupa la POSICIÓN INFERIOR (heredando el estilo
+       Cormorant italic 0.78rem). Las flechas de navegación al histórico se sitúan
+       en sus extremos. El indicador "•" pulsante dorado (setlist vigente) acompaña
+       al nombre litúrgico, ya que el nombre identifica al setlist en sí. */
+    var leftNav = historyDates.length > 0
+      ? '<button class="sl-tema-nav" onclick="window.SL.showHistory()" ' +
+            'title="Ver setlists anteriores" aria-label="Ver setlists anteriores">‹</button>'
+      : '<span class="sl-tema-nav-spacer" aria-hidden="true"></span>';
+    var rightNav = '<span class="sl-tema-nav-spacer" aria-hidden="true"></span>';
+    headerInfo += '<div class="sl-tema">' +
+        leftNav +
+        '<span class="sl-tema-text">' +
+          '<span class="sl-now-dot" aria-label="Setlist actual"></span>' +
+          liturgicalName +
+        '</span>' +
+        rightNav +
+      '</div>';
+
+    var titleEl = panel.querySelector('.sl-header-title');
+    if (titleEl) {
+      /* El tema (cita escritural) toma el lugar prominente del título;
+         el nombre litúrgico desciende a la línea inferior italic. */
+      titleEl.innerHTML = titleContent + headerInfo;
+    }
+
     var html = '';
-    var count = 0;
     SLOTS.forEach(function(slot) {
       var data = setlistData[slot.id];
-      if (!data) return; // skip empty slots
-      count++;
+      var hasContent = !!data;
+      var shouldShow = hasContent || slot.defaultEmpty;
+      if (!shouldShow) return;
+
       var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
-      html += '<div class="sl-slot">' +
-        '<span class="sl-moment">' + label + '<\/span>' +
-        '<span class="sl-song" onclick="window.SL.goTo(\'' + data.cpd + '\')">' + data.title + '<\/span>' +
-        '<button class="sl-remove" onclick="window.SL.remove(\'' + slot.id + '\')" title="Quitar">&times;<\/button>' +
-        '<\/div>';
+      var labelClickable = LABEL_TO_SECTION[slot.label]
+        ? ' clickable" onclick="window.SL.scrollToIndex(\'' + LABEL_TO_SECTION[slot.label] + '\')" title="Ir al índice'
+        : '"';
+
+      /* Determinar advertencias por tiempo litúrgico */
+      var warning = '';
+      if (slot.liturgical === 'gloria' && !appliesGloria(season)) {
+        warning = '<span class="sl-warn" title="No se canta Gloria en ' + season.name + '">⚠</span>';
+      }
+      if (slot.liturgical === 'aleluya' && !appliesAleluya(season)) {
+        warning = '<span class="sl-warn" title="En Cuaresma se sustituye por aclamación">⚠</span>';
+      }
+      /* Recordatorio Mes Mariano en Salida */
+      if (slot.id === 'salida' && isMarian && !hasContent) {
+        warning = '<span class="sl-hint" title="Mes Mariano: considera un canto a la Virgen">✿</span>';
+      }
+
+      if (hasContent) {
+        var newBadge = isNewSong(data.cpd) ? '<span class="sl-new-badge" title="Canto nuevo">✦</span>' : '';
+        html += '<div class="sl-slot">' +
+          '<span class="sl-moment' + labelClickable + '">' + label + warning + '<\/span>' +
+          '<span class="sl-song" onclick="window.SL.goTo(\'' + data.cpd + '\')">' + data.title + newBadge + '<\/span>' +
+          '<button class="sl-remove" onclick="window.SL.remove(\'' + slot.id + '\')" title="Quitar">&times;<\/button>' +
+          '<\/div>';
+      } else {
+        /* Placeholder vacío */
+        html += '<div class="sl-slot sl-slot-empty">' +
+          '<span class="sl-moment' + labelClickable + '">' + label + warning + '<\/span>' +
+          '<span class="sl-song empty">— vacío —<\/span>' +
+          '<\/div>';
+      }
     });
-    if (!count) {
-      html = '<div class="sl-slot"><span class="sl-song empty" style="text-align:center;width:100%;">Sin cantos asignados<\/span><\/div>';
-    }
     slotsEl.innerHTML = html;
+  }
+
+  function parseDateKey(key) {
+    var parts = key.split('-');
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  }
+  function scrollToIndex(sectionId) {
+    /* Cierra el panel (a menos que esté pineado) */
+    if (!isPinned) closePanel();
+    /* El índice está en #dominical-index. Sub-secciones: id de moment-header en cancionero también */
+    var indexEl = document.getElementById('dominical-index');
+    if (!indexEl) return;
+    /* Buscar dentro del índice el header de la sección */
+    var sectionInIndex = indexEl.querySelector('[data-section="' + sectionId + '"]');
+    if (sectionInIndex) {
+      sectionInIndex.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      indexEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   /* ── FIREBASE ── */
@@ -15579,6 +15996,174 @@ async function aiSend(){
     }).catch(function(err) {
       console.warn('[Setlist] Error limpiando:', err.message);
     });
+  }
+
+  /* ── SETLIST HISTORY ──
+     Carga las últimas 4 fechas con setlist guardado y permite navegar entre ellas.
+     Cuando hay un canto en histórico, ofrece botón para agregarlo al setlist actual. */
+  var historyDates = [];   // array de fechas (yyyy-mm-dd) ordenadas desc
+  var historyIndex = -1;   // índice activo dentro de historyDates
+  var historyData = {};    // { fecha: { slotId: {cpd, title} } }
+  var currentView = 'current'; // 'current' | 'history'
+
+  function loadHistory() {
+    /* Trae todas las fechas del nodo /setlist y filtra las últimas 4 ANTES del domingo actual.
+       
+       Garantías de "solo el último setlist de cada semana":
+       1. La clave en Firebase es siempre SUNDAY_KEY (computado por getNextSunday()),
+          por lo que múltiples guardados dentro de una misma semana SOBRESCRIBEN la misma
+          entrada (un solo registro por semana, por construcción del modelo de datos).
+       2. Como red de seguridad, filtramos explícitamente las fechas que no caen en domingo
+          (defensa frente a posibles entradas legacy con un esquema de claves distinto). */
+    return fetch(FIREBASE_URL + '/setlist.json?shallow=true')
+      .then(function(r) { return r.json(); })
+      .then(function(keys) {
+        if (!keys) return;
+        var allDates = Object.keys(keys).filter(function(k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); });
+        /* Solo fechas estrictamente anteriores al domingo actual */
+        allDates = allDates.filter(function(d) { return d < SUNDAY_KEY; });
+        /* Solo domingos (red de seguridad: getDay() === 0 en parseo local-safe) */
+        allDates = allDates.filter(function(d) {
+          var p = d.split('-');
+          var dt = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+          return dt.getDay() === 0;
+        });
+        allDates.sort(function(a, b) { return b.localeCompare(a); }); /* desc */
+        historyDates = allDates.slice(0, 4);
+      })
+      .catch(function(err) { console.warn('[History] Error:', err.message); });
+  }
+
+  function loadHistorySetlist(dateKey) {
+    if (historyData[dateKey]) return Promise.resolve(historyData[dateKey]);
+    return fetch(FIREBASE_URL + '/setlist/' + dateKey + '.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        historyData[dateKey] = data || {};
+        return historyData[dateKey];
+      });
+  }
+
+  function showHistory() {
+    if (!historyDates.length) {
+      loadHistory().then(function() {
+        if (!historyDates.length) {
+          alert('No hay setlists anteriores guardados.');
+          return;
+        }
+        historyIndex = 0;
+        currentView = 'history';
+        renderSlots();
+      });
+    } else {
+      historyIndex = 0;
+      currentView = 'history';
+      renderSlots();
+    }
+  }
+  function exitHistory() {
+    currentView = 'current';
+    historyIndex = -1;
+    renderSlots();
+  }
+  function historyPrev() {
+    if (historyIndex < historyDates.length - 1) {
+      historyIndex++;
+      renderSlots();
+    }
+  }
+  function historyNext() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      renderSlots();
+    }
+  }
+
+  function renderHistoryView() {
+    var dateKey = historyDates[historyIndex];
+    if (!dateKey) { exitHistory(); return; }
+
+    /* Datos litúrgicos del histórico para mostrar nombre exacto del domingo */
+    var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[dateKey]) || null;
+    var liturgicalName = litData && litData.n ? litData.n : '';
+
+    /* Header en modo histórico: misma estructura que el modo actual.
+       Las flechas de navegación se sitúan en los extremos de la última línea
+       de texto (nombre litúrgico + contador inline) para mantener consistencia
+       visual entre ambos modos. */
+    var titleEl = panel.querySelector('.sl-header-title');
+    if (titleEl) {
+      /* Flecha izquierda: navegar a un histórico MÁS ANTIGUO */
+      var canGoOlder = historyIndex < historyDates.length - 1;
+      var leftArrow = canGoOlder
+        ? '<button class="sl-tema-nav" onclick="window.SL.historyPrev()" ' +
+              'title="Más antiguo" aria-label="Más antiguo">‹</button>'
+        : '<span class="sl-tema-nav disabled" aria-hidden="true">‹</span>';
+
+      /* Flecha derecha: navegar a un histórico MÁS RECIENTE,
+         o salir al modo actual si ya estamos en el más reciente. */
+      var rightArrow = historyIndex > 0
+        ? '<button class="sl-tema-nav" onclick="window.SL.historyNext()" ' +
+              'title="Más reciente" aria-label="Más reciente">›</button>'
+        : '<button class="sl-tema-nav" onclick="window.SL.exitHistory()" ' +
+              'title="Volver al actual" aria-label="Volver al actual">›</button>';
+
+      /* Contenido central: nombre litúrgico (si existe) + contador "n / total" */
+      var counterTxt = '<span class="sl-counter">' + (historyIndex + 1) + ' / ' + historyDates.length + '</span>';
+      var centerTxt = liturgicalName
+        ? liturgicalName + counterTxt
+        : counterTxt;
+
+      titleEl.innerHTML = 'Histórico' +
+        '<div class="sl-header-date">' + formatDate(dateKey) + '</div>' +
+        '<div class="sl-tema">' +
+          leftArrow +
+          '<span class="sl-tema-text is-hist">' + centerTxt + '</span>' +
+          rightArrow +
+        '</div>';
+    }
+
+    loadHistorySetlist(dateKey).then(function(data) {
+      var html = '';
+      var anyContent = false;
+      SLOTS.forEach(function(slot) {
+        var d = data && data[slot.id];
+        if (!d) return;
+        anyContent = true;
+        var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
+        var newBadge = isNewSong(d.cpd) ? '<span class="sl-new-badge">✦</span>' : '';
+        html += '<div class="sl-slot">' +
+          '<span class="sl-moment">' + label + '<\/span>' +
+          '<span class="sl-song" onclick="window.SL.goTo(\'' + d.cpd + '\')">' + d.title + newBadge + '<\/span>' +
+          '<button class="sl-add-from-hist" onclick="window.SL.addFromHistory(\'' + d.cpd + '\')" title="Agregar al setlist actual">+<\/button>' +
+          '<\/div>';
+      });
+      if (!anyContent) {
+        html = '<div class="sl-slot"><span class="sl-song empty" style="text-align:center;width:100%;">Sin cantos en este histórico<\/span><\/div>';
+      }
+      slotsEl.innerHTML = html;
+    });
+  }
+
+  function addFromHistory(cpd) {
+    /* Reusa el mismo flujo que addSong: abre el dialog con el slot sugerido */
+    var card = document.querySelector('[data-chord-id="' + cpd + '"]');
+    if (!card) {
+      alert('Canto no encontrado en el cancionero.');
+      return;
+    }
+    var titleEl = card.querySelector('.song-title');
+    var title = '';
+    if (titleEl) {
+      titleEl.childNodes.forEach(function(n) {
+        if (n.nodeType === 3) title += n.textContent;
+      });
+    }
+    title = title.trim();
+    var moment = detectMoment(card);
+    /* Volver al modo actual antes de abrir el diálogo */
+    exitHistory();
+    openAddDialog(cpd, title, moment);
   }
 
   /* ── PANEL OPEN/CLOSE ── */
@@ -15739,6 +16324,11 @@ async function aiSend(){
   /* ── INIT ── */
   renderSlots();
   loadFromFirebase();
+  /* loadHistory() es asíncrono; cuando resuelve, repintamos para que el chip
+     "‹ Histórico" aparezca en el header del modo actual si hay setlists previos. */
+  loadHistory().then(function() {
+    if (currentView === 'current') renderSlots();
+  });
   restorePinState();
   injectAddButtons();
 
@@ -15753,6 +16343,12 @@ async function aiSend(){
     togglePin: togglePin,
     isPinned: function() { return isPinned; },
     injectAddButtons: injectAddButtons,
+    scrollToIndex: scrollToIndex,
+    showHistory: showHistory,
+    exitHistory: exitHistory,
+    historyPrev: historyPrev,
+    historyNext: historyNext,
+    addFromHistory: addFromHistory,
     addSong: function(cpd) {
       var card = document.querySelector('[data-chord-id="' + cpd + '"]');
       if (!card) return;

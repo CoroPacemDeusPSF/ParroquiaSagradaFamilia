@@ -3,14 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Salmos Responsoriales cantados — Coro Pacem Deus · Libro del Salmista, Editorial PAX/PPC">
+<title>Salmos Responsoriales · Coro Pacem Deus</title>
+
+<!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Coro Pacem Deus">
-<meta property="og:description" content="Cancioneros litúrgicos del Coro Pacem Deus — Parroquia de la Sagrada Familia">
+<meta property="og:title" content="Salmos Responsoriales · Coro Pacem Deus">
+<meta property="og:description" content="Salmos responsoriales cantados para cada domingo del año litúrgico. Audios del Libro del Salmista (PAX/PPC).">
+<meta property="og:url" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/cancioneros/salmos.html">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-pacem-deus.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-pacem-deus.png">
+
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XCNZSLLBHQ"></script>
 <script>
@@ -19,1817 +25,1217 @@
   gtag('js', new Date());
   gtag('config', 'G-XCNZSLLBHQ');
 </script>
-<title>Semana Santa 2026 – Coro Pacem Deus</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital@1&family=Pinyon+Script&display=swap" rel="stylesheet">
+
 <style>
-/* ═══════════════════════════════════════════════
-   ROOT & RESET
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   SALMOS RESPONSORIALES — Coro Pacem Deus
+   Stylesheet (self-contained)
+═══════════════════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
 :root {
-  /* Ramos – olives, gold, spring green */
-  --ramos-bg:      #141A08;
-  --ramos-mid:     #1E2A08;
-  --ramos-olive:   #5A7A10;
-  --ramos-gold:    #C8A830;
-  --ramos-gold-lt: #E8CC70;
-  --ramos-green:   #7A9C18;
-  --ramos-cream:   #F5F0DC;
-  --ramos-accent:  #9A7A10;
-
-  /* Jueves – deep crimson, almost-black, gold */
-  --jueves-bg:     #0C0608;
-  --jueves-mid:    #1A0A0C;
-  --jueves-crimson:#6B1020;
-  --jueves-gold:   #C8943C;
-  --jueves-gold-lt:#E8C070;
-  --jueves-cream:  #F0E8DC;
-  --jueves-flame:  #E86020;
-
-  /* Vigilia – dark to light, purple/gold/white */
-  --vigilia-dark:  #14102A;
-  --vigilia-mid:   #241E4A;
-  --vigilia-purple:#6A30A8;
-  --vigilia-gold:  #E8C040;
-  --vigilia-gold-lt:#FAE080;
-  --vigilia-white: #FFFDF5;
-  --vigilia-risen: #FFF8E0;
-
-  --white:   #FFFFFF;
-  --shadow-dark: rgba(0,0,0,0.5);
+  --gold:       #C8943C;
+  --gold-lt:    #E8C070;
+  --gold-dk:    #8B6020;
+  --cream:      #FAF5EC;
+  --cream-dk:   #F0E8D4;
+  --brown:      #3D3530;
+  --brown-lt:   #6B5E54;
+  --white:      #FFFFFF;
+  --shadow:     rgba(42,26,8,0.15);
+  --shadow-lg:  rgba(42,26,8,0.25);
+  /* Liturgical colors */
+  --lit-white:  #F5F5F0;
+  --lit-green:  #4A7A3A;
+  --lit-purple: #6A3D7A;
+  --lit-red:    #A03030;
+  --lit-pink:   #C07090;
 }
 
 body {
-  font-family: 'Proza Libre', serif;
+  font-family: 'EB Garamond', serif;
   font-size: 1rem;
   line-height: 1.8;
+  background: var(--cream);
+  color: var(--brown);
   overflow-x: clip;
-  background: #0A0608;
 }
 
-/* ═══════════════════════════════════════════════
-   PARTICLE CANVAS (shared, changes per tab)
-═══════════════════════════════════════════════ */
-#particle-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.85;
-}
-
-/* ═══════════════════════════════════════════════
-   MAIN COVER / HERO
-═══════════════════════════════════════════════ */
-.main-cover {
+/* ── HEADER ─────────────────────────────────── */
+.site-header {
+  position: relative;
+  min-height: 55dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 3.5rem 2rem 2rem;
-  position: relative;
-  z-index: 2;
-  background: linear-gradient(170deg,
-    rgba(10,6,8,0.95) 0%,
-    rgba(20,10,14,0.9) 50%,
-    rgba(10,6,8,0.98) 100%);
+  padding: 4rem 2rem 3rem;
+  overflow: visible;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(200,148,60,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 100%, rgba(200,148,60,0.08) 0%, transparent 50%),
+    linear-gradient(170deg, #FBF7F0 0%, #F5EDD8 50%, #EDE0C0 100%);
 }
 
-.cover-cross {
-  font-size: 4rem;
-  color: #C8943C;
-  text-shadow: 0 0 40px rgba(200,148,60,0.6), 0 0 80px rgba(200,148,60,0.3);
-  margin-bottom: 1.5rem;
-  animation: crossGlow 4s ease-in-out infinite;
-}
-@keyframes crossGlow {
-  0%,100% { text-shadow: 0 0 40px rgba(200,148,60,0.6), 0 0 80px rgba(200,148,60,0.3); }
-  50%      { text-shadow: 0 0 60px rgba(200,148,60,0.9), 0 0 120px rgba(200,148,60,0.5); }
-}
-
-.cover-eyebrow {
-  font-family: 'Pinyon Script', cursive;
-  font-size: 2rem;
-  letter-spacing: 0.05em;
-  color: #C8943C;
-  text-transform: none;
-  opacity: 0.9;
-  margin-bottom: 0.4rem;
-  animation: fadeUp 1s 0.2s both;
-}
-.cover-title {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(2.2rem, 6vw, 4.5rem);
-  font-weight: 900;
-  color: #F0E8DC;
-  line-height: 1.1;
-  text-shadow: 0 2px 30px rgba(0,0,0,0.8);
-  margin-bottom: 0.5rem;
-  animation: fadeUp 1s 0.35s both;
-}
-.cover-subtitle {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: clamp(1rem, 2.5vw, 1.5rem);
-  color: #E8C070;
-  margin-bottom: 0.4rem;
-  animation: fadeUp 1s 0.5s both;
-}
-.cover-parroquia {
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.3em;
-  color: #A07840;
-  opacity: 0.8;
-  margin-bottom: 1.2rem;
-  animation: fadeUp 1s 0.6s both;
-}
-.cover-divider {
-  width: 260px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #C8943C, transparent);
-  margin: 0 auto 1rem;
-  animation: fadeIn 1.5s 0.8s both;
-}
-
-/* ═══════════════════════════════════════════════
-   TAB NAVIGATION
-═══════════════════════════════════════════════ */
-.tab-nav {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(8,4,6,0.97);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(200,148,60,0.2);
-  box-shadow: 0 4px 30px rgba(0,0,0,0.6);
-}
-
-.tab-btn {
-  flex: 1;
-  max-width: 280px;
-  padding: 1rem 1.5rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-bottom: 3px solid transparent;
-  position: relative;
-  overflow: hidden;
-}
-.tab-btn::before {
+/* Texture */
+.site-header::before {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.tab-btn:hover::before { opacity: 1; }
-
-.tab-btn .tab-date {
-  display: block;
-  font-family: 'Cinzel', serif;
-  font-size: 0.58rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  margin-bottom: 0.2rem;
-}
-.tab-btn .tab-name {
-  display: block;
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
-
-/* Ramos tab */
-.tab-btn.ramos { }
-.tab-btn.ramos .tab-date { color: #9EBF1A; }
-.tab-btn.ramos .tab-name { color: #D4F040; }
-.tab-btn.ramos:hover, .tab-btn.ramos.active {
-  background: linear-gradient(180deg, rgba(74,82,32,0.3) 0%, transparent 100%);
-  border-bottom-color: #C8A830;
-}
-.tab-btn.ramos::before { background: linear-gradient(180deg, rgba(80,120,20,0.25) 0%, transparent); }
-
-/* Jueves tab */
-.tab-btn.jueves .tab-date { color: #8B4A30; }
-.tab-btn.jueves .tab-name { color: #E8A060; }
-.tab-btn.jueves:hover, .tab-btn.jueves.active {
-  background: linear-gradient(180deg, rgba(107,16,32,0.3) 0%, transparent 100%);
-  border-bottom-color: #C8943C;
-}
-.tab-btn.jueves::before { background: linear-gradient(180deg, rgba(107,16,32,0.2) 0%, transparent); }
-
-/* Vigilia tab */
-.tab-btn.vigilia .tab-date { color: #9B6FCC; }
-.tab-btn.vigilia .tab-name { color: #C0A0E0; }
-.tab-btn.vigilia:hover, .tab-btn.vigilia.active {
-  background: linear-gradient(180deg, rgba(58,26,90,0.3) 0%, transparent 100%);
-  border-bottom-color: #E8C040;
-}
-.tab-btn.vigilia::before { background: linear-gradient(180deg, rgba(58,26,90,0.2) 0%, transparent); }
-
-/* ═══════════════════════════════════════════════
-   CEREMONY PANELS
-═══════════════════════════════════════════════ */
-.ceremony {
-  display: block !important;
-  visibility: hidden;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(200,148,60,0.06) 1px, transparent 0);
+  background-size: 32px 32px;
   pointer-events: none;
-  position: absolute;
-  top: 0; left: 0; width: 100%;
-  z-index: 2;
-  min-height: 100vh;
-}
-.ceremony.active {
-  visibility: visible;
-  pointer-events: auto;
-  position: relative;
 }
 
-/* ── CEREMONY COVER ── */
-.ceremony-cover {
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 5rem 2rem 4rem;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Ramos cover */
-.ceremony.ramos .ceremony-cover {
-  background:
-    radial-gradient(ellipse at 50% 100%, rgba(74,82,32,0.6) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(200,168,48,0.2) 0%, transparent 50%),
-    linear-gradient(170deg, #141A08 0%, #1E2A08 50%, #141A08 100%);
-}
-/* Jueves cover */
-.ceremony.jueves .ceremony-cover {
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(107,16,32,0.4) 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 80%, rgba(200,148,60,0.15) 0%, transparent 50%),
-    linear-gradient(170deg, #0C0608 0%, #1A0A0C 50%, #0C0608 100%);
-}
-/* Vigilia cover */
-.ceremony.vigilia .ceremony-cover {
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(232,192,64,0.15) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 100%, rgba(90,40,140,0.55) 0%, transparent 60%),
-    linear-gradient(170deg, #14102A 0%, #241E4A 50%, #14102A 100%);
-}
-
-.ceremony-icon {
-  font-size: 3.5rem;
+.header-cross {
+  font-size: 3.8rem;
+  color: var(--gold);
+  text-shadow: 0 2px 20px rgba(200,148,60,0.3);
   margin-bottom: 1.2rem;
-  animation: floatIcon 6s ease-in-out infinite;
+  animation: fadeDown 1s 0.1s both;
+  position: relative;
 }
-@keyframes floatIcon {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
-}
-.ceremony.ramos  .ceremony-icon { font-size: 3.5rem; color: #C8A830; text-shadow: 0 0 30px rgba(200,168,48,0.5); }
-.ceremony.jueves .ceremony-icon { font-size: 6rem; color: #E86020; text-shadow: 0 0 30px rgba(232,96,32,0.6); filter: drop-shadow(0 0 20px rgba(232,96,32,0.4)); }
-.ceremony.vigilia .ceremony-icon { font-size: 3.5rem; color: #E8C040; text-shadow: 0 0 40px rgba(232,192,64,0.8); }
 
-.ceremony-eyebrow {
+.header-eyebrow {
   font-family: 'Cinzel', serif;
   font-size: 0.65rem;
-  letter-spacing: 0.45em;
+  letter-spacing: 0.5em;
+  color: var(--gold-dk);
   text-transform: uppercase;
   margin-bottom: 0.5rem;
+  animation: fadeDown 1s 0.2s both;
+  position: relative;
 }
-.ceremony.ramos  .ceremony-eyebrow { color: #9EBF1A; }
-.ceremony.jueves .ceremony-eyebrow { color: #8B4A30; }
-.ceremony.vigilia .ceremony-eyebrow { color: #9B6FCC; }
 
-.ceremony-title {
-  font-family: 'Cinzel', serif;
-  font-weight: 900;
-  font-size: clamp(2rem, 5vw, 3.8rem);
+.header-title {
+  font-family: 'Pinyon Script', cursive;
+  font-weight: normal;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  color: var(--brown);
   line-height: 1.1;
-  margin-bottom: 0.6rem;
-}
-.ceremony.ramos  .ceremony-title { color: #E8D88A; }
-.ceremony.jueves .ceremony-title { color: #F0E0C8; }
-.ceremony.vigilia .ceremony-title { color: #FAF0D0; }
-
-.ceremony-date {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-}
-.ceremony.ramos  .ceremony-date { color: #B0B020; }
-.ceremony.jueves .ceremony-date { color: #C07840; }
-.ceremony.vigilia .ceremony-date { color: #C0A060; }
-
-/* Info box (reunión, vestimenta) */
-.info-box {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 0.5rem;
-}
-.info-pill {
-  padding: 0.5rem 1.3rem;
-  border-radius: 2px;
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 1rem;
-  letter-spacing: 0.06em;
-  text-transform: none;
-  font-weight: 400;
-}
-.ceremony.ramos  .info-pill { background: rgba(80,120,20,0.45); border: 1px solid rgba(180,220,20,0.35); color: #D4F040; }
-.ceremony.jueves .info-pill { background: rgba(107,16,32,0.4); border: 1px solid rgba(200,148,60,0.3); color: #E8A060; }
-.ceremony.vigilia .info-pill { background: rgba(58,26,90,0.4); border: 1px solid rgba(232,192,64,0.3); color: #C0A0E0; }
-
-/* ── CEREMONY BODY ── */
-.ceremony-body {
-  max-width: 740px;
-  margin: 0 auto;
-  padding: 0 1.5rem 5rem;
-}
-
-/* ── INDEX ── */
-.ceremony-index {
-  padding: 2.5rem 2rem;
-  margin: 0 auto;
-  max-width: 740px;
-}
-.index-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.4em;
-  text-align: center;
-  text-transform: uppercase;
+  text-shadow: 0 2px 20px rgba(42,26,8,0.1);
   margin-bottom: 0.4rem;
+  animation: fadeDown 1s 0.3s both;
+  position: relative;
 }
-.ceremony.ramos  .index-title { color: #B0B020; }
-.ceremony.jueves .index-title { color: #A06030; }
-.ceremony.vigilia .index-title { color: #A875D8; }
 
-.index-heading {
+.header-subtitle {
   font-family: 'Cinzel', serif;
-  font-size: 1.6rem;
-  font-weight: 400;
-  text-align: center;
+  font-size: clamp(0.55rem, 1.3vw, 0.7rem);
+  letter-spacing: 0.4em;
+  color: var(--gold-dk);
+  text-transform: uppercase;
   margin-bottom: 1.5rem;
+  animation: fadeDown 1s 0.4s both;
+  position: relative;
 }
-.ceremony.ramos  .index-heading { color: #D4F040; }
-.ceremony.jueves .index-heading { color: #E8A060; }
-.ceremony.vigilia .index-heading { color: #C0A0E0; }
 
-.index-rule {
+.header-divider {
+  width: 240px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, currentColor, transparent);
-  margin-bottom: 1.5rem;
-  opacity: 0.3;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 1.2rem;
+  animation: fadeIn 1.5s 0.5s both;
+  position: relative;
 }
-.ceremony.ramos  .index-rule { color: #C8A830; }
-.ceremony.jueves .index-rule { color: #C8943C; }
-.ceremony.vigilia .index-rule { color: #E8C040; }
 
-.index-list { list-style: none; }
-.index-list li {
+.header-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  color: var(--brown-lt);
+  max-width: 420px;
+  animation: fadeIn 1.5s 0.6s both;
+  position: relative;
+}
+
+/* ── BACK LINK ──────────────────────────────── */
+.back-link {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px dotted;
-  font-family: 'EB Garamond', serif;
-  font-size: 1rem;
-}
-.ceremony.ramos  .index-list li { border-color: rgba(180,220,20,0.18); }
-.ceremony.jueves .index-list li { border-color: rgba(200,148,60,0.15); }
-.ceremony.vigilia .index-list li { border-color: rgba(232,192,64,0.15); }
-
-.index-list li .idx-num {
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  width: 1.8em;
-  flex-shrink: 0;
-  text-align: right;
-}
-.ceremony.ramos  .idx-num { color: #B0B020; }
-.ceremony.jueves .idx-num { color: #A06030; }
-.ceremony.vigilia .idx-num { color: #A875D8; }
-
-.index-list a {
-  text-decoration: none;
-  flex: 1;
-  transition: color 0.2s;
-}
-.ceremony.ramos  .index-list a { color: #E8E0B0; }
-.ceremony.ramos  .index-list a:hover { color: #D4F040; }
-.ceremony.jueves .index-list a { color: #F0D8C0; }
-.ceremony.jueves .index-list a:hover { color: #E8A060; }
-.ceremony.vigilia .index-list a { color: #E0D0F0; }
-.ceremony.vigilia .index-list a:hover { color: #E8C040; }
-
-.idx-tag {
-  font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  padding: 0.15rem 0.5rem;
-  border-radius: 2px;
-}
-.ceremony.ramos  .idx-tag { color: #7A9C18; background: rgba(120,150,24,0.18); border: 1px solid rgba(120,150,24,0.4); }
-.ceremony.jueves .idx-tag { color: #8B4A20; background: rgba(139,74,32,0.15); border: 1px solid rgba(139,74,32,0.3); }
-.ceremony.vigilia .idx-tag { color: #9B6FCC; background: rgba(155,111,204,0.18); border: 1px solid rgba(155,111,204,0.4); }
-
-/* Special index notes (non-song items) */
-.index-note {
-  font-style: italic;
-  opacity: 0.6;
-  font-size: 0.9rem;
-  padding: 0.4rem 0;
-  padding-left: 2.6rem;
-  font-family: 'EB Garamond', serif;
-}
-.ceremony.ramos  .index-note { color: #A09870; }
-.ceremony.jueves .index-note { color: #A08060; }
-.ceremony.vigilia .index-note { color: #B090CC; }
-
-/* ── BACK LINK ── */
-.back-link {
-  display: block;
-  text-align: right;
+  gap: 0.5rem;
   font-family: 'Cinzel', serif;
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--gold-dk);
+  background: rgba(250,245,236,0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 40px;
+  padding: 0.5rem 1.1rem;
   text-decoration: none;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-  padding: 0.3rem 0;
-  margin: 0.5rem 0;
+  box-shadow: 0 2px 16px rgba(42,26,8,0.1);
+  transition: all 0.2s;
 }
-.back-link::before { content: '↑ '; }
-.back-link:hover { opacity: 1; }
-.ceremony.ramos  .back-link { color: #C8A830; }
-.ceremony.jueves .back-link { color: #C8943C; }
-.ceremony.vigilia .back-link { color: #E8C040; opacity: 0.85; }
+.back-link:hover {
+  background: rgba(250,245,236,1);
+  border-color: var(--gold);
+  box-shadow: 0 4px 24px rgba(42,26,8,0.18);
+}
 
-/* ── MOMENT SUBTITLE ── */
-.moment-header {
+/* ── MAIN CONTENT ───────────────────────────── */
+.main-content {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.2rem 4rem;
+}
+
+/* ── CYCLE SELECTOR ─────────────────────────── */
+.cycle-selector {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 3rem 0 0.6rem;
-  position: relative;
-  z-index: 2;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(200,148,60,0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
-.moment-header::before, .moment-header::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  opacity: 0.35;
-}
-.ceremony.ramos  .moment-header::before,
-.ceremony.ramos  .moment-header::after { background: linear-gradient(90deg, transparent, #C8A830, transparent); }
-.ceremony.jueves .moment-header::before,
-.ceremony.jueves .moment-header::after { background: linear-gradient(90deg, transparent, #C8943C, transparent); }
-.ceremony.vigilia .moment-header::before,
-.ceremony.vigilia .moment-header::after { background: linear-gradient(90deg, transparent, #E8C040, transparent); }
 
-.moment-label {
+.cycle-btn {
+  padding: 0.6rem 1.6rem;
   font-family: 'Cinzel', serif;
   font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  letter-spacing: 0.3em;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--brown-lt);
+  transition: all 0.3s;
+  border-right: 1px solid rgba(200,148,60,0.25);
+  line-height: 1;
 }
-.ceremony.ramos  .moment-label { color: #C8A830; }
-.ceremony.jueves .moment-label { color: #C8943C; }
-.ceremony.vigilia .moment-label { color: #E8C040; }
+.cycle-btn:last-child { border-right: none; }
+.cycle-btn:hover { background: rgba(200,148,60,0.08); color: var(--gold); }
+.cycle-btn.active {
+  background: var(--gold);
+  color: var(--white);
+  font-weight: 600;
+}
 
-/* Note inside moment header (for vigilia special cases) */
-.moment-note {
+.cycle-label {
+  text-align: center;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 0.85rem;
-  text-align: center;
-  padding: 0.6rem 1.5rem;
-  margin: 0.5rem 0 1.5rem;
-  border-left: 2px solid;
-  opacity: 0.75;
+  font-size: 0.95rem;
+  color: var(--brown-lt);
+  margin-bottom: 2.5rem;
 }
-.ceremony.ramos  .moment-note { color: #A09870; border-color: rgba(180,220,20,0.35); }
-.ceremony.jueves .moment-note { color: #A08060; border-color: rgba(200,148,60,0.3); }
-.ceremony.vigilia .moment-note { color: #B090CC; border-color: rgba(232,192,64,0.3); }
 
-/* ── SONG CARD ── */
-.song-card {
+/* ── CALENDAR ───────────────────────────────── */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.cal-nav-btn {
+  background: none;
+  border: 1px solid rgba(200,148,60,0.3);
   border-radius: 2px;
-  margin: 2rem 0 0;
-  overflow: hidden;
-  position: relative;
-  z-index: 2;
-  page-break-before: always;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gold);
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
-.ceremony.ramos  .song-card { background: #F5F0DC; box-shadow: 0 4px 40px rgba(0,0,0,0.6); border: 1px solid rgba(160,210,20,0.3); }
-.ceremony.jueves .song-card { background: #F0E8DC; box-shadow: 0 4px 40px rgba(0,0,0,0.7); border: 1px solid rgba(200,148,60,0.2); }
-.ceremony.vigilia .song-card { background: #FFFDF5; box-shadow: 0 4px 40px rgba(0,0,0,0.6); border: 1px solid rgba(232,192,64,0.2); }
+.cal-nav-btn:hover {
+  background: rgba(200,148,60,0.08);
+  border-color: var(--gold);
+}
+.cal-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.cal-month-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  font-weight: 400;
+  color: var(--brown);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
 
-.song-card::after {
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(200,148,60,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cal-day-header {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  text-align: center;
+  padding: 0.5rem 0;
+  background: rgba(200,148,60,0.06);
+  border-bottom: 1px solid rgba(200,148,60,0.12);
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--brown-lt);
+  position: relative;
+  border: 1px solid rgba(200,148,60,0.06);
+  transition: all 0.2s;
+  cursor: default;
+  min-height: 2.5rem;
+}
+.cal-cell.empty { background: transparent; }
+
+.cal-cell.sunday {
+  color: var(--brown);
+  font-weight: 500;
+  background: rgba(200,148,60,0.04);
+  cursor: pointer;
+}
+.cal-cell.sunday:hover {
+  background: rgba(200,148,60,0.12);
+}
+.cal-cell.sunday.active {
+  background: var(--gold);
+  color: var(--white);
+}
+.cal-cell.sunday.active .cal-audio-dot { background: var(--white); }
+.cal-cell.sunday.today {
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+
+/* Audio availability indicator */
+.cal-audio-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--lit-green);
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ── SUNDAY DETAIL ──────────────────────────── */
+.sunday-detail {
+  display: none;
+  margin-top: 1.5rem;
+  background: var(--white);
+  border: 1px solid rgba(200,148,60,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px var(--shadow);
+  animation: slideDown 0.35s ease-out;
+  position: relative;
+}
+.sunday-detail::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
-.ceremony.ramos  .song-card::after { background: linear-gradient(90deg, #5A7A10, #C8A830, #7A9C18); }
-.ceremony.jueves .song-card::after { background: linear-gradient(90deg, #6B1020, #C8943C, #6B1020); }
-.ceremony.vigilia .song-card::after { background: linear-gradient(90deg, #6A30A8, #E8C040, #6A30A8); }
+.sunday-detail.visible { display: block; }
 
-.song-header {
-  padding: 1.4rem 2rem 1.3rem 2.2rem;
-  display: flex;
-  align-items: flex-end;
-  gap: 1.2rem;
-  position: relative;
-}
-.ceremony.ramos  .song-header { background: linear-gradient(105deg, #141A08 0%, #1E2A08 70%, #263410 100%); }
-.ceremony.jueves .song-header { background: linear-gradient(105deg, #2A0C10 0%, #3A1018 70%, #441218 100%); }
-.ceremony.vigilia .song-header { background: linear-gradient(105deg, #14102A 0%, #241E4A 70%, #2E2460 100%); }
-
-.song-header-bar {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-}
-.ceremony.ramos  .song-header-bar { background: linear-gradient(180deg, #C8A830, #7A9C18); }
-.ceremony.jueves .song-header-bar { background: linear-gradient(180deg, #FF7A45, #F0A855); }
-.ceremony.vigilia .song-header-bar { background: linear-gradient(180deg, #E8C040, #9B6FCC); }
-
-.song-number {
-  font-family: 'Cinzel', serif;
-  font-size: 2.4rem;
-  font-weight: 400;
-  line-height: 1;
-  flex-shrink: 0;
-  opacity: 0.92;
-}
-.ceremony.ramos  .song-number { color: #C8A830; }
-.ceremony.jueves .song-number { color: #FF7A45; }
-.ceremony.vigilia .song-number { color: #E8C040; }
-
-.song-header-text { flex: 1; }
-.song-moment-label {
-  font-family: 'EB Garamond', serif;
-  font-style: italic;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  margin-bottom: 0.15rem;
-}
-.ceremony.ramos  .song-moment-label { color: #9EBF1A; }
-.ceremony.jueves .song-moment-label { color: #FFA060; }
-.ceremony.vigilia .song-moment-label { color: #9070C0; }
-
-.song-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.2;
-}
-.ceremony.ramos  .song-title { color: #F5F0DC; }
-.ceremony.jueves .song-title { color: #F0E0C8; }
-.ceremony.vigilia .song-title { color: #FAF0D0; }
-
-.song-body {
-  padding: 1.8rem 2.2rem 2.2rem;
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.strophe { margin-bottom: 1.2rem; }
-.strophe p {
-  font-family: 'Proza Libre', serif;
-  font-size: 1.02rem;
-  line-height: 1.85;
+.detail-header {
+  padding: 1.2rem 1.4rem 1rem;
+  border-bottom: 1px solid rgba(200,148,60,0.1);
 }
-.ceremony.ramos  .strophe p { color: #141A08; }
-.ceremony.jueves .strophe p { color: #180810; }
-.ceremony.vigilia .strophe p { color: #100A1A; }
-
-.chorus {
-  padding: 0.9rem 1.3rem;
-  margin: 1.1rem 0;
-  border-left: 3px solid;
-  border-radius: 0 3px 3px 0;
-}
-.ceremony.ramos  .chorus { background: rgba(80,120,20,0.1); border-color: #7A9C18; }
-.ceremony.jueves .chorus { background: rgba(107,16,32,0.07); border-color: #8B2030; }
-.ceremony.vigilia .chorus { background: rgba(100,50,160,0.08); border-color: #7A4AC0; }
-
-.chorus p {
-  font-family: 'Proza Libre', serif;
-  font-style: italic;
-  font-size: 1.02rem;
-  line-height: 1.85;
-}
-.ceremony.ramos  .chorus p { color: #2A2E08; }
-.ceremony.jueves .chorus p { color: #1A0810; }
-.ceremony.vigilia .chorus p { color: #180A28; }
-
-.song-note {
+.detail-date {
   font-family: 'Cinzel', serif;
   font-size: 0.6rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  margin-top: 0.3rem;
-  opacity: 0.7;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
 }
-.ceremony.ramos  .song-note { color: #5A7A10; }
-.ceremony.jueves .song-note { color: #6B1020; }
-.ceremony.vigilia .song-note { color: #6A30A8; }
-
-.song-ornament {
-  text-align: center;
+.detail-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--brown);
+  line-height: 1.3;
+}
+.detail-special {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
   font-size: 0.9rem;
-  letter-spacing: 0.6em;
-  opacity: 0.35;
-  margin-top: 1.4rem;
+  color: var(--gold);
+  margin-top: 0.2rem;
 }
-.ceremony.ramos  .song-ornament { color: #C8A830; }
-.ceremony.jueves .song-ornament { color: #C8943C; }
-.ceremony.vigilia .song-ornament { color: #E8C040; }
 
-/* ── FOOTER ── */
-.ceremony-footer {
-  text-align: center;
-  padding: 3.5rem 2rem;
-  position: relative;
-  z-index: 2;
+.detail-body {
+  padding: 1rem 1.4rem 1.3rem;
 }
-.ceremony.ramos  .ceremony-footer { background: linear-gradient(180deg, rgba(20,26,8,0) 0%, #141A08 30%); }
-.ceremony.jueves .ceremony-footer { background: linear-gradient(180deg, rgba(12,6,8,0) 0%, #0C0608 30%); }
-.ceremony.vigilia .ceremony-footer { background: linear-gradient(180deg, rgba(20,16,42,0) 0%, #14102A 30%); }
-
-.ceremony-footer .footer-icon { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; }
-.ceremony.ramos  .ceremony-footer .footer-icon { color: #C8A830; }
-.ceremony.jueves .ceremony-footer .footer-icon { color: #E86020; }
-.ceremony.vigilia .ceremony-footer .footer-icon { color: #E8C040; }
-
-.ceremony-footer p {
+.detail-gospel {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--brown-lt);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.detail-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.detail-theme {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 1rem;
-  margin-bottom: 0.3rem;
-}
-.ceremony.ramos  .ceremony-footer p { color: #B0B020; }
-.ceremony.jueves .ceremony-footer p { color: #A06030; }
-.ceremony.vigilia .ceremony-footer p { color: #B090CC; }
-
-/* ═══════════════════════════════════════════════
-   SHARED ANIMATIONS
-═══════════════════════════════════════════════ */
-@keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
-
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════ */
-@media (max-width: 600px) {
-  .tab-btn .tab-name { font-size: 0.7rem; }
-  .song-header { padding: 1rem 1.2rem 1rem 1.4rem; }
-  .song-body { padding: 1.4rem 1.4rem 1.8rem; }
-  .ceremony-body { padding: 0 1rem 4rem; }
-  .info-box { gap: 0.8rem; }
+  color: var(--brown);
+  margin-bottom: 1rem;
+  line-height: 1.5;
 }
 
-  /* Moment headers in index — no counter, no border */
-  .toc-moment-header,
-  .index-moment-header {
-    counter-increment: none !important;
-    border-bottom: none !important;
-    padding: 0.8rem 0 0.2rem !important;
-    list-style: none;
-  }
-  .toc-moment-header::before,
-  .index-moment-header::before {
-    content: none !important;
-    display: none !important;
-  }
-  .toc-moment-header span,
-  .index-moment-header span {
-    font-family: 'Cinzel Decorative', 'Cinzel', serif;
-    font-size: 0.58rem;
-    letter-spacing: 0.3em;
-    color: var(--gold, #C8A830);
-    text-transform: uppercase;
-    opacity: 0.9;
-  }
-  /* Song number in toc */
-  .toc-song-item { padding-left: 1rem; }
-  .toc-num {
-    font-family: 'Cinzel Decorative', 'Cinzel', serif;
-    font-size: 0.6rem;
-    color: var(--gold-dim, #A08020);
-    margin-right: 0.6rem;
-    flex-shrink: 0;
-  }
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
 
-  /* Offset scroll target to account for sticky back-bar */
-  [id] {
-    scroll-margin-top: 60px;
-  }
-.back-link {
-  display: block;
-  text-align: right;
+/* ── AUDIO PLAYER (cream variant) ───────────── */
+.psalm-player {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(200,148,60,0.06);
+  border: 1px solid rgba(200,148,60,0.15);
+  border-radius: 2px;
+  width: 100%;
+}
+.psalm-play-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--gold);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.psalm-play-btn:hover { background: var(--gold-dk); }
+.psalm-play-btn svg {
+  width: 12px; height: 12px;
+  fill: var(--white);
+  stroke: none;
+}
+.psalm-player-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.psalm-progress-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(200,148,60,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.psalm-progress-bar {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  width: 0;
+  transition: width 0.1s linear;
+}
+.psalm-time {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.75rem;
+  color: var(--brown-lt);
+  letter-spacing: 0.03em;
+}
+.psalm-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--brown-lt);
+  padding: 0.2rem;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.psalm-close-btn:hover { color: var(--brown); }
+.psalm-close-btn svg {
+  width: 12px; height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.psalm-no-audio {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: rgba(200,148,60,0.5);
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* ── LECTURAS LINK ──────────────────────────── */
+.detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: 'Cinzel', serif;
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--gold);
   text-decoration: none;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-  padding: 0.3rem 0;
-  margin: 0.5rem 0;
-}
-.back-link::before { content: '↑ '; }
-.back-link:hover { opacity: 1; }
-.ceremony.ramos  .back-link { color: #C8A830; }
-.ceremony.jueves .back-link { color: #C8943C; }
-.ceremony.vigilia .back-link { color: #E8C040; opacity: 0.85; }
-
-/* ── CANCIONERO HAMBURGER MENU (mobile only) ── */
-.pd-hamburger {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 4px;
-  margin-left: 0.5rem;
-}
-.pd-hamburger span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: #C8943C;
-  transition: all 0.3s;
-}
-.pd-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-.pd-hamburger.open span:nth-child(2) { opacity: 0; }
-.pd-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
-.pd-nav-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 100000;
-  background: rgba(8,4,6,0.97);
-  backdrop-filter: blur(12px);
-  flex-direction: column;
-  align-items: center;
+  border: 1px solid rgba(200,148,60,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 2px;
+  transition: all 0.2s;
+  width: 100%;
   justify-content: center;
-  gap: 2.5rem;
 }
-.pd-nav-overlay.open { display: flex; }
+.detail-link:hover {
+  background: rgba(200,148,60,0.08);
+  border-color: var(--gold);
+}
+.detail-link svg {
+  width: 12px; height: 12px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
 
-.pd-nav-overlay a {
+/* ── FOOTER ─────────────────────────────────── */
+.site-footer {
+  background: var(--brown);
+  color: var(--cream-dk);
+  text-align: center;
+  padding: 3rem 2rem;
+}
+.footer-logo {
+  font-family: 'Pinyon Script', cursive;
+  font-weight: normal;
+  font-size: 2.2rem;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.footer-sub {
   font-family: 'Cinzel', serif;
-  font-size: 1rem;
+  font-size: 0.55rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: #C8943C;
-  text-decoration: none;
-  transition: color 0.2s;
+  color: var(--gold-dk);
+  opacity: 0.8;
+  margin-bottom: 1rem;
 }
-.pd-nav-overlay a:hover { color: #E8C070; }
+.footer-rule {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,148,60,0.4), transparent);
+  margin: 0 auto 1rem;
+}
+.footer-credit {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(240,232,212,0.5);
+  margin-bottom: 0.3rem;
+}
+.footer-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: rgba(240,232,212,0.3);
+}
 
-.pd-nav-close {
+/* ── ANIMATIONS ─────────────────────────────── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── PARTICLES ──────────────────────────────── */
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
   position: absolute;
-  top: 1.4rem; right: 1.5rem;
-  background: none;
-  border: none !important;
-  outline: none;
-  box-shadow: none;
-  color: #C8943C; font-size: 1.4rem;
-  cursor: pointer; line-height: 1;
-  transition: color 0.2s;
-  padding: 0.3rem 0.5rem;
-  -webkit-appearance: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(200,148,60,0.15);
+  animation: particleDrift linear infinite;
 }
-.pd-nav-close:hover { color: #E8C070; }
-
-.pd-nav-divider {
-  width: 40px; height: 1px;
-  background: linear-gradient(90deg, transparent, #C8943C, transparent);
+@keyframes particleDrift {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
 }
 
-@media (min-width: 768px) {
-  .pd-hamburger { display: none !important; }
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 480px) {
+  .main-content { padding: 1.5rem 0.8rem 3rem; }
+  .cal-cell { font-size: 0.85rem; min-height: 2.2rem; }
+  .cal-day-header { font-size: 0.48rem; padding: 0.35rem 0; }
+  .detail-header { padding: 1rem 1rem 0.8rem; }
+  .detail-body { padding: 0.8rem 1rem 1rem; }
+  .psalm-player { padding: 0.5rem 0.6rem; gap: 0.5rem; }
 }
-@media (max-width: 767px) {
-  .pd-hamburger { display: flex; }
-}
-/* ── SHARE DROPDOWN (back-bar) ── */
-.pd-share-btn {
-  display: flex; align-items: center; gap: 0.4rem;
-  background: transparent; border: 1px solid rgba(200,148,60,0.35);
-  color: #C8943C; font-family: 'Cinzel', serif; font-size: 0.62rem;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  padding: 0.35rem 0.9rem; border-radius: 2px; cursor: pointer;
-  transition: all 0.2s;
-}
-.pd-share-btn:hover { background: rgba(200,148,60,0.1); }
-.pd-share-dd {
-  display: none; position: absolute; top: calc(100% + 6px); right: 0;
-  background: #fff; border: 1px solid rgba(200,148,60,0.2); border-radius: 2px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18); min-width: 170px; z-index: 9999; overflow: hidden;
-}
-.pd-share-option {
-  display: flex; align-items: center; gap: 0.7rem;
-  padding: 0.65rem 1rem;
-  font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
-  color: #5A3A18; text-decoration: none; cursor: pointer;
-  border-bottom: 1px solid rgba(200,148,60,0.08);
-  transition: background 0.15s;
-  background: transparent;
-}
-.pd-share-option:last-child { border-bottom: none; }
-.pd-share-option:hover { background: rgba(200,148,60,0.06); }
 </style>
 </head>
 <body>
 
-<!-- ══ PACEM DEUS NAV BAR ══ -->
-<div id="pd-back-bar" style="
-  position: sticky; top: 0; z-index: 99999;
-  background: rgba(8,4,6,0.96);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(200,148,60,0.25);
-  display: flex; align-items: center;
-  padding: 0.6rem 1.5rem; gap: 1rem;
-  font-family: 'Cinzel', serif;
-">
-  <a href="../index.html" target="_parent" style="
-    display: flex; align-items: center; gap: 0.5rem;
-    color: #C8943C; text-decoration: none; font-size: 0.68rem;
-    letter-spacing: 0.25em; text-transform: uppercase;
-    transition: color 0.2s;
-  " onmouseover="this.style.color='#E8C070'" onmouseout="this.style.color='#C8943C'">
-    ← Coro Pacem Deus
-  </a>
-  <span style="margin-left:auto;"></span>
-  <div class="pd-share-wrap" style="position:relative;">
-    <button class="pd-share-btn" onclick="pdShare(this)">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      Compartir
+<!-- ── PARTICLES ──────────────────────────────── -->
+<div class="particles" id="particles"></div>
+
+<!-- ── BACK LINK ──────────────────────────────── -->
+<a class="back-link" href="../index.html?from=salmos#cancioneros">
+  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  Inicio
+</a>
+
+<!-- ── HERO HEADER ────────────────────────────── -->
+<header class="site-header">
+  <div class="header-cross">
+    <svg viewBox="0 0 40 60" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width:0.6em;height:0.9em;display:inline-block;vertical-align:middle;">
+      <rect x="17.5" y="0" width="5" height="60" rx="1"/>
+      <rect x="0" y="18" width="40" height="5" rx="1"/>
+    </svg>
+  </div>
+  <p class="header-eyebrow">Coro Pacem Deus</p>
+  <h1 class="header-title">Salmos Responsoriales</h1>
+  <div class="header-divider"></div>
+  <p class="header-tagline">Libro del Salmista</p>
+  <p class="header-subtitle" style="margin-top:0.8rem;">Parroquia de la Sagrada Familia</p>
+</header>
+
+<!-- ── MAIN CONTENT ───────────────────────────── -->
+<main class="main-content">
+
+  <!-- Cycle selector -->
+  <div class="cycle-selector" id="cycle-selector">
+    <button class="cycle-btn active" data-cycle="A" onclick="setCycle('A')">Ciclo A</button>
+    <button class="cycle-btn" data-cycle="B" onclick="setCycle('B')">Ciclo B</button>
+    <button class="cycle-btn" data-cycle="C" onclick="setCycle('C')">Ciclo C</button>
+  </div>
+  <p class="cycle-label" id="cycle-label">2025 – 2026</p>
+
+  <!-- Calendar nav -->
+  <div class="cal-nav">
+    <button class="cal-nav-btn" id="cal-prev" onclick="navMonth(-1)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <div class="pd-share-dd">
-      <a class="pd-share-option pd-share-wa" href="#" target="_blank" >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        WhatsApp
-      </a>
-      <a class="pd-share-option pd-share-email" href="#" >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email
-      </a>
-      <span class="pd-share-option pd-share-copy" onclick="pdCopyUrl(this)" >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/></svg>
-        Copiar enlace
-      </span>
-    </div>
-  </div>
-  <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
-    <span></span><span></span><span></span>
-  </button>
-</div>
-
-<!-- ══ CANCIONERO NAV OVERLAY ══ -->
-<div class="pd-nav-overlay" id="pd-nav-overlay">
-  <button class="pd-nav-close" id="pd-nav-close" onclick="document.getElementById('pd-nav-overlay').classList.remove('open');document.getElementById('pd-hamburger').classList.remove('open');document.body.style.overflow='';">✕</button>
-  <div class="pd-nav-divider"></div>
-  <a href="../index.html?from=vigilia_pascual_2024#cancioneros" target="_parent">Cancioneros</a>
-  <a href="../index.html?from=vigilia_pascual_2024#about" target="_parent">¿Quiénes Somos?</a>
-  <a href="../index.html?from=vigilia_pascual_2024#contacto" target="_parent" style="display:flex;align-items:center;gap:0.5rem;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Contacto</a>
-  <div class="pd-nav-divider"></div>
-</div>
-
-
-<!-- ══ PARTICLE CANVAS ══ -->
-<canvas id="particle-canvas"></canvas>
-
-<div class="ceremony vigilia active" id="ceremony-vigilia">
-
-  <div class="ceremony-cover">
-    <div class="ceremony-icon">✨</div>
-    <p class="ceremony-eyebrow">Sábado de Gloria · 2024</p>
-    <h2 class="ceremony-title">Vigilia Pascual</h2>
-    <p class="ceremony-date">¡Ha Resucitado! · La Noche Santa</p>
+    <span class="cal-month-title" id="cal-month-title"></span>
+    <button class="cal-nav-btn" id="cal-next" onclick="navMonth(1)">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </div>
 
-  <!-- INDEX -->
-  <div class="ceremony-index" id="vigilia-index">
-    <p class="index-title">✦ programa ✦</p>
-    <h3 class="index-heading">Orden de la Ceremonia</h3>
-    <div class="index-rule"></div>
-                <ol class="index-list">
-        <li class="index-moment-header"><span>Ceremonia de la Luz</span></li>
-        <li><span class="idx-num">01</span><a href="#v01">Esta es la Luz de Cristo</a></li>
-        <li class="index-moment-header"><span>Aspersión del Agua</span></li>
-        <li><span class="idx-num">02</span><a href="#v02">Rey de Reyes</a></li>
-        <li class="index-moment-header"><span>Gloria</span></li>
-        <li><span class="idx-num">03</span><a href="#v03">Gloria – Palazón</a></li>
-        <li class="index-moment-header"><span>Aleluya</span></li>
-        <li><span class="idx-num">04</span><a href="#v04">Aleluya – Verbum Panis</a></li>
-        <li class="index-moment-header"><span>Ofertorio</span></li>
-        <li><span class="idx-num">05</span><a href="#v05">Tomad Señor y Recibid</a></li>
-        <li><span class="idx-num">06</span><a href="#v06">Recíbeme</a></li>
-        <li class="index-moment-header"><span>Santo</span></li>
-        <li><span class="idx-num">07</span><a href="#v07">Sanctus – Verbum Panis</a></li>
-        <li class="index-moment-header"><span>Cordero</span></li>
-        <li><span class="idx-num">08</span><a href="#v08">Cordero – Mejía</a></li>
-        <li class="index-moment-header"><span>Comunión</span></li>
-        <li><span class="idx-num">09</span><a href="#v09">Milagro de Amor</a></li>
-        <li><span class="idx-num">10</span><a href="#v10">Pan de Vida, Pan de Fe</a></li>
-        <li><span class="idx-num">11</span><a href="#v11">In Persona Christi</a></li>
-        <li class="index-moment-header"><span>Salida</span></li>
-        <li><span class="idx-num">12</span><a href="#v12">Tus Maravillas</a></li>
-        <li class="index-moment-header"><span>Animación</span></li>
-        <li><span class="idx-num">13</span><a href="#v13">Mi Dios Está Vivo</a></li>
-        <li><span class="idx-num">14</span><a href="#v14">Tú Reinarás</a></li>
-      </ol>
-  </div>
+  <!-- Calendar grid -->
+  <div class="cal-grid" id="cal-grid"></div>
 
+  <!-- Sunday detail -->
+  <div class="sunday-detail" id="sunday-detail"></div>
 
-  <div class="ceremony-body">
+</main>
 
-    <div class="moment-header"><span class="moment-label">Ceremonia de la Luz</span></div>
+<!-- ── FOOTER ─────────────────────────────────── -->
+<footer class="site-footer">
+  <span class="footer-logo">Pacem Deus</span>
+  <p class="footer-sub">Parroquia de la Sagrada Familia</p>
+  <div class="footer-rule"></div>
+  <p class="footer-credit">Audios: Libro del Salmista &middot; Editorial PAX / PPC</p>
+  <p class="footer-copy">&copy; 2026 Coro Pacem Deus &middot; Ad Maiorem Dei Gloriam</p>
+</footer>
 
-    <a class="back-link" id="v01" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">01</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ceremonia de la Luz</div>
-          <div class="song-title">Esta es la Luz de Cristo</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Esta es la luz de Cristo</p>
-          <p>yo la haré brillar <em>(x3)</em></p>
-          <p>Brillará, brillará, sin cesar.</p>
-        </div>
-        <div class="strophe">
-          <p>Soy cristiano y esta luz yo la haré brillar…</p>
-          <p>Nunca la ocultaré yo la haré brillar…</p>
-          <p>Toma hermano esta luz y hazla tú brillar…</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Aspersión del Agua</span></div>
-
-    <a class="back-link" id="v02" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">02</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Aspersión del Agua</div>
-          <div class="song-title">Rey de Reyes</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Toda la tierra verá Tu amor y rodillas se doblarán</p>
-          <p>y mi lengua profesará que Tú eres el Señor.</p>
-          <p>Y en la tierra reinarán Tu gloria y majestad</p>
-          <p>Y por siempre yo cantaré, cantaré a Tu bondad.</p>
-        </div>
-        <div class="chorus">
-          <p>Rey de Reyes, Señor de Señores</p>
-          <p>Gloria aleluya <em>(x2)</em></p>
-          <p>Cristo Príncipe de Paz</p>
-          <p>Gloria aleluya <em>(x2)</em></p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Gloria</span></div>
-
-    <a class="back-link" id="v03" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">03</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Gloria</div>
-          <div class="song-title">Gloria – Palazón</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="chorus">
-          <p>GLORIA A DIOS EN EL CIELO</p>
-          <p>Y EN LA TIERRA PAZ A LOS HOMBRES</p>
-          <p>QUE AMA EL SEÑOR.</p>
-        </div>
-        <div class="strophe">
-          <p>Por Tu inmensa gloria Te alabamos,</p>
-          <p>Te bendecimos, Te adoramos,</p>
-          <p>Te glorificamos, Te damos gracias.</p>
-          <p>Señor, Dios, rey celestial,</p>
-          <p>Dios Padre todopoderoso,</p>
-          <p>Señor hijo único Jesucristo,</p>
-          <p>Señor Dios, Cordero de Dios,</p>
-          <p>Hijo del Padre.</p>
-        </div>
-        <div class="strophe">
-          <p>Tú que quitas el pecado del mundo,</p>
-          <p>ten piedad de nosotros,</p>
-          <p>tú que quitas el pecado del mundo,</p>
-          <p>atiende nuestra súplica.</p>
-          <p>Tú que estás sentado a la derecha del Padre,</p>
-          <p>ten piedad de nosotros.</p>
-        </div>
-        <div class="strophe">
-          <p>Porque sólo tú eres santo, sólo tú Señor,</p>
-          <p>sólo tú altísimo, Jesucristo,</p>
-          <p>con el Espíritu Santo</p>
-          <p>en la gloria de Dios Padre.</p>
-          <p>AMÉN.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Aleluya</span></div>
-
-    <a class="back-link" id="v04" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">04</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Aleluya</div>
-          <div class="song-title">Aleluya – Verbum Panis</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="chorus">
-          <p>A–le–lu–ya, alelu – u – ya.</p>
-          <p>A–le–lu–ya, alelu – u – ya. <em>(bis)</em></p>
-        </div>
-        <div class="strophe">
-          <p>Aleluya aleluya, aleluya, aleluya, aleluya</p>
-          <p>Aleluya aleluya, aleluya, aleluya, aleluya</p>
-        </div>
-        <div class="chorus">
-          <p>A–le–lu–ya, alelu – u – ya</p>
-          <p>A–le–lu–ya, alelu – u – ya <em>(bis)</em></p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Ofertorio</span></div>
-
-    <a class="back-link" id="v05" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">05</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Tomad Señor y Recibid</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Tomad, Señor y recibid</p>
-          <p>Toda mi libertad,</p>
-          <p>Mi memoria,</p>
-          <p>Mi entendimiento</p>
-          <p>Y toda mi voluntad.</p>
-        </div>
-        <div class="strophe">
-          <p>Vos me lo disteis</p>
-          <p>A Ti Señor lo torno</p>
-          <p>Todo es vuestro</p>
-          <p>Disponed… según vuestra voluntad.</p>
-        </div>
-        <div class="strophe">
-          <p>Dadme vuestro amor y gracia</p>
-          <p>Que esta me basta.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <a class="back-link" id="v06" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">06</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Ofertorio</div>
-          <div class="song-title">Recíbeme</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Recíbeme con todo lo que tú pusiste en mí</p>
-          <p>Con todas esas ganas de vivir, con todas mis miserias.</p>
-          <p>Recíbeme con toda la miseria que hay en mí</p>
-          <p>Con todos los deseos de seguir por Tu camino.</p>
-        </div>
-        <div class="strophe">
-          <p>Iluminar es hoy el reto en la oscuridad</p>
-          <p>Servicio, entrega en fidelidad hasta la muerte.</p>
-        </div>
-        <div class="chorus">
-          <p>Hoy es tiempo de dar a manos llenas lo que se nos dio</p>
-          <p>Brillar hasta consumirse, iluminar</p>
-          <p>Un mundo en penumbras, hasta que no quede yo…</p>
-          <p>Hoy es tiempo de dar a manos llenas lo que se nos dio</p>
-          <p>Brillar hasta consumirse, iluminar</p>
-          <p>Un mundo en penumbras, hasta que no quede yo… Si no Tú.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Santo</span></div>
-
-    <a class="back-link" id="v07" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">07</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Santo</div>
-          <div class="song-title">Sanctus – Verbum Panis</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="chorus">
-          <p>Sanctus, sanctus, sanctus, <em>(x2)</em></p>
-          <p>Dominus Deus Sabaoth. <em>(x2)</em></p>
-          <p>Pleni sunt caeli et terra gloria tua.</p>
-          <p>Hosanna, Hosanna, hosanna in excelsis.</p>
-        </div>
-        <div class="chorus">
-          <p>Sanctus, sanctus, sanctus, <em>(x2)</em></p>
-          <p>Dominus Deus Sabaoth. <em>(x2)</em></p>
-          <p>Benedictus qui venit in nomine Domini.</p>
-          <p>Hosanna, Hosanna, hosanna in excelsis.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Cordero</span></div>
-
-    <a class="back-link" id="v08" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">08</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Cordero</div>
-          <div class="song-title">Cordero – Mejía</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Cordero de Dios que quitas el pecado del mundo,</p>
-          <p>ten piedad de nosotros, ten piedad de nosotros.</p>
-        </div>
-        <div class="strophe">
-          <p>Cordero de Dios que quitas el pecado del mundo,</p>
-          <p>ten piedad de nosotros, ten piedad de nosotros.</p>
-        </div>
-        <div class="strophe">
-          <p>Cordero de Dios que quitas el pecado del mundo,</p>
-          <p>danos la paz, danos la paz, danos la paz.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Comunión</span></div>
-
-    <a class="back-link" id="v09" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">09</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Milagro de Amor</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Jesús, aquí presente en forma real</p>
-          <p>Te pido un poco más de fe y de humildad</p>
-          <p>Quisiera poder ser digna de compartir</p>
-          <p>Contigo el milagro más grande de amor.</p>
-        </div>
-        <div class="chorus">
-          <p>Milagro de amor tan infinito</p>
-          <p>En que Tú, mi Dios Te has hecho tan pequeño y tan humilde</p>
-          <p>Para entrar en mí</p>
-          <p>Milagro de amor tan infinito</p>
-          <p>En que Tú mi Dios Te olvidas de Tu gloria y de Tu majestad</p>
-          <p>Por mí</p>
-        </div>
-        <div class="strophe">
-          <p>Hoy vengo llena de alegrías a recibirte en esta eucaristía</p>
-          <p>Te doy gracias por llamarme a esta cena</p>
-          <p>Porque aunque no soy digno, visitas Tú mi alma.</p>
-        </div>
-        <div class="chorus">
-          <p>Milagro de amor tan infinito…</p>
-        </div>
-        <div class="strophe">
-          <p>Gracias</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <a class="back-link" id="v10" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">10</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">Pan de Vida, Pan de Fe</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Camino y desierto andamos a la tierra prometida;</p>
-          <p>vuelvan, Señor, tus torrentes a saciarnos de agua viva.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es: Tomad y comed;</p>
-          <p>Mi sangre es: Tomad y bebed;</p>
-          <p>este es el Pan de vida,</p>
-          <p>este es el Pan de fe.</p>
-        </div>
-        <div class="strophe">
-          <p>Nos pesa nuestro pecado, dolores, hambres y guerras:</p>
-          <p>venga Tu paz como llama a morar en nuestras tiendas.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="strophe">
-          <p>Que todos son mis hermanos, así reza el testamento:</p>
-          <p>amor a Dios y a los hombres, es el culto verdadero.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="strophe">
-          <p>Afanes son nuestras horas que ofrecemos como espigas;</p>
-          <p>florecerán con el alba cuál maná, manjar de vida.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="strophe">
-          <p>Es cada altar en la tierra la mesa del Sacramento:</p>
-          <p>Cristo es quien da vida plena con Su sangre, con Su cuerpo.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="strophe">
-          <p>Unamos todas las almas en la hostia de Su cuerpo.</p>
-          <p>Aquí se da el pan de vida, aquí se hace el hombre nuevo.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="strophe">
-          <p>A paso de peregrino andamos nuestra jornada;</p>
-          <p>tú calmarás los anhelos el domingo de Tu Pascua.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="strophe">
-          <p>Adórenle de rodillas doquiera en el orbe entero;</p>
-          <p>y el mundo cante en sus lenguas gloria a Cristo, el hombre nuevo.</p>
-        </div>
-        <div class="chorus">
-          <p>Mi Cuerpo es…</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <a class="back-link" id="v11" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">11</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Comunión</div>
-          <div class="song-title">In Persona Christi</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Ya no soy yo quien vive</p>
-          <p>Tú eres quien vive en mí</p>
-          <p>Mi vida la he perdido</p>
-          <p>Pues todo lo vivo en ti.</p>
-        </div>
-        <div class="strophe">
-          <p>Tú pronuncias con mis labios las palabras de Tu boca</p>
-          <p>Y levantas en mis manos el misterio de Tu cuerpo.</p>
-          <p>Tu Espíritu mora en mí y mi espíritu mora en ti.</p>
-        </div>
-        <div class="chorus">
-          <p>In persona Christi <em>(x2)</em></p>
-          <p>Este es mi cuerpo, esta es mi sangre</p>
-          <p>In persona Christi</p>
-          <p>Tomen y coman, tomen y beban</p>
-          <p>Que este soy yo</p>
-          <p>In persona Christi</p>
-        </div>
-        <div class="strophe">
-          <p>Ya todo lo he perdido para ganarte a ti</p>
-          <p>Y ahora lo tengo todo pues todo lo tengo en ti.</p>
-        </div>
-        <div class="strophe">
-          <p>Con Tu amor me has seducido y me dejé seducir</p>
-          <p>Mi corazón encendido arde de amor por ti.</p>
-          <p>Solo quiero conocerte y solo para ti, vivir.</p>
-        </div>
-        <div class="chorus">
-          <p>In persona Christi…</p>
-        </div>
-        <div class="strophe">
-          <p>Quiero llevar en mis manos las heridas de tus manos</p>
-          <p>Quiero comulgar contigo los dolores de Tu cruz.</p>
-          <p>Quiero morirme contigo en tus brazos extendidos</p>
-          <p>Y así, con Tu Santo Espíritu resucitaré contigo.</p>
-          <p>Contigo yo venceré pues todo lo puedo en ti.</p>
-        </div>
-        <div class="chorus">
-          <p>In persona Christi…</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Salida</span></div>
-
-    <a class="back-link" id="v12" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">12</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Salida</div>
-          <div class="song-title">Tus Maravillas</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="chorus">
-          <p>Ahora puedes dejarme</p>
-          <p>ir en paz, oh Señor,</p>
-          <p>porque he visto tus maravillas.</p>
-        </div>
-        <div class="strophe">
-          <p>Y Tu pueblo en fiesta por las calles marchará,</p>
-          <p>cantará todas tus maravillas.</p>
-        </div>
-        <div class="strophe">
-          <p>Es Tu presencia que llena de amor toda la vida y cada jornada,</p>
-          <p>contigo un alma sola, somos un solo corazón,</p>
-          <p>la luz que en Ti resplandece por siempre iluminará.</p>
-        </div>
-        <div class="chorus">
-          <p>Ahora puedes dejarme…</p>
-        </div>
-        <div class="strophe">
-          <p>Es Tu presencia que inunda de amor toda la vida y cada jornada.</p>
-          <p>Entre la gente Tú estarás y con Tu pueblo vivirás,</p>
-          <p>hasta el final de los tiempos Tú nos acompañarás.</p>
-        </div>
-        <div class="chorus">
-          <p>Ahora puedes dejarme… <em>(bis)</em></p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <div class="moment-header"><span class="moment-label">Animación</span></div>
-
-    <a class="back-link" id="v13" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">13</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Mi Dios Está Vivo</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Mi Dios está vivo, Él no está muerto,</p>
-          <p>mi Dios está vivo, en mi corazón,</p>
-          <p>mi Dios está vivo, ha resucitado.</p>
-          <p>Lo siento en mis manos,</p>
-          <p>lo siento en mis pies,</p>
-          <p>lo siento en mi alma y en mi ser.</p>
-        </div>
-        <div class="chorus">
-          <p>¡Oh, oh, oh, oh!, hay que nacer del agua.</p>
-          <p>¡Oh, oh, oh, oh!, hay que nacer del Espíritu de Dios.</p>
-          <p>¡Oh, oh, oh, oh!, hay que nacer del agua y del Espíritu de Dios.</p>
-          <p>Hay que nacer del Señor. <em>(bis)</em></p>
-        </div>
-        <div class="strophe">
-          <p>Prepárate para que sientas <em>(x3)</em></p>
-          <p>el Espíritu de Dios.</p>
-          <p>Déjalo que se mueva <em>(x3)</em></p>
-          <p>dentro de Tu corazón.</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-    <a class="back-link" id="v14" href="#vigilia-index">Volver al índice</a>
-    <div class="song-card">
-      <div class="song-header"><div class="song-header-bar"></div>
-        <div class="song-number">14</div>
-        <div class="song-header-text">
-          <div class="song-moment-label">Animación</div>
-          <div class="song-title">Tú Reinarás</div>
-        </div>
-      </div>
-      <div class="song-body">
-        <div class="strophe">
-          <p>Tú reinarás, este es el grito</p>
-          <p>Que ardiente exhala nuestra fe</p>
-          <p>Tú reinarás, oh Rey Bendito</p>
-          <p>Pues tú dijiste: ¡Reinaré!</p>
-        </div>
-        <div class="chorus">
-          <p>Reine Jesús por siempre</p>
-          <p>Reine su corazón</p>
-          <p>En nuestra patria, en nuestro suelo</p>
-          <p>Es de María, la nación <em>(bis)</em></p>
-        </div>
-        <div class="strophe">
-          <p>Tú reinarás, dulce esperanza</p>
-          <p>Que al alma llena de placer</p>
-          <p>Habrá por fin paz y bonanza</p>
-          <p>Felicidad habrá doquier</p>
-        </div>
-        <div class="chorus">
-          <p>Reine Jesús por siempre…</p>
-        </div>
-        <div class="strophe">
-          <p>Tú reinarás, dichosa Era</p>
-          <p>Dichoso pueblo con tal Rey</p>
-          <p>Será Tu cruz, nuestra bandera</p>
-          <p>Y Tu Evangelio, nuestra Ley</p>
-        </div>
-        <div class="chorus">
-          <p>Reine Jesús por siempre…</p>
-        </div>
-        <div class="song-ornament">✦ ✦ ✦</div>
-      </div>
-    </div>
-    <a class="back-link" href="#vigilia-index">Volver al índice</a>
-
-  </div><!-- /ceremony-body vigilia -->
-
-  <div class="ceremony-footer">
-    <span class="footer-icon">✨</span>
-    <p>Vigilia Pascual · 2024</p>
-    <p><span class="coro-name">Coro Pacem Deus</span> · Parroquia de la Sagrada Familia</p>
-  </div>
-</div><!-- /ceremony vigilia -->
-
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
 <script>
-// ── TAB SWITCHING ──────────────────────────────
-function showCeremony(name) {
-  // Switch active states
-  document.querySelectorAll('.ceremony').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('ceremony-' + name).classList.add('active');
-  document.querySelector('.tab-btn.' + name).classList.add('active');
+(function() {
+  'use strict';
 
-  // Scroll to the ceremony cover (just below the sticky nav)
-  requestAnimationFrame(function() {
-    var cover = document.querySelector('#ceremony-' + name + ' .ceremony-cover');
-    if (cover) {
-      var navH = document.querySelector('.tab-nav').offsetHeight;
-      var top = cover.getBoundingClientRect().top + window.pageYOffset - navH;
-      window.scrollTo(0, top);
+  /* ── PARTICLES ──────────────────────────────── */
+  var pc = document.getElementById('particles');
+  for (var i = 0; i < 18; i++) {
+    var p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.animationDuration = (12 + Math.random() * 18) + 's';
+    p.style.animationDelay = (Math.random() * 15) + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+    pc.appendChild(p);
+  }
+
+  /* ── LITURGICAL DATA (163 domingos) ────────── */
+  var D={
+    '2025-11-30':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mt 24,37-44',tema:'Estad preparados',ant:'Vamos alegres a la casa del Señor',ci:'A'},
+    '2025-12-07':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mt 3,1-12',tema:'Convert\u00edos, porque el Reino est\u00e1 cerca',ant:'Que en sus días florezca la justicia y la paz abunde eternamente',ci:'A'},
+    '2025-12-14':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Mt 11,2-11',tema:'\u00bfEres T\u00fa el que ha de venir?',ant:'Ven, Señor, a salvarnos',ci:'A'},
+    '2025-12-21':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Mt 1,18-24',tema:'Le pondr\u00e1s por nombre Jes\u00fas',ant:'Va a entrar el Señor; Él es el Rey de la gloria',ci:'A'},
+    '2025-12-25':{t:'Navidad',n:'Natividad del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'A'},
+    '2025-12-28':{t:'Navidad',n:'Sagrada Familia',e:'',c:'Blanco',ev:'Mt 2,13-15.19-23',tema:'Lev\u00e1ntate, toma al ni\u00f1o y a su madre',ant:'Dichosos los que temen al Señor y siguen sus caminos',ci:'A'},
+    '2026-01-04':{t:'Navidad',n:'II Domingo de Navidad',e:'',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'El Verbo se hizo carne y habitó entre nosotros',ci:'A'},
+    '2026-01-06':{t:'Navidad',n:'Epifan\u00eda del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Mt 2,1-12',tema:'Hemos venido a adorarlo',ant:'Se postrarán ante Ti, Señor, todos los pueblos de la tierra',ci:'A'},
+    '2026-01-11':{t:'Ordinario',n:'Bautismo del Se\u00f1or',e:'',c:'Blanco',ev:'Mt 3,13-17',tema:'Este es mi Hijo amado',ant:'El Señor bendice a su pueblo con la paz',ci:'A'},
+    '2026-01-18':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 1,29-34',tema:'He ah\u00ed el Cordero de Dios',ant:'Aquí estoy, Señor, para hacer Tu voluntad',ci:'A'},
+    '2026-01-25':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Mt 4,12-23',tema:'Venid conmigo',ant:'El Señor es mi luz y mi salvación',ci:'A'},
+    '2026-02-01':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 5,1-12a',tema:'Bienaventurados los pobres de esp\u00edritu',ant:'Bienaventurados los pobres en el espíritu, porque de ellos es el reino de los cielos',ci:'A'},
+    '2026-02-08':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 5,13-16',tema:'Vosotros sois la luz del mundo',ant:'El justo brilla en las tinieblas como una luz',ci:'A'},
+    '2026-02-15':{t:'Ordinario',n:'VI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 5,17-37',tema:'Se dijo\u2026 pero yo os digo',ant:'Dichoso el que camina en la ley del Señor',ci:'A'},
+    '2026-02-22':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Mt 4,1-11',tema:'No solo de pan vive el hombre',ant:'Misericordia, Señor, hemos pecado',ci:'A'},
+    '2026-03-01':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Mt 17,1-9',tema:'Este es mi Hijo amado; escuchadlo',ant:'Que Tu misericordia, Señor, venga sobre nosotros, como lo esperamos de Ti',ci:'A'},
+    '2026-03-08':{t:'Cuaresma',n:'III Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 4,5-42',tema:'Dame de beber',ant:'Ojalá escuchéis hoy la voz del Señor: «No endurezcáis vuestro corazón»',ci:'A'},
+    '2026-03-15':{t:'Cuaresma',n:'IV Domingo de Cuaresma',e:'Laetare',c:'Rosa',ev:'Jn 9,1-41',tema:'Yo soy la luz del mundo',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
+    '2026-03-22':{t:'Cuaresma',n:'V Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 11,1-45',tema:'Yo soy la resurrecci\u00f3n y la vida',ant:'Del Señor viene la misericordia, la redención copiosa',ci:'A'},
+    '2026-03-29':{t:'Cuaresma',n:'Domingo de Ramos',e:'Pasi\u00f3n del Se\u00f1or',c:'Rojo',ev:'Mt 26,14\u201427,66',tema:'Dios m\u00edo, \u00bfpor qu\u00e9 me has abandonado?',ant:'Dios mío, Dios mío, ¿por qué me has abandonado?',ci:'A'},
+    '2026-04-05':{t:'Pascua',n:'Domingo de Pascua',e:'Resurrecci\u00f3n del Se\u00f1or',c:'Blanco',ev:'Jn 20,1-9',tema:'Vio y crey\u00f3',ant:'Este es el día en que actuó el Señor: sea nuestra alegría y nuestro gozo',ci:'A'},
+    '2026-04-12':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'\u00a1Se\u00f1or m\u00edo y Dios m\u00edo!',ant:'Dad gracias al Señor porque es bueno, porque es eterna su misericordia',ci:'A'},
+    '2026-04-19':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 21,1-19',tema:'Se\u00f1or, T\u00fa sabes que Te quiero',ant:'Señor, me enseñarás el sendero de la vida',ci:'A'},
+    '2026-04-26':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,27-30',tema:'Mis ovejas escuchan mi voz',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
+    '2026-05-03':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 13,31-33a.34-35',tema:'Amaos los unos a los otros',ant:'Que Tu misericordia, Señor, venga sobre nosotros, como lo esperamos de Ti',ci:'A'},
+    '2026-05-10':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,23-29',tema:'Mi paz os dejo',ant:'Aclamad al Señor, tierra entera',ci:'A'},
+    '2026-05-17':{t:'Pascua',n:'La Ascensi\u00f3n del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Mt 28,16-20',tema:'Id y haced disc\u00edpulos',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'A'},
+    '2026-05-24':{t:'Pascua',n:'Domingo de Pentecost\u00e9s',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Esp\u00edritu Santo',ant:'Envía Tu Espíritu, Señor, y repuebla la faz de la tierra',ci:'A'},
+    '2026-05-31':{t:'Ordinario',n:'Sant\u00edsima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es m\u00edo',ant:'¡A Ti gloria y alabanza por los siglos!',ci:'A'},
+    '2026-06-07':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ant:'Glorifica al Señor, Jerusalén',ci:'A'},
+    '2026-06-14':{t:'Ordinario',n:'XI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 9,36\u201410,8',tema:'La mies es abundante',ant:'Nosotros somos su pueblo y ovejas de su rebaño',ci:'A'},
+    '2026-06-21':{t:'Ordinario',n:'XII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,26-33',tema:'No teng\u00e1is miedo',ant:'Señor, que me escuche Tu gran bondad',ci:'A'},
+    '2026-06-28':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 10,37-42',tema:'El que no toma su cruz no es digno de m\u00ed',ant:'Cantaré eternamente las misericordias del Señor',ci:'A'},
+    '2026-07-05':{t:'Ordinario',n:'XIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 11,25-30',tema:'Venid a m\u00ed los que est\u00e1is cansados',ant:'Bendeciré Tu nombre por siempre, Dios mío, mi Rey',ci:'A'},
+    '2026-07-12':{t:'Ordinario',n:'XV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 13,1-23',tema:'El sembrador sali\u00f3 a sembrar',ant:'La semilla cayó en tierra buena, y dio fruto',ci:'A'},
+    '2026-07-19':{t:'Ordinario',n:'XVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 13,24-43',tema:'Dejad crecer juntos trigo y ciza\u00f1a',ant:'Tú, Señor, eres bueno y clemente',ci:'A'},
+    '2026-07-26':{t:'Ordinario',n:'XVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 13,44-52',tema:'Un tesoro escondido en el campo',ant:'¡Cuánto amo Tu ley, Señor!',ci:'A'},
+    '2026-08-02':{t:'Ordinario',n:'XVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 14,13-21',tema:'Dadles vosotros de comer',ant:'Abres Tú la mano, Señor, y nos sacias',ci:'A'},
+    '2026-08-09':{t:'Ordinario',n:'XIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 14,22-33',tema:'\u00a1\u00c1nimo, soy yo, no tem\u00e1is!',ant:'Muéstranos, Señor, Tu misericordia y danos Tu salvación',ci:'A'},
+    '2026-08-16':{t:'Ordinario',n:'XX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 15,21-28',tema:'Mujer, qu\u00e9 grande es tu fe',ant:'Oh, Dios, que te alaben los pueblos, que todos los pueblos te alaben',ci:'A'},
+    '2026-08-23':{t:'Ordinario',n:'XXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 16,13-20',tema:'T\u00fa eres Pedro',ant:'Señor, Tu misericordia es eterna, no abandones la obra de Tus manos',ci:'A'},
+    '2026-08-30':{t:'Ordinario',n:'XXII Domingo del Tiempo Ordinario',e:'Santa Rosa de Lima',c:'Verde',ev:'Mt 16,21-27',tema:'El que quiera venir conmigo, que cargue con su cruz',ant:'Mi alma está sedienta de Ti, Señor, Dios mío',ci:'A'},
+    '2026-09-06':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 18,15-20',tema:'Donde dos o tres est\u00e1n reunidos en mi nombre',ant:'Ojalá escuchéis hoy la voz del Señor: «No endurezcáis vuestro corazón»',ci:'A'},
+    '2026-09-13':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 18,21-35',tema:'Perdona setenta veces siete',ant:'El Señor es compasivo y misericordioso, lento a la ira y rico en clemencia',ci:'A'},
+    '2026-09-20':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 20,1-16',tema:'\u00bfVas a tener envidia porque yo soy bueno?',ant:'Cerca está el Señor de los que lo invocan',ci:'A'},
+    '2026-09-27':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,28-32',tema:'Los publicanos y las prostitutas os preceden',ant:'Recuerda, Señor, Tu ternura',ci:'A'},
+    '2026-10-04':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,33-43',tema:'La piedra que desecharon los constructores',ant:'La viña del Señor es la casa de Israel',ci:'A'},
+    '2026-10-11':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,1-14',tema:'Muchos son los llamados, pocos los elegidos',ant:'Habitaré en la casa del Señor por años sin término',ci:'A'},
+    '2026-10-18':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,15-21',tema:'Dad al C\u00e9sar lo que es del C\u00e9sar',ant:'Aclamad la gloria y el poder del Señor',ci:'A'},
+    '2026-10-25':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,34-40',tema:'Amar\u00e1s al Se\u00f1or tu Dios con todo tu coraz\u00f3n',ant:'Yo te amo, Señor; Tú eres mi fortaleza',ci:'A'},
+    '2026-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados',ant:'Esta es la generación que busca Tu rostro, Señor',ci:'A'},
+    '2026-11-08':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,1-13',tema:'Lleg\u00f3 el esposo; salid a recibirlo',ant:'Mi alma está sedienta de Ti, Señor, Dios mío',ci:'A'},
+    '2026-11-15':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,14-30',tema:'Bien, siervo bueno y fiel',ant:'Dichosos los que temen al Señor',ci:'A'},
+    '2026-11-22':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Mt 25,31-46',tema:'Lo que hicisteis con uno de estos peque\u00f1os, conmigo lo hicisteis',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
+    '2026-11-29':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mc 13,33-37',tema:'Velad, porque no sab\u00e9is cu\u00e1ndo llegar\u00e1 el due\u00f1o',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'B'},
+    '2026-12-06':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mc 1,1-8',tema:'Preparad el camino del Se\u00f1or',ant:'Muéstranos, Señor, Tu misericordia y danos Tu salvación',ci:'B'},
+    '2026-12-13':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Jn 1,6-8.19-28',tema:'En medio de vosotros hay uno que no conoc\u00e9is',ant:'Me alegro con mi Dios',ci:'B'},
+    '2026-12-20':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,26-38',tema:'Al\u00e9grate, llena de gracia',ant:'Cantaré eternamente Tus misericordias, Señor',ci:'B'},
+    '2026-12-25':{t:'Navidad',n:'Natividad del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'B'},
+    '2026-12-27':{t:'Navidad',n:'Sagrada Familia',e:'',c:'Blanco',ev:'Lc 2,22-40',tema:'El ni\u00f1o crec\u00eda lleno de sabidur\u00eda',ant:'Dichosos los que temen al Señor y siguen sus caminos',ci:'B'},
+    '2027-01-03':{t:'Navidad',n:'II Domingo de Navidad',e:'',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'El Verbo se hizo carne y habitó entre nosotros',ci:'B'},
+    '2027-01-10':{t:'Navidad',n:'Bautismo del Se\u00f1or',e:'',c:'Blanco',ev:'Mc 1,7-11',tema:'T\u00fa eres mi Hijo amado',ant:'El Señor bendice a su pueblo con la paz',ci:'B'},
+    '2027-01-17':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 1,35-42',tema:'Hemos encontrado al Mes\u00edas',ant:'Aquí estoy, Señor, para hacer Tu voluntad',ci:'B'},
+    '2027-01-24':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Mc 1,14-20',tema:'Venid conmigo y os har\u00e9 pescadores de hombres',ant:'Señor, enséñame Tus caminos',ci:'B'},
+    '2027-01-31':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 1,21-28',tema:'Ense\u00f1aba con autoridad',ant:'Ojalá escuchéis hoy la voz del Señor: «No endurezcáis vuestro corazón»',ci:'B'},
+    '2027-02-07':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 1,29-39',tema:'Cur\u00f3 a muchos enfermos',ant:'Alabad al Señor, que sana los corazones destrozados',ci:'B'},
+    '2027-02-14':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Mc 1,12-15',tema:'Convert\u00edos y creed en el Evangelio',ant:'Tus sendas, Señor, son misericordia y lealtad para los que guardan Tu alianza',ci:'B'},
+    '2027-02-21':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Mc 9,2-10',tema:'Este es mi Hijo amado',ant:'Caminaré en presencia del Señor en el país de los vivos',ci:'B'},
+    '2027-02-28':{t:'Cuaresma',n:'III Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 2,13-25',tema:'Destruid este templo y en tres d\u00edas lo levantar\u00e9',ant:'Señor, Tú tienes palabras de vida eterna',ci:'B'},
+    '2027-03-07':{t:'Cuaresma',n:'IV Domingo de Cuaresma',e:'Laetare',c:'Rosa',ev:'Jn 3,14-21',tema:'Tanto am\u00f3 Dios al mundo',ant:'Que se me pegue la lengua al paladar si no me acuerdo de Ti',ci:'B'},
+    '2027-03-14':{t:'Cuaresma',n:'V Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 12,20-33',tema:'Si el grano de trigo cae en tierra y muere, da mucho fruto',ant:'Oh, Dios, crea en mí un corazón puro',ci:'B'},
+    '2027-03-21':{t:'Cuaresma',n:'Domingo de Ramos',e:'Pasi\u00f3n del Se\u00f1or',c:'Rojo',ev:'Mc 14,1\u201415,47',tema:'Verdaderamente este hombre era Hijo de Dios',ant:'Dios mío, Dios mío, ¿por qué me has abandonado?',ci:'B'},
+    '2027-03-28':{t:'Pascua',n:'Domingo de Pascua',e:'Resurrecci\u00f3n del Se\u00f1or',c:'Blanco',ev:'Jn 20,1-9',tema:'Vio y crey\u00f3',ant:'Este es el día en que actuó el Señor: sea nuestra alegría y nuestro gozo',ci:'B'},
+    '2027-04-04':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'\u00a1Se\u00f1or m\u00edo y Dios m\u00edo!',ant:'Dad gracias al Señor porque es bueno, porque es eterna su misericordia',ci:'B'},
+    '2027-04-11':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Lc 24,35-48',tema:'As\u00ed estaba escrito: el Mes\u00edas padecer\u00e1',ant:'Haz brillar sobre nosotros, Señor, la luz de Tu rostro',ci:'B'},
+    '2027-04-18':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,11-18',tema:'Yo soy el buen pastor',ant:'La piedra que desecharon los arquitectos es ahora la piedra angular',ci:'B'},
+    '2027-04-25':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 15,1-8',tema:'Yo soy la vid, vosotros los sarmientos',ant:'El Señor es mi alabanza en la gran asamblea',ci:'B'},
+    '2027-05-02':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 15,9-17',tema:'Amaos unos a otros como yo os he amado',ant:'El Señor revela a las naciones su salvación',ci:'B'},
+    '2027-05-09':{t:'Pascua',n:'La Ascensi\u00f3n del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Mc 16,15-20',tema:'Id al mundo entero y proclamad el Evangelio',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'B'},
+    '2027-05-16':{t:'Pascua',n:'Domingo de Pentecost\u00e9s',e:'Solemnidad',c:'Rojo',ev:'Jn 15,26-27;16,12-15',tema:'El Esp\u00edritu de la verdad os guiar\u00e1',ant:'Envía Tu Espíritu, Señor, y repuebla la faz de la tierra',ci:'B'},
+    '2027-05-23':{t:'Ordinario',n:'Sant\u00edsima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Mt 28,16-20',tema:'Bautizadlos en el nombre del Padre, del Hijo y del Esp\u00edritu Santo',ant:'Dichoso el pueblo que el Señor se escogió como heredad',ci:'B'},
+    '2027-05-30':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Mc 14,12-16.22-26',tema:'Esto es mi Cuerpo; esta es mi Sangre',ant:'Alzaré la copa de la salvación, invocando el nombre del Señor',ci:'B'},
+    '2027-06-06':{t:'Ordinario',n:'X Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 3,20-35',tema:'El que haga la voluntad de Dios es mi hermano',ant:'Del Señor viene la misericordia, la redención copiosa',ci:'B'},
+    '2027-06-13':{t:'Ordinario',n:'XI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 4,26-34',tema:'La semilla brota y crece sin que \u00e9l sepa c\u00f3mo',ant:'Es bueno darte gracias, Señor',ci:'B'},
+    '2027-06-20':{t:'Ordinario',n:'XII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 4,35-41',tema:'\u00bfA\u00fan no ten\u00e9is fe?',ant:'¡Dad gracias al Señor, porque es eterna su misericordia!',ci:'B'},
+    '2027-06-27':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 5,21-43',tema:'Ni\u00f1a, a ti te digo, lev\u00e1ntate',ant:'Te ensalzaré, Señor, porque me has librado',ci:'B'},
+    '2027-07-04':{t:'Ordinario',n:'XIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 6,1-6',tema:'No desprecian a un profeta m\u00e1s que en su tierra',ant:'Nuestros ojos están en el Señor, esperando su misericordia',ci:'B'},
+    '2027-07-11':{t:'Ordinario',n:'XV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 6,7-13',tema:'Los envi\u00f3 de dos en dos',ant:'Muéstranos, Señor, Tu misericordia y danos Tu salvación',ci:'B'},
+    '2027-07-18':{t:'Ordinario',n:'XVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 6,30-34',tema:'Eran como ovejas sin pastor',ant:'El Señor es mi pastor, nada me falta',ci:'B'},
+    '2027-07-25':{t:'Ordinario',n:'XVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,1-15',tema:'Reparti\u00f3 a los que estaban sentados todo lo que quisieron',ant:'Abres Tú la mano, Señor, y nos sacias',ci:'B'},
+    '2027-08-01':{t:'Ordinario',n:'XVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,24-35',tema:'Yo soy el pan de vida',ant:'El Señor les dio pan del cielo',ci:'B'},
+    '2027-08-08':{t:'Ordinario',n:'XIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,41-51',tema:'Yo soy el pan vivo bajado del cielo',ant:'Gustad y ved qué bueno es el Señor',ci:'B'},
+    '2027-08-15':{t:'Ordinario',n:'Asunci\u00f3n de la Virgen Mar\u00eda',e:'Solemnidad',c:'Blanco',ev:'Lc 1,39-56',tema:'El Poderoso ha hecho obras grandes por m\u00ed',ant:'De pie a Tu derecha está la reina, enjoyada con oro de Ofir',ci:'B'},
+    '2027-08-22':{t:'Ordinario',n:'XXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 6,60-69',tema:'Se\u00f1or, \u00bfa qui\u00e9n iremos? T\u00fa tienes palabras de vida eterna',ant:'Gustad y ved qué bueno es el Señor',ci:'B'},
+    '2027-08-29':{t:'Ordinario',n:'XXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 7,1-8.14-15.21-23',tema:'Dej\u00e1is el mandamiento de Dios para aferraros a la tradici\u00f3n',ant:'Señor, ¿quién puede hospedarse en Tu tienda?',ci:'B'},
+    '2027-09-05':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 7,31-37',tema:'Hace o\u00edr a los sordos y hablar a los mudos',ant:'Alaba, alma mía, al Señor',ci:'B'},
+    '2027-09-12':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 8,27-35',tema:'\u00bfQui\u00e9n dec\u00eds que soy yo? \u2014 T\u00fa eres el Cristo',ant:'Caminaré en presencia del Señor en el país de los vivos',ci:'B'},
+    '2027-09-19':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 9,30-37',tema:'El que quiera ser primero, que sea el \u00faltimo',ant:'El Señor sostiene mi vida',ci:'B'},
+    '2027-09-26':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 9,38-43.45.47-48',tema:'El que no est\u00e1 contra nosotros est\u00e1 a favor',ant:'Los mandatos del Señor son rectos y alegran el corazón',ci:'B'},
+    '2027-10-03':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,2-16',tema:'Lo que Dios ha unido que no lo separe el hombre',ant:'Que el Señor nos bendiga todos los días de nuestra vida',ci:'B'},
+    '2027-10-10':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,17-30',tema:'Vende lo que tienes y s\u00edgueme',ant:'Sácianos de Tu misericordia, Señor, y estaremos alegres',ci:'B'},
+    '2027-10-17':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,35-45',tema:'El Hijo del hombre no vino a ser servido sino a servir',ant:'Que Tu misericordia, Señor, venga sobre nosotros, como lo esperamos de Ti',ci:'B'},
+    '2027-10-24':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 10,46-52',tema:'Maestro, que pueda ver',ant:'El Señor ha estado grande con nosotros, y estamos alegres',ci:'B'},
+    '2027-10-31':{t:'Ordinario',n:'XXXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 12,28-34',tema:'Amar\u00e1s al Se\u00f1or tu Dios con todo tu coraz\u00f3n',ant:'Yo te amo, Señor; Tú eres mi fortaleza',ci:'B'},
+    '2027-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados',ant:'Esta es la generación que busca Tu rostro, Señor',ci:'B'},
+    '2027-11-07':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 12,38-44',tema:'Esta viuda pobre ha echado m\u00e1s que todos',ant:'Alaba, alma mía, al Señor',ci:'B'},
+    '2027-11-14':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mc 13,24-32',tema:'El cielo y la tierra pasar\u00e1n, pero mis palabras no pasar\u00e1n',ant:'Protégeme, Dios mío, que me refugio en Ti',ci:'B'},
+    '2027-11-21':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Jn 18,33-37',tema:'Mi Reino no es de este mundo',ant:'El Señor reina, vestido de majestad',ci:'B'},
+    '2027-11-28':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Lc 21,25-28.34-36',tema:'Levantaos, alzad la cabeza; se acerca vuestra liberaci\u00f3n',ant:'A Ti, Señor, levanto mi alma',ci:'C'},
+    '2027-12-05':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Lc 3,1-6',tema:'Todos ver\u00e1n la salvaci\u00f3n de Dios',ant:'El Señor ha estado grande con nosotros, y estamos alegres',ci:'C'},
+    '2027-12-12':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Lc 3,10-18',tema:'\u00bfQu\u00e9 debemos hacer?',ant:'Gritad jubilosos, porque es grande en medio de ti el Santo de Israel',ci:'C'},
+    '2027-12-19':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,39-45',tema:'Bendita t\u00fa entre las mujeres',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'C'},
+    '2027-12-25':{t:'Navidad',n:'Natividad del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'C'},
+    '2028-01-01':{t:'Navidad',n:'Santa Mar\u00eda Madre de Dios',e:'Solemnidad',c:'Blanco',ev:'Lc 2,16-21',tema:'Le pusieron por nombre Jes\u00fas',ant:'Que Dios tenga piedad y nos bendiga',ci:'C'},
+    '2028-01-08':{t:'Navidad',n:'Bautismo del Se\u00f1or',e:'',c:'Blanco',ev:'Lc 3,15-16.21-22',tema:'T\u00fa eres mi Hijo amado',ant:'El Señor bendice a su pueblo con la paz',ci:'C'},
+    '2028-01-15':{t:'Ordinario',n:'II Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Jn 2,1-12',tema:'La madre de Jes\u00fas le dijo: No tienen vino',ant:'Contad las maravillas del Señor a todas las naciones',ci:'C'},
+    '2028-01-22':{t:'Ordinario',n:'III Domingo del Tiempo Ordinario',e:'Domingo de la Palabra de Dios',c:'Verde',ev:'Lc 1,1-4;4,14-21',tema:'Hoy se ha cumplido esta Escritura',ant:'Tus palabras, Señor, son espíritu y vida',ci:'C'},
+    '2028-01-29':{t:'Ordinario',n:'IV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 4,21-30',tema:'Ning\u00fan profeta es aceptado en su tierra',ant:'Mi boca contará Tu salvación, Señor',ci:'C'},
+    '2028-02-05':{t:'Ordinario',n:'V Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 5,1-11',tema:'Rema mar adentro y echad vuestras redes',ant:'Delante de los ángeles tañeré para Ti, Señor',ci:'C'},
+    '2028-02-12':{t:'Ordinario',n:'VI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,17.20-26',tema:'Bienaventurados los pobres',ant:'Dichoso el hombre que ha puesto su confianza en el Señor',ci:'C'},
+    '2028-02-19':{t:'Ordinario',n:'VII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,27-38',tema:'Amad a vuestros enemigos',ant:'El Señor es compasivo y misericordioso',ci:'C'},
+    '2028-02-27':{t:'Ordinario',n:'VIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 6,39-45',tema:'De la abundancia del coraz\u00f3n habla la boca',ant:'Es bueno darte gracias, Señor',ci:'C'},
+    '2028-03-05':{t:'Cuaresma',n:'I Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 4,1-13',tema:'No solo de pan vive el hombre',ant:'Quédate conmigo, Señor, en la tribulación',ci:'C'},
+    '2028-03-12':{t:'Cuaresma',n:'II Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 9,28-36',tema:'Este es mi Hijo, el elegido; escuchadlo',ant:'El Señor es mi luz y mi salvación',ci:'C'},
+    '2028-03-19':{t:'Cuaresma',n:'III Domingo de Cuaresma',e:'',c:'Morado',ev:'Lc 13,1-9',tema:'Si no os convert\u00eds, todos perecer\u00e9is',ant:'El Señor es compasivo y misericordioso',ci:'C'},
+    '2028-03-26':{t:'Cuaresma',n:'IV Domingo de Cuaresma',e:'Laetare',c:'Rosa',ev:'Lc 15,1-3.11-32',tema:'Este hijo m\u00edo estaba muerto y ha revivido',ant:'Gustad y ved qué bueno es el Señor',ci:'C'},
+    '2028-04-02':{t:'Cuaresma',n:'V Domingo de Cuaresma',e:'',c:'Morado',ev:'Jn 8,1-11',tema:'El que est\u00e9 sin pecado que tire la primera piedra',ant:'El Señor ha estado grande con nosotros, y estamos alegres',ci:'C'},
+    '2028-04-09':{t:'Cuaresma',n:'Domingo de Ramos',e:'Pasi\u00f3n del Se\u00f1or',c:'Rojo',ev:'Lc 22,14\u201423,56',tema:'Padre, en Tus manos encomiendo mi esp\u00edritu',ant:'Dios mío, Dios mío, ¿por qué me has abandonado?',ci:'C'},
+    '2028-04-16':{t:'Pascua',n:'Domingo de Pascua',e:'Resurrecci\u00f3n del Se\u00f1or',c:'Blanco',ev:'Jn 20,1-9',tema:'Vio y crey\u00f3',ant:'Este es el día en que actuó el Señor: sea nuestra alegría y nuestro gozo',ci:'C'},
+    '2028-04-23':{t:'Pascua',n:'II Domingo de Pascua',e:'Domingo de la Divina Misericordia',c:'Blanco',ev:'Jn 20,19-31',tema:'\u00a1Se\u00f1or m\u00edo y Dios m\u00edo!',ant:'Dad gracias al Señor porque es bueno, porque es eterna su misericordia',ci:'C'},
+    '2028-04-30':{t:'Pascua',n:'III Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 21,1-19',tema:'Se\u00f1or, T\u00fa lo sabes todo; T\u00fa sabes que Te quiero',ant:'Te ensalzaré, Señor, porque me has librado',ci:'C'},
+    '2028-05-07':{t:'Pascua',n:'IV Domingo de Pascua',e:'Domingo del Buen Pastor',c:'Blanco',ev:'Jn 10,27-30',tema:'Mis ovejas escuchan mi voz',ant:'Nosotros somos su pueblo y ovejas de su rebaño',ci:'C'},
+    '2028-05-14':{t:'Pascua',n:'V Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 13,31-33a.34-35',tema:'Os doy un mandamiento nuevo: que os am\u00e9is',ant:'Bendeciré Tu nombre por siempre, Dios mío, mi Rey',ci:'C'},
+    '2028-05-21':{t:'Pascua',n:'VI Domingo de Pascua',e:'',c:'Blanco',ev:'Jn 14,23-29',tema:'El Esp\u00edritu Santo os ense\u00f1ar\u00e1 todo',ant:'Oh, Dios, que te alaben los pueblos, que todos los pueblos te alaben',ci:'C'},
+    '2028-05-25':{t:'Pascua',n:'La Ascensi\u00f3n del Se\u00f1or',e:'Solemnidad',c:'Blanco',ev:'Lc 24,46-53',tema:'Ser\u00e9is mis testigos',ant:'Dios asciende entre aclamaciones; el Señor, al son de trompetas',ci:'C'},
+    '2028-06-04':{t:'Pascua',n:'Domingo de Pentecost\u00e9s',e:'Solemnidad',c:'Rojo',ev:'Jn 20,19-23',tema:'Recibid el Esp\u00edritu Santo',ant:'Envía Tu Espíritu, Señor, y repuebla la faz de la tierra',ci:'C'},
+    '2028-06-11':{t:'Ordinario',n:'Sant\u00edsima Trinidad',e:'Solemnidad',c:'Blanco',ev:'Jn 16,12-15',tema:'Todo lo que tiene el Padre es m\u00edo',ant:'¡Señor, Dios nuestro, qué admirable es Tu nombre en toda la tierra!',ci:'C'},
+    '2028-06-18':{t:'Ordinario',n:'Corpus Christi',e:'Solemnidad',c:'Blanco',ev:'Lc 9,11b-17',tema:'Dadles vosotros de comer',ant:'Tú eres sacerdote eterno, según el rito de Melquisedec',ci:'C'},
+    '2028-06-25':{t:'Ordinario',n:'XIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 9,51-62',tema:'Te seguir\u00e9 adondequiera que vayas',ant:'Tú eres, Señor, el lote de mi heredad',ci:'C'},
+    '2028-07-02':{t:'Ordinario',n:'XIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 10,1-12.17-20',tema:'La mies es abundante',ant:'Aclamad al Señor, tierra entera',ci:'C'},
+    '2028-07-09':{t:'Ordinario',n:'XV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 10,25-37',tema:'\u00bfQui\u00e9n es mi pr\u00f3jimo?',ant:'Los mandatos del Señor son rectos y alegran el corazón',ci:'C'},
+    '2028-07-16':{t:'Ordinario',n:'XVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 10,38-42',tema:'Mar\u00eda ha elegido la mejor parte',ant:'Señor, ¿quién puede hospedarse en Tu tienda?',ci:'C'},
+    '2028-07-23':{t:'Ordinario',n:'XVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 11,1-13',tema:'Se\u00f1or, ens\u00e9\u00f1anos a orar',ant:'Cuando te invoqué, me escuchaste, Señor',ci:'C'},
+    '2028-07-30':{t:'Ordinario',n:'XVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 12,13-21',tema:'La vida no depende de los bienes',ant:'Señor, Tú has sido nuestro refugio de generación en generación',ci:'C'},
+    '2028-08-06':{t:'Ordinario',n:'Transfiguraci\u00f3n del Se\u00f1or',e:'Fiesta',c:'Blanco',ev:'Lc 9,28-36',tema:'Este es mi Hijo, el elegido',ant:'El Señor reina, Altísimo sobre toda la tierra',ci:'C'},
+    '2028-08-13':{t:'Ordinario',n:'XIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 12,32-48',tema:'Estad preparados',ant:'Dichoso el pueblo que el Señor se escogió como heredad',ci:'C'},
+    '2028-08-15':{t:'Ordinario',n:'Asunci\u00f3n de la Virgen Mar\u00eda',e:'Solemnidad',c:'Blanco',ev:'Lc 1,39-56',tema:'El Poderoso ha hecho obras grandes por m\u00ed',ant:'De pie a Tu derecha está la reina, enjoyada con oro de Ofir',ci:'C'},
+    '2028-08-20':{t:'Ordinario',n:'XX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 12,49-53',tema:'He venido a traer fuego a la tierra',ant:'Señor, date prisa en socorrerme',ci:'C'},
+    '2028-08-27':{t:'Ordinario',n:'XXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 13,22-30',tema:'Vendr\u00e1n de oriente y occidente',ant:'Id al mundo entero y proclamad el Evangelio',ci:'C'},
+    '2028-09-03':{t:'Ordinario',n:'XXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 14,1.7-14',tema:'El que se humilla ser\u00e1 enaltecido',ant:'Tu bondad, oh, Dios, preparó una casa para los pobres',ci:'C'},
+    '2028-09-10':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 14,25-33',tema:'El que no renuncia a todo no puede ser mi disc\u00edpulo',ant:'Señor, Tú has sido nuestro refugio de generación en generación',ci:'C'},
+    '2028-09-17':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 15,1-32',tema:'Habr\u00e1 m\u00e1s alegr\u00eda en el cielo por un pecador que se convierta',ant:'Me levantaré, me pondré en camino adonde está mi Padre',ci:'C'},
+    '2028-09-24':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 16,1-13',tema:'No pod\u00e9is servir a Dios y al dinero',ant:'Alabad al Señor, que alza al pobre',ci:'C'},
+    '2028-10-01':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 16,19-31',tema:'Recibiste bienes y L\u00e1zaro males',ant:'Alaba, alma mía, al Señor',ci:'C'},
+    '2028-10-08':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 17,5-10',tema:'Aum\u00e9ntanos la fe',ant:'Ojalá escuchéis hoy la voz del Señor: «No endurezcáis vuestro corazón»',ci:'C'},
+    '2028-10-15':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 17,11-19',tema:'\u00bfNo ha habido quien volviera a dar gloria a Dios?',ant:'El Señor revela a las naciones su salvación',ci:'C'},
+    '2028-10-22':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 18,1-8',tema:'Dios har\u00e1 justicia a sus elegidos',ant:'Nuestro auxilio es el nombre del Señor, que hizo el cielo y la tierra',ci:'C'},
+    '2028-10-29':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 18,9-14',tema:'Oh Dios, ten compasi\u00f3n de este pecador',ant:'El afligido invocó al Señor, y Él lo escuchó',ci:'C'},
+    '2028-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados',ant:'Esta es la generación que busca Tu rostro, Señor',ci:'C'},
+    '2028-11-05':{t:'Ordinario',n:'XXXI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 19,1-10',tema:'El Hijo del hombre vino a buscar y salvar lo que estaba perdido',ant:'Bendeciré Tu nombre por siempre, Dios mío, mi Rey',ci:'C'},
+    '2028-11-12':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 20,27-38',tema:'No es Dios de muertos sino de vivos',ant:'Al despertar me saciaré de Tu semblante, Señor',ci:'C'},
+    '2028-11-19':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Lc 21,5-19',tema:'Con vuestra perseverancia salvar\u00e9is vuestras almas',ant:'El Señor llega para regir los pueblos con rectitud',ci:'C'},
+    '2028-11-26':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Lc 23,35-43',tema:'Hoy estar\u00e1s conmigo en el para\u00edso',ant:'Vamos alegres a la casa del Señor',ci:'C'}
+  };
+
+  var COL = {
+    'Blanco': '#F5F5F0',
+    'Verde':  '#4A7A3A',
+    'Morado': '#6A3D7A',
+    'Rojo':   '#A03030',
+    'Rosa':   '#C07090'
+  };
+
+  /* ── getPsalmUrl (from dominical.html) ─────── */
+  function getPsalmUrl(n, ci, t) {
+    var base = '../salmos/';
+    var c = ci.toLowerCase();
+    var file = null;
+    /* Adviento */
+    var m = n.match(/^(I{1,3}V?|IV) Domingo de Adviento$/);
+    if (m) { var rom = {'I':1,'II':2,'III':3,'IV':4}; file = 'adviento-' + String(rom[m[1]]).padStart(2,'0'); }
+    /* Navidad */
+    if (n === 'Natividad del Se\u00f1or') file = 'navidad-dia';
+    if (n === 'Sagrada Familia') file = 'sagrada-familia';
+    if (n === 'Santa Mar\u00eda Madre de Dios') file = 'santa-maria';
+    if (n === 'II Domingo de Navidad') file = 'navidad-02';
+    if (n === 'Epifan\u00eda del Se\u00f1or') file = 'epifania';
+    if (n === 'Bautismo del Se\u00f1or') file = 'bautismo';
+    /* Cuaresma */
+    m = n.match(/^(I{1,3}V?|IV|V) Domingo de Cuaresma$/);
+    if (m) { var rom = {'I':1,'II':2,'III':3,'IV':4,'V':5}; file = 'cuaresma-' + String(rom[m[1]]).padStart(2,'0'); }
+    /* Semana Santa */
+    if (n.indexOf('Ramos') !== -1) file = 'ramos';
+    /* Pascua */
+    if (n === 'Domingo de Pascua') file = 'pascua-01';
+    m = n.match(/^(I{1,3}V?|IV|V|VI|VII) Domingo de Pascua$/);
+    if (m) { var rom = {'II':2,'III':3,'IV':4,'V':5,'VI':6,'VII':7}; var num = rom[m[1]]; if (num) file = 'pascua-' + String(num).padStart(2,'0'); }
+    /* Ascensi\u00f3n */
+    if (n.indexOf('Ascensi') !== -1) file = 'ascension';
+    /* Pentecost\u00e9s */
+    if (n.indexOf('Pentecost') !== -1) file = 'pentecostes-dia';
+    /* Solemnidades */
+    if (n.indexOf('Trinidad') !== -1) file = 'trinidad';
+    if (n.indexOf('Corpus') !== -1 || n.indexOf('Cuerpo') !== -1) file = 'corpus';
+    if (n === 'Cristo Rey del Universo') file = 'ordinario-34';
+    if (n === 'Todos los Santos') return null;
+    /* Ordinario */
+    m = n.match(/(X{0,3})(I{1,3}V?|IV|V|VI|VII|VIII|IX|X)\s+Domingo del Tiempo Ordinario/);
+    if (m) {
+      var rom = {'II':2,'III':3,'IV':4,'V':5,'VI':6,'VII':7,'VIII':8,'IX':9,'X':10,
+                 'XI':11,'XII':12,'XIII':13,'XIV':14,'XV':15,'XVI':16,'XVII':17,'XVIII':18,
+                 'XIX':19,'XX':20,'XXI':21,'XXII':22,'XXIII':23,'XXIV':24,'XXV':25,'XXVI':26,
+                 'XXVII':27,'XXVIII':28,'XXIX':29,'XXX':30,'XXXI':31,'XXXII':32,'XXXIII':33,'XXXIV':34};
+      var full = m[1] + m[2]; var num = rom[full];
+      if (num) file = 'ordinario-' + String(num).padStart(2,'0');
     }
-  });
+    if (!file) return null;
+    var folder;
+    if (file.indexOf('ordinario-') === 0) { folder = c + '-ordinario'; }
+    else { folder = c + '-tiempos'; }
+    return base + folder + '/' + file + '.mp3';
+  }
 
-  currentTheme = name;
-  initParticles(name);
-}
+  /* ── STATE ──────────────────────────────────── */
+  var currentCycle = 'A';
+  var currentMonth = null; // {year, month} 0-indexed
+  var selectedKey = null;
+  var audioEl = null;
 
-// ── PARTICLE SYSTEM ───────────────────────────
-const canvas = document.getElementById('particle-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-let animFrame;
-let currentTheme = 'ramos';
+  var MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var DAYS = ['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'];
+  var CYCLE_YEARS = { 'A': '2025 \u2013 2026', 'B': '2026 \u2013 2027', 'C': '2027 \u2013 2028' };
 
-function resize() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
+  /* ── HELPERS ────────────────────────────────── */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function toKey(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function todayKey() { var d = new Date(); return toKey(d.getFullYear(), d.getMonth(), d.getDate()); }
 
-const THEMES = {
-  ramos: {
-    // Falling olive leaves / petals
-    count: 28,
-    create: () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      size: 4 + Math.random() * 8,
-      speed: 0.6 + Math.random() * 1.2,
-      drift: (Math.random() - 0.5) * 0.8,
-      rot: Math.random() * Math.PI * 2,
-      rotSpeed: (Math.random() - 0.5) * 0.04,
-      opacity: 0.15 + Math.random() * 0.35,
-      color: Math.random() > 0.4 ? '#7A8C28' : '#C8A830',
-      type: Math.random() > 0.5 ? 'leaf' : 'petal',
-    }),
-    draw: (p) => {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.globalAlpha = p.opacity;
-      if (p.type === 'leaf') {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, p.size * 0.4, p.size, 0, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        for (let i = 0; i < 5; i++) {
-          const a = (i * 4 * Math.PI / 5) - Math.PI / 2;
-          const r = i % 2 === 0 ? p.size : p.size * 0.4;
-          i === 0 ? ctx.moveTo(r * Math.cos(a), r * Math.sin(a))
-                  : ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
+  /* Get date range for a cycle */
+  function getCycleRange(ci) {
+    var keys = Object.keys(D).filter(function(k) { return D[k].ci === ci; }).sort();
+    if (!keys.length) return null;
+    return { first: keys[0], last: keys[keys.length - 1] };
+  }
+
+  /* Get sundays in a month that belong to current cycle */
+  function getSundaysInMonth(year, month, ci) {
+    var result = [];
+    var d = new Date(year, month, 1);
+    while (d.getMonth() === month) {
+      if (d.getDay() === 0) {
+        var key = toKey(year, month, d.getDate());
+        var lit = D[key];
+        if (lit && lit.ci === ci) {
+          result.push({ key: key, day: d.getDate(), lit: lit });
         }
-        ctx.closePath();
-        ctx.fill();
       }
-      ctx.restore();
-    },
-    update: (p) => {
-      p.y += p.speed;
-      p.x += p.drift + Math.sin(p.y * 0.02) * 0.5;
-      p.rot += p.rotSpeed;
-      if (p.y > canvas.height + 20) {
-        p.y = -20;
-        p.x = Math.random() * canvas.width;
-      }
+      d.setDate(d.getDate() + 1);
     }
-  },
-
-  jueves: {
-    // Candle flame particles — rising embers/sparks
-    count: 35,
-    create: () => ({
-      x: canvas.width * (0.3 + Math.random() * 0.4),
-      y: canvas.height * (0.5 + Math.random() * 0.5),
-      size: 1.5 + Math.random() * 4,
-      speed: 0.5 + Math.random() * 1.8,
-      drift: (Math.random() - 0.5) * 1.2,
-      opacity: 0.2 + Math.random() * 0.6,
-      life: Math.random(),
-      decay: 0.003 + Math.random() * 0.008,
-      color: Math.random() > 0.5
-        ? `hsl(${20 + Math.random()*20}, 100%, ${60+Math.random()*30}%)`
-        : `hsl(${38 + Math.random()*15}, 100%, ${70+Math.random()*20}%)`,
-    }),
-    draw: (p) => {
-      ctx.save();
-      ctx.globalAlpha = p.opacity * p.life;
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-      grad.addColorStop(0, p.color);
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    },
-    update: (p) => {
-      p.y -= p.speed;
-      p.x += p.drift;
-      p.life -= p.decay;
-      p.drift *= 0.99;
-      if (p.life <= 0) {
-        p.x = canvas.width * (0.3 + Math.random() * 0.4);
-        p.y = canvas.height * (0.6 + Math.random() * 0.4);
-        p.life = 0.6 + Math.random() * 0.4;
-        p.size = 1.5 + Math.random() * 4;
-        p.speed = 0.5 + Math.random() * 1.8;
-        p.drift = (Math.random() - 0.5) * 1.2;
-      }
-    }
-  },
-
-  vigilia: {
-    // Stars / light bursts — Resurrection
-    count: 50,
-    create: () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: 0.5 + Math.random() * 2.5,
-      pulse: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.01 + Math.random() * 0.03,
-      opacity: 0.1 + Math.random() * 0.5,
-      color: Math.random() > 0.6
-        ? '#E8C040'
-        : Math.random() > 0.5 ? '#FFFFFF' : '#C0A0E0',
-      // Some rise upward (light particles)
-      rise: Math.random() > 0.6,
-      vy: -(0.1 + Math.random() * 0.4),
-    }),
-    draw: (p) => {
-      const glow = p.size * (1 + 0.5 * Math.sin(p.pulse));
-      ctx.save();
-      ctx.globalAlpha = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glow * 3);
-      grad.addColorStop(0, p.color);
-      grad.addColorStop(0.4, p.color + '88');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, glow * 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    },
-    update: (p) => {
-      p.pulse += p.pulseSpeed;
-      if (p.rise) {
-        p.y += p.vy;
-        if (p.y < -10) p.y = canvas.height + 10;
-      }
-    }
+    return result;
   }
-};
 
-function initParticles(theme) {
-  if (animFrame) cancelAnimationFrame(animFrame);
-  particles = [];
-  const t = THEMES[theme];
-  for (let i = 0; i < t.count; i++) particles.push(t.create());
-  animate(theme);
-}
-
-function animate(theme) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const t = THEMES[theme];
-  for (const p of particles) {
-    t.update(p);
-    t.draw(p);
+  /* ── SET CYCLE ──────────────────────────────── */
+  function setCycleGlobal(ci) {
+    currentCycle = ci;
+    /* Update buttons */
+    document.querySelectorAll('.cycle-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-cycle') === ci);
+    });
+    document.getElementById('cycle-label').textContent = CYCLE_YEARS[ci] || '';
+    /* Navigate to current month or first month of cycle */
+    var range = getCycleRange(ci);
+    if (!range) return;
+    var today = new Date();
+    var tk = todayKey();
+    /* If today is within range, show today's month */
+    if (tk >= range.first && tk <= range.last) {
+      currentMonth = { year: today.getFullYear(), month: today.getMonth() };
+    } else {
+      var parts = range.first.split('-');
+      currentMonth = { year: parseInt(parts[0]), month: parseInt(parts[1]) - 1 };
+    }
+    selectedKey = null;
+    hideDetail();
+    renderCalendar();
   }
-  animFrame = requestAnimationFrame(() => animate(theme));
-}
+  window.setCycle = setCycleGlobal;
 
-// Single ceremony — init vigilia
-initParticles('vigilia');
-</script>
-<script>
-(function() {
-  function run() {
-    var list = document.querySelector('.index-list, .toc-list');
-    if (!list) return;
-    var firstA = list.querySelector('a');
-    if (!firstA) return;
+  /* ── NAV MONTH ──────────────────────────────── */
+  function navMonthGlobal(dir) {
+    var m = currentMonth.month + dir;
+    var y = currentMonth.year;
+    if (m < 0) { m = 11; y--; }
+    if (m > 11) { m = 0; y++; }
+    currentMonth = { year: y, month: m };
+    selectedKey = null;
+    hideDetail();
+    renderCalendar();
+  }
+  window.navMonth = navMonthGlobal;
 
-    var el = document.createElement('span');
-    el.id = 'pd-finger';
-    el.style.cssText = 'display:inline-block;opacity:0;transition:opacity 0.5s;vertical-align:middle;margin-left:0.4rem;font-size:' + (window.innerWidth >= 768 ? '1.4rem' : '0.9rem') + ';animation:pdFB 0.8s ease infinite alternate;';
-    el.innerHTML = '&#128070;';
+  /* ── RENDER CALENDAR ────────────────────────── */
+  function renderCalendar() {
+    var grid = document.getElementById('cal-grid');
+    var title = document.getElementById('cal-month-title');
+    var y = currentMonth.year;
+    var m = currentMonth.month;
 
-    // Insert directly before the link text
-    firstA.appendChild(el);
+    title.textContent = MONTHS[m] + ' ' + y;
 
-    // Fade in
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){ el.style.opacity = '1'; });
+    /* Get sundays with liturgical data */
+    var sundays = getSundaysInMonth(y, m, currentCycle);
+    var sundayMap = {};
+    sundays.forEach(function(s) { sundayMap[s.day] = s; });
+
+    /* Build grid */
+    var html = '';
+    DAYS.forEach(function(d) {
+      html += '<div class="cal-day-header">' + d + '<\/div>';
     });
 
-    // Remove after 5 seconds or on any link click
-    function bye() {
-      el.style.opacity = '0';
-      setTimeout(function(){ if(el.parentNode) el.remove(); }, 500);
+    var firstDay = new Date(y, m, 1).getDay();
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var tk = todayKey();
+
+    /* Empty cells before first day */
+    for (var i = 0; i < firstDay; i++) {
+      html += '<div class="cal-cell empty"><\/div>';
     }
-    setTimeout(bye, 5000);
-    list.querySelectorAll('a').forEach(function(a){
-      a.addEventListener('click', bye, {once:true});
-    });
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var key = toKey(y, m, d);
+      var dow = new Date(y, m, d).getDay();
+      var s = sundayMap[d];
+      var cls = 'cal-cell';
+      if (s) {
+        cls += ' sunday';
+        if (selectedKey === s.key) cls += ' active';
+        if (key === tk) cls += ' today';
+        var hasAudio = getPsalmUrl(s.lit.n, s.lit.ci, s.lit.t) !== null;
+        html += '<div class="' + cls + '" data-key="' + s.key + '" onclick="selectSunday(\'' + s.key + '\')">';
+        html += d;
+        if (hasAudio) html += '<span class="cal-audio-dot"><\/span>';
+        html += '<\/div>';
+      } else {
+        if (key === tk) cls += ' today';
+        html += '<div class="' + cls + '">' + d + '<\/div>';
+      }
+    }
+
+    grid.innerHTML = html;
+
+    /* Update nav button states */
+    var range = getCycleRange(currentCycle);
+    if (range) {
+      var fp = range.first.split('-');
+      var lp = range.last.split('-');
+      var firstM = parseInt(fp[1]) - 1, firstY = parseInt(fp[0]);
+      var lastM = parseInt(lp[1]) - 1, lastY = parseInt(lp[0]);
+      document.getElementById('cal-prev').disabled = (y === firstY && m <= firstM);
+      document.getElementById('cal-next').disabled = (y === lastY && m >= lastM);
+    }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 800); });
-  } else {
-    setTimeout(run, 800);
-  }
-})();
-</script>
-
-<script>
-(function() {
-  var url = window.location.href;
-  var title = document.title;
-
-  function pdShare(btn) {
-    if (navigator.share) {
-      navigator.share({ title: title, url: url });
+  /* ── SELECT SUNDAY ──────────────────────────── */
+  function selectSundayGlobal(key) {
+    if (selectedKey === key) {
+      selectedKey = null;
+      hideDetail();
+      renderCalendar();
       return;
     }
-    var wrap = btn.closest('.pd-share-wrap');
-    var dd = wrap.querySelector('.pd-share-dd');
-    wrap.querySelector('.pd-share-wa').href = 'https://wa.me/?text=' + encodeURIComponent(title + ' ' + url);
-    wrap.querySelector('.pd-share-email').href = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(url);
-    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    selectedKey = key;
+    renderCalendar();
+    showDetail(key);
   }
+  window.selectSunday = selectSundayGlobal;
 
-  function pdCopyUrl(el) {
-    navigator.clipboard.writeText(url).then(function() {
-      var orig = el.innerHTML;
-      el.innerHTML = el.innerHTML.replace('Copiar enlace', '✓ Copiado');
-      setTimeout(function() { el.innerHTML = orig; }, 2000);
-    });
-  }
+  /* ── SHOW DETAIL ────────────────────────────── */
+  function showDetail(key) {
+    var lit = D[key];
+    if (!lit) return;
+    var el = document.getElementById('sunday-detail');
+    var dd = parseInt(key.slice(8, 10));
+    var mm = parseInt(key.slice(5, 7));
+    var yyyy = key.slice(0, 4);
+    var psUrl = getPsalmUrl(lit.n, lit.ci, lit.t);
+    var colHex = COL[lit.c] || '#F5F5F0';
 
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.pd-share-wrap')) {
-      document.querySelectorAll('.pd-share-dd').forEach(function(d){ d.style.display='none'; });
+    var h = '<div class="detail-header">';
+    h += '<div class="detail-date">' + dd + ' ' + MONTHS[mm - 1].substring(0, 3).toUpperCase() + ' ' + yyyy + ' \u00b7 ' + lit.t + ' \u00b7 Ciclo ' + lit.ci + '<\/div>';
+    h += '<div class="detail-name">' + lit.n + '<\/div>';
+    if (lit.e) h += '<div class="detail-special">' + lit.e + '<\/div>';
+    h += '<\/div>';
+    h += '<div class="detail-body">';
+    h += '<div class="detail-gospel"><span class="detail-color-dot" style="background:' + colHex + '"><\/span>Evangelio: ' + lit.ev + '<\/div>';
+    if (lit.ant) {
+      h += '<div style="font-family:\'Cinzel\',serif;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem;">Ant\u00edfona del Salmo<\/div>';
+      h += '<div class="detail-theme">\u00abR/. ' + lit.ant + '\u00bb<\/div>';
+    } else {
+      h += '<div class="detail-theme">\u00ab' + lit.tema + '\u00bb<\/div>';
     }
-  });
+    h += '<div class="detail-actions">';
+    if (psUrl) {
+      h += '<div class="psalm-player" id="psalm-player">';
+      h += '<button class="psalm-play-btn" id="psalm-pp" onclick="togglePlay(event)"><svg viewBox="0 0 24 24"><polygon points="8,4 20,12 8,20"\/><\/svg><\/button>';
+      h += '<div class="psalm-player-mid"><div class="psalm-progress-wrap" id="psalm-pw" onclick="seekAudio(event)"><div class="psalm-progress-bar" id="psalm-pb"><\/div><\/div>';
+      h += '<div class="psalm-time" id="psalm-tm">0:00 / 0:00<\/div><\/div>';
+      h += '<button class="psalm-close-btn" onclick="closePlayer(event)"><svg viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"\/><line x1="12" y1="2" x2="2" y2="12"\/><\/svg><\/button>';
+      h += '<\/div>';
+    } else {
+      h += '<div class="psalm-no-audio">Audio no disponible para esta fecha<\/div>';
+    }
+    h += '<a class="detail-link" href="https://www.dominicos.org/predicacion/homilia/' + dd + '-' + mm + '-' + yyyy + '/lecturas/#:~:text=Salmo" target="_blank" rel="noopener">';
+    h += '<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"\/><polyline points="15 3 21 3 21 9"\/><line x1="10" y1="14" x2="21" y2="3"\/><\/svg>';
+    h += 'Ver lecturas del domingo<\/a>';
+    h += '<\/div><\/div>';
 
-  window.pdShare = pdShare;
-  window.pdCopyUrl = pdCopyUrl;
-})();
-</script>
-<script>
-// ── HAMBURGER MENU ──────────────────────────────
-(function() {
-  var btn     = document.getElementById('pd-hamburger');
-  var overlay = document.getElementById('pd-nav-overlay');
-  var closeBtn = document.getElementById('pd-nav-close');
+    el.innerHTML = h;
+    el.classList.add('visible');
 
-  if (!btn || !overlay || !closeBtn) return;
+    /* Setup audio */
+    if (psUrl) {
+      if (audioEl) { audioEl.pause(); audioEl.remove(); }
+      audioEl = new Audio(psUrl);
+      audioEl.addEventListener('timeupdate', updateProgress);
+      audioEl.addEventListener('ended', function() {
+        document.getElementById('psalm-pp').innerHTML = '<svg viewBox="0 0 24 24"><polygon points="8,4 20,12 8,20"\/><\/svg>';
+      });
+    }
 
-  function openMenu() {
-    btn.classList.add('open');
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    /* Scroll detail into view */
+    setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
   }
-  function closeMenu() {
-    btn.classList.remove('open');
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
+
+  function hideDetail() {
+    var el = document.getElementById('sunday-detail');
+    el.classList.remove('visible');
+    el.innerHTML = '';
+    if (audioEl) { audioEl.pause(); audioEl.remove(); audioEl = null; }
   }
 
-  btn.addEventListener('click', openMenu);
-  closeBtn.addEventListener('click', closeMenu);
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeMenu();
-  });
+  /* ── AUDIO CONTROLS ─────────────────────────── */
+  function togglePlayGlobal(e) {
+    e.stopPropagation();
+    if (!audioEl) return;
+    var pp = document.getElementById('psalm-pp');
+    if (audioEl.paused) {
+      audioEl.play();
+      pp.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"\/><rect x="14" y="4" width="4" height="16"\/><\/svg>';
+    } else {
+      audioEl.pause();
+      pp.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="8,4 20,12 8,20"\/><\/svg>';
+    }
+  }
+  window.togglePlay = togglePlayGlobal;
 
-  window.pdCloseMenu = closeMenu;
+  function seekAudioGlobal(e) {
+    if (!audioEl || !audioEl.duration) return;
+    var rect = document.getElementById('psalm-pw').getBoundingClientRect();
+    var pct = (e.clientX - rect.left) / rect.width;
+    audioEl.currentTime = pct * audioEl.duration;
+  }
+  window.seekAudio = seekAudioGlobal;
+
+  function closePlayerGlobal(e) {
+    e.stopPropagation();
+    if (audioEl) { audioEl.pause(); audioEl.currentTime = 0; }
+    var pp = document.getElementById('psalm-pp');
+    if (pp) pp.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="8,4 20,12 8,20"\/><\/svg>';
+    var pb = document.getElementById('psalm-pb');
+    if (pb) pb.style.width = '0';
+    var tm = document.getElementById('psalm-tm');
+    if (tm) tm.textContent = '0:00 / 0:00';
+  }
+  window.closePlayer = closePlayerGlobal;
+
+  function updateProgress() {
+    if (!audioEl || !audioEl.duration) return;
+    var pb = document.getElementById('psalm-pb');
+    var tm = document.getElementById('psalm-tm');
+    if (pb) pb.style.width = (audioEl.currentTime / audioEl.duration * 100) + '%';
+    if (tm) tm.textContent = fmt(audioEl.currentTime) + ' / ' + fmt(audioEl.duration);
+  }
+
+  function fmt(s) {
+    var m = Math.floor(s / 60);
+    var ss = Math.floor(s % 60);
+    return m + ':' + (ss < 10 ? '0' : '') + ss;
+  }
+
+  /* ── INIT ───────────────────────────────────── */
+  /* Auto-select cycle based on current date */
+  var today = new Date();
+  var tk = todayKey();
+  var autoCycle = 'A';
+  if (D[tk]) {
+    autoCycle = D[tk].ci;
+  } else {
+    /* Find nearest */
+    var keys = Object.keys(D).sort();
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i] >= tk) { autoCycle = D[keys[i]].ci; break; }
+    }
+  }
+  setCycleGlobal(autoCycle);
+
+  /* Auto-select today or next sunday */
+  if (D[tk] && D[tk].ci === currentCycle) {
+    selectSundayGlobal(tk);
+  } else {
+    /* Find next sunday in current cycle */
+    var keys = Object.keys(D).filter(function(k) { return D[k].ci === currentCycle && k >= tk; }).sort();
+    if (keys.length) selectSundayGlobal(keys[0]);
+  }
+
 })();
 </script>
 </body>
