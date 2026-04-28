@@ -762,6 +762,8 @@ body {
     border-bottom: none !important;
     padding: 0.8rem 0 0.2rem !important;
     list-style: none;
+    /* Compensar la barra sticky superior cuando se hace scroll programático */
+    scroll-margin-top: 70px;
   }
   .toc-moment-header::before,
   .index-moment-header::before {
@@ -1284,13 +1286,14 @@ body.rehearsal-mode .sl-tab { display: flex; }
   flex-direction: column;
   overflow: hidden;
 }
+/* Variable para la altura aprox de la barra sticky superior (pd-back-bar) */
 @media (max-height: 700px) {
-  .sl-panel { top: 0; transform: none; max-height: 100vh; max-height: 100dvh; border-radius: 0 1rem 1rem 0; }
-  .sl-header { padding-top: max(1.2rem, env(safe-area-inset-top, 1.2rem)); }
+  .sl-panel { top: 50px; transform: none; max-height: calc(100vh - 50px); max-height: calc(100dvh - 50px); border-radius: 0 1rem 1rem 0; }
+  .sl-header { padding-top: 1.2rem; }
 }
 @media (max-width: 600px) {
-  .sl-panel { top: 0; transform: none; max-height: 100vh; max-height: 100dvh; border-radius: 0; }
-  .sl-header { padding-top: max(1.2rem, env(safe-area-inset-top, 1.2rem)); border-radius: 0; }
+  .sl-panel { top: 50px; transform: none; max-height: calc(100vh - 50px); max-height: calc(100dvh - 50px); border-radius: 0; }
+  .sl-header { padding-top: 1.2rem; border-radius: 0; }
 }
 .sl-panel.open { left: 0; }
 
@@ -1301,15 +1304,6 @@ body.rehearsal-mode .sl-tab { display: flex; }
   flex-shrink: 0;
   border-radius: 0 1rem 0 0;
   position: relative;
-}
-.sl-header::after {
-  content: '─────── ✦ ───────';
-  display: block;
-  text-align: center;
-  font-size: 0.5rem;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.4);
-  padding-top: 0.4rem;
 }
 .sl-header-title {
   font-family: 'Cinzel', serif;
@@ -1585,6 +1579,174 @@ body.dev-mode .song-add-btn { display: inline-flex; }
   border-color: #fff;
 }
 .sl-pin-btn.pinned svg { transform: rotate(0deg); }
+
+/* Inline arrows in the divider line (history navigation) */
+.sl-divider-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+.sl-divider-orn {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.55);
+  font-family: 'Cinzel', serif;
+}
+.sl-hist-arrow-inline {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  font-family: serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s;
+}
+.sl-hist-arrow-inline:hover:not(.disabled) {
+  background: rgba(255,255,255,0.2);
+  border-color: #fff;
+}
+.sl-hist-arrow-inline.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Header sub-info: tiempo litúrgico, mes mariano */
+.sl-header-date {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  color: rgba(255,255,255,0.85);
+  margin-top: 0.15rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+.sl-season {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-top: 0.25rem;
+  font-family: 'Cinzel', serif;
+}
+.sl-marian {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-top: 0.15rem;
+  font-family: 'Cinzel', serif;
+  background: rgba(255,255,255,0.18);
+  border-radius: 1rem;
+  padding: 2px 8px;
+  display: inline-block;
+}
+
+/* Empty/placeholder slots */
+.sl-slot-empty .sl-song.empty {
+  color: rgba(120,90,30,0.45);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+
+/* Clickable moment label — dotted underline always visible to indicate it's a link */
+.sl-moment.clickable {
+  cursor: pointer;
+  transition: color 0.15s, text-shadow 0.15s, text-decoration-color 0.15s;
+  text-decoration: underline dotted rgba(255,255,255,0.4);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.sl-moment.clickable:hover {
+  color: #fff;
+  text-decoration: underline solid #fff;
+  text-decoration-thickness: 1px;
+  text-shadow: 0 1px 4px rgba(30,15,0,0.7);
+}
+
+/* Liturgical warning icon */
+.sl-warn {
+  display: inline-block;
+  margin-left: 0.35em;
+  color: #D88A20;
+  font-size: 0.85em;
+  cursor: help;
+}
+.sl-hint {
+  display: inline-block;
+  margin-left: 0.35em;
+  color: #B86090;
+  font-size: 0.95em;
+  cursor: help;
+}
+
+/* "Nuevo" badge inside slot */
+.sl-new-badge {
+  display: inline-block;
+  margin-left: 0.4em;
+  color: #C8943C;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+/* History view: navigation in header (legacy classes kept for the back arrow only) */
+.sl-hist-arrow, .sl-hist-back {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  font-family: serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s;
+}
+.sl-hist-arrow:hover:not(:disabled), .sl-hist-back:hover {
+  background: rgba(255,255,255,0.3);
+  border-color: #fff;
+}
+.sl-hist-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* History "+" add button (replaces × in history view) */
+.sl-add-from-hist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200,148,60,0.18);
+  border: 1px solid rgba(200,148,60,0.5);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #B08030;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.sl-add-from-hist:hover {
+  background: rgba(200,148,60,0.35);
+  color: #7A5A1E;
+  transform: scale(1.05);
+}
 
 /* Botón "+" en el título de la canción (mismo estilo que idx-add-btn pero adaptado al título) */
 .song-add-btn {
@@ -2956,7 +3118,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.24r30</span>
+    <span class="cancionero-version">v3.2.24r34</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -14763,6 +14925,7 @@ window.CPDHistory = (function() {
       // ── Header de sección ──
       var headerLi  = document.createElement('li');
       headerLi.className = 'index-moment-header';
+      headerLi.setAttribute('data-section', sectionId); /* para SL.scrollToIndex */
       headerLi.innerHTML =
         '<a class="idx-section-link" href="#' + sectionId + '">' + section + '<\/a>' +
         '<span class="idx-section-count">(' + count + ')<\/span>';
@@ -15423,6 +15586,8 @@ async function aiSend(){
     }).catch(function(){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();
+  /* Exponer el calendario litúrgico para que otros módulos (como Setlist) lean nombres exactos. */
+  window.LITURGICAL_DATA = D;
 })();
 </script>
 
@@ -15436,25 +15601,102 @@ async function aiSend(){
   'use strict';
 
   /* ── SLOT DEFINITIONS ── */
+  /* ── LITURGICAL CALENDAR ──
+     Calcula el tiempo litúrgico de una fecha dada.
+     Algoritmo de Pascua: Meeus/Jones/Butcher (válido para el calendario gregoriano). */
+  function easterSunday(year) {
+    var a = year % 19;
+    var b = Math.floor(year / 100);
+    var c = year % 100;
+    var d = Math.floor(b / 4);
+    var e = b % 4;
+    var f = Math.floor((b + 8) / 25);
+    var g = Math.floor((b - f + 1) / 3);
+    var h = (19 * a + b - d - g + 15) % 30;
+    var i = Math.floor(c / 4);
+    var k = c % 4;
+    var l = (32 + 2 * e + 2 * i - h - k) % 7;
+    var m = Math.floor((a + 11 * h + 22 * l) / 451);
+    var month = Math.floor((h + l - 7 * m + 114) / 31);
+    var day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month - 1, day);
+  }
+  function diffDays(a, b) { return Math.round((a - b) / 86400000); }
+  function getLiturgicalSeason(date) {
+    var year = date.getFullYear();
+    var easter = easterSunday(year);
+    var ashWed = new Date(easter); ashWed.setDate(easter.getDate() - 46);
+    var holyThu = new Date(easter); holyThu.setDate(easter.getDate() - 3);
+    var holySat = new Date(easter); holySat.setDate(easter.getDate() - 1);
+    var pentecost = new Date(easter); pentecost.setDate(easter.getDate() + 49);
+    /* Adviento: 4 domingos antes de Navidad (25 dic) */
+    var christmas = new Date(year, 11, 25);
+    var advStart = new Date(christmas);
+    var dow = christmas.getDay() === 0 ? 7 : christmas.getDay();
+    advStart.setDate(christmas.getDate() - dow - 21);
+    /* Bautismo del Señor: domingo después del 6 de enero (Epifanía) */
+    var epiphany = new Date(year, 0, 6);
+    var baptism = new Date(epiphany);
+    var ed = epiphany.getDay();
+    baptism.setDate(epiphany.getDate() + (ed === 0 ? 7 : 7 - ed));
+
+    if (date >= holyThu && date <= holySat) return { name: 'Triduo Pascual', code: 'triduo' };
+    if (date >= ashWed && date < holyThu) return { name: 'Cuaresma', code: 'cuaresma' };
+    if (date >= easter && date <= pentecost) return { name: 'Tiempo Pascual', code: 'pascua' };
+    if (date >= advStart && date < christmas) return { name: 'Adviento', code: 'adviento' };
+    if (date >= christmas || date <= baptism) return { name: 'Navidad', code: 'navidad' };
+    return { name: 'Tiempo Ordinario', code: 'ordinario' };
+  }
+  /* Reglas litúrgicas: ¿Aplica Gloria? ¿Aleluya? */
+  function appliesGloria(season) {
+    /* No Gloria en Adviento ni Cuaresma. Sí en Triduo (Jueves Santo y Vigilia Pascual). */
+    return season.code !== 'adviento' && season.code !== 'cuaresma';
+  }
+  function appliesAleluya(season) {
+    /* No Aleluya en Cuaresma (se sustituye por aclamación). */
+    return season.code !== 'cuaresma';
+  }
+  /* Mes Mariano: solo mayo en Perú (octubre es Señor de los Milagros / mes morado). */
+  function isMarianMonth(date) {
+    return date.getMonth() === 4; /* mayo = 4 */
+  }
+
+
+  /* SLOTS canónicos. defaultEmpty=true → siempre se muestra como placeholder vacío.
+     Los demás slots solo aparecen cuando tienen un canto asignado. */
   var SLOTS = [
-    { id: 'entrada-1',  label: 'Entrada',   sub: '1' },
+    { id: 'entrada-1',  label: 'Entrada',   defaultEmpty: true },
     { id: 'entrada-2',  label: 'Entrada',   sub: '2' },
-    { id: 'piedad',     label: 'Piedad' },
-    { id: 'gloria',     label: 'Gloria' },
-    { id: 'evangelio',  label: 'Evangelio' },
-    { id: 'ofertorio-1',label: 'Ofertorio', sub: '1' },
+    { id: 'piedad',     label: 'Piedad',    defaultEmpty: true },
+    { id: 'gloria',     label: 'Gloria',    defaultEmpty: true,  liturgical: 'gloria' },
+    { id: 'evangelio',  label: 'Aleluya',   defaultEmpty: true,  liturgical: 'aleluya' },
+    { id: 'ofertorio-1',label: 'Ofertorio', defaultEmpty: true },
     { id: 'ofertorio-2',label: 'Ofertorio', sub: '2' },
-    { id: 'santo',      label: 'Santo' },
-    { id: 'cordero',    label: 'Cordero' },
-    { id: 'comunion-1', label: 'Comunión',  sub: '1' },
+    { id: 'santo',      label: 'Santo',     defaultEmpty: true },
+    { id: 'cordero',    label: 'Cordero',   defaultEmpty: true },
+    { id: 'comunion-1', label: 'Comunión',  defaultEmpty: true },
     { id: 'comunion-2', label: 'Comunión',  sub: '2' },
     { id: 'comunion-3', label: 'Comunión',  sub: '3' },
-    { id: 'salida',     label: 'Salida' },
+    { id: 'salida',     label: 'Salida',    defaultEmpty: true },
     { id: 'especial-1', label: 'Especial', sub: '1' },
     { id: 'especial-2', label: 'Especial', sub: '2' },
     { id: 'especial-3', label: 'Especial', sub: '3' },
     { id: 'especial-4', label: 'Especial', sub: '4' }
   ];
+
+  /* Map de slot.label → id de sección en el cancionero (para clic en etiqueta) */
+  var LABEL_TO_SECTION = {
+    'Entrada':   'sec-entrada',
+    'Piedad':    'sec-piedad',
+    'Gloria':    'sec-gloria',
+    'Aleluya':   'sec-aleluya',
+    'Ofertorio': 'sec-ofertorio',
+    'Santo':     'sec-santo',
+    'Cordero':   'sec-cordero',
+    'Comunión':  'sec-comunion',
+    'Salida':    'sec-salida',
+    'Especial':  'sec-momentos'
+  };
 
   /* ── TAG → MOMENT MAPPING ── */
   var TAG_MAP = {
@@ -15507,25 +15749,118 @@ async function aiSend(){
   var SUNDAY_KEY = getNextSunday();
   var FB_PATH = '/setlist/' + SUNDAY_KEY;
 
-  /* ── RENDER SLOTS ── */
+  /* ── HELPERS DE BADGES ──
+     "✦ Nuevo" reusa la misma lógica del cancionero: data-added en los últimos 60 días. */
+  var NEW_DAYS = 60;
+  function isNewSong(cpd) {
+    var card = document.querySelector('[data-chord-id="' + cpd + '"]');
+    if (!card || !card.dataset.added) return false;
+    var added = new Date(card.dataset.added);
+    if (isNaN(added.getTime())) return false;
+    var diffMs = Date.now() - added.getTime();
+    return diffMs <= NEW_DAYS * 86400000;
+  }
+
+  /* ── RENDER SLOTS ──
+     Modo "actual": muestra placeholders por defecto + cantos asignados con advertencias.
+     Modo "histórico": muestra solo los cantos que existieron en ese setlist, con botón "agregar al actual". */
   function renderSlots() {
+    if (currentView === 'history') {
+      renderHistoryView();
+      return;
+    }
+    /* Determinar tiempo litúrgico del próximo domingo */
+    var sundayDate = parseDateKey(SUNDAY_KEY);
+    var season = getLiturgicalSeason(sundayDate);
+    var isMarian = isMarianMonth(sundayDate);
+
+    /* Nombre litúrgico exacto desde el objeto D del módulo de calendario.
+       Si no existe el dato, cae al nombre genérico del tiempo. */
+    var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[SUNDAY_KEY]) || null;
+    var liturgicalName = litData && litData.n ? litData.n : season.name;
+
+    /* Header info: nombre litúrgico + (si aplica) Mes Mariano + flechas históricas inline */
+    var headerInfo = '<div class="sl-season">' + liturgicalName + '</div>';
+    if (isMarian) {
+      headerInfo += '<div class="sl-marian">✦ Mes Mariano ✦</div>';
+    }
+    /* Línea de separador con flechas de historial integradas (única línea de separador) */
+    var hasHistory = historyDates.length > 0;
+    var arrowsLeft = hasHistory
+      ? '<button class="sl-hist-arrow-inline" onclick="window.SL.showHistory()" title="Ver setlists anteriores">‹</button>'
+      : '<span class="sl-hist-arrow-inline disabled">‹</span>';
+    headerInfo += '<div class="sl-divider-row">' +
+        arrowsLeft +
+        '<span class="sl-divider-orn">─── ✦ ───</span>' +
+        '<span class="sl-hist-arrow-inline disabled">›</span>' +
+      '</div>';
+
+    var titleEl = panel.querySelector('.sl-header-title');
+    if (titleEl) {
+      /* En modo "actual" no mostramos fecha (ahorra una línea); el nombre litúrgico ya identifica el domingo */
+      titleEl.innerHTML = 'SetList Actual' + headerInfo;
+    }
+
     var html = '';
-    var count = 0;
     SLOTS.forEach(function(slot) {
       var data = setlistData[slot.id];
-      if (!data) return; // skip empty slots
-      count++;
+      var hasContent = !!data;
+      var shouldShow = hasContent || slot.defaultEmpty;
+      if (!shouldShow) return;
+
       var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
-      html += '<div class="sl-slot">' +
-        '<span class="sl-moment">' + label + '<\/span>' +
-        '<span class="sl-song" onclick="window.SL.goTo(\'' + data.cpd + '\')">' + data.title + '<\/span>' +
-        '<button class="sl-remove" onclick="window.SL.remove(\'' + slot.id + '\')" title="Quitar">&times;<\/button>' +
-        '<\/div>';
+      var labelClickable = LABEL_TO_SECTION[slot.label]
+        ? ' clickable" onclick="window.SL.scrollToIndex(\'' + LABEL_TO_SECTION[slot.label] + '\')" title="Ir al índice'
+        : '"';
+
+      /* Determinar advertencias por tiempo litúrgico */
+      var warning = '';
+      if (slot.liturgical === 'gloria' && !appliesGloria(season)) {
+        warning = '<span class="sl-warn" title="No se canta Gloria en ' + season.name + '">⚠</span>';
+      }
+      if (slot.liturgical === 'aleluya' && !appliesAleluya(season)) {
+        warning = '<span class="sl-warn" title="En Cuaresma se sustituye por aclamación">⚠</span>';
+      }
+      /* Recordatorio Mes Mariano en Salida */
+      if (slot.id === 'salida' && isMarian && !hasContent) {
+        warning = '<span class="sl-hint" title="Mes Mariano: considera un canto a la Virgen">✿</span>';
+      }
+
+      if (hasContent) {
+        var newBadge = isNewSong(data.cpd) ? '<span class="sl-new-badge" title="Canto nuevo">✦</span>' : '';
+        html += '<div class="sl-slot">' +
+          '<span class="sl-moment' + labelClickable + '">' + label + warning + '<\/span>' +
+          '<span class="sl-song" onclick="window.SL.goTo(\'' + data.cpd + '\')">' + data.title + newBadge + '<\/span>' +
+          '<button class="sl-remove" onclick="window.SL.remove(\'' + slot.id + '\')" title="Quitar">&times;<\/button>' +
+          '<\/div>';
+      } else {
+        /* Placeholder vacío */
+        html += '<div class="sl-slot sl-slot-empty">' +
+          '<span class="sl-moment' + labelClickable + '">' + label + warning + '<\/span>' +
+          '<span class="sl-song empty">— vacío —<\/span>' +
+          '<\/div>';
+      }
     });
-    if (!count) {
-      html = '<div class="sl-slot"><span class="sl-song empty" style="text-align:center;width:100%;">Sin cantos asignados<\/span><\/div>';
-    }
     slotsEl.innerHTML = html;
+  }
+
+  function parseDateKey(key) {
+    var parts = key.split('-');
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  }
+  function scrollToIndex(sectionId) {
+    /* Cierra el panel (a menos que esté pineado) */
+    if (!isPinned) closePanel();
+    /* El índice está en #dominical-index. Sub-secciones: id de moment-header en cancionero también */
+    var indexEl = document.getElementById('dominical-index');
+    if (!indexEl) return;
+    /* Buscar dentro del índice el header de la sección */
+    var sectionInIndex = indexEl.querySelector('[data-section="' + sectionId + '"]');
+    if (sectionInIndex) {
+      sectionInIndex.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      indexEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   /* ── FIREBASE ── */
@@ -15579,6 +15914,145 @@ async function aiSend(){
     }).catch(function(err) {
       console.warn('[Setlist] Error limpiando:', err.message);
     });
+  }
+
+  /* ── SETLIST HISTORY ──
+     Carga las últimas 4 fechas con setlist guardado y permite navegar entre ellas.
+     Cuando hay un canto en histórico, ofrece botón para agregarlo al setlist actual. */
+  var historyDates = [];   // array de fechas (yyyy-mm-dd) ordenadas desc
+  var historyIndex = -1;   // índice activo dentro de historyDates
+  var historyData = {};    // { fecha: { slotId: {cpd, title} } }
+  var currentView = 'current'; // 'current' | 'history'
+
+  function loadHistory() {
+    /* Trae todas las fechas del nodo /setlist y filtra las últimas 4 ANTES del próximo domingo */
+    return fetch(FIREBASE_URL + '/setlist.json?shallow=true')
+      .then(function(r) { return r.json(); })
+      .then(function(keys) {
+        if (!keys) return;
+        var allDates = Object.keys(keys).filter(function(k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); });
+        /* Solo fechas estrictamente anteriores al domingo actual */
+        allDates = allDates.filter(function(d) { return d < SUNDAY_KEY; });
+        allDates.sort(function(a, b) { return b.localeCompare(a); }); /* desc */
+        historyDates = allDates.slice(0, 4);
+      })
+      .catch(function(err) { console.warn('[History] Error:', err.message); });
+  }
+
+  function loadHistorySetlist(dateKey) {
+    if (historyData[dateKey]) return Promise.resolve(historyData[dateKey]);
+    return fetch(FIREBASE_URL + '/setlist/' + dateKey + '.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        historyData[dateKey] = data || {};
+        return historyData[dateKey];
+      });
+  }
+
+  function showHistory() {
+    if (!historyDates.length) {
+      loadHistory().then(function() {
+        if (!historyDates.length) {
+          alert('No hay setlists anteriores guardados.');
+          return;
+        }
+        historyIndex = 0;
+        currentView = 'history';
+        renderSlots();
+      });
+    } else {
+      historyIndex = 0;
+      currentView = 'history';
+      renderSlots();
+    }
+  }
+  function exitHistory() {
+    currentView = 'current';
+    historyIndex = -1;
+    renderSlots();
+  }
+  function historyPrev() {
+    if (historyIndex < historyDates.length - 1) {
+      historyIndex++;
+      renderSlots();
+    }
+  }
+  function historyNext() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      renderSlots();
+    }
+  }
+
+  function renderHistoryView() {
+    var dateKey = historyDates[historyIndex];
+    if (!dateKey) { exitHistory(); return; }
+
+    /* Datos litúrgicos del histórico para mostrar nombre exacto del domingo */
+    var litData = (typeof window.LITURGICAL_DATA === 'object' && window.LITURGICAL_DATA[dateKey]) || null;
+    var liturgicalName = litData && litData.n ? litData.n : '';
+
+    /* Header en modo histórico con flechas inline */
+    var titleEl = panel.querySelector('.sl-header-title');
+    if (titleEl) {
+      var leftArrow = historyIndex < historyDates.length - 1
+        ? '<button class="sl-hist-arrow-inline" onclick="window.SL.historyPrev()" title="Anterior">‹</button>'
+        : '<span class="sl-hist-arrow-inline disabled">‹</span>';
+      var rightArrow = historyIndex > 0
+        ? '<button class="sl-hist-arrow-inline" onclick="window.SL.historyNext()" title="Siguiente">›</button>'
+        : '<button class="sl-hist-arrow-inline" onclick="window.SL.exitHistory()" title="Volver al actual">›</button>';
+      var nameLine = liturgicalName ? '<div class="sl-season">' + liturgicalName + '</div>' : '';
+      titleEl.innerHTML = 'Histórico' +
+        '<div class="sl-header-date">' + formatDate(dateKey) + '</div>' +
+        nameLine +
+        '<div class="sl-divider-row">' +
+          leftArrow +
+          '<span class="sl-divider-orn">' + (historyIndex + 1) + ' / ' + historyDates.length + '</span>' +
+          rightArrow +
+        '</div>';
+    }
+
+    loadHistorySetlist(dateKey).then(function(data) {
+      var html = '';
+      var anyContent = false;
+      SLOTS.forEach(function(slot) {
+        var d = data && data[slot.id];
+        if (!d) return;
+        anyContent = true;
+        var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
+        var newBadge = isNewSong(d.cpd) ? '<span class="sl-new-badge">✦</span>' : '';
+        html += '<div class="sl-slot">' +
+          '<span class="sl-moment">' + label + '<\/span>' +
+          '<span class="sl-song" onclick="window.SL.goTo(\'' + d.cpd + '\')">' + d.title + newBadge + '<\/span>' +
+          '<button class="sl-add-from-hist" onclick="window.SL.addFromHistory(\'' + d.cpd + '\')" title="Agregar al setlist actual">+<\/button>' +
+          '<\/div>';
+      });
+      if (!anyContent) {
+        html = '<div class="sl-slot"><span class="sl-song empty" style="text-align:center;width:100%;">Sin cantos en este histórico<\/span><\/div>';
+      }
+      slotsEl.innerHTML = html;
+    });
+  }
+
+  function addFromHistory(cpd) {
+    /* Reusa el mismo flujo que addSong: abre el dialog con el slot sugerido */
+    var card = document.querySelector('[data-chord-id="' + cpd + '"]');
+    if (!card) {
+      alert('Canto no encontrado en el cancionero.');
+      return;
+    }
+    var titleEl = card.querySelector('.song-title');
+    var title = '';
+    if (titleEl) {
+      titleEl.childNodes.forEach(function(n) {
+        if (n.nodeType === 3) title += n.textContent;
+      });
+    }
+    title = title.trim();
+    var moment = detectMoment(card);
+    /* Volver al modo actual antes de abrir el diálogo */
+    exitHistory();
+    openAddDialog(cpd, title, moment);
   }
 
   /* ── PANEL OPEN/CLOSE ── */
@@ -15739,6 +16213,7 @@ async function aiSend(){
   /* ── INIT ── */
   renderSlots();
   loadFromFirebase();
+  loadHistory();
   restorePinState();
   injectAddButtons();
 
@@ -15753,6 +16228,12 @@ async function aiSend(){
     togglePin: togglePin,
     isPinned: function() { return isPinned; },
     injectAddButtons: injectAddButtons,
+    scrollToIndex: scrollToIndex,
+    showHistory: showHistory,
+    exitHistory: exitHistory,
+    historyPrev: historyPrev,
+    historyNext: historyNext,
+    addFromHistory: addFromHistory,
     addSong: function(cpd) {
       var card = document.querySelector('[data-chord-id="' + cpd + '"]');
       if (!card) return;
