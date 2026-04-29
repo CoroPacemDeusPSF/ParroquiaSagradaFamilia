@@ -6,7 +6,7 @@
  *   @brief      Correcciones globales tempranas (DOM cleanup, polyfills mínimos)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.35
+ *   @version    v3.2.36
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

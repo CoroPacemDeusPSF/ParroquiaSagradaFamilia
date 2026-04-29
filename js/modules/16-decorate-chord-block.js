@@ -6,7 +6,7 @@
  *   @brief      Decora bloques de acordes recién renderizados (parsing de spans)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.35
+ *   @version    v3.2.36
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

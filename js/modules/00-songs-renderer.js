@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.35
+ *   @version    v3.2.36
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -192,10 +192,11 @@
     'Santo':                                    'sec-santo',
     'Cordero de Dios':                          'sec-cordero',
     'Comunión':                                 'sec-comunion',
+    'Acción de Gracias':                        'sec-accion-gracias',
     'Salida':                                   'sec-salida',
     'Exposición del Santísimo':                 'sec-exposicion',
     '✦ Momentos Especiales ✦':                  'sec-momentos',
-    'Adoración/Reflexión — Acción de Gracias':  'sec-adoracion-reflexion',
+    'Adoración/Reflexión':                      'sec-adoracion-reflexion',
     'Animación':                                'sec-animacion'
   };
 

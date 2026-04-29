@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.35
+ *   @version    v3.2.36
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -129,7 +129,14 @@
     'Especial':  'sec-momentos'
   };
 
-  /* ── TAG → MOMENT MAPPING ── */
+  /* ── TAG → MOMENT MAPPING ──
+     Mapea el moment del cancionero al prefijo de slot del SetList.
+     El diálogo "Agregar al SetList" resalta como sugeridos los slots cuyo id
+     COMIENCE con el valor mapeado.
+       • 'comunion'   → sugiere comunion-1, comunion-2, comunion-3 (los tres)
+       • 'comunion-2' → sugiere específicamente comunion-2 (el segundo canto
+                        de comunión es la posición canónica para Acción de
+                        Gracias post-comunión).                                */
   var TAG_MAP = {
     'Entrada': 'entrada',
     'Piedad': 'piedad',
@@ -140,7 +147,8 @@
     'Santo': 'santo',
     'Cordero de Dios': 'cordero',
     'Comunión': 'comunion',
-    'Adoración/Reflexión — Acción de Gracias': 'comunion',
+    'Acción de Gracias': 'comunion-2',
+    'Adoración/Reflexión': 'comunion',
     'Salida': 'salida',
     'Animación': 'especial',
     'Momentos especiales': 'especial',
