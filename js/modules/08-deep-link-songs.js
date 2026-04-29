@@ -6,7 +6,7 @@
  *   @brief      Deep links a cantos específicos (#dXX) y scroll automático
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37
+ *   @version    v3.2.37r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -26,7 +26,11 @@
 // ── DEEP LINK TO SONGS ────────────────────────────
 (function() {
   var hash = window.location.hash.replace('#', '');
-  if (hash && /^d\d{2}$/.test(hash)) {
+  // Aceptar tanto IDs de 2 dígitos (d01-d99) como de 3 dígitos (d100+).
+  // El cancionero superó los 99 cantos cuando se agregó cpd-100, momento en
+  // el que la regex anterior /^d\d{2}$/ dejó de matchear los nuevos IDs y
+  // los deep links de esos cantos quedaban silenciosamente rotos.
+  if (hash && /^d\d{2,3}$/.test(hash)) {
     setTimeout(function() {
       var el = document.getElementById(hash);
       if (el) {
