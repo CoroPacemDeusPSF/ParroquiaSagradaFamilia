@@ -6,7 +6,7 @@
  *   @brief      Modal de búsqueda con índice invertido del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.33
+ *   @version    v3.2.34
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
