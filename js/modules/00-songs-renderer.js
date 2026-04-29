@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r2
+ *   @version    v3.2.40r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

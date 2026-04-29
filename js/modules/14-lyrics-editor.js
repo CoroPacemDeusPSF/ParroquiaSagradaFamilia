@@ -6,7 +6,7 @@
  *   @brief      Editor de letras con guardado en Firebase y normalización
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r2
+ *   @version    v3.2.40r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -323,7 +323,7 @@
       var btn = document.createElement('button');
       btn.className = 'lyrics-edit-btn';
       btn.title = 'Editar letra (' + cpdId + ')';
-      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Letra';
+      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar';
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
         window.openLyricsEditor(cpdId);

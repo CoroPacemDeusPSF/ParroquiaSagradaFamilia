@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r2
+ *   @version    v3.2.40r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -97,7 +97,7 @@
         var d = anchor ? anchor.id : '';
 
         // Título limpio (solo el texto del título, sin SVGs ni botones)
-        // Estructura nueva (v3.2.40r2+): el texto está dentro de .song-title-text
+        // Estructura nueva (v3.2.40r3+): el texto está dentro de .song-title-text
         // Estructura antigua: primer text node directo dentro de .song-title
         // Probamos ambos para mantener compatibilidad si algún día se restaura
         // la estructura plana.

@@ -7,7 +7,7 @@
     @brief      Documentación principal del repositorio
     @author     Renzo Núñez Berdejo
     @project    Cancionero Dominical
-    @version    v3.2.40r2
+    @version    v3.2.40r3
 
   ────────────────────────────────────────────────────────────────────────────
 -->

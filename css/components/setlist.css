@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.40r2
+     @version    v3.2.40r3
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -356,32 +356,11 @@ body.dev-mode .sl-clear { display: block; }
 .idx-add-btn:hover { background: rgba(200,148,60,0.15); }
 body.dev-mode .idx-add-btn { display: inline-flex; }
 
-/* "+" button next to song titles - dynamic injection by SL module */
-.song-add-btn {
-  display: none;
-  background: none;
-  border: 1px solid rgba(200,148,60,0.4);
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  color: #C8943C;
-  font-size: 0.95rem;
-  line-height: 1;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-left: 0.6rem;
-  vertical-align: middle;
-  transition: all 0.15s;
-  font-family: inherit;
-  padding: 0;
-}
-.song-add-btn:hover {
-  background: rgba(200,148,60,0.18);
-  border-color: rgba(200,148,60,0.7);
-  transform: scale(1.05);
-}
-body.dev-mode .song-add-btn { display: inline-flex; }
+/* Nota: las reglas de `.song-add-btn` (botón "+" legacy inyectado en los
+   títulos por el SetList) fueron eliminadas en v3.2.40r3 — ahora el botón
+   "+" lo genera el renderer como `.add-setlist-btn` (estilo dorado grande,
+   ver css/components/song-card.css). Tener ambos creaba dos botones "+"
+   visibles en el mismo título. */
 
 /* Pin button on edge panel header */
 .sl-pin-btn {
@@ -616,32 +595,9 @@ body.dev-mode .song-add-btn { display: inline-flex; }
   transform: scale(1.05);
 }
 
-/* Botón "+" en el título de la canción (mismo estilo que idx-add-btn pero adaptado al título) */
-.song-add-btn {
-  display: none;
-  background: none;
-  border: 1px solid rgba(200,148,60,0.4);
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  color: #C8943C;
-  font-size: 0.95rem;
-  line-height: 1;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-  transition: all 0.15s;
-  font-family: inherit;
-  padding: 0;
-}
-.song-add-btn:hover {
-  background: rgba(200,148,60,0.18);
-  border-color: rgba(200,148,60,0.7);
-  transform: scale(1.05);
-}
-body.dev-mode .song-add-btn { display: inline-flex; }
+/* (las reglas de .song-add-btn aquí también fueron eliminadas en v3.2.40r3
+   — eran un duplicado del bloque anterior. El botón "+" ahora vive en
+   .add-setlist-btn dentro de css/components/song-card.css.) */
 
 /* chords-toggle siempre visible */
 .chords-toggle { display: inline-block; }

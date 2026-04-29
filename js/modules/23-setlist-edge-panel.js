@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r2
+ *   @version    v3.2.40r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -673,29 +673,17 @@
     }
   }
 
-  /* ── INJECT "+" BUTTONS NEXT TO SONG TITLES ── */
-  /* Idempotent: only adds buttons to cards that don't have one yet. */
+  /* ── INJECT "+" BUTTONS NEXT TO SONG TITLES (LEGADO — DESACTIVADO) ──
+     Esta función fue reemplazada en v3.2.39 por el botón `.add-setlist-btn`
+     que el renderer (00-songs-renderer.js → renderSetlistBtn) genera junto
+     al título de cada canto. Eliminamos la inyección legacy para evitar
+     que aparezcan DOS botones "+" en cada título (uno dorado grande del
+     renderer y uno blanco pequeño que esta función agregaba dinámicamente).
+     Mantenemos esta función como no-op por compatibilidad y referencia
+     histórica — si en el futuro algún módulo externo la invoca, no se
+     romperá nada. */
   function injectAddButtons() {
-    var cards = document.querySelectorAll('.song-card[data-chord-id]');
-    cards.forEach(function(card) {
-      var titleEl = card.querySelector('.song-title');
-      if (!titleEl) return;
-      /* Skip if already injected */
-      if (titleEl.querySelector('.song-add-btn')) return;
-      var cpd = card.dataset.chordId;
-      if (!cpd) return;
-      var btn = document.createElement('button');
-      btn.className = 'song-add-btn';
-      btn.title = 'Agregar al setlist';
-      btn.setAttribute('aria-label', 'Agregar al setlist');
-      btn.textContent = '+';
-      btn.addEventListener('click', function(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        window.SL.addSong(cpd);
-      });
-      titleEl.appendChild(btn);
-    });
+    /* No-op: el botón "+" ahora vive en el renderer. */
   }
 
   /* ── INIT ── */
