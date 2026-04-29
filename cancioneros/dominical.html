@@ -1260,7 +1260,11 @@ body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
 /* ── SETLIST EDGE PANEL ────────────────────── */
 /* Tab handle (visible in Coro mode) */
 .sl-tab {
-  display: none;
+  /* Visible siempre por defecto. En modo Coro/Dev se preserva la presencia
+     mágica completa (latido + emisión de notas musicales). En modo público
+     el latido sigue activo (señaliza interactividad) pero la emisión de notas
+     queda desactivada por el guardia rehearsal-mode en EmanationFX. */
+  display: flex;
   position: fixed;
   left: 0; top: 50%;
   transform: translateY(-50%);
@@ -1298,11 +1302,20 @@ body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
   12%           { transform: scale(1.15); }
   16%, 100%     { transform: scale(1); }
 }
-body.rehearsal-mode .sl-tab { display: flex; }
 .sl-tab-hidden { display: none !important; }
 .sl-tab:hover {
   width: 32px;
   box-shadow: 3px 3px 18px rgba(200,148,60,0.8), 0 0 0 1px rgba(255,225,170,0.3) inset;
+}
+
+/* ── Modo público (read-only): el panel se abre, pero todos los controles
+   de edición y navegación quedan ocultos. Solo se muestra el SetList vigente
+   como información de consulta. Los selectores usan :not(.rehearsal-mode) para
+   capturar exactamente el estado público (Coro y Dev son ambos rehearsal-mode). */
+body:not(.rehearsal-mode) .sl-pin-btn,
+body:not(.rehearsal-mode) .sl-tema-nav,
+body:not(.rehearsal-mode) .sl-tema-nav-spacer {
+  display: none !important;
 }
 
 /* Panel drawer */
@@ -3397,7 +3410,7 @@ body.dev-mode #btn-expand-all { display: inline-block !important; }
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.25r7</span>
+    <span class="cancionero-version">v3.2.27</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -4899,6 +4912,127 @@ anime nuestro mundo para siempre.</pre>
     </div>
     <a class="back-link" href="#dominical-index">Volver al índice</a>
 
+    <a class="back-link" id="d113" href="#dominical-index">Volver al índice</a>
+    <div class="song-card" data-chord-id="cpd-113" data-added="2026-04-29">
+      <div class="song-header"><div class="song-header-bar"></div>
+        <div class="song-number">00</div>
+        <div class="song-header-text">
+          <div class="song-moment-label">Gloria</div>
+          <div class="song-title">Gloria &ndash; M. Frisina<a class="yt-play-btn" href="#chords-block-d113" onclick="toggleChords('d113',true);setTimeout(function(){document.getElementById('chords-block-d113').scrollIntoView({behavior:'smooth',block:'nearest'});},100);return false;" target="_blank" title="Ver acordes" style="color:#43A047;"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><line x1="10" y1="8" x2="30" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="1.5"/><text x="3" y="27" font-size="24" fill="currentColor" font-family="serif" font-weight="bold">𝄞</text></svg></a><a class="yt-play-btn" href="https://youtu.be/aMgzS6C9wXQ?t=12" target="_blank" title="Ver referencia en YouTube" style="color:#FF0000;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a></div>
+        </div>
+      </div>
+      <div class="song-body">
+        <div class="chorus">
+          <p>Gloria, gloria a Dios en el cielo</p>
+          <p>Gloria a Dios en el cielo</p>
+          <p>Y en la tierra, paz a los hombres</p>
+          <p>Paz a los hombres que ama el Señor</p>
+        </div>
+        <div class="strophe">
+          <p>Por Su inmensa gloria Te alabamos</p>
+          <p>Te bendecimos, Te adoramos, Te glorificamos</p>
+          <p>Te damos gracias</p>
+          <p>Señor Dios, Rey Celestial</p>
+          <p>Dios Padre Todopoderoso</p>
+          <p>Señor Hijo &Uacute;nico, Jesucris...to</p>
+        </div>
+        <div class="strophe">
+          <p>Señor Dios Cordero de Dios</p>
+          <p>Hijo del Padre, T&uacute; que quitas el pecado del</p>
+          <p>Mundo, ten piedad de nosotros</p>
+          <p>T&uacute; que quitas el pecado del mundo</p>
+          <p>Atiende nuestra s&uacute;plica</p>
+          <p>T&uacute; que est&aacute;s sentado a la derecha del Padre</p>
+          <p>Ten piedad de nosotros</p>
+        </div>
+        <div class="strophe">
+          <p>Porque s&oacute;lo T&uacute; eres Santo</p>
+          <p>S&oacute;lo T&uacute; Señor, s&oacute;lo T&uacute; Alt&iacute;simo</p>
+          <p>Jesucristo</p>
+          <p>Con el Esp&iacute;ritu Santo en la Gloria de Dios Padre</p>
+          <p>Am&eacute;n, Am&eacute;n</p>
+        </div>
+        <div class="song-ornament">✦ ✦ ✦</div>
+        <button class="chords-toggle" id="chords-toggle-d113" onclick="toggleChords('d113')">Ver acordes &#9662;</button>
+        <div class="chords-block" id="chords-block-d113">
+          <pre><b>♫ Gloria &ndash; M. Frisina</b>
+
+<b>═══ ESTRIBILLO ═══</b>
+
+Gloria, gloria a Dios en el cielo
+<span class="chord">RE</span>  <span class="chord">LA/DO#</span>        <span class="chord">DO6</span>        <span class="chord">SOL</span>
+Gloria a Dios en el cielo
+<span class="chord">RE/FA#</span>    <span class="chord">SOL</span>      <span class="chord">LA4</span>    <span class="chord">LA7</span>
+Y en la tierra, paz a los hombres
+<span class="chord">RE</span>  <span class="chord">LA/DO#</span>      <span class="chord">DO6</span>          <span class="chord">SOL</span>
+Paz a los hombres que ama el Señor
+<span class="chord">RE/FA#</span>    <span class="chord">SOL</span>     <span class="chord">LA4</span>       <span class="chord">LA7</span>
+
+<b>═══ ESTROFA 1 ═══</b>
+
+Por Su inmensa gloria Te alabamos
+<span class="chord">RE</span>
+Te bendecimos, Te adoramos, Te glorificamos
+       <span class="chord">LA/DO#</span>   <span class="chord">Sim</span>
+Te damos gracias
+       <span class="chord">LA4</span>    <span class="chord">LA7</span>
+Señor Dios, Rey Celestial
+  <span class="chord">RE/FA#</span>
+Dios Padre Todopoderoso
+                   <span class="chord">Fa#m</span>
+Señor Hijo &Uacute;nico, Jesucris...to
+ <span class="chord">SOL</span>                     <span class="chord">LA4</span>  <span class="chord">LA7</span>
+
+<b>═══ ESTROFA 2 ═══</b>
+
+Señor Dios Cordero de Dios
+<span class="chord">RE</span>
+Hijo del Padre, T&uacute; que quitas el pecado del
+        <span class="chord">LA/DO#</span>   <span class="chord">Sim</span>
+Mundo, ten piedad de nosotros
+                   <span class="chord">LA4</span>     <span class="chord">LA7</span>
+T&uacute; que quitas el pecado del mundo
+  <span class="chord">RE/FA#</span>
+Atiende nuestra s&uacute;plica
+               <span class="chord">Fa#m</span>
+T&uacute; que est&aacute;s sentado a la derecha del Padre
+ <span class="chord">SOL</span>
+Ten piedad de nosotros
+               <span class="chord">LA4</span>  <span class="chord">LA7</span>
+
+<b>═══ ESTROFA 3 ═══</b>
+
+Porque s&oacute;lo T&uacute; eres Santo
+<span class="chord">RE</span>
+S&oacute;lo T&uacute; Señor, s&oacute;lo T&uacute; Alt&iacute;simo
+       <span class="chord">LA/DO#</span>    <span class="chord">Sim</span>
+Jesucristo
+  <span class="chord">LA4</span>    <span class="chord">LA7</span>
+Con el Esp&iacute;ritu Santo en la Gloria de Dios Padre
+  <span class="chord">RE/FA#</span>                                     <span class="chord">Fa#m</span>
+Am&eacute;n, Am&eacute;n
+ <span class="chord">SOL</span>  <span class="chord">LA4</span>   <span class="chord">LA7</span></pre>
+        </div>
+      </div>
+    </div>
+    <button class="context-toggle" id="context-toggle-d113" onclick="toggleContext('d113')">Ver contexto lit&uacute;rgico &#9662;</button>
+    <div class="context-block" id="context-block-d113">
+      <p class="ctx-title">Gloria &ndash; M. Frisina</p>
+      <div class="ctx-section">
+        <div class="ctx-label">Compositor</div>
+        <div class="ctx-text"><p><strong>Mons. Marco Frisina</strong> (Roma, 1954) &mdash; sacerdote, compositor y director del coro de la Di&oacute;cesis de Roma. Es uno de los compositores de m&uacute;sica lit&uacute;rgica m&aacute;s importantes de la Iglesia cat&oacute;lica contempor&aacute;nea, con un cat&aacute;logo extenso que incluye oratorios, misas y cantos que se interpretan en celebraciones papales. Su estilo combina la solemnidad de la tradici&oacute;n con una melod&iacute;a accesible, lo que ha hecho que muchas de sus piezas se hayan integrado al repertorio est&aacute;ndar de parroquias en todo el mundo hispanohablante.</p></div>
+      </div>
+      <div class="ctx-section">
+        <div class="ctx-label">Fundamento b&iacute;blico y lit&uacute;rgico</div>
+        <div class="ctx-text"><p>El Gloria (<span class="ctx-ref">Gloria in excelsis Deo</span>) es uno de los himnos m&aacute;s antiguos de la Iglesia, datado en el siglo II. Se le llama &laquo;himno ang&eacute;lico&raquo; porque sus primeras palabras son las que los &aacute;ngeles cantaron a los pastores en la noche de Navidad, anunciando el nacimiento del Salvador:</p>
+        <span class="ctx-verse">&laquo;Gloria a Dios en las alturas, y en la tierra paz a los hombres que gozan de Su amor&raquo; &mdash; Lc 2,14</span>
+        <p>El cuerpo del himno desarrolla una doxolog&iacute;a trinitaria: alabanza al Padre (&laquo;Señor Dios, Rey celestial&raquo;), s&uacute;plica al Hijo (&laquo;Cordero de Dios, ten piedad&raquo;), y aclamaci&oacute;n final en uni&oacute;n con el Esp&iacute;ritu Santo. Se canta en todas las celebraciones eucar&iacute;sticas dominicales y festivas, omiti&eacute;ndose &uacute;nicamente durante <strong>Adviento</strong> y <strong>Cuaresma</strong>, tiempos de espera y conversi&oacute;n.</p></div>
+      </div>
+      <div class="ctx-section">
+        <div class="ctx-label">Tiempos y momentos lit&uacute;rgicos</div>
+        <div class="ctx-tags"><span class="ctx-tag ctx-tag-momento">Gloria</span><span class="ctx-tag ctx-tag-tiempo">Tiempo Ordinario</span><span class="ctx-tag ctx-tag-tiempo">Navidad</span><span class="ctx-tag ctx-tag-tiempo">Pascua</span><span class="ctx-tag ctx-tag-tiempo">Solemnidades</span></div>
+      </div>
+    </div>
     <a class="back-link" id="d08" href="#dominical-index">Volver al índice</a>
     <div class="song-card" data-chord-id="cpd-008">
       <div class="song-header"><div class="song-header-bar"></div>
@@ -16219,7 +16353,11 @@ async function aiSend(){
        Cormorant italic 0.78rem). Las flechas de navegación al histórico se sitúan
        en sus extremos. El indicador "•" pulsante dorado (setlist vigente) acompaña
        al nombre litúrgico, ya que el nombre identifica al setlist en sí. */
-    var leftNav = historyDates.length > 0
+    /* Flecha izquierda al histórico: solo si hay setlists previos Y el usuario
+       está en modo Coro/Dev (rehearsal-mode). En modo público no ofrecemos
+       navegación; el CSS también oculta estos elementos como defensa adicional. */
+    var isPublicMode = !document.body.classList.contains('rehearsal-mode');
+    var leftNav = (!isPublicMode && historyDates.length > 0)
       ? '<button class="sl-tema-nav" onclick="window.SL.showHistory()" ' +
             'title="Ver setlists anteriores" aria-label="Ver setlists anteriores">‹</button>'
       : '<span class="sl-tema-nav-spacer" aria-hidden="true"></span>';
@@ -16688,6 +16826,15 @@ async function aiSend(){
   });
   restorePinState();
   injectAddButtons();
+
+  /* Re-renderizar el panel cuando el body entra o sale de rehearsal-mode.
+     Esto es necesario porque el modo público oculta la navegación del histórico
+     y otros controles, y el render se ejecutó la primera vez con el modo activo
+     en ese momento. Sin esto, cambiar de modo durante la sesión dejaría el
+     panel desactualizado hasta que el usuario recargue la página. */
+  new MutationObserver(function() {
+    if (currentView === 'current') renderSlots();
+  }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
   /* ── PUBLIC API ── */
   window.SL = {
