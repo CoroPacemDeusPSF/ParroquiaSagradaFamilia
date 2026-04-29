@@ -6,7 +6,7 @@
  *   @brief      Editor de letras con guardado en Firebase y normalización
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.36
+ *   @version    v3.2.37
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

@@ -6,7 +6,7 @@
  *   @brief      Modo Dev: 5-clicks en cruz del footer (solo en Modo Coro)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.36
+ *   @version    v3.2.37
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.36
+ *   @version    v3.2.37
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
