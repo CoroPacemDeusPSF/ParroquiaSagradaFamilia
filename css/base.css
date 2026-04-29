@@ -1,3 +1,15 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/base.css
+     @brief      Reset, body, fondo de partículas y estilos base globales
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.2.33
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
 /* ============================================================================
    base.css — Reset, root styles, particle canvas, shared animations
    ============================================================================
@@ -14,7 +26,25 @@
    ROOT & RESET
 ═══════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+
+/* ── Reset del root: contención de overflow horizontal y scroll suave ──
+   • `overflow-x: clip` en html y body PREVIENE que cualquier elemento que
+     desborde lateralmente (notas musicales que vuelan, animaciones de pulso
+     en elementos position:fixed, etc.) cause scroll horizontal en móvil.
+     `clip` es la opción moderna que permite mantener position:fixed
+     funcional pero recorta el contenido extendido sin crear scrollbars.
+   • `scroll-behavior` solo se aplica cuando el usuario NO está usando un
+     dispositivo táctil. En táctiles, el `smooth` programático compite con
+     el momentum del touch y produce un efecto "tembloroso" al hacer scroll
+     rápido. La query @media (hover: hover) detecta dispositivos con cursor
+     real (mouse/trackpad) y excluye dispositivos táctiles puros. */
+html, body {
+  overflow-x: clip;
+}
+
+@media (hover: hover) {
+  html { scroll-behavior: smooth; }
+}
 
 :root {
   /* Ramos – olives, gold, spring green */

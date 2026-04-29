@@ -1,3 +1,16 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/modules/00-songs-renderer.js
+ *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.2.33
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
 /* ============================================================================
    00-songs-renderer.js
    ============================================================================

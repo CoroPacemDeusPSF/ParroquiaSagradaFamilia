@@ -1,3 +1,16 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/modules/12-chord-multicolumn.js
+ *   @brief      Layout multi-columna de acordes en fullscreen (estilo Word)
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.2.33
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
 /* ============================================================================
    12-chord-multicolumn.js
    ============================================================================

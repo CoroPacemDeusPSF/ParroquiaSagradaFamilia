@@ -1,3 +1,16 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/modules/25-event-delegation.js
+ *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.2.33
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
 /* ============================================================================
    25-event-delegation.js
    ============================================================================

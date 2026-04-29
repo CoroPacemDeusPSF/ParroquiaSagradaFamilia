@@ -1,3 +1,15 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/song-card.css
+     @brief      Card individual de cada canto (header, body, ornamentos)
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.2.33
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
 /* ============================================================================
    song-card.css — Tarjetas de cantos individuales
    ============================================================================
@@ -58,6 +70,22 @@
   letter-spacing: 0.35em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* ── Adaptación móvil del label de momento litúrgico ──
+   En móvil (≤ 480px) algunos labels largos como
+   "ADORACIÓN/REFLEXIÓN — ACCIÓN DE GRACIAS" con letter-spacing 0.35em
+   y nowrap llegaban a desbordar 200px hacia la derecha del viewport,
+   causando scroll horizontal. Reducimos letter-spacing y font-size, y
+   permitimos salto de línea natural manteniendo el centrado del header. */
+@media (max-width: 480px) {
+  .moment-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    white-space: normal;
+    text-align: center;
+    word-spacing: 0.05em;
+  }
 }
 .ceremony.ramos  .moment-label { color: #C8A830; }
 .ceremony.jueves .moment-label { color: #C8943C; }

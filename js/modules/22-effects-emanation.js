@@ -1,3 +1,16 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/modules/22-effects-emanation.js
+ *   @brief      Efecto de emanación de halo en cruces y elementos sagrados
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.2.33
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
 /* ============================================================================
    22-effects-emanation.js
    ============================================================================

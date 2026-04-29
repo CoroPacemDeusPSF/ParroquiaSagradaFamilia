@@ -1,3 +1,15 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/ceremony.css
+     @brief      Estructura general de cada ceremonia/cancionero
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.2.33
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
 /* ============================================================================
    ceremony.css — Estructura de ceremonias (compartida con Semana Santa)
    ============================================================================
@@ -159,9 +171,15 @@
 .ceremony-title {
   font-family: 'Cinzel', serif;
   font-weight: 900;
-  font-size: clamp(2rem, 5vw, 3.8rem);
+  /* clamp ajustado: el mínimo bajó de 2rem → 1.5rem para evitar overflow
+     en móviles estrechos (~360-390px). En mobile el título "CANCIONERO
+     DOMINICAL" + Cinzel 900 + 32px llegaba a 413px de ancho. */
+  font-size: clamp(1.5rem, 5vw, 3.8rem);
   line-height: 1.1;
   margin-bottom: 0.6rem;
+  /* En el caso extremo donde el título sea aún más largo, permitir
+     ruptura natural antes de romper el viewport. */
+  overflow-wrap: break-word;
 }
 .ceremony.ramos  .ceremony-title { color: #E8D88A; }
 .ceremony.jueves .ceremony-title { color: #F0E0C8; }

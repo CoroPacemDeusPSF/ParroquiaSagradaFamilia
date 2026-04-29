@@ -1,6 +1,15 @@
-/* ═══════════════════════════════════════════
-   PACEM DEUS — main.js
-═══════════════════════════════════════════ */
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/main.js
+ *   @brief      Bootstrap del index.html (selector de cancioneros)
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.2.33
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 
 // ── TOP PANEL TABS (Cancioneros / Salmos) ────
 function showTopPanel(panelId, btn) {

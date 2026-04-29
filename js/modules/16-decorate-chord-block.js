@@ -1,3 +1,16 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/modules/16-decorate-chord-block.js
+ *   @brief      Decora bloques de acordes recién renderizados (parsing de spans)
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.2.33
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
 /* ============================================================================
    16-decorate-chord-block.js
    ============================================================================
