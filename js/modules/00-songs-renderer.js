@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37
+ *   @version    v3.2.40r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -49,8 +49,17 @@
   /**
    * Genera el HTML de un botón yt-play-btn (icono de acordes o de YouTube).
    * Reproduce exactamente el SVG inline que estaba en el HTML original.
+   *
+   * @param {string} kind        — 'chords' o 'youtube'
+   * @param {string} did         — id de la canción (para anclas)
+   * @param {string} youtubeUrl  — URL de YouTube (solo si kind === 'youtube')
+   * @param {number} [refIndex]  — posición 1-based del botón cuando hay
+   *                               múltiples referencias (1, 2, 3...). Se
+   *                               aplica como clase CSS yt-play-btn--ref-N
+   *                               para que el CSS asigne colores distintos
+   *                               por posición (1=rojo, 2=verde, 3=morado).
    */
-  function renderYtBtn(kind, did, youtubeUrl) {
+  function renderYtBtn(kind, did, youtubeUrl, refIndex) {
     if (kind === 'chords') {
       return (
         '<a class="yt-play-btn yt-play-btn--chords"' +
@@ -68,11 +77,15 @@
       );
     }
     if (kind === 'youtube') {
+      const refClass = refIndex ? ' yt-play-btn--ref-' + refIndex : '';
+      const titleAttr = refIndex && refIndex > 1
+        ? 'Ver referencia ' + refIndex + ' en YouTube'
+        : 'Ver referencia en YouTube';
       return (
-        '<a class="yt-play-btn yt-play-btn--youtube"' +
+        '<a class="yt-play-btn yt-play-btn--youtube' + refClass + '"' +
         ' href="' + youtubeUrl + '"' +
         ' target="_blank"' +
-        ' title="Ver referencia en YouTube">' +
+        ' title="' + titleAttr + '">' +
         '<svg viewBox="0 0 24 24" fill="currentColor">' +
         '<path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>' +
         '</svg></a>'
@@ -82,19 +95,106 @@
   }
 
   /**
-   * Genera el HTML del song-title con sus botones (acordes / YouTube).
-   * Solo aparece el botón de acordes si la canción tiene chords_html.
-   * Solo aparece el botón YouTube si la canción tiene youtube.
+   * Genera el HTML del song-title con sus botones en el orden correcto:
+   *
+   *   [Título] [Compartir] ............ [Acordes] [YouTube...] [+ SetList]
+   *
+   * • Compartir queda pegado al título (acción universal).
+   * • El grupo de la derecha se empuja al extremo con `.song-title-actions`
+   *   (CSS: margin-left:auto). Contiene los botones de referencia musical
+   *   (acordes, YouTube) y la acción del director (agregar al SetList).
+   *
+   * Visibilidad:
+   *   • Compartir → siempre
+   *   • Acordes   → siempre (si la canción tiene chords_html)
+   *   • YouTube   → solo en Modo Coro (si la canción tiene youtube)
+   *   • SetList   → solo en Modo Coro
+   *
+   * El campo `song.youtube` puede ser:
+   *   • String     — una sola referencia (caso más común)
+   *   • Array      — múltiples referencias (ej. distintas interpretaciones,
+   *                  versiones original/coral, audio/video, etc.)
+   *   • Vacío/null — no se muestra ningún botón de YouTube
+   *
+   * Cuando hay múltiples referencias, cada una recibe un color distinto por
+   * posición (rojo / verde / morado / etc.) — ver renderYtBtn.
    */
   function renderTitle(song) {
-    let html = song.title;
-    if (song.chords_html) {
-      html += renderYtBtn('chords', song.did, null);
-    }
-    if (song.youtube) {
-      html += renderYtBtn('youtube', song.did, song.youtube);
-    }
-    return html;
+    let actions = '';
+    if (song.chords_html) actions += renderYtBtn('chords', song.did, null);
+
+    // Normalizar youtube a array (acepta string, array o vacío).
+    const ytUrls = normalizeYoutube(song.youtube);
+    ytUrls.forEach(function (url, idx) {
+      actions += renderYtBtn('youtube', song.did, url, idx + 1);
+    });
+
+    actions += renderSetlistBtn(song.cpd);
+
+    return (
+      '<span class="song-title-text">' + song.title + '</span>' +
+      renderShareBtn(song.did) +
+      '<span class="song-title-actions">' + actions + '</span>'
+    );
+  }
+
+  /**
+   * Normaliza el campo `youtube` del JSON a un array de URLs limpio.
+   * Acepta string (1 URL), array de strings (varias URLs), o vacío.
+   * Filtra valores falsy para que un campo "" no genere un botón vacío.
+   */
+  function normalizeYoutube(field) {
+    if (!field) return [];
+    if (Array.isArray(field)) return field.filter(function (u) { return !!u; });
+    if (typeof field === 'string') return [field];
+    return [];
+  }
+
+  /**
+   * Genera el HTML del botón de compartir canción.
+   * Al hacer click copia al portapapeles el deep link directo a esta canción.
+   * Renderiza un SVG minimalista de 3 nodos conectados (estilo iOS).
+   */
+  function renderShareBtn(did) {
+    return (
+      '<button class="share-song-btn"' +
+      ' data-action="share-song" data-target="' + did + '"' +
+      ' aria-label="Copiar enlace a esta canción"' +
+      ' title="Copiar enlace a esta canción">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+      ' stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"' +
+      ' width="16" height="16" aria-hidden="true">' +
+      '<circle cx="18" cy="5"  r="2.6"/>' +
+      '<circle cx="6"  cy="12" r="2.6"/>' +
+      '<circle cx="18" cy="19" r="2.6"/>' +
+      '<line x1="8.3"  y1="10.7" x2="15.7" y2="6.3"/>' +
+      '<line x1="8.3"  y1="13.3" x2="15.7" y2="17.7"/>' +
+      '</svg></button>'
+    );
+  }
+
+  /**
+   * Genera el HTML del botón "+" para agregar la canción al SetList.
+   * Solo visible en Modo Coro (es una acción del director del coro).
+   * Al hacer click invoca window.SL.addSong(cpd) que abre el diálogo
+   * de selección de slot del SetList con el slot sugerido pre-resaltado.
+   *
+   * SVG: signo "+" dentro de un círculo, estilo iOS Add minimalista.
+   */
+  function renderSetlistBtn(cpd) {
+    return (
+      '<button class="add-setlist-btn"' +
+      ' data-action="add-to-setlist" data-target="' + cpd + '"' +
+      ' aria-label="Agregar al SetList"' +
+      ' title="Agregar al SetList">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+      ' stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"' +
+      ' width="18" height="18" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="9"/>' +
+      '<line x1="12" y1="8"  x2="12" y2="16"/>' +
+      '<line x1="8"  y1="12" x2="16" y2="12"/>' +
+      '</svg></button>'
+    );
   }
 
   /**

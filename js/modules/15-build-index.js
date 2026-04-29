@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37
+ *   @version    v3.2.40r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -96,13 +96,22 @@
         while (anchor && !anchor.id) anchor = anchor.previousElementSibling;
         var d = anchor ? anchor.id : '';
 
-        // Título limpio (solo texto del primer nodo, sin botones)
+        // Título limpio (solo el texto del título, sin SVGs ni botones)
+        // Estructura nueva (v3.2.40r2+): el texto está dentro de .song-title-text
+        // Estructura antigua: primer text node directo dentro de .song-title
+        // Probamos ambos para mantener compatibilidad si algún día se restaura
+        // la estructura plana.
         var titleEl  = card.querySelector('.song-title');
         var titleTxt = '';
         if (titleEl) {
-          titleEl.childNodes.forEach(function(node) {
-            if (node.nodeType === 3) titleTxt += node.textContent; // texto
-          });
+          var titleTextEl = titleEl.querySelector('.song-title-text');
+          if (titleTextEl) {
+            titleTxt = titleTextEl.textContent;
+          } else {
+            titleEl.childNodes.forEach(function(node) {
+              if (node.nodeType === 3) titleTxt += node.textContent; // text node
+            });
+          }
         }
         titleTxt = titleTxt.trim();
 
@@ -127,13 +136,23 @@
           : '';
 
         // Botón YouTube (si la card tiene link de YouTube)
+        // Copia las CLASES CSS del botón original — no los inline styles —
+        // para preservar los colores por posición (--ref-1 rojo, --ref-2
+        // verde, --ref-3 morado) que ahora viven en css/pages/dominical.css.
+        // Antes leíamos `el.style.color`, pero como los colores migraron a
+        // clases CSS al refactorizar el sistema multi-URL, ese campo siempre
+        // quedaba vacío y todos los íconos terminaban heredando el rojo
+        // default → de ahí el bug de "3 íconos rojos en el índice".
         var ytEls = titleEl ? titleEl.querySelectorAll('.yt-play-btn[href*="youtu"]') : [];
         var ytBtn = '';
-        ytEls.forEach(function(el){
-          var c=el.style.color||'#FF0000';
-          ytBtn+='<a class="yt-play-btn" href="'+el.getAttribute('href')+'"'+
-            ' target="_blank" title="'+(el.getAttribute('title')||'Ver referencia en YouTube')+'"'+
-            ' style="color:'+c+';">'+SVG_YT+'<\/a>';
+        ytEls.forEach(function (el) {
+          var classes = el.className; // mantiene .yt-play-btn--ref-N intactas
+          var titleAttr = el.getAttribute('title') || 'Ver referencia en YouTube';
+          ytBtn +=
+            '<a class="' + classes + '"' +
+            ' href="' + el.getAttribute('href') + '"' +
+            ' target="_blank"' +
+            ' title="' + titleAttr + '">' + SVG_YT + '<\/a>';
         });
 
         // Construir el <li>

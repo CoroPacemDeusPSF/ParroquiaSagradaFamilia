@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37
+ *   @version    v3.2.40r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -114,6 +114,30 @@
     /** Copia la URL actual al portapapeles y muestra toast. */
     'pd-copy-url': (el) => {
       if (typeof window.pdCopyUrl === 'function') window.pdCopyUrl(el);
+    },
+
+    /**
+     * Copia el deep link directo a una canción al portapapeles.
+     * El elemento debe llevar data-target="dXX" con el did del canto.
+     * Reutiliza la función expuesta por el módulo 08-deep-link-songs.js.
+     */
+    'share-song': (el) => {
+      const did = el.getAttribute('data-target');
+      if (typeof window.pdCopySongLink === 'function') {
+        window.pdCopySongLink(did);
+      }
+    },
+
+    /**
+     * Agrega una canción al SetList desde el botón "+" del título.
+     * El elemento debe llevar data-target="cpd-XXX" con el id del canto.
+     * Invoca window.SL.addSong() que abre el diálogo de selección de slot.
+     */
+    'add-to-setlist': (el) => {
+      const cpd = el.getAttribute('data-target');
+      if (window.SL && typeof window.SL.addSong === 'function') {
+        window.SL.addSong(cpd);
+      }
     },
 
     // ══ Búsqueda ════════════════════════════════════════════════════════

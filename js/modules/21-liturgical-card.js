@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37
+ *   @version    v3.2.40r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

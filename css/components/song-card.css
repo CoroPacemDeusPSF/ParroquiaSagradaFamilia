@@ -6,7 +6,7 @@
      @brief      Card individual de cada canto (header, body, ornamentos)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.37
+     @version    v3.2.40r2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -222,9 +222,107 @@
   gap: 0.25rem;
   column-gap: 0.4rem;
 }
+
+/* ── Layout interno del título ──
+   Estructura HTML producida por el renderer:
+     <div class="song-title">
+       <span class="song-title-text">Título</span>
+       <button class="share-song-btn">...</button>
+       <span class="song-title-actions">
+         <button class="yt-play-btn--chords">...</button>
+         <a class="yt-play-btn--youtube">...</a>
+         <button class="add-setlist-btn">+</button>
+       </span>
+     </div>
+   El compartir queda pegado al título; el grupo de actions se empuja
+   al extremo derecho con margin-left:auto. */
+.song-title-text { display: inline; }
+.song-title-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
+}
+
 .ceremony.ramos  .song-title { color: #F5F0DC; }
 .ceremony.jueves .song-title { color: #F0E0C8; }
 .ceremony.vigilia .song-title { color: #FAF0D0; }
+
+/* ── Botón "Compartir esta canción" junto al título ──
+   Botón circular minimalista con SVG de 3 nodos conectados (estilo iOS).
+   Siempre visible (a diferencia del botón YouTube que sólo aparece en
+   Modo Coro), porque compartir es una acción universal para todos los
+   usuarios — feligreses comparten links, no sólo el director.
+   Usa color "currentColor" en el SVG → hereda el color del texto del
+   título, lo que hace que se adapte automáticamente a cualquier ceremonia
+   sin necesidad de override por tema. La opacidad reducida lo mantiene
+   sutil para no competir visualmente con el título. */
+.share-song-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 0.3rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+}
+.share-song-btn:hover {
+  opacity: 0.95;
+  background-color: rgba(200, 148, 60, 0.10);
+}
+.share-song-btn:active {
+  transform: scale(0.92);
+}
+.share-song-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* ── Botón "+ Agregar al SetList" ──
+   Solo visible en Modo Coro porque agregar al SetList es una acción
+   exclusiva del director del coro. Visualmente más prominente que el
+   botón compartir (un poco más grande y con mayor opacidad de reposo)
+   para destacar como "acción primaria del director" en cada canto. */
+.add-setlist-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+body.rehearsal-mode .add-setlist-btn { display: inline-flex; }
+.add-setlist-btn:hover {
+  opacity: 1;
+  background-color: rgba(200, 148, 60, 0.15);
+}
+.add-setlist-btn:active {
+  transform: scale(0.90);
+}
+.add-setlist-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
 
 .song-body {
   padding: 1.8rem 2.2rem 2.2rem;

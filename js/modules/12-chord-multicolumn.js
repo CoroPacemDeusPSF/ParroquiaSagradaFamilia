@@ -6,7 +6,7 @@
  *   @brief      Layout multi-columna de acordes en fullscreen (estilo Word)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37
+ *   @version    v3.2.40r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

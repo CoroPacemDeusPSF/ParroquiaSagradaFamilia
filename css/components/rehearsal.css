@@ -6,7 +6,7 @@
      @brief      Modo Coro: animación de ingreso, badge, controles del director
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.37
+     @version    v3.2.40r2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -67,6 +67,12 @@ body.dev-mode #rehearsal-badge .badge-dev { display: block !important; }
 .index-list .yt-play-btn { flex: none; }
 .yt-play-btn:hover { opacity: 1; }
 .yt-play-btn svg { width: 20px; height: 20px; }
+
+/* Cuando el yt-play-btn está dentro del grupo de acciones del título
+   (.song-title-actions), el espaciado lo gobierna el `gap` del flex
+   del contenedor — anulamos el margin-left propio para evitar offsets
+   redundantes que romperían la alineación con el botón "+" del SetList. */
+.song-title-actions .yt-play-btn { margin-left: 0; }
 
 /* Partitura (acordes): siempre visible */
 .yt-play-btn[href^="#chords-block"] { display: inline-flex; }

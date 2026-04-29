@@ -6,7 +6,7 @@
  *   @brief      Deep links a cantos específicos (#dXX) y scroll automático
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.37r1
+ *   @version    v3.2.40r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -42,7 +42,9 @@
     }, 300);
   }
 
-  // Toast
+  // ── Toast de confirmación ─────────────────────────────────────────────
+  // Único nodo reutilizado por todas las acciones de copia (número de canto,
+  // botón de compartir junto al título, etc.).
   var toast = document.createElement('div');
   toast.className = 'link-toast';
   toast.textContent = '\u2713 Link copiado';
@@ -54,7 +56,41 @@
     toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 1800);
   }
 
-  // Make song numbers clickable
+  // ── Lógica unificada de compartir canción ─────────────────────────────
+  // Recibe el `did` de la canción (ej. "d114") y copia el deep link al
+  // portapapeles. Si el navegador no soporta navigator.clipboard (HTTP no
+  // seguro o navegadores antiguos), cae en el fallback con execCommand.
+  function copySongLink(did) {
+    if (!did) return;
+    var url = window.location.origin + window.location.pathname + '#' + did;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(showToast, function() {
+        // Si falla por permisos, usar fallback.
+        copySongLinkFallback(url);
+      });
+    } else {
+      copySongLinkFallback(url);
+    }
+  }
+  function copySongLinkFallback(url) {
+    var tmp = document.createElement('textarea');
+    tmp.value = url;
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); } catch (e) { /* noop */ }
+    document.body.removeChild(tmp);
+    showToast();
+  }
+
+  // Exponer para que otros módulos (event-delegation, share-song-btn,
+  // etc.) puedan invocar esta lógica sin duplicarla.
+  window.pdCopySongLink = copySongLink;
+
+  // ── Hacer que el número de canto siga siendo clickable ────────────────
+  // (comportamiento legado; el nuevo botón junto al título es la vía
+  // recomendada, pero mantenemos esta para no romper la UX existente).
   document.querySelectorAll('.song-number').forEach(function(numEl) {
     numEl.addEventListener('click', function() {
       var card = numEl.closest('.song-card');
@@ -62,18 +98,7 @@
       var backLink = card.previousElementSibling;
       while (backLink && !backLink.id) backLink = backLink.previousElementSibling;
       if (!backLink || !backLink.id) return;
-      var url = window.location.origin + window.location.pathname + '#' + backLink.id;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(showToast);
-      } else {
-        var tmp = document.createElement('textarea');
-        tmp.value = url;
-        document.body.appendChild(tmp);
-        tmp.select();
-        document.execCommand('copy');
-        document.body.removeChild(tmp);
-        showToast();
-      }
+      copySongLink(backLink.id);
     });
   });
 })();

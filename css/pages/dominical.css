@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.37
+     @version    v3.2.40r2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -103,7 +103,37 @@
 
 /* Iconos en el botón yt-play-btn — diferenciados por tipo de enlace */
 .yt-play-btn--chords  { color: var(--color-success); }
-.yt-play-btn--youtube { color: #FF0000; }  /* rojo de marca de YouTube */
+.yt-play-btn--youtube { color: #FF0000; }  /* rojo de marca de YouTube (default) */
+
+/* ── Colores por posición cuando hay múltiples referencias de YouTube ──
+   El convenio del cancionero asigna un color distinto a cada referencia
+   para que el coro pueda identificar visualmente "la grabación 1", "la 2"
+   y "la 3" sin tener que abrir cada link. Los colores siguen el mismo
+   patrón que existía en el cancionero original antes del refactor a JSON.
+     • Referencia 1 → ROJO    (color de marca YouTube — default)
+     • Referencia 2 → VERDE   (segunda interpretación)
+     • Referencia 3 → MORADO  (tercera interpretación)
+
+   ⚠ Cada color se declara dos veces para asegurar que gane en ambos
+   contextos donde aparecen los botones:
+
+     1. Selector base (.yt-play-btn--youtube.yt-play-btn--ref-N):
+        Aplica en las cards de los cantos. Especificidad (0,2,0).
+
+     2. Selector específico para el índice
+        (.ceremony.dominical .index-list a.yt-play-btn--ref-N):
+        Aplica en la lista del índice. Especificidad (0,4,1) — necesita ser
+        más alta que la regla problemática `.ceremony.dominical .index-list
+        a { color: #C8D8A8 }` (especificidad 0,3,1) que pinta de beige
+        verdoso TODOS los <a> del índice. Sin este selector, los íconos
+        del índice ganarían el color de los enlaces de texto y se verían
+        indistinguibles del título del canto. */
+.yt-play-btn--youtube.yt-play-btn--ref-1,
+.ceremony.dominical .index-list a.yt-play-btn--ref-1 { color: #FF0000; }  /* rojo  */
+.yt-play-btn--youtube.yt-play-btn--ref-2,
+.ceremony.dominical .index-list a.yt-play-btn--ref-2 { color: #2E9D3F; }  /* verde */
+.yt-play-btn--youtube.yt-play-btn--ref-3,
+.ceremony.dominical .index-list a.yt-play-btn--ref-3 { color: #8E4DC9; }  /* morado */
 
 /* Marcador rojo discreto (subnotas): variante alternativa del context-toggle */
 .context-toggle--alt {
