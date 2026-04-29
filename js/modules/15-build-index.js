@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.34
+ *   @version    v3.2.35
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
