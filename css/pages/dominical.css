@@ -1,0 +1,219 @@
+/* ============================================================================
+   dominical.css — Estilos específicos de la página del cancionero dominical
+   ============================================================================
+   Tipografías y colores propios del Tiempo Ordinario: portada en script,
+   índice sobre fondo verde oscuro, song cards con header verde, etc.
+   Estos estilos sobrescriben/complementan los componentes compartidos.
+   ============================================================================ */
+
+/* ── Override ── */
+.ceremony.dominical {
+  background: transparent;
+}
+
+/* ── Portada ── */
+.ceremony.dominical .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(42,74,32,0.5) 0%, transparent 60%),
+    linear-gradient(180deg, #0E1A0C 0%, #1A2E14 40%, #2A4A20 80%, #1A2E14 100%);
+}
+.ceremony.dominical .ceremony-icon { color: #7AA858; }
+.ceremony.dominical .ceremony-title {
+  color: #D4E8B0;
+  text-shadow: 0 2px 30px rgba(100,160,60,0.25);
+}
+.ceremony.dominical .ceremony-date { color: rgba(160,200,120,0.45); }
+.ceremony.dominical .ceremony-eyebrow { color: rgba(160,200,120,0.4); }
+
+/* ── Índice sobre fondo oscuro ── */
+.ceremony.dominical .ceremony-index { background: rgba(14,26,12,0.6); }
+.ceremony.dominical .idx-num { color: #7AA858; }
+.ceremony.dominical .index-list a { color: #C8D8A8; }
+.ceremony.dominical .index-list a:hover { color: #A8E070; }
+.ceremony.dominical .index-list li { border-bottom-color: rgba(122,168,88,0.12); }
+.ceremony.dominical .index-moment-header span { color: #8BC060; border-bottom-color: rgba(122,168,88,0.25); }
+.ceremony.dominical .index-title { color: #8BC060; }
+.ceremony.dominical .index-heading { color: #8BC060; }
+.ceremony.dominical .index-rule { background: linear-gradient(90deg, transparent, rgba(122,168,88,0.25), transparent); }
+.ceremony.dominical .index-note { color: rgba(122,168,88,0.5); }
+
+/* ── Encabezados de momento ── */
+.ceremony.dominical .moment-header {
+  background: linear-gradient(90deg, rgba(42,74,32,0.4), transparent);
+  border-left-color: #6B9E4A;
+}
+.ceremony.dominical .moment-header::before,
+.ceremony.dominical .moment-header::after { background: linear-gradient(90deg, transparent, rgba(139,192,96,0.5), transparent); }
+.ceremony.dominical .moment-label { color: #8BC060; }
+
+/* ── Song cards ── */
+.ceremony.dominical .song-card {
+  background: #F6F9F2;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+  border: 1px solid rgba(107,158,74,0.15);
+}
+.ceremony.dominical .song-card::after { border-bottom-color: rgba(107,158,74,0.08); }
+.ceremony.dominical .song-header {
+  background: linear-gradient(105deg, #14220E 0%, #1E3416 50%, #2A4A20 100%);
+}
+.ceremony.dominical .song-header-bar { background: linear-gradient(90deg, #7AA858, #5C8A3A); }
+.ceremony.dominical .song-number { color: #A8D080; }
+.ceremony.dominical .song-moment-label { color: #B0D888; }
+.ceremony.dominical .song-title {
+  color: #ECF4DC;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.3);
+}
+.ceremony.dominical .strophe p { color: #1E1E18; }
+.ceremony.dominical .chorus { background: rgba(107,158,74,0.06); border-color: #6B9E4A; }
+.ceremony.dominical .chorus p { color: #1E1E18; }
+.ceremony.dominical .song-note { color: #5A7A40; border-color: rgba(107,158,74,0.2); }
+.ceremony.dominical .song-ornament { color: rgba(107,158,74,0.25); }
+
+/* ── Back links, footer ── */
+.ceremony.dominical .back-link { color: #6B9E4A; }
+.ceremony.dominical .info-pill { background: rgba(107,158,74,0.12); color: #8BC060; }
+.ceremony.dominical .ceremony-footer { color: rgba(107,158,74,0.5); border-top-color: rgba(107,158,74,0.12); }
+.ceremony.dominical .ceremony-footer .footer-icon { color: #6B9E4A; }
+.ceremony.dominical .ceremony-footer p { color: rgba(107,158,74,0.4); }
+
+
+
+
+
+
+
+/* ============================================================================
+   ICONOS Y UTILIDADES — añadidas en Fase 4 (eliminación de styles inline)
+   ============================================================================
+   Reemplazan los ~128 atributos style="..." que repetían los mismos valores
+   a lo largo del HTML. Permiten cambio centralizado y CSP-friendly.
+   ============================================================================ */
+
+/* Iconos en el botón yt-play-btn — diferenciados por tipo de enlace */
+.yt-play-btn--chords  { color: var(--color-success); }
+.yt-play-btn--youtube { color: #FF0000; }  /* rojo de marca de YouTube */
+
+/* Marcador rojo discreto (subnotas): variante alternativa del context-toggle */
+.context-toggle--alt {
+  border-color: rgba(200, 30, 30, 0.7);
+  color:        #E05050;
+  background:   rgba(200, 30, 30, 0.08);
+}
+
+/* Texto en cursiva pequeño (notas y aclaraciones cortas) */
+.note-italic-sm {
+  font-style: italic;
+  font-size:  var(--font-size-sm);
+}
+
+/* Referencias bíblicas en línea (atribución sutil al final de versículos) */
+.bible-ref-inline {
+  font-family: var(--font-elegant);
+  font-size:   0.85em;
+  font-style:  italic;
+  opacity:     0.55;
+}
+
+/* Visibilidad inicial — preferir esto sobre style="display:none" */
+.is-hidden { display: none !important; }
+.is-block  { display: block; }
+.is-flex   { display: flex; align-items: center; gap: var(--space-xs); }
+.is-flex-grow { flex: 1 1 auto; min-width: 0; }
+.is-flex-end { margin-left: auto; }
+.is-flex-shrink-0 { flex-shrink: 0; }
+
+/* Layout específico de back-bar: link al index del sitio */
+.pd-back-bar-home {
+  display:        flex;
+  align-items:    center;
+  gap:            var(--space-xs);
+  color:          #A8C878;
+  text-decoration: none;
+  font-size:      0.68rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  transition:     color var(--duration-fast) var(--easing-default);
+}
+.pd-back-bar-home:hover { color: #C8E8A0; }
+
+/* Botón de búsqueda en back-bar */
+.pd-search-btn {
+  background:    none;
+  border:        1px solid rgba(168, 200, 120, 0.3);
+  border-radius: 50%;
+  width:         28px;
+  height:        28px;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  cursor:        pointer;
+  color:         #A8C878;
+  transition:    all var(--duration-fast) var(--easing-default);
+}
+.pd-search-btn:hover {
+  border-color: rgba(168, 200, 120, 0.6);
+  color:        #C8E8A0;
+}
+
+/* Botón cerrar de la barra de búsqueda (lupa) */
+.pd-search-close {
+  background: none;
+  border:     none;
+  color:      #A8C878;
+  font-size:  1.4rem;
+  cursor:     pointer;
+  padding:    0 var(--space-xs);
+  line-height: 1;
+}
+
+/* Diálogos del SetList (sl-*) */
+.sl-dialog-btn {
+  padding:       0.5rem 1.5rem;
+  border-radius: 3px;
+  font-family:   var(--font-display);
+  font-size:     var(--font-size-xs);
+  letter-spacing: var(--letter-spacing-wide);
+  cursor:        pointer;
+}
+.sl-dialog-btn--primary {
+  border:     1px solid #5C7A3A;
+  background: #5C7A3A;
+  color:      #fff;
+}
+.sl-dialog-btn--cancel {
+  border:     1px solid rgba(60, 60, 40, 0.3);
+  background: transparent;
+  color:      #5A5040;
+}
+
+/* Botón "expandir todos" — visible solo en Modo Dev */
+.btn-expand-all {
+  display:        none;  /* mostrado por body.dev-mode */
+  font-family:    var(--font-display);
+  font-size:      0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding:        var(--space-2xs) 0.7rem;
+  border-radius:  4px;
+  border:         1px solid rgba(200, 148, 60, 0.4);
+  background:     transparent;
+  color:          var(--color-accent);
+  cursor:         pointer;
+  margin-left:    var(--space-md);
+  transition:     all var(--duration-fast) var(--easing-default);
+}
+.btn-expand-all:hover {
+  border-color: var(--color-accent);
+  background:   rgba(200, 148, 60, 0.08);
+}
+body.dev-mode .btn-expand-all { display: inline-flex; }
+
+/* Diálogo de cancelación con botones lado a lado */
+.dialog-actions-row {
+  display:         flex;
+  gap:             var(--space-md);
+  justify-content: center;
+}
+
+/* Forzar overflow-x: clip donde se requiera */
+.no-x-overflow { overflow-x: clip; }

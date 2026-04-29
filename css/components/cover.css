@@ -1,0 +1,109 @@
+/* ============================================================================
+   cover.css — Portada principal del cancionero
+   ============================================================================
+   Hero al abrir la página: cruz dorada, "Coro Pacem Deus" en script, título
+   "Cancionero Dominical", subtítulo "Parroquia de la Sagrada Familia".
+   Incluye también el footer del cancionero al final del documento.
+   ============================================================================ */
+
+/* ═══════════════════════════════════════════════
+   MAIN COVER / HERO
+═══════════════════════════════════════════════ */
+.main-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3.5rem 2rem 2rem;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(170deg,
+    rgba(10,6,8,0.95) 0%,
+    rgba(20,10,14,0.9) 50%,
+    rgba(10,6,8,0.98) 100%);
+}
+
+.cover-cross {
+  font-size: 4rem;
+  color: #C8943C;
+  text-shadow: 0 0 40px rgba(200,148,60,0.6), 0 0 80px rgba(200,148,60,0.3);
+  margin-bottom: 1.5rem;
+  animation: crossGlow 4s ease-in-out infinite;
+}
+@keyframes crossGlow {
+  0%,100% { text-shadow: 0 0 40px rgba(200,148,60,0.6), 0 0 80px rgba(200,148,60,0.3); }
+  50%      { text-shadow: 0 0 60px rgba(200,148,60,0.9), 0 0 120px rgba(200,148,60,0.5); }
+}
+
+.cover-eyebrow {
+  font-family: 'Pinyon Script', cursive;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  color: #C8943C;
+  text-transform: none;
+  opacity: 0.9;
+  margin-bottom: 0.4rem;
+  animation: fadeUp 1s 0.2s both;
+}
+.cover-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  color: #F0E8DC;
+  line-height: 1.1;
+  text-shadow: 0 2px 30px rgba(0,0,0,0.8);
+  margin-bottom: 0.5rem;
+  animation: fadeUp 1s 0.35s both;
+}
+.cover-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  color: #E8C070;
+  margin-bottom: 0.4rem;
+  animation: fadeUp 1s 0.5s both;
+}
+.cover-parroquia {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: #A07840;
+  opacity: 0.8;
+  margin-bottom: 1.2rem;
+  animation: fadeUp 1s 0.6s both;
+}
+.cover-divider {
+  width: 260px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C8943C, transparent);
+  margin: 0 auto 1rem;
+  animation: fadeIn 1.5s 0.8s both;
+}
+
+/* ── FOOTER ── */
+.ceremony-footer {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  position: relative;
+  z-index: 2;
+}
+.ceremony.ramos  .ceremony-footer { background: linear-gradient(180deg, rgba(20,26,8,0) 0%, #141A08 30%); }
+.ceremony.jueves .ceremony-footer { background: linear-gradient(180deg, rgba(12,6,8,0) 0%, #0C0608 30%); }
+.ceremony.vigilia .ceremony-footer { background: linear-gradient(180deg, rgba(20,16,42,0) 0%, #14102A 30%); }
+
+.ceremony-footer .footer-icon { font-size: 2.5rem; display: block; margin-bottom: 0.8rem; }
+.ceremony.ramos  .ceremony-footer .footer-icon { color: #C8A830; }
+.ceremony.jueves .ceremony-footer .footer-icon { color: #E86020; }
+.ceremony.vigilia .ceremony-footer .footer-icon { color: #E8C040; }
+
+.ceremony-footer p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+.ceremony.ramos  .ceremony-footer p { color: #B0B020; }
+.ceremony.jueves .ceremony-footer p { color: #A06030; }
+.ceremony.vigilia .ceremony-footer p { color: #B090CC; }
+

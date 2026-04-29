@@ -1,0 +1,87 @@
+/* ============================================================================
+   nav.css — Hamburguesa de navegación móvil
+   ============================================================================
+   Menú overlay para móvil: enlaces a otros cancioneros, sección "¿Quiénes
+   somos?", contacto.
+   ============================================================================ */
+
+/* ── CANCIONERO HAMBURGER MENU (mobile only) ── */
+.pd-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: 0.5rem;
+}
+.pd-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #C8943C;
+  transition: all 0.3s;
+}
+.pd-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.pd-hamburger.open span:nth-child(2) { opacity: 0; }
+.pd-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+.pd-nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(8,4,6,0.97);
+  backdrop-filter: blur(12px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+}
+.pd-nav-overlay.open { display: flex; }
+
+.pd-nav-overlay a {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #C8943C;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.pd-nav-overlay a:hover { color: #E8C070; }
+
+.pd-nav-close {
+  position: absolute;
+  top: 1.4rem; right: 1.5rem;
+  background: none;
+  border: none !important;
+  outline: none;
+  box-shadow: none;
+  color: #C8943C; font-size: 1.4rem;
+  cursor: pointer; line-height: 1;
+  transition: color 0.2s;
+  padding: 0.3rem 0.5rem;
+  -webkit-appearance: none;
+}
+.pd-nav-close:hover { color: #E8C070; }
+
+.pd-nav-divider {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, #C8943C, transparent);
+}
+
+@media (min-width: 768px) {
+  .pd-hamburger { display: none !important; }
+}
+@media (max-width: 767px) {
+  .pd-hamburger { display: flex; }
+}
+
+
+@keyframes pdFB {
+  from { transform: translateY(2px) rotate(-10deg); }
+  to   { transform: translateY(-4px) rotate(5deg); }
+}
+

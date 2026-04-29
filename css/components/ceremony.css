@@ -1,0 +1,208 @@
+/* ============================================================================
+   ceremony.css — Estructura de ceremonias (compartida con Semana Santa)
+   ============================================================================
+   Tab navigation, paneles por ceremonia, encabezados de ceremonia.
+   En el cancionero dominical se usa la estructura mínima; en Semana Santa
+   se usan las múltiples pestañas (Ramos / Jueves / Vigilia).
+   ============================================================================ */
+
+/* ═══════════════════════════════════════════════
+   TAB NAVIGATION
+═══════════════════════════════════════════════ */
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,4,6,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.6);
+}
+
+.tab-btn {
+  flex: 1;
+  max-width: 310px;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+.tab-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tab-btn:hover::before { opacity: 1; }
+
+.tab-btn .tab-date {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+.tab-btn .tab-name {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Ramos tab */
+.tab-btn.ramos { }
+.tab-btn.ramos .tab-date { color: #9EBF1A; }
+.tab-btn.ramos .tab-name { color: #D4F040; }
+.tab-btn.ramos:hover, .tab-btn.ramos.active {
+  background: linear-gradient(180deg, rgba(74,82,32,0.3) 0%, transparent 100%);
+  border-bottom-color: #C8A830;
+}
+.tab-btn.ramos::before { background: linear-gradient(180deg, rgba(80,120,20,0.25) 0%, transparent); }
+
+/* Jueves tab */
+.tab-btn.jueves .tab-date { color: #8B4A30; }
+.tab-btn.jueves .tab-name { color: #E8A060; }
+.tab-btn.jueves:hover, .tab-btn.jueves.active {
+  background: linear-gradient(180deg, rgba(107,16,32,0.3) 0%, transparent 100%);
+  border-bottom-color: #C8943C;
+}
+.tab-btn.jueves::before { background: linear-gradient(180deg, rgba(107,16,32,0.2) 0%, transparent); }
+
+/* Vigilia tab */
+.tab-btn.vigilia .tab-date { color: #9B6FCC; }
+.tab-btn.vigilia .tab-name { color: #C0A0E0; }
+.tab-btn.vigilia:hover, .tab-btn.vigilia.active {
+  background: linear-gradient(180deg, rgba(58,26,90,0.3) 0%, transparent 100%);
+  border-bottom-color: #E8C040;
+}
+.tab-btn.vigilia::before { background: linear-gradient(180deg, rgba(58,26,90,0.2) 0%, transparent); }
+
+/* ═══════════════════════════════════════════════
+   CEREMONY PANELS
+═══════════════════════════════════════════════ */
+.ceremony {
+  display: none;
+}
+.ceremony.active {
+  display: block;
+}
+
+/* ── CEREMONY COVER ── */
+.ceremony-cover {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ramos cover */
+.ceremony.ramos .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(74,82,32,0.6) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(200,168,48,0.2) 0%, transparent 50%),
+    linear-gradient(170deg, #141A08 0%, #1E2A08 50%, #141A08 100%);
+}
+/* Jueves cover */
+.ceremony.jueves .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(107,16,32,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(200,148,60,0.15) 0%, transparent 50%),
+    linear-gradient(170deg, #0C0608 0%, #1A0A0C 50%, #0C0608 100%);
+}
+/* Vigilia cover */
+.ceremony.vigilia .ceremony-cover {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(232,192,64,0.15) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(90,40,140,0.55) 0%, transparent 60%),
+    linear-gradient(170deg, #14102A 0%, #241E4A 50%, #14102A 100%);
+}
+
+.ceremony-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.6rem;
+  animation: floatIcon 6s ease-in-out infinite;
+}
+@keyframes floatIcon {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.ceremony.ramos  .ceremony-icon { font-size: 3.5rem; color: #C8A830; text-shadow: 0 0 30px rgba(200,168,48,0.5); }
+.ceremony.jueves .ceremony-icon { font-size: 6rem; color: #E86020; text-shadow: 0 0 30px rgba(232,96,32,0.6); filter: drop-shadow(0 0 20px rgba(232,96,32,0.4)); }
+.ceremony.vigilia .ceremony-icon { font-size: 3.5rem; color: #E8C040; text-shadow: 0 0 40px rgba(232,192,64,0.8); }
+
+.ceremony-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.ceremony.ramos  .ceremony-eyebrow { color: #9EBF1A; }
+.ceremony.jueves .ceremony-eyebrow { color: #8B4A30; }
+.ceremony.vigilia .ceremony-eyebrow { color: #9B6FCC; }
+
+.ceremony-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.1;
+  margin-bottom: 0.6rem;
+}
+.ceremony.ramos  .ceremony-title { color: #E8D88A; }
+.ceremony.jueves .ceremony-title { color: #F0E0C8; }
+.ceremony.vigilia .ceremony-title { color: #FAF0D0; }
+
+.ceremony-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+.ceremony.ramos  .ceremony-date { color: #B0B020; }
+.ceremony.jueves .ceremony-date { color: #C07840; }
+.ceremony.vigilia .ceremony-date { color: #C0A060; }
+
+/* Info box (reunión, vestimenta) */
+.info-box {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.info-pill {
+  padding: 0.5rem 1.3rem;
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-weight: 400;
+}
+.ceremony.ramos  .info-pill { background: rgba(80,120,20,0.45); border: 1px solid rgba(180,220,20,0.35); color: #D4F040; }
+.ceremony.jueves .info-pill { background: rgba(107,16,32,0.4); border: 1px solid rgba(200,148,60,0.3); color: #E8A060; }
+.ceremony.vigilia .info-pill { background: rgba(58,26,90,0.4); border: 1px solid rgba(232,192,64,0.3); color: #C0A0E0; }
+
+/* ── CEREMONY BODY ── */
+.ceremony-body {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+}
+

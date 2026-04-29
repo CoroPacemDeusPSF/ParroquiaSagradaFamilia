@@ -1,0 +1,185 @@
+/* ============================================================================
+   lit-card.css — Card del Evangelio (entrada portal + halo)
+   ============================================================================
+   Card que aparece en el modo público mostrando ciclo, domingo, evangelio
+   del día. Tiene animación de entrada "portal" y halo celeste continuo
+   (luz divina pulsante) que radía hacia afuera.
+   ============================================================================ */
+
+/* ── Liturgical card (portada) ── */
+.lit-card{margin:1.5rem auto 0;max-width:340px;background:rgba(200,148,60,.08);border:1px solid rgba(200,148,60,.2);border-radius:10px;padding:16px 20px;text-align:center;position:relative;z-index:2}
+.lit-card .lit-season{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.25em;text-transform:uppercase;color:#C8943C;margin-bottom:8px}
+.lit-card .lit-name{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.08em;color:#E8DCC0;margin-bottom:4px}
+.lit-card .lit-special{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#C8943C;margin-bottom:10px}
+.lit-card .lit-divider{width:50px;height:1px;background:rgba(200,148,60,.35);margin:0 auto 10px}
+.lit-card .lit-gospel{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.08em;color:#B8A880}
+.lit-card .lit-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;border:1px solid rgba(200,148,60,.4);vertical-align:middle;margin-right:5px}
+.lit-card .lit-theme{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:.9rem;color:#D4C8A0;margin-top:6px}
+.lit-card .lit-loading{font-size:.65rem;color:rgba(200,148,60,.4);font-style:italic}
+.lit-card .lit-error{font-size:.65rem;color:rgba(200,148,60,.45);font-style:italic}
+
+/* ── Liturgical card: portal de entrada + halo sacro radiando HACIA AFUERA ──
+   El halo continuo se logra con `box-shadow` multicapa (3 niveles de difusión)
+   en lugar de un radial-gradient interior. Esto garantiza que la luz
+   se proyecte FUERA del contorno de la card, no hacia adentro.
+   Capas: 18px (núcleo) · 40px (medio) · 70px (aura externa). */
+.lit-card {
+  /* Estado inicial: oculta, comprimida, desenfocada (preparada para emerger) */
+  opacity: 0;
+  transform: scale(0.55) rotate(-2deg);
+  filter: blur(8px);
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  max-width: calc(100vw - 3rem);
+  box-sizing: border-box;
+  /* Transiciones suaves para hover/click; la entrada la maneja la animación */
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.lit-card:hover {
+  background: rgba(200,148,60,.14);
+  transform: scale(1.018);
+}
+.lit-card.lit-visible {
+  /* Dos animaciones en paralelo: una controla transform/opacity/filter (entrada),
+     la otra controla box-shadow (halo continuo). No colisionan al actuar
+     sobre propiedades distintas. El halo arranca con un retraso de 0.6s
+     para que la entrada portal haga su show antes.
+     Ciclo total: 25s con ratio 4:1 (reposo:activo) — ver keyframes abajo. */
+  animation:
+    lit-portal-emerge 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    lit-halo-radiate 25s ease-in-out 0.6s infinite;
+}
+/* Portal emergence: aparición desde el centro con scale + rotación + blur.
+   NO toca box-shadow (queda libre para la animación del halo). */
+@keyframes lit-portal-emerge {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) rotate(-2deg);
+    filter: blur(8px);
+  }
+  35% {
+    opacity: 0.55;
+    transform: scale(1.07) rotate(1deg);
+    filter: blur(2px);
+  }
+  65% {
+    transform: scale(0.985) rotate(0);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+    filter: blur(0);
+  }
+}
+/* Halo radiando HACIA AFUERA mediante 3 sombras concéntricas:
+     • capa 1 (18px): brillo cálido inmediato al borde
+     • capa 2 (40px): aura media
+     • capa 3 (70px): resplandor difuso lejano
+   Las tres respiran en sincronía (0% ↔ 50% del ciclo de 4s).
+   Color celeste rgb(170,220,240) — evoca la luz divina del cielo, en
+   contraste con el dorado cálido del borde de la card. La intensidad fue
+   calibrada al ~70% del nivel previo para evitar que sature visualmente. */
+/* Halo radiando HACIA AFUERA mediante 3 sombras concéntricas:
+     • capa 1 (18→30px): brillo cálido inmediato al borde
+     • capa 2 (40→60px): aura media
+     • capa 3 (70→100px): resplandor difuso lejano
+   Color celeste rgb(170,220,240) — luz mariana/divina, en contraste con el
+   dorado cálido del marco de la card.
+   
+   Patrón temporal en ratio 4:1 (reposo:activo) sobre ciclo de 25 segundos:
+     • 0 - 16%  (4s):  ascenso LENTO desde reposo hasta el pico (ignite contemplativo)
+     • 16%      :      pico instantáneo de máximo esplendor
+     • 16 - 20% (1s):  descenso rápido al reposo
+     • 20 - 100% (20s): reposo prolongado en intensidad mínima
+   
+   El ascenso ocupa el inicio del ciclo (no el final) para que el primer
+   destello sea visible inmediatamente después del 0.6s de delay, en vez
+   de esperar 20s al primer florecimiento. */
+@keyframes lit-halo-radiate {
+  0% {
+    box-shadow:
+      0 0 18px 4px   rgba(170,220,240,0.14),
+      0 0 40px 10px  rgba(170,220,240,0.06),
+      0 0 70px 20px  rgba(170,220,240,0.02);
+  }
+  16% {
+    box-shadow:
+      0 0 30px 8px   rgba(170,220,240,0.29),
+      0 0 60px 18px  rgba(170,220,240,0.13),
+      0 0 100px 32px rgba(170,220,240,0.06);
+  }
+  20%, 100% {
+    box-shadow:
+      0 0 18px 4px   rgba(170,220,240,0.14),
+      0 0 40px 10px  rgba(170,220,240,0.06),
+      0 0 70px 20px  rgba(170,220,240,0.02);
+  }
+}
+
+/* ── Salmo button: remolino musical de entrada + bounce sutil ──
+   La aparición se dispara cuando JS añade la clase .fx-visible (vía
+   MutationObserver al detectar el cambio de display:none → flex). */
+#lit-psalm-btn {
+  position: relative !important;
+  overflow: visible !important;
+}
+#lit-psalm-btn.fx-visible {
+  animation:
+    salmo-whirlwind 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    salmo-bounce 3s ease-in-out 2.5s infinite;
+}
+@keyframes salmo-whirlwind {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-180deg);
+    filter: blur(10px);
+  }
+  60% {
+    opacity: 0.85;
+    transform: scale(1.06) rotate(8deg);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+    filter: blur(0);
+  }
+}
+/* Bounce: pulso doble al INICIO del ciclo (0-16%) para sincronizar con
+   el evento `animationiteration` de JS. Resto del ciclo en reposo. */
+@keyframes salmo-bounce {
+  0%            { transform: translateY(0) scale(1); }
+  4%            { transform: translateY(-3.5px) scale(1.018); }
+  8%            { transform: translateY(0) scale(1); }
+  12%           { transform: translateY(-2px) scale(1.01); }
+  16%, 100%     { transform: translateY(0) scale(1); }
+}
+
+
+
+/* ── Accesibilidad: respeta preferencia del usuario ──
+   Si el sistema indica reduced-motion, desactivamos toda animación constante. */
+@media (prefers-reduced-motion: reduce) {
+  .sl-tab,
+  .sl-tab svg,
+  .lit-card,
+  .lit-card::before,
+  #lit-psalm-btn.fx-visible,
+  .fx-note {
+    animation: none !important;
+  }
+  .lit-card.lit-visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #pd-back-bar { padding-left: 0.8rem !important; padding-right: 0.8rem !important; gap: 0.5rem !important; }
+  .pd-share-btn span, .pd-share-btn { font-size: 0 !important; width: 28px; padding: 0.3rem !important; justify-content: center; }
+  .pd-share-btn svg { font-size: initial; }
+}

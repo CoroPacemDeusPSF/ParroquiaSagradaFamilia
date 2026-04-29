@@ -1,0 +1,34 @@
+/* ============================================================================
+   share.css — Dropdown de compartir (back-bar)
+   ============================================================================
+   Botón "Compartir" en la barra superior con opciones WhatsApp / Email /
+   Copiar enlace.
+   ============================================================================ */
+
+/* ── SHARE DROPDOWN (back-bar) ── */
+.pd-share-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: transparent; border: 1px solid rgba(200,148,60,0.35);
+  color: #C8943C; font-family: 'Cinzel', serif; font-size: 0.62rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 0.35rem 0.9rem; border-radius: 2px; cursor: pointer;
+  transition: all 0.2s;
+}
+.pd-share-btn:hover { background: rgba(200,148,60,0.1); }
+.pd-share-dd {
+  display: none; position: absolute; top: calc(100% + 6px); right: 0;
+  background: #fff; border: 1px solid rgba(200,148,60,0.2); border-radius: 2px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18); min-width: 170px; z-index: 9999; overflow: hidden;
+}
+.pd-share-option {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.65rem 1rem;
+  font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #5A3A18; text-decoration: none; cursor: pointer;
+  border-bottom: 1px solid rgba(200,148,60,0.08);
+  transition: background 0.15s;
+  background: transparent;
+}
+.pd-share-option:last-child { border-bottom: none; }
+.pd-share-option:hover { background: rgba(200,148,60,0.06); }
+

@@ -1,0 +1,837 @@
+/* ============================================================================
+   setlist.css — Edge tab + panel del SetList semanal
+   ============================================================================
+   Panel lateral derecho que muestra la lista de cantos del próximo domingo.
+   Incluye: edge tab pulsante (siempre visible), panel desplegable, slots con
+   cada canto, navegación al histórico, modos público/coro/dev.
+   ============================================================================ */
+
+/* ── SETLIST EDGE PANEL ────────────────────── */
+/* Tab handle (visible in Coro mode) */
+.sl-tab {
+  /* Visible siempre por defecto. En modo Coro/Dev se preserva la presencia
+     mágica completa (latido + emisión de notas musicales). En modo público
+     el latido sigue activo (señaliza interactividad) pero la emisión de notas
+     queda desactivada por el guardia rehearsal-mode en EmanationFX. */
+  display: flex;
+  position: fixed;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 90000;
+  width: 26px; height: 64px;
+  background: linear-gradient(135deg, #d4a04a 0%, #b8862e 60%, #d4a04a 100%);
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 14px rgba(200,148,60,0.55), 0 0 0 1px rgba(255,225,170,0.18) inset;
+  /* "Latido espontáneo": pulso doble al INICIO del ciclo (0-16%) para que el
+     evento `animationiteration` (que dispara en cada loop) coincida exactamente
+     con el momento del palpitar. Resto del ciclo en reposo. Ciclo de 3.5s. */
+  animation: sl-tab-heartbeat 3.5s ease-out infinite;
+  transition: width 0.2s, box-shadow 0.2s;
+}
+.sl-tab svg {
+  width: 14px; height: 14px;
+  stroke: #fff; fill: none; stroke-width: 2;
+  /* La nota musical SVG late en perfecta sincronía con el tab */
+  animation: sl-tab-icon-pulse 3.5s ease-out infinite;
+}
+@keyframes sl-tab-heartbeat {
+  0%            { transform: translateY(-50%) scale(1); }
+  4%            { transform: translateY(-50%) scale(1.09); }
+  8%            { transform: translateY(-50%) scale(1); }
+  12%           { transform: translateY(-50%) scale(1.06); }
+  16%, 100%     { transform: translateY(-50%) scale(1); }
+}
+@keyframes sl-tab-icon-pulse {
+  0%            { transform: scale(1); }
+  4%            { transform: scale(1.22); }
+  8%            { transform: scale(1); }
+  12%           { transform: scale(1.15); }
+  16%, 100%     { transform: scale(1); }
+}
+.sl-tab-hidden { display: none !important; }
+.sl-tab:hover {
+  width: 32px;
+  box-shadow: 3px 3px 18px rgba(200,148,60,0.8), 0 0 0 1px rgba(255,225,170,0.3) inset;
+}
+
+/* ── Modo público (read-only): el panel se abre, pero todos los controles
+   de edición y navegación quedan ocultos. Solo se muestra el SetList vigente
+   como información de consulta. Los selectores usan :not(.rehearsal-mode) para
+   capturar exactamente el estado público (Coro y Dev son ambos rehearsal-mode). */
+body:not(.rehearsal-mode) .sl-pin-btn,
+body:not(.rehearsal-mode) .sl-tema-nav,
+body:not(.rehearsal-mode) .sl-tema-nav-spacer {
+  display: none !important;
+}
+
+/* Panel drawer */
+.sl-panel {
+  position: fixed;
+  left: -320px;
+  top: 50%; transform: translateY(-50%);
+  width: 310px;
+  max-height: 88vh;
+  z-index: 89999;
+  background: #FAF5EC;
+  border-radius: 0 1rem 1rem 0;
+  border: 1px solid rgba(180,140,80,0.25);
+  box-shadow: 4px 4px 30px rgba(40,25,5,0.35);
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* Variable para la altura aprox de la barra sticky superior (pd-back-bar) */
+@media (max-height: 700px) {
+  .sl-panel { top: 50px; transform: none; max-height: calc(100vh - 50px); max-height: calc(100dvh - 50px); border-radius: 0 1rem 1rem 0; }
+  .sl-header { padding-top: 1.2rem; }
+}
+@media (max-width: 600px) {
+  .sl-panel { top: 50px; transform: none; max-height: calc(100vh - 50px); max-height: calc(100dvh - 50px); border-radius: 0; }
+  .sl-header { padding-top: 1.2rem; border-radius: 0; }
+}
+.sl-panel.open { left: 0; }
+
+/* Panel header — golden, like the tab */
+.sl-header {
+  padding: 1.2rem 1rem 0.5rem;
+  background: linear-gradient(180deg, #C8943C 0%, #B08030 100%);
+  flex-shrink: 0;
+  border-radius: 0 1rem 0 0;
+  position: relative;
+}
+.sl-header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 0.84rem;
+  letter-spacing: 0.015em;
+  color: #fff;
+  margin-bottom: 0.15rem;
+  text-shadow: 0 1px 2px rgba(40,20,0,0.4);
+  text-align: center;
+  line-height: 1.3;
+}
+/* Indicador "vigente" — punto dorado pulsante que precede al nombre litúrgico
+   en la línea inferior del header. Comunica visualmente "este es el setlist en
+   curso" sin texto. Calibrado para acompañar Cormorant italic ~0.78rem. */
+.sl-now-dot {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #d4a04a;
+  box-shadow: 0 0 0 0 rgba(212, 160, 74, 0.7);
+  vertical-align: 0.05em;
+  margin-right: 0.4rem;
+  animation: sl-now-pulse 2.2s ease-out infinite;
+}
+@keyframes sl-now-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0.7); }
+  70%  { box-shadow: 0 0 0 7px rgba(212, 160, 74, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(212, 160, 74, 0); }
+}
+.sl-header-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+  text-shadow: 0 1px 2px rgba(40,20,0,0.3);
+  text-align: center;
+}
+
+/* Slots container */
+.sl-slots {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+/* Individual slot */
+.sl-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid rgba(180,140,80,0.1);
+  min-height: 2.4rem;
+  transition: background 0.15s;
+}
+.sl-slot:nth-child(even) { background: rgba(200,160,80,0.05); }
+.sl-slot:hover { background: rgba(200,160,80,0.12); }
+.sl-moment {
+  font-family: 'Cinzel', serif;
+  font-size: 0.45rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #4A3210;
+  width: 4.5rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.sl-song {
+  flex: 1;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #504A44;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  transition: color 0.2s;
+}
+.sl-song:hover { color: #C8943C; }
+.sl-song.empty {
+  color: rgba(120,90,40,0.7);
+  cursor: default;
+  font-style: italic;
+  font-weight: 400;
+}
+.sl-remove {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(180,60,60,0.4);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 0.2rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.sl-remove:hover { color: #C03030; }
+body.dev-mode .sl-remove { display: block; }
+
+/* Clear all button */
+.sl-clear {
+  display: none;
+  margin: 0.5rem 1rem 0.8rem;
+  padding: 0.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #A03030;
+  background: rgba(160,48,48,0.06);
+  border: 1px solid rgba(160,48,48,0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: center;
+  flex-shrink: 0;
+}
+.sl-clear:hover { background: rgba(160,48,48,0.12); }
+body.dev-mode .sl-clear { display: block; }
+
+/* Panel overlay (tap outside to close) */
+.sl-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 89998;
+  background: rgba(0,0,0,0.3);
+}
+.sl-overlay.open { display: block; }
+/* Cuando el panel está pineado, el overlay no debe oscurecer ni capturar clicks */
+.sl-overlay.sl-overlay-pinned {
+  background: transparent;
+  pointer-events: none;
+}
+
+/* ── ADD-TO-SETLIST DIALOG ── */
+.sl-dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.sl-dialog-overlay.open { display: flex; }
+.sl-dialog {
+  background: #1a1a1a;
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 4px;
+  max-width: 320px;
+  width: 100%;
+  padding: 1.2rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.sl-dialog-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #C8943C;
+  margin-bottom: 0.8rem;
+}
+.sl-dialog-song {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  color: #E8D8B8;
+  margin-bottom: 0.8rem;
+}
+.sl-dialog-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+.sl-dialog-slot-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+  background: rgba(200,148,60,0.06);
+  border: 1px solid rgba(200,148,60,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #E8D8B8;
+}
+.sl-dialog-slot-btn:hover { background: rgba(200,148,60,0.15); border-color: #C8943C; }
+.sl-dialog-slot-btn.suggested { border-color: #C8943C; background: rgba(200,148,60,0.12); }
+.sl-dialog-slot-btn .sl-btn-current {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.7rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(200,148,60,0.5);
+  font-style: italic;
+}
+.sl-dialog-cancel {
+  width: 100%;
+  padding: 0.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+  background: transparent;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.sl-dialog-cancel:hover { background: rgba(136,136,136,0.1); }
+
+/* ── "+" button in index (Dev mode only) ── */
+.idx-add-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  color: #C8943C;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: all 0.15s;
+}
+.idx-add-btn:hover { background: rgba(200,148,60,0.15); }
+body.dev-mode .idx-add-btn { display: inline-flex; }
+
+/* "+" button next to song titles - dynamic injection by SL module */
+.song-add-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(200,148,60,0.4);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #C8943C;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+  transition: all 0.15s;
+  font-family: inherit;
+  padding: 0;
+}
+.song-add-btn:hover {
+  background: rgba(200,148,60,0.18);
+  border-color: rgba(200,148,60,0.7);
+  transform: scale(1.05);
+}
+body.dev-mode .song-add-btn { display: inline-flex; }
+
+/* Pin button on edge panel header */
+.sl-pin-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+  z-index: 1;
+}
+.sl-pin-btn svg { width: 14px; height: 14px; transform: rotate(45deg); transition: transform 0.25s; }
+.sl-pin-btn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.12); }
+.sl-pin-btn.pinned {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  border-color: #fff;
+}
+.sl-pin-btn.pinned svg { transform: rotate(0deg); }
+
+/* Header sub-info: tiempo litúrgico, mes mariano */
+.sl-header-date {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  color: rgba(255,255,255,0.85);
+  margin-top: 0.15rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+.sl-marian {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-top: 0.15rem;
+  font-family: 'Cinzel', serif;
+  background: rgba(255,255,255,0.18);
+  border-radius: 1rem;
+  padding: 2px 8px;
+  display: inline-block;
+}
+/* Última línea del encabezado: contiene el contenido principal flanqueado por
+   flechas de navegación a ambos extremos. Se usa tanto en modo actual (con
+   cita evangélica) como en modo histórico (con nombre litúrgico + contador). */
+.sl-tema {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  padding: 0 0.15rem;
+}
+.sl-tema-text {
+  flex: 1;
+  text-align: center;
+  /* Estilo por defecto: cita evangélica (modo actual) */
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(255, 230, 180, 0.92);
+  letter-spacing: 0.01em;
+  padding: 0 0.2rem;
+  text-shadow: 0 1px 2px rgba(40, 20, 0, 0.35);
+  line-height: 1.25;
+}
+/* Variante modo histórico: nombre litúrgico en mayúsculas + contador inline */
+.sl-tema-text.is-hist {
+  font-family: 'Cinzel', serif;
+  font-style: normal;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(40, 20, 0, 0.4);
+}
+/* Contador "n / total" embebido en la línea del histórico */
+.sl-tema-text .sl-counter {
+  opacity: 0.6;
+  margin-left: 0.55em;
+  letter-spacing: 0.08em;
+  font-size: 0.92em;
+}
+/* Flecha de navegación: prominente, dorada, claramente clickeable.
+   Se usa en ambos modos (actual e histórico) para mantener consistencia visual. */
+.sl-tema-nav {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 160, 74, 0.18);
+  border: 1px solid rgba(212, 160, 74, 0.55);
+  color: #f1c075;
+  font-family: serif;
+  font-style: normal;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.sl-tema-nav:hover {
+  background: rgba(212, 160, 74, 0.42);
+  border-color: rgba(212, 160, 74, 0.95);
+  color: #ffd89a;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(212, 160, 74, 0.4);
+}
+.sl-tema-nav:active {
+  transform: scale(0.96);
+}
+.sl-tema-nav.disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: transparent;
+}
+/* Espaciador invisible: ocupa el mismo ancho que una flecha real, manteniendo
+   el contenido centrado cuando solo hay una flecha activa. */
+.sl-tema-nav-spacer {
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
+}
+
+/* Empty/placeholder slots */
+.sl-slot-empty .sl-song.empty {
+  color: rgba(120,90,40,0.7);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+
+/* Clickable moment label — dotted underline always visible to indicate it's a link */
+.sl-moment.clickable {
+  cursor: pointer;
+  transition: color 0.15s, text-shadow 0.15s, text-decoration-color 0.15s;
+  text-decoration: underline dotted rgba(255,255,255,0.4);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.sl-moment.clickable:hover {
+  color: #fff;
+  text-decoration: underline solid #fff;
+  text-decoration-thickness: 1px;
+  text-shadow: 0 1px 4px rgba(30,15,0,0.7);
+}
+
+/* Liturgical warning icon */
+.sl-warn {
+  display: inline-block;
+  margin-left: 0.35em;
+  color: #D88A20;
+  font-size: 0.85em;
+  cursor: help;
+}
+.sl-hint {
+  display: inline-block;
+  margin-left: 0.35em;
+  color: #B86090;
+  font-size: 0.95em;
+  cursor: help;
+}
+
+/* "Nuevo" badge inside slot */
+.sl-new-badge {
+  display: inline-block;
+  margin-left: 0.4em;
+  color: #C8943C;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+/* History view: navigation in header (legacy classes kept for the back arrow only) */
+.sl-hist-arrow, .sl-hist-back {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  font-family: serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s;
+}
+.sl-hist-arrow:hover:not(:disabled), .sl-hist-back:hover {
+  background: rgba(255,255,255,0.3);
+  border-color: #fff;
+}
+.sl-hist-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* History "+" add button (replaces × in history view) */
+.sl-add-from-hist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200,148,60,0.18);
+  border: 1px solid rgba(200,148,60,0.5);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #B08030;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.sl-add-from-hist:hover {
+  background: rgba(200,148,60,0.35);
+  color: #7A5A1E;
+  transform: scale(1.05);
+}
+
+/* Botón "+" en el título de la canción (mismo estilo que idx-add-btn pero adaptado al título) */
+.song-add-btn {
+  display: none;
+  background: none;
+  border: 1px solid rgba(200,148,60,0.4);
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #C8943C;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  transition: all 0.15s;
+  font-family: inherit;
+  padding: 0;
+}
+.song-add-btn:hover {
+  background: rgba(200,148,60,0.18);
+  border-color: rgba(200,148,60,0.7);
+  transform: scale(1.05);
+}
+body.dev-mode .song-add-btn { display: inline-flex; }
+
+/* chords-toggle siempre visible */
+.chords-toggle { display: inline-block; }
+body.rehearsal-mode .chords-toggle { display: inline-block; }
+.editor-open-btn { display: none; }
+body.dev-mode .editor-open-btn { display: inline-block !important; }
+body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Coro */
+
+/* Transpose controls */
+.transpose-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+}
+.transpose-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,148,60,0.5);
+  background: rgba(200,148,60,0.1);
+  color: #C8943C;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+  padding: 0;
+}
+.transpose-btn:hover { background: rgba(200,148,60,0.25); }
+.transpose-label {
+  color: #C8943C;
+  min-width: 3rem;
+  text-align: center;
+  font-weight: bold;
+}
+.transpose-reset {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  margin-left: 0.3rem;
+  transition: all 0.2s;
+}
+.transpose-reset:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+
+/* Font size controls */
+.font-size-btn {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.65rem;
+  color: #C8943C;
+  background: rgba(200,148,60,0.08);
+  border: 1px solid rgba(200,148,60,0.35);
+  border-radius: 3px;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.font-size-btn:hover { background: rgba(200,148,60,0.2); }
+
+/* Print chords button */
+.print-chords-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.print-chords-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.print-chords-btn svg { width: 12px; height: 12px; }
+
+/* Fullscreen chords */
+.chords-block.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  margin: 0;
+  background: #1a1a1a;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+  padding: 1rem;
+  display: block;
+  touch-action: pan-y pinch-zoom;   /* pan vertical + pinch zoom nativo */
+  overscroll-behavior: contain;      /* evita scroll del fondo sin bloquear zoom */
+}
+.chords-block.fullscreen pre {
+  background: transparent;
+  border-left: none;
+  color: #e0d0b0;
+  font-size: 0.9rem;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+.chords-block.fullscreen .transpose-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1a1a1a;
+  padding: 0.8rem 0;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+}
+.chords-block.fullscreen .chord { color: #E8C040; }
+.fullscreen-close {
+  display: none;
+  position: fixed;
+  top: 0.8rem;
+  right: 1rem;
+  z-index: 100001;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,148,60,0.4);
+  background: rgba(30,30,30,0.95);
+  color: #C8943C;
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.fullscreen-close:hover { background: rgba(200,148,60,0.2); }
+.chords-block.fullscreen .fullscreen-close { display: flex; }
+
+/* Fullscreen button in transpose bar */
+.fullscreen-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: #888;
+  background: none;
+  border: 1px solid rgba(136,136,136,0.3);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.fullscreen-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.fullscreen-btn svg { width: 12px; height: 12px; }
+
+/* Browser fullscreen pseudo-class */
+.chords-block:fullscreen,
+.chords-block:-webkit-full-screen {
+  background: #1a1a1a;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.chords-block:fullscreen pre,
+.chords-block:-webkit-full-screen pre {
+  background: transparent;
+  border-left: none;
+  color: #e0d0b0;
+  font-size: 0.9rem;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+.chords-block:fullscreen .chord,
+.chords-block:-webkit-full-screen .chord { color: #E8C040; }
+.chords-block:fullscreen .transpose-bar,
+.chords-block:-webkit-full-screen .transpose-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1a1a1a;
+  padding: 0.8rem 0;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+  border-bottom: 1px solid rgba(200,148,60,0.2);
+}
+.chords-block:fullscreen .fullscreen-close,
+.chords-block:-webkit-full-screen .fullscreen-close { display: flex; }
+
+/* ── Botón expandir todos — solo en Dev Mode ── */
+body.dev-mode #btn-expand-all { display: inline-block !important; }
+

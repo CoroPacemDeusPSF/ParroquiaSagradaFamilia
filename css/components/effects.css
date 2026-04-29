@@ -1,0 +1,43 @@
+/* ============================================================================
+   effects.css — Sistema de efectos visuales interactivos (EmanationFX)
+   ============================================================================
+   Notas musicales que emanan del edge tab del SetList y del botón del Salmo.
+   Las animaciones se sincronizan con los latidos cardíacos de cada elemento
+   (definidos en setlist.css y psalm-player.css).
+
+   Las notas son glifos Unicode (♪ ♫ ♩ ♬), no emojis, renderizadas en
+   tipografía symbol del sistema. Aparecen con coordenadas dinámicas seteadas
+   vía custom properties (--fx-dx, --fx-dy, --fx-rot) por el módulo JS.
+   ============================================================================ */
+
+/* ── Notas musicales emanando ──
+   Compartido entre tab (dorado) y salmo (verde). Los offsets de movimiento
+   se controlan vía custom properties para variar trayectoria por nota. */
+.fx-note {
+  position: absolute;
+  font-family: 'Apple Symbols','Segoe UI Symbol','DejaVu Sans',serif;
+  font-size: 0.95rem;
+  font-weight: normal;
+  pointer-events: none;
+  opacity: 0;
+  text-shadow: 0 0 6px currentColor;
+  z-index: 5;
+  animation: fx-note-float 2.7s ease-out forwards;
+  will-change: transform, opacity;
+}
+.fx-note.fx-tab-note {
+  position: fixed;
+  color: #f0c075;
+  z-index: 90001;
+}
+.fx-note.fx-salmo-note {
+  color: #8BC064;
+}
+@keyframes fx-note-float {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(0); }
+  18%  { opacity: 0.9; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fx-dx, 15px), var(--fx-dy, -50px)) rotate(var(--fx-rot, 12deg));
+  }
+}

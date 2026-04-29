@@ -1,0 +1,271 @@
+/* ============================================================================
+   song-card.css — Tarjetas de cantos individuales
+   ============================================================================
+   Cada canto es una .song-card con:
+     • Encabezado (número, momento, título, botones de acordes/YouTube)
+     • Body (estrofas y coros)
+     • Ornamento decorativo
+     • Sparkle ✦ si data-added < 60 días
+   Los acordes y el contexto litúrgico se estilan en sus propios módulos.
+   ============================================================================ */
+
+/* ── BACK LINK ── */
+.back-link {
+  display: block;
+  text-align: right;
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  padding: 0.3rem 0;
+  margin: 0.5rem 0;
+}
+.back-link::before { content: '↑ '; }
+.back-link:hover { opacity: 1; }
+.ceremony.ramos  .back-link { color: #C8A830; }
+.ceremony.jueves .back-link { color: #C8943C; }
+.ceremony.vigilia .back-link { color: #E8C040; }
+
+/* ── MOMENT SUBTITLE ── */
+.moment-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 3rem 0 0.6rem;
+  position: relative;
+  z-index: 2;
+}
+.moment-header::before, .moment-header::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  opacity: 0.6;
+}
+.ceremony.ramos  .moment-header::before,
+.ceremony.ramos  .moment-header::after { background: linear-gradient(90deg, transparent, #C8A830, transparent); }
+.ceremony.jueves .moment-header::before,
+.ceremony.jueves .moment-header::after { background: linear-gradient(90deg, transparent, #C8943C, transparent); }
+.ceremony.vigilia .moment-header::before,
+.ceremony.vigilia .moment-header::after { background: linear-gradient(90deg, transparent, #E8C040, transparent); }
+
+.moment-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ceremony.ramos  .moment-label { color: #C8A830; }
+.ceremony.jueves .moment-label { color: #C8943C; }
+.ceremony.vigilia .moment-label { color: #E8C040; }
+
+/* Note inside moment header (for vigilia special cases) */
+.moment-note {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.6rem 1.5rem;
+  margin: 0.5rem 0 1.5rem;
+  border-left: 2px solid;
+  opacity: 0.75;
+}
+.ceremony.ramos  .moment-note { color: #A09870; border-color: rgba(180,220,20,0.35); }
+.ceremony.jueves .moment-note { color: #A08060; border-color: rgba(200,148,60,0.3); }
+.ceremony.vigilia .moment-note { color: #B090CC; border-color: rgba(232,192,64,0.3); }
+
+/* ── SONG CARD ── */
+.song-card {
+  border-radius: 2px;
+  margin: 2rem 0 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  page-break-before: always;
+}
+.ceremony.ramos  .song-card { background: #F5F0DC; box-shadow: 0 4px 40px rgba(0,0,0,0.6); border: 1px solid rgba(160,210,20,0.3); }
+.ceremony.jueves .song-card { background: #F0E8DC; box-shadow: 0 4px 40px rgba(0,0,0,0.7); border: 1px solid rgba(200,148,60,0.2); }
+.ceremony.vigilia .song-card { background: #FFFDF5; box-shadow: 0 4px 40px rgba(0,0,0,0.6); border: 1px solid rgba(232,192,64,0.2); }
+
+.song-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+}
+.ceremony.ramos  .song-card::after { background: linear-gradient(90deg, #5A7A10, #C8A830, #7A9C18); }
+.ceremony.jueves .song-card::after { background: linear-gradient(90deg, #6B1020, #C8943C, #6B1020); }
+.ceremony.vigilia .song-card::after { background: linear-gradient(90deg, #6A30A8, #E8C040, #6A30A8); }
+
+.song-header {
+  padding: 1.4rem 2rem 1.3rem 2.2rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
+  position: relative;
+}
+.ceremony.ramos  .song-header { background: linear-gradient(105deg, #141A08 0%, #1E2A08 70%, #263410 100%); }
+.ceremony.jueves .song-header { background: linear-gradient(105deg, #2A0C10 0%, #3A1018 70%, #441218 100%); }
+.ceremony.vigilia .song-header { background: linear-gradient(105deg, #14102A 0%, #241E4A 70%, #2E2460 100%); }
+
+.song-header-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+.ceremony.ramos  .song-header-bar { background: linear-gradient(180deg, #C8A830, #7A9C18); }
+.ceremony.jueves .song-header-bar { background: linear-gradient(180deg, #FF7A45, #F0A855); }
+.ceremony.vigilia .song-header-bar { background: linear-gradient(180deg, #E8C040, #9B6FCC); }
+
+.song-number {
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.92;
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.2s;
+}
+.song-number:hover { opacity: 1; }
+.song-number::after {
+  content: '🔗';
+  position: absolute;
+  font-size: 0.5rem;
+  bottom: -0.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.song-number:hover::after { opacity: 0.5; }
+
+/* Link copied toast */
+.link-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(200,148,60,0.95);
+  color: #000;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  z-index: 100000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.link-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.ceremony.ramos  .song-number { color: #C8A830; }
+.ceremony.jueves .song-number { color: #FF7A45; }
+.ceremony.vigilia .song-number { color: #E8C040; }
+
+.song-header-text { flex: 1; }
+.song-moment-label {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.15rem;
+}
+.ceremony.ramos  .song-moment-label { color: #9EBF1A; }
+.ceremony.jueves .song-moment-label { color: #FFA060; }
+.ceremony.vigilia .song-moment-label { color: #9070C0; }
+
+.song-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  column-gap: 0.4rem;
+}
+.ceremony.ramos  .song-title { color: #F5F0DC; }
+.ceremony.jueves .song-title { color: #F0E0C8; }
+.ceremony.vigilia .song-title { color: #FAF0D0; }
+
+.song-body {
+  padding: 1.8rem 2.2rem 2.2rem;
+}
+
+.strophe { margin-bottom: 1.2rem; }
+.strophe p {
+  font-family: 'Proza Libre', serif;
+  font-size: 1.02rem;
+  line-height: 1.85;
+}
+.ceremony.ramos  .strophe p { color: #141A08; }
+.ceremony.jueves .strophe p { color: #180810; }
+.ceremony.vigilia .strophe p { color: #100A1A; }
+
+.chorus {
+  padding: 0.9rem 1.3rem;
+  margin: 1.1rem 0;
+  border-left: 3px solid;
+  border-radius: 0 3px 3px 0;
+}
+.ceremony.ramos  .chorus { background: rgba(80,120,20,0.1); border-color: #7A9C18; }
+.ceremony.jueves .chorus { background: rgba(107,16,32,0.07); border-color: #8B2030; }
+.ceremony.vigilia .chorus { background: rgba(100,50,160,0.08); border-color: #7A4AC0; }
+
+.chorus p {
+  font-family: 'Proza Libre', serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.85;
+}
+.ceremony.ramos  .chorus p { color: #2A2E08; }
+.ceremony.jueves .chorus p { color: #1A0810; }
+.ceremony.vigilia .chorus p { color: #180A28; }
+
+.song-note {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+  opacity: 0.7;
+}
+.ceremony.ramos  .song-note { color: #5A7A10; }
+.ceremony.jueves .song-note { color: #6B1020; }
+.ceremony.vigilia .song-note { color: #6A30A8; }
+
+.song-ornament {
+  text-align: center;
+  font-size: 0.9rem;
+  letter-spacing: 0.6em;
+  opacity: 0.35;
+  margin-top: 1.4rem;
+}
+.ceremony.ramos  .song-ornament { color: #C8A830; }
+.ceremony.jueves .song-ornament { color: #C8943C; }
+.ceremony.vigilia .song-ornament { color: #E8C040; }
+
+/* ── New badge sparkle ── */
+.new-sparkle {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.35em;
+  vertical-align: middle;
+  animation: sparklePulse 4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes sparklePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+

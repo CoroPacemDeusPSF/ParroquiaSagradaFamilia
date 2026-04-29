@@ -1,0 +1,52 @@
+/* ============================================================================
+   dominical.bundle.css — Orquestador del cancionero dominical
+   ============================================================================
+
+   Este es el ÚNICO archivo CSS que dominical.html carga. Importa todos los
+   módulos en orden de cascada correcto:
+
+     1. tokens          — Variables (paleta, spacing, tipografía, animación)
+     2. base            — Reset, body, particle canvas
+     3. components/*    — Cada componente en orden de especificidad creciente
+     4. pages/dominical — Overrides específicos de la página
+
+   IMPORTANTE: el orden importa. Los componentes asumen que tokens y base ya
+   están cargados. La página específica al final puede sobrescribir cualquier
+   componente para adaptarlo al tema visual del cancionero dominical.
+
+   Para agregar un módulo nuevo:
+     1. Crear el archivo en components/ con su propio header documentado
+     2. Agregar @import aquí en la posición correcta de cascada
+     3. Probar que no hay conflictos visuales
+
+   ============================================================================ */
+
+/* ─── Fundación: tokens primero, luego estilos base ───────────────────────── */
+@import url('tokens.css');
+@import url('base.css');
+
+/* ─── Componentes compartidos: estructura general ─────────────────────────── */
+@import url('components/cover.css');
+@import url('components/ceremony.css');
+@import url('components/nav.css');
+@import url('components/share.css');
+
+/* ─── Componentes de contenido del cancionero ─────────────────────────────── */
+@import url('components/index.css');
+@import url('components/song-card.css');
+@import url('components/chords.css');
+@import url('components/context.css');
+
+/* ─── Componentes interactivos (modos especiales) ─────────────────────────── */
+@import url('components/rehearsal.css');
+@import url('components/editor.css');
+@import url('components/setlist.css');
+
+/* ─── Componentes especializados (Evangelio, Salmo, AI, Efectos) ──────────── */
+@import url('components/lit-card.css');
+@import url('components/psalm-player.css');
+@import url('components/effects.css');
+@import url('components/ai-agent.css');
+
+/* ─── Página específica: overrides finales ────────────────────────────────── */
+@import url('pages/dominical.css');

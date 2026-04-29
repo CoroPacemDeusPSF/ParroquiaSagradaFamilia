@@ -1,0 +1,307 @@
+/* ============================================================================
+   chords.css — Bloque de acordes y barra de transposición
+   ============================================================================
+   Visualización de acordes (color ámbar), título ♫, secciones (CORO, ESTROFA),
+   indicadores de capo y dinámica, layout multi-columna en fullscreen, controles
+   de zoom y tags durante edición.
+   ============================================================================ */
+
+/* ── CHORDS BLOCK (modo coro only) ── */
+.chords-toggle {
+  display: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #43A047;
+  background: none;
+  border: 1px solid rgba(67,160,71,0.4);
+  border-radius: 2px;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+.chords-toggle:hover { background: rgba(67,160,71,0.08); }
+.chords-block { display: none; margin-top: 0.8rem; }
+.chords-block.open { display: block; }
+.chords-block pre {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: #2A2A2A;
+  background: rgba(67,160,71,0.05);
+  border-left: 3px solid #43A047;
+  padding: 0.8rem 1rem;
+  border-radius: 0 2px 2px 0;
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 4;
+}
+.chord { color: #C8943C; font-weight: bold; }
+
+/* ── Título de canción en bloque de acordes (línea con ♫) ── */
+.chords-block pre b.chord-title {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #C8943C;
+  letter-spacing: 0.08em;
+  padding-bottom: 0;
+  margin: 0 0 -1.394rem;
+  border-bottom: 1px solid rgba(200, 148, 60, 0.35);
+  white-space: normal;
+}
+
+/* ── Encabezado de sección en bloque de acordes (═══ SECCIÓN ═══) ── */
+.chords-block pre b.chord-section {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #43A047;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 -1.394rem;
+  padding: 0.1rem 0.5rem;
+  background: rgba(67, 160, 71, 0.07);
+  border-left: 2px solid #43A047;
+  border-radius: 0 2px 2px 0;
+  white-space: normal;
+}
+
+/* ── Indicador de Capo / Cejilla ── */
+.chords-block pre b.chord-capo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #7C3F00;
+  letter-spacing: 0.1em;
+  background: rgba(200,148,60,0.18);
+  border: 1.5px solid rgba(200,148,60,0.55);
+  border-radius: 20px;
+  padding: 0.15rem 0.65rem 0.15rem 0.4rem;
+  margin: 0 0 -1.394rem;
+  white-space: normal;
+  box-shadow: 0 1px 3px rgba(200,148,60,0.2);
+}
+.chords-block pre b.chord-capo::before {
+  content: '';
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1.2em;
+  height: 1.2em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect x='2' y='5' width='20' height='4' rx='2' fill='%23C8943C'/%3E%3Crect x='2' y='5' width='20' height='4' rx='2' fill='none' stroke='%237C3F00' stroke-width='0.5'/%3E%3Cline x1='6' y1='9' x2='6' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='10' y1='9' x2='10' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='14' y1='9' x2='14' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='18' y1='9' x2='18' y2='20' stroke='%237C3F00' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='4' y1='12' x2='20' y2='12' stroke='%23C8943C' stroke-width='0.5' stroke-dasharray='2 2' opacity='0.4'/%3E%3Cline x1='4' y1='16' x2='20' y2='16' stroke='%23C8943C' stroke-width='0.5' stroke-dasharray='2 2' opacity='0.4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+/* ── Indicador de Dinámica (# Forte #, # Piano #, etc.) ── */
+.chords-block pre b.chord-dynamic {
+  display: inline-block;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #7E57C2;
+  letter-spacing: 0.04em;
+  margin: 0 0 -1.394rem;
+  white-space: normal;
+}
+.chords-block pre b.chord-dynamic::before {
+  content: '~ ';
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+
+
+
+/* ── MULTI-COLUMN CHORD LAYOUT (fullscreen) ── */
+/* Contenedor de páginas — apiladas verticalmente */
+.chords-pages-container { width: 100%; }
+/* Separador sutil entre páginas */
+.chords-multicolumn + .chords-multicolumn {
+  border-top: 1px solid rgba(200,148,60,0.15);
+  margin-top: 0.5rem;
+  padding-top: 0.3rem;
+}
+.chords-multicolumn {
+  column-gap: 1.5rem;
+  column-fill: auto;   /* llenar columna por columna, de arriba hacia abajo */
+  font-size: 0.9rem;   /* base zoom 100% — applyZoom lo sobreescribe */
+  overflow: hidden;    /* cada página muestra exactamente su contenido */
+  width: 100%;
+  padding: 0.5rem 1.5rem 3rem;
+  box-sizing: border-box;
+  column-rule: 1px solid rgba(200,148,60,0.15);
+}
+/* Each section must never break across columns */
+.chord-section {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  display: table;        /* most reliable cross-browser for break-inside */
+  width: 100%;
+  margin-bottom: 1.4em;
+  overflow: hidden;      /* red de seguridad: corta cualquier desborde residual */
+}
+.chord-section pre {
+  white-space: pre;
+  font-family: 'Courier New', monospace;
+  font-size: 1em;   /* hereda del wrapper — permite que el zoom funcione */
+  line-height: 1.7;
+  color: #e0d0b0;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  max-width: 100%;       /* contener texto en el ancho de la columna */
+  tab-size: 4;
+}
+.chord-section pre .chord { color: #E8C040; font-weight: bold; }
+.chord-section pre b      { font-weight: bold; }
+/* Toggle button — activo por defecto al entrar en fullscreen */
+.mc-toggle-btn { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+/* When multi-column is active, remove the single-column max-width on the original pre */
+.chords-block.fullscreen pre.mc-hidden,
+.chords-block:fullscreen pre.mc-hidden,
+.chords-block:-webkit-full-screen pre.mc-hidden { display: none; }
+
+/* ══════════════════════════════════════════════════════
+   DOMINICAL THEME — Verde litúrgico sobre fondo oscuro
+   Misma calidad visual que Semana Santa y Navidad
+══════════════════════════════════════════════════════ */
+
+/* ── Fullscreen zoom controls ── */
+/* ── CONTROLES DE ZOOM (fullscreen) ── */
+/* Visibles solo en fullscreen — permiten ajustar tamaño de fuente en táctil */
+.fs-zoom-bar {
+  display: none;
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  z-index: 100002;
+  align-items: center;
+  gap: 0;
+  background: rgba(30,30,30,0.9);
+  border: 1px solid rgba(200,148,60,0.35);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+.chords-block.fullscreen .fs-zoom-bar,
+.chords-block:fullscreen .fs-zoom-bar,
+.chords-block:-webkit-full-screen .fs-zoom-bar { display: flex; }
+.fs-zoom-btn {
+  width: 44px; height: 44px;
+  background: none; border: none;
+  color: #C8943C; font-size: 1.3rem; font-weight: bold;
+  cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+.fs-zoom-btn:hover, .fs-zoom-btn:active { background: rgba(200,148,60,0.18); }
+.fs-zoom-divider { width: 1px; height: 24px; background: rgba(200,148,60,0.25); flex-shrink: 0; }
+.fs-zoom-label {
+  font-family: 'Cinzel', serif; font-size: 0.55rem;
+  letter-spacing: 0.1em; color: #C8943C;
+  padding: 0 0.6rem; min-width: 3rem; text-align: center;
+  pointer-events: none;
+}
+/* Versión del cancionero — debajo del ícono de iglesia */
+.cancionero-version {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #C8943C;
+  opacity: 0.7;
+  margin-top: 0.1rem;
+  display: block;
+}
+
+/* ── TAG STYLES IN PREVIEW ── */
+.lp-section {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin: 1.1rem 0 0.3rem;
+  padding-bottom: 0.15rem;
+  display: block;
+}
+.lp-intro, .lp-outro  { color: #999; font-style: italic; border-bottom: 1px solid #e0e0e0; }
+.lp-verso, .lp-estrofa { color: #7a5a00; border-bottom: 1px dotted #C8943C44; }
+.lp-pre-coro  { color: #5a7a5a; padding-left: 1rem; border-left: 2px solid #5a7a5a88; }
+.lp-coro      { color: #7a5200; font-weight: 700; border-bottom: 2px solid #C8943C; }
+.lp-puente    { color: #2a6a7a; border-bottom: 1px solid #2a6a7a88; }
+.lp-final { color: #999; border-bottom: 1px solid #ccc; }
+.lp-modulacion { color: #6a3a9a; border-bottom: 1px dashed #9a60ca; }
+.lp-instrumental { color: #aaa; font-style: italic; }
+
+/* Preview lyrics body */
+#lyrics-preview-pane .song-body {
+  background: #fff;
+  padding: 0;
+  max-width: 520px;
+  margin: 0 auto;
+}
+#lyrics-preview-pane .strophe p,
+#lyrics-preview-pane .chorus p {
+  color: #1a1a1a;
+  font-family: 'Proza Libre', sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.8;
+  margin: 0;
+}
+#lyrics-preview-pane .chorus p { font-weight: 500; }
+
+/* Mobile: stack editor/preview vertically */
+@media (max-width: 767px) {
+  #lyrics-editor-body { flex-direction: column; }
+  #lyrics-editor-pane { border-right: none; border-bottom: 1px solid rgba(107,184,107,0.15); }
+  #lyrics-preview-pane { flex: none; height: 45vh; }
+}
+
+.lyric-spacer{height:.75em;min-height:.75em;margin:0;display:block}
+.lyrics-tag-chip{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.1em;padding:.25rem .65rem;border-radius:12px;border:1.5px solid;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;opacity:.85}
+.lyrics-tag-chip:hover{opacity:1;transform:translateY(-1px)}.lyrics-tag-chip:active{transform:translateY(0)}
+.ltc-neutral{color:#C8C8C8;background:rgba(200,200,200,.08);border-color:rgba(200,200,200,.4)}
+.ltc-estrofa{color:#C8943C;background:rgba(200,148,60,.1);border-color:rgba(200,148,60,.55)}
+.ltc-precoro{color:#8FC878;background:rgba(107,184,107,.1);border-color:rgba(107,184,107,.5)}
+.ltc-coro{color:#F0D060;background:rgba(240,208,60,.12);border-color:rgba(240,208,60,.6);font-weight:700}
+.ltc-puente{color:#70C8D8;background:rgba(70,180,200,.1);border-color:rgba(70,180,200,.5)}
+.ltc-interludio{color:#4A9FB0;background:rgba(40,140,160,.1);border-color:rgba(40,140,160,.5)}
+.ltc-final{color:#C8C8C8;background:rgba(200,200,200,.06);border-color:rgba(200,200,200,.35)}
+.ltc-hombre{color:#7AB8E8;background:rgba(90,155,200,.15);border-color:rgba(90,155,200,.6)}
+.ltc-mujer{color:#E898B8;background:rgba(200,120,144,.15);border-color:rgba(200,120,144,.6)}
+.ltc-ambos{color:#78C878;background:rgba(91,160,91,.15);border-color:rgba(91,160,91,.6)}
+.ltc-mod{color:#C888E8;background:rgba(180,100,220,.12);border-color:rgba(180,100,220,.5)}
+.ltc-sep{width:1px;align-self:stretch;background:rgba(255,255,255,.15);margin:.1rem .2rem;flex-shrink:0}
+#cpd-history-panel{position:absolute;top:0;right:0;bottom:0;width:min(360px,96vw);z-index:10;background:#111;border-left:2px solid rgba(200,148,60,.35);display:none;flex-direction:column;transform:translateX(110%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+#cpd-history-panel.open{display:flex;transform:translateX(0)}
+#cpd-history-panel-toolbar{display:flex;align-items:center;gap:.6rem;padding:.7rem 1rem;background:#1a1a0f;border-bottom:1px solid rgba(200,148,60,.25);flex-shrink:0}
+#cpd-history-panel-title{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.18em;color:#C8943C;text-transform:uppercase;flex:1}
+#cpd-history-close-btn{background:transparent;border:1px solid #555;color:#aaa;font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.1em;padding:.3rem .7rem;border-radius:3px;cursor:pointer}
+#cpd-history-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.5rem}
+.cpd-hist-item{display:flex;align-items:center;gap:.5rem;padding:.6rem .7rem;border-radius:4px;border:1px solid #2a2a1a;margin-bottom:.4rem;background:#161610;transition:all .15s}
+.cpd-hist-item:hover{border-color:rgba(200,148,60,.4);background:#1e1e14}.cpd-hist-item.selected{border-color:#C8943C;background:#221e12}
+.cpd-hist-date{flex:1;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.06em;color:#C8B080;line-height:1.5}
+.cpd-hist-date span{display:block;color:#888;font-size:.55rem}
+.cpd-hist-load-btn{font-family:'Cinzel',serif;font-size:.5rem;padding:.25rem .6rem;border:1px solid rgba(200,148,60,.5);border-radius:3px;background:transparent;color:#C8943C;cursor:pointer;flex-shrink:0}
+.cpd-hist-load-btn:hover{background:rgba(200,148,60,.12)}
+#cpd-history-status{padding:.5rem 1rem;font-family:'Cinzel',serif;font-size:.6rem;color:#888;border-top:1px solid #222;flex-shrink:0;min-height:2rem}
+.cpd-hist-empty{text-align:center;padding:2rem 1rem;font-family:'Cinzel',serif;font-size:.62rem;color:#555}
+#editor-history-btn,#lyrics-history-btn{display:none}
+body.dev-mode #editor-history-btn,body.dev-mode #lyrics-history-btn{display:inline-flex!important}
+#lyrics-preview-btn{background:#fff;color:#2a4a2a;border-color:#ddd}
+#lyrics-preview-btn.active{background:#fff;color:#2a4a2a;border-color:#aaa;box-shadow:inset 0 1px 3px rgba(0,0,0,.15)}
+

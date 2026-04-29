@@ -1,0 +1,200 @@
+/* ============================================================================
+   base.css — Reset, root styles, particle canvas, shared animations
+   ============================================================================
+   Estilos fundamentales del documento que aplican a TODAS las páginas:
+     • Reset universal (box-sizing, margin/padding 0)
+     • Tipografía base del body
+     • #particle-canvas (capa de fireflies dorados)
+     • @keyframes compartidos entre componentes (fadeIn, fadeUp, etc.)
+     • Media queries de responsive base
+   Depende de: tokens.css
+   ============================================================================ */
+
+/* ═══════════════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  /* Ramos – olives, gold, spring green */
+  --ramos-bg:      #141A08;
+  --ramos-mid:     #1E2A08;
+  --ramos-olive:   #5A7A10;
+  --ramos-gold:    #C8A830;
+  --ramos-gold-lt: #E8CC70;
+  --ramos-green:   #7A9C18;
+  --ramos-cream:   #F5F0DC;
+  --ramos-accent:  #9A7A10;
+
+  /* Jueves – deep crimson, almost-black, gold */
+  --jueves-bg:     #0C0608;
+  --jueves-mid:    #1A0A0C;
+  --jueves-crimson:#6B1020;
+  --jueves-gold:   #C8943C;
+  --jueves-gold-lt:#E8C070;
+  --jueves-cream:  #F0E8DC;
+  --jueves-flame:  #E86020;
+
+  /* Vigilia – dark to light, purple/gold/white */
+  --vigilia-dark:  #14102A;
+  --vigilia-mid:   #241E4A;
+  --vigilia-purple:#6A30A8;
+  --vigilia-gold:  #E8C040;
+  --vigilia-gold-lt:#FAE080;
+  --vigilia-white: #FFFDF5;
+  --vigilia-risen: #FFF8E0;
+
+  --white:   #FFFFFF;
+  --shadow-dark: rgba(0,0,0,0.5);
+}
+
+body {
+  font-family: 'Proza Libre', serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  overflow-x: clip;
+  background: #0E1A0C;
+  background-attachment: fixed;
+}
+
+/* ═══════════════════════════════════════════════
+   PARTICLE CANVAS (shared, changes per tab)
+═══════════════════════════════════════════════ */
+#particle-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+/* ═══════════════════════════════════════════════
+   SHARED ANIMATIONS
+═══════════════════════════════════════════════ */
+@keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .tab-btn .tab-name { font-size: 0.7rem; }
+  .song-header { padding: 1rem 1.2rem 1rem 1.4rem; }
+  .song-body { padding: 1.4rem 1.4rem 1.8rem; }
+  .ceremony-body { padding: 0 1rem 4rem; }
+  .info-box { gap: 0.8rem; }
+}
+
+  /* Moment headers in index — no counter, no border */
+  .toc-moment-header,
+  .index-moment-header {
+    counter-increment: none !important;
+    border-bottom: none !important;
+    padding: 0.8rem 0 0.2rem !important;
+    list-style: none;
+    /* Compensar la barra sticky superior cuando se hace scroll programático */
+    scroll-margin-top: 70px;
+  }
+  .toc-moment-header::before,
+  .index-moment-header::before {
+    content: none !important;
+    display: none !important;
+  }
+  .toc-moment-header span,
+  .index-moment-header span {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.3em;
+    color: var(--gold, #C8A830);
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  /* Song number in toc */
+  .toc-song-item { padding-left: 1rem; }
+  .toc-num {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: var(--gold-dim, #A08020);
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  /* scroll-margin-top set dynamically by JS below */
+
+/* ═══════════════════════════════════════════════
+   MOBILE / TABLET — ajustes para pantallas táctiles
+   ═══════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Song header compacto */
+  .song-title    { font-size: 1rem; }
+  .song-number   { font-size: 1.8rem; }
+  .song-header   { padding: 0.9rem 1rem 0.9rem 1.4rem; gap: 0.8rem; }
+
+  /* Botones de la canción — área táctil mínima 44px */
+  .yt-play-btn svg { width: 24px; height: 24px; }
+
+  /* Barra de transposición: envolver en móvil */
+  .transpose-bar { flex-wrap: wrap; gap: 0.4rem 0.5rem; }
+
+  /* Botones − / + más grandes para dedos */
+  .transpose-btn { width: 40px; height: 40px; font-size: 1.1rem; }
+
+  /* Fullscreen: barra sticky envolvente */
+  .chords-block.fullscreen .transpose-bar,
+  .chords-block:fullscreen .transpose-bar,
+  .chords-block:-webkit-full-screen .transpose-bar {
+    flex-wrap: wrap;
+    padding: 0.6rem 1rem;
+    gap: 0.4rem 0.6rem;
+    justify-content: flex-start;
+  }
+
+  /* Botones con ícono + texto en fullscreen:
+     ocultar el texto en móvil, dejar solo el ícono */
+  .fullscreen-btn,
+  .mc-toggle-btn,
+  .print-chords-btn {
+    font-size: 0;     /* oculta texto inline sin afectar el SVG */
+    gap: 0;
+    padding: 0.45rem;
+    min-width: 36px;
+    min-height: 36px;
+    justify-content: center;
+  }
+  .fullscreen-btn svg,
+  .mc-toggle-btn svg,
+  .print-chords-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Editor-open-btn en móvil */
+  .editor-open-btn {
+    font-size: 0.45rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  /* Acordes: fuente un poco más grande para leer en móvil */
+  .chords-block pre {
+    font-size: 0.82rem;
+  }
+  .chords-block.fullscreen pre,
+  .chords-block:fullscreen pre {
+    font-size: 1rem;
+    max-width: none;   /* sin restricción de ancho en móvil */
+    padding: 0 0.5rem 3rem;
+  }
+}
+
+/* Tablet ancha: ajuste intermedio */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .chords-block.fullscreen .transpose-bar,
+  .chords-block:fullscreen .transpose-bar {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+    padding: 0.7rem 1.5rem;
+  }
+}
+

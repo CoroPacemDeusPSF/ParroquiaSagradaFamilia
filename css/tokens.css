@@ -1,0 +1,227 @@
+/* ============================================================================
+   tokens.css — Sistema de design tokens del Cancionero Pacem Deus
+   ============================================================================
+
+   ÚNICA FUENTE DE VERDAD para colores, espaciado, tipografía, sombras y
+   animaciones. Cualquier valor visual del proyecto debe consumirse desde aquí
+   vía custom properties (var(--token)).
+
+   PRINCIPIOS:
+   • Sin magic numbers en componentes. Si un valor no existe como token, se
+     agrega aquí primero.
+   • Naming semántico, no descriptivo.
+       ✓ --color-accent-primary    (lo que ES)
+       ✗ --color-amber             (lo que parece)
+   • Una variable por intención. No reusar tokens entre dominios distintos
+     "porque coinciden visualmente": si Adviento usa morado y la barra de error
+     también, son dos tokens diferentes aunque hoy compartan hex.
+   • Escala matemática para spacing/tipografía (cada paso es 1.25× o 1.5× del
+     anterior), no valores arbitrarios.
+
+   ============================================================================ */
+
+:root {
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     COLOR — Marca y superficies del cancionero dominical
+     ────────────────────────────────────────────────────────────────────────── */
+
+  /* Verde litúrgico — base del Tiempo Ordinario, color identitario del cancionero */
+  --color-bg-deep:           #0E1A0C;        /* fondo principal de la página */
+  --color-bg-deep-mid:       #1A2818;        /* zonas elevadas sobre el fondo */
+  --color-bg-card:           #FFFFFF;        /* fondo de las tarjetas de cantos */
+  --color-bg-card-soft:      #FAFAF5;        /* fondo del bloque de contexto litúrgico */
+  --color-bg-modal:          #1E1E1C;        /* negro cálido neutro para modales */
+  --color-bg-overlay:        rgba(0, 0, 0, 0.78);
+
+  /* Acentos dorados — usados en encabezados, ornamentos, acordes, hover states */
+  --color-accent:            #C8943C;        /* dorado principal (acordes, badges) */
+  --color-accent-bright:     #D4A04A;        /* dorado más claro para resaltes */
+  --color-accent-warm:       #F1C075;        /* dorado cálido para hovers */
+  --color-accent-deep:       #B08030;        /* dorado oscuro para gradientes */
+  --color-accent-shadow:     rgba(200, 148, 60, 0.55);
+
+  /* Verdes del cancionero — para badges, divisores, ornamentos verdes */
+  --color-liturgical:        #6B9E4A;        /* verde de tags litúrgicos */
+  --color-liturgical-soft:   rgba(107, 158, 74, 0.20);
+  --color-liturgical-faint:  rgba(107, 158, 74, 0.06);
+
+  /* Texto — escala del más oscuro al más claro */
+  --color-text-strong:       #2A2620;        /* títulos sobre fondo claro */
+  --color-text-base:         #3D3530;        /* cuerpo sobre fondo claro */
+  --color-text-soft:         #5A5040;        /* notas, citas, secundarios */
+  --color-text-muted:        #7A6E60;        /* metadatos, referencias */
+  --color-text-on-dark:      #F5F0DC;        /* texto sobre fondos oscuros */
+  --color-text-on-dark-soft: rgba(255, 255, 255, 0.78);
+
+  /* Estados — acción */
+  --color-danger:            #C03030;        /* botones de borrado, alertas críticas */
+  --color-danger-soft:       rgba(160, 48, 48, 0.12);
+  --color-warning:           #B45309;        /* badges de advertencia (Modo Dev) */
+  --color-success:           #43A047;        /* confirmaciones, ícono de acordes */
+  --color-info:              #7C3AED;        /* badge Modo Coro (púrpura) */
+
+  /* Luz "celestial" — usado en el halo del Evangelio (lit-card) */
+  --color-divine-light:      rgba(170, 220, 240, 1);
+  --color-divine-light-soft: rgba(170, 220, 240, 0.18);
+
+  /* Bordes y separadores */
+  --color-border-subtle:     rgba(255, 255, 255, 0.10);
+  --color-border-base:       rgba(255, 255, 255, 0.30);
+  --color-border-strong:     rgba(255, 255, 255, 0.55);
+  --color-divider-on-light:  rgba(58, 50, 40, 0.15);
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     SPACING — escala fija. Usar SIEMPRE estos tokens, no valores ad-hoc.
+     Basado en 0.25rem (4px @ 16px base).
+     ────────────────────────────────────────────────────────────────────────── */
+
+  --space-3xs:  0.125rem;   /*  2px */
+  --space-2xs:  0.25rem;    /*  4px */
+  --space-xs:   0.5rem;     /*  8px */
+  --space-sm:   0.75rem;    /* 12px */
+  --space-md:   1rem;       /* 16px */
+  --space-lg:   1.5rem;     /* 24px */
+  --space-xl:   2rem;       /* 32px */
+  --space-2xl:  3rem;       /* 48px */
+  --space-3xl:  4rem;       /* 64px */
+  --space-4xl:  6rem;       /* 96px */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     TIPOGRAFÍA — familias y tamaños
+     ────────────────────────────────────────────────────────────────────────── */
+
+  /* Familias — definidas una sola vez aquí y consumidas por nombre semántico */
+  --font-display:     'Cinzel', serif;                  /* títulos, encabezados, badges en mayúsculas */
+  --font-body:        'Proza Libre', serif;             /* cuerpo de canciones, párrafos */
+  --font-elegant:     'Cormorant Garamond', serif;      /* notas, citas, footers, prosa decorativa */
+  --font-classical:   'EB Garamond', serif;             /* índice, listados */
+  --font-script:      'Pinyon Script', cursive;         /* "Coro Pacem Deus" en portada */
+  --font-script-alt:  'Edwardian Script ITC', cursive;  /* alternativa al script principal */
+
+  /* Tamaños — escala modular 1.25x */
+  --font-size-2xs:  0.55rem;   /*  8.8px — badges, tags pequeños */
+  --font-size-xs:   0.7rem;    /* 11.2px — eyebrows, metadatos */
+  --font-size-sm:   0.85rem;   /* 13.6px — secundarios */
+  --font-size-base: 1rem;      /* 16px   — cuerpo */
+  --font-size-md:   1.15rem;   /* 18.4px — destacados */
+  --font-size-lg:   1.35rem;   /* 21.6px — subtítulos */
+  --font-size-xl:   1.75rem;   /* 28px   — títulos de sección */
+  --font-size-2xl:  2.25rem;   /* 36px   — títulos principales */
+  --font-size-3xl:  3.5rem;    /* 56px   — hero */
+
+  /* Pesos */
+  --font-weight-light:    300;
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+  --font-weight-black:    900;
+
+  /* Espaciado entre letras */
+  --letter-spacing-tight:  -0.01em;
+  --letter-spacing-base:   0;
+  --letter-spacing-wide:   0.05em;
+  --letter-spacing-wider:  0.15em;
+  --letter-spacing-widest: 0.25em;
+
+  /* Altura de línea */
+  --line-height-tight:    1.25;
+  --line-height-base:     1.5;
+  --line-height-relaxed:  1.8;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     BORDES Y RADIOS
+     ────────────────────────────────────────────────────────────────────────── */
+
+  --radius-sm:    0.25rem;
+  --radius-md:    0.5rem;
+  --radius-lg:    1rem;
+  --radius-xl:    1.5rem;
+  --radius-pill:  999px;
+  --radius-full:  50%;
+
+  --border-width-thin:  1px;
+  --border-width-base:  2px;
+  --border-width-thick: 3px;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     SOMBRAS Y EFECTOS
+     ────────────────────────────────────────────────────────────────────────── */
+
+  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.10);
+  --shadow-base:    0 2px 6px rgba(0, 0, 0, 0.15);
+  --shadow-md:      0 4px 12px rgba(0, 0, 0, 0.20);
+  --shadow-lg:      0 8px 24px rgba(0, 0, 0, 0.30);
+  --shadow-xl:      0 16px 48px rgba(0, 0, 0, 0.40);
+
+  /* Glow dorado — para elementos con halo de "presencia" (edge tab, botones) */
+  --glow-accent-sm: 2px 2px 14px var(--color-accent-shadow);
+  --glow-accent-md: 3px 3px 18px rgba(200, 148, 60, 0.80);
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     ANIMACIÓN — duraciones y curvas estándar
+     ────────────────────────────────────────────────────────────────────────── */
+
+  --duration-instant: 0.1s;
+  --duration-fast:    0.15s;
+  --duration-base:    0.25s;
+  --duration-slow:    0.4s;
+  --duration-slower:  0.8s;
+  --duration-glacial: 1.6s;
+
+  --easing-default:   ease;
+  --easing-in:        cubic-bezier(0.4, 0, 1, 1);
+  --easing-out:       cubic-bezier(0, 0, 0.2, 1);
+  --easing-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce:    cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Z-INDEX — escala fija para evitar batallas de z-index ad-hoc
+     ────────────────────────────────────────────────────────────────────────── */
+
+  --z-base:        1;
+  --z-elevated:    10;
+  --z-sticky:      100;
+  --z-overlay:     1000;
+  --z-modal:       10000;
+  --z-toast:       50000;
+  --z-edge-tab:    90000;     /* edge tab del setlist (debe estar sobre todo) */
+  --z-edge-note:   90001;     /* notas musicales emanando del tab */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     LAYOUT — anchos máximos, breakpoints (referencia)
+     ────────────────────────────────────────────────────────────────────────── */
+
+  --max-width-prose:    65ch;       /* texto cómodo de leer */
+  --max-width-content:  72rem;      /* ~1152px contenido principal */
+  --max-width-narrow:   42rem;      /* secciones angostas */
+
+  /* Breakpoints — solo referencia, NO se usan como var() en media queries
+     (CSS no soporta var() dentro de @media). Documentados aquí para que las
+     media queries del proyecto los usen consistentemente. */
+  /*
+     mobile  : default
+     tablet  : 640px
+     desktop : 960px
+     wide    : 1280px
+  */
+}
+
+/* ============================================================================
+   ACCESIBILIDAD — preferencia de movimiento reducido
+   ============================================================================
+   Cuando el usuario tiene "Reducir movimiento" activado en su sistema,
+   redefinimos las duraciones de animación para que sean instantáneas. Los
+   componentes que consumen --duration-* se anulan automáticamente. */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0.01ms;
+    --duration-fast:    0.01ms;
+    --duration-base:    0.01ms;
+    --duration-slow:    0.01ms;
+    --duration-slower:  0.01ms;
+    --duration-glacial: 0.01ms;
+  }
+}
