@@ -6,7 +6,7 @@
  *   @brief      Orquestación: genera PDF vectorial del SetList y lo abre en el visor
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.44r1
+ *   @version    v3.2.44r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -200,29 +200,78 @@
     document.body.appendChild(errEl);
   }
 
-  /* ── Apertura del PDF en el visor nativo ──────────────────────────────── */
+  /* ── Apertura del PDF: share directo en móvil, visor en desktop ──────── */
   /**
-   * Abre el blob PDF en el visor nativo del navegador.
-   * En desktop: window.open en nueva pestaña.
-   * En móvil: si window.open falla por bloqueo de popup, mostramos un link
-   * visible que el usuario tap (gesto explícito del usuario sobre un anchor
-   * con target="_blank" + URL.createObjectURL).
+   * Estrategia:
+   *
+   *   • MÓVIL (iOS Safari 15+, Chrome Android): usamos la Web Share API
+   *     (navigator.share) con un File del PDF. Esto invoca el share sheet
+   *     NATIVO del sistema operativo, donde WhatsApp aparece como una
+   *     opción más junto a Telegram, Mail, etc. → 1 tap a WhatsApp para
+   *     enviar. Al guardar desde el share sheet, el archivo conserva el
+   *     nombre descriptivo que le dimos al File.
+   *
+   *   • DESKTOP / navegador sin Web Share: caemos al window.open() que
+   *     muestra el PDF en una pestaña nueva. Esto es lo natural en
+   *     desktop donde no hay "compartir a app" — el usuario descarga
+   *     o imprime físicamente.
+   *
+   * Web Share API requiere un user activation (gesto reciente del usuario).
+   * Como esta función se invoca en cadena directa desde el click del
+   * usuario en el diálogo, el gesto está activo. La generación de jsPDF
+   * tarda 1-2s lo que está dentro del timeout estándar (5s).
    */
-  function openPdfInViewer(blob, filename) {
+  function shareOrOpenPdf(blob, filename) {
+    /* Crear File con nombre y mime explícitos — esto es lo que hace que
+       al guardar mantenga el nombre, en vez del UUID del blob URL. */
+    var file;
+    try {
+      file = new File([blob], filename, { type: 'application/pdf' });
+    } catch (e) {
+      /* Algunos navegadores antiguos no soportan el constructor File.
+         Caemos directo a window.open. */
+      return openInViewer(blob, filename);
+    }
+
+    var shareData = { files: [file] };
+
+    /* Verificar soporte para Web Share API con archivos. canShare devuelve
+       false en desktop y en móviles muy antiguos. */
+    if (navigator.canShare && navigator.canShare(shareData) && navigator.share) {
+      navigator.share(shareData).then(function () {
+        /* Compartido OK — nada más que hacer. */
+      }).catch(function (err) {
+        /* AbortError = usuario canceló el share sheet. Silencioso. */
+        if (err && err.name === 'AbortError') return;
+        /* Otros errores (NotAllowedError por gesto perdido, etc.):
+           fallback al visor para que al menos pueda ver el PDF. */
+        console.warn('[PDF] navigator.share falló, fallback a visor:', err);
+        openInViewer(blob, filename);
+      });
+      return;
+    }
+
+    /* Sin Web Share API → comportamiento desktop: abrir en visor */
+    openInViewer(blob, filename);
+  }
+
+  /**
+   * Abre el blob PDF en el visor del navegador. Estrategia de respaldo
+   * para desktop y para casos donde Web Share falla.
+   */
+  function openInViewer(blob, filename) {
     var blobUrl = URL.createObjectURL(blob);
 
-    /* Estrategia 1: window.open directo */
     var popup = window.open(blobUrl, '_blank');
 
     if (popup) {
-      /* Liberar el blobUrl después de un rato — el visor ya copió el contenido */
       setTimeout(function () {
         try { URL.revokeObjectURL(blobUrl); } catch (e) { /* ignore */ }
       }, 60000);
       return;
     }
 
-    /* Estrategia 2: link visible que el usuario debe tocar */
+    /* window.open bloqueado → mostrar link visible */
     showFallbackLink(blobUrl, filename);
   }
 
@@ -252,9 +301,40 @@
     document.body.appendChild(overlay);
   }
 
+  /* ── Construir nombre de archivo descriptivo ─────────────────────────── */
+  /**
+   * Genera un nombre de archivo informativo basado en la fecha del próximo
+   * domingo. Evitamos caracteres especiales, tildes y diéresis para
+   * compatibilidad con todos los sistemas operativos y apps de mensajería.
+   *
+   * Ejemplo: "Cancionero Pacem Deus - Domingo 3 mayo 2026.pdf"
+   *          "Cancionero Pacem Deus - Domingo 3 mayo 2026 (con acordes).pdf"
+   */
+  function buildFileName(withChords) {
+    var today = new Date();
+    var day = today.getDay();                /* 0 = domingo */
+    var daysToSunday = (7 - day) % 7 || 7;
+    var sunday = new Date(today);
+    sunday.setDate(today.getDate() + daysToSunday);
+
+    /* Meses sin tildes para máxima compatibilidad de filename */
+    var meses = [
+      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+    ];
+
+    var dateLabel = 'Domingo ' + sunday.getDate() + ' ' +
+                    meses[sunday.getMonth()] + ' ' + sunday.getFullYear();
+
+    var base = 'Cancionero Pacem Deus - ' + dateLabel;
+    var suffix = withChords ? ' (con acordes)' : '';
+
+    return base + suffix + '.pdf';
+  }
+
   /* ── Generador principal ──────────────────────────────────────────────── */
   /**
-   * Orquesta: recolecta cantos → genera PDF → lo abre.
+   * Orquesta: recolecta cantos → genera PDF → lo comparte/abre.
    *
    * @param {boolean} withChords
    */
@@ -263,7 +343,8 @@
     showLoading('Generando PDF...');
 
     /* Pequeño delay para dar tiempo al spinner a pintarse antes del trabajo
-       síncrono de jsPDF. */
+       síncrono de jsPDF. Importante: este delay NO rompe la "user activation"
+       de Web Share API porque seguimos dentro de la cadena del click. */
     setTimeout(function () {
       runGeneration(withChords).catch(function (err) {
         console.error('[SetListPDF]', err);
@@ -276,14 +357,13 @@
     return ensureJsPDFLoaded().then(function () {
       var songs = collectSetlistSongs();
       if (songs.length === 0) {
-        throw new Error('El SetList está vacío. Agrega cantos antes de imprimir.');
+        throw new Error('El SetList esta vacio. Agrega cantos antes de imprimir.');
       }
 
       if (!window.PDFBuilder || typeof window.PDFBuilder.buildPdf !== 'function') {
-        throw new Error('Generador PDF no disponible. Recarga la página.');
+        throw new Error('Generador PDF no disponible. Recarga la pagina.');
       }
 
-      /* Generar el PDF */
       var blob = window.PDFBuilder.buildPdf(songs, {
         withChords: withChords,
         dateLabel:  window.PDFBuilder.formatNextSunday()
@@ -291,11 +371,9 @@
 
       hideLoading();
 
-      var filename = withChords
-        ? 'Cancionero-con-acordes.pdf'
-        : 'Cancionero.pdf';
+      var filename = buildFileName(withChords);
 
-      openPdfInViewer(blob, filename);
+      shareOrOpenPdf(blob, filename);
     });
   }
 
