@@ -7,7 +7,7 @@
  *   @brief      Regenera el AI_CATALOG del agente AI desde data/songs.json
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r3
+ *   @version    v3.2.40r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

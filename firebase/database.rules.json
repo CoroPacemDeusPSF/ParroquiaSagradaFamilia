@@ -1,0 +1,69 @@
+/* ════════════════════════════════════════════════════════════════════
+   Coro Pacem Deus — Reglas de seguridad de Realtime Database
+   Reemplaza las reglas de Test Mode (que vencen) por estas reglas.
+
+   Filosofía: la app es estática (GitHub Pages) y no autentica usuarios.
+   Estas reglas:
+     • DENIEGAN por default cualquier path no listada.
+     • PERMITEN lectura pública en las 5 paths específicas que la app
+       necesita leer para mostrar overrides al feligrés.
+     • PERMITEN escritura validando estructura (formato cpd-XXX, fechas,
+       timestamps numéricos) y limitando tamaño de payloads.
+
+   Sin auth, cualquier persona que conozca el formato exacto puede escribir.
+   Para una parroquia esto es aceptable (limita bots y daño potencial),
+   pero si quieres mayor seguridad considera habilitar Anonymous Auth y
+   agregar `auth != null` a cada `.write`.
+   ════════════════════════════════════════════════════════════════════ */
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "chord-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write": "$cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 50000"
+      }
+    },
+
+    "lyrics-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write": "$cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 100000"
+      }
+    },
+
+    "chord-history": {
+      ".read": true,
+      "$cpdId": {
+        "$timestamp": {
+          ".write": "$cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 50000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "lyrics-history": {
+      ".read": true,
+      "$cpdId": {
+        "$timestamp": {
+          ".write": "$cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 100000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "setlist": {
+      ".read": true,
+      "$dateKey": {
+        ".write": "$dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)",
+        "$slotId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['cpd', 'title']) && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/) && newData.child('title').isString() && newData.child('title').val().length <= 200)"
+        }
+      }
+    }
+  }
+}

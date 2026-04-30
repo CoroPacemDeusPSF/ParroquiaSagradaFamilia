@@ -6,7 +6,7 @@
  *   @brief      Inicialización de Google Analytics (ejecutado en <head>)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r3
+ *   @version    v3.2.40r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
