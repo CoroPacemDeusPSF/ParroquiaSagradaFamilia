@@ -124,11 +124,16 @@
     return enriched;
   }
 
-  /* ── Carga diferida de jsPDF desde CDN ────────────────────────────────── */
+  /* ── Carga diferida de jsPDF (self-hosted) ────────────────────────────── */
   /**
-   * jsPDF pesa ~370 KB. Lo cargamos solo cuando el usuario realmente solicita
+   * jsPDF pesa ~411 KB. Lo cargamos solo cuando el usuario realmente solicita
    * un PDF (tap en una de las opciones del diálogo), no en la carga inicial
    * del cancionero.
+   *
+   * Self-hosted en `js/lib/jspdf.umd.min.js` para garantizar disponibilidad
+   * incluso con CDNs bloqueados en redes móviles restrictivas. Una vez
+   * cargado en una sesión, queda en memoria — invocaciones subsiguientes
+   * resuelven inmediatamente sin nueva descarga.
    *
    * @returns {Promise<void>}
    */
@@ -139,11 +144,15 @@
 
     return new Promise(function (resolve, reject) {
       var script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+      /* Path relativo al HTML del cancionero (cancioneros/dominical.html).
+         Como el HTML está en /cancioneros/ y la lib en /js/lib/, salimos
+         un nivel con `../`. Cache-bust por versión para invalidación
+         coordinada con el resto del proyecto. */
+      script.src = '../js/lib/jspdf.umd.min.js?v=3.2.44';
       script.async = true;
       script.onload  = function () { resolve(); };
       script.onerror = function () {
-        reject(new Error('No se pudo cargar jsPDF desde CDN.'));
+        reject(new Error('No se pudo cargar el motor PDF. Verifica tu conexión y recarga la página.'));
       };
       document.head.appendChild(script);
     });
