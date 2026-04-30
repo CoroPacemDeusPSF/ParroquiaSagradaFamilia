@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r9
+ *   @version    v3.2.42r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -203,6 +203,16 @@
   /* ── RENDER SLOTS ──
      Modo "actual": muestra placeholders por defecto + cantos asignados con advertencias.
      Modo "histórico": muestra solo los cantos que existieron en ese setlist, con botón "agregar al actual". */
+  /* Escapa caracteres HTML peligrosos. Usado al inyectar valores del
+     setlist (títulos de cantos, etc.) en atributos data-*. */
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function renderSlots() {
     if (currentView === 'history') {
       renderHistoryView();
@@ -287,14 +297,17 @@
 
       if (hasContent) {
         var newBadge = isNewSong(data.cpd) ? '<span class="sl-new-badge" title="Canto nuevo">✦</span>' : '';
-        html += '<div class="sl-slot">' +
+        /* data-cpd y data-moment se exponen en el slot para que módulos
+           consumidores (ej. 27-setlist-pdf.js) puedan leer la información
+           del setlist sin tener que parsear los `onclick` inline. */
+        html += '<div class="sl-slot" data-cpd="' + data.cpd + '" data-moment="' + slot.label + '" data-title="' + escapeHtml(data.title) + '">' +
           '<span class="sl-moment' + labelClickable + '">' + label + warning + '<\/span>' +
           '<span class="sl-song" onclick="window.SL.goTo(\'' + data.cpd + '\')">' + data.title + newBadge + '<\/span>' +
           '<button class="sl-remove" onclick="window.SL.remove(\'' + slot.id + '\')" title="Quitar">&times;<\/button>' +
           '<\/div>';
       } else {
         /* Placeholder vacío */
-        html += '<div class="sl-slot sl-slot-empty">' +
+        html += '<div class="sl-slot sl-slot-empty" data-moment="' + slot.label + '">' +
           '<span class="sl-moment' + labelClickable + '">' + label + warning + '<\/span>' +
           '<span class="sl-song empty">— vacío —<\/span>' +
           '<\/div>';

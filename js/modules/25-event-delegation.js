@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r9
+ *   @version    v3.2.42r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -185,6 +185,34 @@
     /** Limpia todos los slots del setlist. */
     'sl-clear-all': () => {
       if (window.SL && typeof window.SL.clearAll === 'function') window.SL.clearAll();
+    },
+
+    /** Abre el diálogo "Imprimir SetList" con opciones Con/Sin Acordes. */
+    'sl-print': () => {
+      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.open === 'function') {
+        window.PdSetlistPrint.open();
+      }
+    },
+
+    /** Imprime el SetList incluyendo bloques de acordes en cada canto. */
+    'sl-print-with-chords': () => {
+      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.printWithChords === 'function') {
+        window.PdSetlistPrint.printWithChords();
+      }
+    },
+
+    /** Imprime el SetList solo con letras (sin acordes). */
+    'sl-print-no-chords': () => {
+      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.printNoChords === 'function') {
+        window.PdSetlistPrint.printNoChords();
+      }
+    },
+
+    /** Cancela el diálogo de impresión. */
+    'sl-print-cancel': () => {
+      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.close === 'function') {
+        window.PdSetlistPrint.close();
+      }
     },
 
     /** Cierra el diálogo "Add to Setlist". */

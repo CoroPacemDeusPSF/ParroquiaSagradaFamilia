@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.40r9
+     @version    v3.2.42r1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -217,10 +217,21 @@ body:not(.rehearsal-mode) .sl-tema-nav-spacer {
 .sl-remove:hover { color: #C03030; }
 body.dev-mode .sl-remove { display: block; }
 
+/* ── Toolbar inferior del SetList (Borrar Todo + Imprimir) ──
+   Layout flex horizontal para que ambos botones quepan en una sola línea.
+   En Modo Coro/Público solo se ve "Imprimir" (que ocupa el ancho completo).
+   En Modo Dev se ven los dos lado a lado. */
+.sl-toolbar {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.5rem 1rem 0.8rem;
+  flex-shrink: 0;
+}
+
 /* Clear all button */
 .sl-clear {
   display: none;
-  margin: 0.5rem 1rem 0.8rem;
+  flex: 1;
   padding: 0.4rem;
   font-family: 'Cinzel', serif;
   font-size: 0.5rem;
@@ -232,10 +243,117 @@ body.dev-mode .sl-remove { display: block; }
   border-radius: 2px;
   cursor: pointer;
   text-align: center;
-  flex-shrink: 0;
 }
 .sl-clear:hover { background: rgba(160,48,48,0.12); }
 body.dev-mode .sl-clear { display: block; }
+
+/* Print button — visible en TODOS los modos (público, coro, dev).
+   En modo público y coro ocupa todo el ancho (flex:1 sin compañero).
+   En modo dev comparte línea con "Borrar Todo" (también flex:1 cada uno). */
+.sl-print {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex: 1;
+  padding: 0.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #C8943C;
+  background: rgba(200,148,60,0.06);
+  border: 1px solid rgba(200,148,60,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.sl-print:hover {
+  background: rgba(200,148,60,0.14);
+  border-color: rgba(200,148,60,0.5);
+}
+.sl-print svg { flex-shrink: 0; }
+.sl-print-label { line-height: 1; }
+
+/* ── Diálogo modal "Con Acordes / Sin Acordes" ──
+   Aparece centrado al hacer click en Imprimir. Estilo coherente con el
+   resto del SetList (paleta dorada, fuentes Cinzel para títulos). */
+.sl-print-dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.sl-print-dialog-overlay.open { display: flex; }
+
+.sl-print-dialog {
+  background: #1A1F18;
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 6px;
+  padding: 1.5rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+}
+.sl-print-dialog-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #C8943C;
+  margin-bottom: 0.4rem;
+}
+.sl-print-dialog-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: #C0C5B5;
+  margin-bottom: 1.2rem;
+}
+.sl-print-dialog-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.sl-print-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #E8E0C8;
+  background: rgba(200,148,60,0.08);
+  border: 1px solid rgba(200,148,60,0.3);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sl-print-option:hover {
+  background: rgba(200,148,60,0.18);
+  border-color: rgba(200,148,60,0.6);
+  color: #FFE4A0;
+}
+.sl-print-option svg { flex-shrink: 0; }
+.sl-print-cancel {
+  background: transparent;
+  border: 1px solid rgba(200,200,200,0.2);
+  color: rgba(220,220,220,0.7);
+  padding: 0.5rem 1.2rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.sl-print-cancel:hover { background: rgba(255,255,255,0.05); }
 
 /* Panel overlay (tap outside to close) */
 .sl-overlay {
@@ -357,7 +475,7 @@ body.dev-mode .sl-clear { display: block; }
 body.dev-mode .idx-add-btn { display: inline-flex; }
 
 /* Nota: las reglas de `.song-add-btn` (botón "+" legacy inyectado en los
-   títulos por el SetList) fueron eliminadas en v3.2.40r9 — ahora el botón
+   títulos por el SetList) fueron eliminadas en v3.2.42r1 — ahora el botón
    "+" lo genera el renderer como `.add-setlist-btn` (estilo dorado grande,
    ver css/components/song-card.css). Tener ambos creaba dos botones "+"
    visibles en el mismo título. */
@@ -595,7 +713,7 @@ body.dev-mode .idx-add-btn { display: inline-flex; }
   transform: scale(1.05);
 }
 
-/* (las reglas de .song-add-btn aquí también fueron eliminadas en v3.2.40r9
+/* (las reglas de .song-add-btn aquí también fueron eliminadas en v3.2.42r1
    — eran un duplicado del bloque anterior. El botón "+" ahora vive en
    .add-setlist-btn dentro de css/components/song-card.css.) */
 
