@@ -6,7 +6,7 @@
  *   @brief      PDF del SetList — clonando fielmente la presentación del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r2
+ *   @version    v3.2.42r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -18,7 +18,7 @@
    como el cancionero web. La premisa: el PDF debe parecer una traducción
    1:1 del diseño de las song-cards a papel, no una versión empobrecida.
 
-   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r2 v1):
+   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r3 v1):
      • Cero margen de hoja → el fondo cream cubre A4 completo
      • Sin Acordes  → SOLO el contenido del .song-body (letras, chorus,
                        strophe, lp-section, song-ornament). El chord-block
@@ -99,25 +99,30 @@
   }
 
   /* ── Detectar si un <b> es un marcador de TÍTULO ──
-     Un título empieza con la nota musical ♫ seguida del nombre del canto.
-     Ej.: "♫ Vosotros Sois de Dios". */
+     El título es el ♫ que aparece al INICIO del chord-block, identificando
+     el canto. Apariciones subsecuentes de ♫ (ej. "♫ Versión Corta",
+     "♫ Versión Completa") son ANOTACIONES, no separadores reales —
+     se manejan en el ciclo de matching, no aquí. */
   function isChordTitleMarker(content) {
     return /^\s*♫/.test(content);
   }
 
   /* ── Detectar si un <b> es un marcador de SECCIÓN ──
-     Las secciones se identifican por: caracteres de caja (═══, ───), barras
-     dobles (==), o palabras clave canónicas al inicio. */
+     Una sección REAL del canto está marcada con caracteres de caja
+     decorativos (═══, ───, ━━━) al inicio o al final. Esto distingue
+     un separador estructural ("═══ ESTROFA 1 ═══") de una anotación
+     musical ("CAPO +1", "INTRO:", "Pianno", "Forte", "Versión Corta")
+     que NO debe causar page-break ni generar caja independiente.
+
+     Las anotaciones se preservan visualmente en el contenido (mantienen
+     su estilo dentro del bloque) pero no fragmentan el page-flow. */
   function isChordSectionMarker(content) {
     var trimmed = content.trim();
-    /* Caracteres de caja Unicode */
-    if (/[═─━]{2,}/.test(trimmed)) return true;
-    /* Doble barra ASCII */
-    if (/^=={1,}/.test(trimmed) || /=={1,}\s*$/.test(trimmed)) return true;
-    /* Palabras clave litúrgicas/musicales al inicio (sin caja) */
-    if (/^(INTRO|CORO|ESTROFA|PUENTE|FIN|FINAL|OUTRO|CAPO|TONALIDAD|KYRIE|CHRISTE|SANTO|BENDITO|HOSANNA)[\s:]/i.test(trimmed)) return true;
-    /* INTRO: o CORO: con dos puntos al final */
-    if (/^[A-ZÁÉÍÓÚÑ]{3,}:\s*$/.test(trimmed)) return true;
+    /* Caracteres de caja Unicode al inicio del contenido */
+    if (/^[═─━]{2,}/.test(trimmed)) return true;
+    /* O al final del contenido */
+    if (/[═─━]{2,}\s*$/.test(trimmed)) return true;
+    /* Sin caja → es anotación, no separador */
     return false;
   }
 
@@ -166,33 +171,51 @@
        <b> anidado. */
     var allBoldsRe = /<b([^>]*)>([\s\S]*?)<\/b>/g;
     var matches = [];
+    var titleAlreadyFound = false;  /* Solo el PRIMER ♫ cuenta como título */
     var m;
     while ((m = allBoldsRe.exec(html)) !== null) {
       var fullMatch = m[0];
       var attrs     = m[1];          /* atributos como ' class="chord-title"' */
       var content   = m[2];          /* texto interior */
 
-      /* Determinar si este <b> es un marcador de sección/título o solo un
-         <b> de énfasis dentro de la letra. */
+      /* Determinar si este <b> es un marcador estructural REAL.
+
+         La clase HTML (chord-title / chord-section) es solo una pista —
+         lo que decide si es separador real es la ESTRUCTURA del contenido:
+           • Título: empieza con ♫ Y es el PRIMERO del chord-block
+           • Sección: contiene caracteres de caja decorativos (═══, ───, ━━━)
+
+         Esto evita que anotaciones que Firebase marcó con class="chord-section"
+         (ej. "CAPO +1", "Pianno") se traten como separadores en el PDF. Esas
+         anotaciones se quedan inline preservando su estilo (banda verde
+         tenue del CSS), pero no fragmentan el page-flow del PDF. */
       var hasClassTitle   = /class=["']chord-title["']/.test(attrs);
       var hasClassSection = /class=["']chord-section["']/.test(attrs);
+      var structurallyTitle   = isChordTitleMarker(content);
+      var structurallySection = isChordSectionMarker(content);
       var isTitle, isSection;
 
-      if (hasClassTitle)        { isTitle = true;   isSection = false; }
-      else if (hasClassSection) { isTitle = false;  isSection = true;  }
-      else                       { isTitle = isChordTitleMarker(content); isSection = !isTitle && isChordSectionMarker(content); }
-
-      if (!isTitle && !isSection) continue;  /* <b> de énfasis, ignorar */
-
-      /* Si el <b> es marcador pero no tiene clase, INYECTARLA para que tome
-         los estilos correspondientes en el CSS del PDF. */
-      var renderedTag;
-      if (hasClassTitle || hasClassSection) {
-        renderedTag = fullMatch;
-      } else if (isTitle) {
-        renderedTag = '<b class="chord-title">' + content + '</b>';
+      if (structurallyTitle && !titleAlreadyFound) {
+        isTitle = true;  isSection = false;
+        titleAlreadyFound = true;
+      } else if (structurallySection) {
+        isTitle = false; isSection = true;
       } else {
-        renderedTag = '<b class="chord-section">' + content + '</b>';
+        /* No es marcador estructural (puede tener clase pero sin caja/♫
+           que cuenten). Es anotación inline, no fragmenta el page-flow. */
+        continue;
+      }
+
+      /* Si el <b> es marcador estructural pero no tiene clase, INYECTARLA
+         para que tome los estilos correspondientes en el CSS del PDF.
+         Si ya tiene la clase correcta, preservar el tag tal cual. */
+      var renderedTag;
+      var expectedClass = isTitle ? 'chord-title' : 'chord-section';
+      var hasCorrectClass = (isTitle && hasClassTitle) || (isSection && hasClassSection);
+      if (hasCorrectClass) {
+        renderedTag = fullMatch;
+      } else {
+        renderedTag = '<b class="' + expectedClass + '">' + content + '</b>';
       }
 
       matches.push({
@@ -247,7 +270,33 @@
       sections.push(cleanSection(newChunk));
     }
 
-    return sections;
+    /* ── POST-PROCESO: mergear secciones de muy poco contenido ──
+       Si una sección solo contiene el título (♫) o un marcador con muy
+       poca letra (menos de 30 caracteres de texto plano), no merece una
+       caja independiente — visualmente queda fea (header verde grande
+       seguido de una caja casi vacía). En vez de eso, mergeamos esa
+       sección con la SIGUIENTE para que el contenido fluya natural.
+
+       Ejemplo típico: "Tómame Señor – Jesed" tiene <b>♫ Título</b> seguido
+       inmediatamente del primer marcador de sección — la "primera sección"
+       solo contiene el ♫. Mergeada con la siguiente, el ♫ aparece como
+       primera línea de la sección de contenido, sin caja propia. */
+    var merged = [];
+    for (var j = 0; j < sections.length; j++) {
+      var current = sections[j];
+      /* Texto plano (sin tags) para medir la sustancia real del contenido */
+      var textOnly = current.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      var isShort = textOnly.length < 30;
+      var hasNext = (j + 1 < sections.length);
+      if (isShort && hasNext) {
+        /* Prepend al siguiente con un salto de línea de separación */
+        sections[j + 1] = current + '\n' + sections[j + 1];
+      } else {
+        merged.push(current);
+      }
+    }
+
+    return merged;
   }
 
   /* ── Splittear el body en (primer bloque atómico) + (resto) ──
