@@ -6,7 +6,7 @@
  *   @brief      Toggle del bloque de contexto litúrgico de cada canto
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r6
+ *   @version    v3.2.43
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

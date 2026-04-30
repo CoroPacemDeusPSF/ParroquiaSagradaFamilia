@@ -6,7 +6,7 @@
  *   @brief      PDF del SetList — clonando fielmente la presentación del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r6
+ *   @version    v3.2.43
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -18,7 +18,7 @@
    como el cancionero web. La premisa: el PDF debe parecer una traducción
    1:1 del diseño de las song-cards a papel, no una versión empobrecida.
 
-   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r6 v1):
+   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.43 v1):
      • Cero margen de hoja → el fondo cream cubre A4 completo
      • Sin Acordes  → SOLO el contenido del .song-body (letras, chorus,
                        strophe, lp-section, song-ornament). El chord-block
@@ -853,9 +853,80 @@
 
     var html = buildPdfHtml(byMoment, withChords);
 
-    /* Ventana popup separada — el navegador renderiza fuentes Google Fonts
-       sin interferir con el cancionero, y el usuario puede cancelar/cerrar
-       sin afectar la página principal. */
+    if (IS_MOBILE) {
+      /* MÓVIL: usar iframe oculto. window.open() en móviles suele:
+           • Ser bloqueado como popup
+           • Abrirse como pestaña nueva sin foco (no permite triggear print)
+           • Romper el flujo del Web Share posterior
+         El iframe es invisible al usuario, se inyecta en la página actual,
+         dispara print() desde el contentWindow del iframe (que el navegador
+         interpreta como acción del usuario porque el iframe pertenece al
+         mismo documento), y al terminar de imprimir se elimina. */
+      printViaIframe(html);
+    } else {
+      /* DESKTOP: popup separado da mejor UX (ventana propia que el usuario
+         puede cancelar/cerrar sin afectar al cancionero). */
+      printViaPopup(html);
+    }
+  }
+
+  /* ── Imprimir via iframe oculto (móvil) ────────────────────────────────
+     Estrategia: crear un iframe srcless, escribir el HTML completo en su
+     document, esperar a que las fuentes carguen, y disparar print() desde
+     el contentWindow del iframe. */
+  function printViaIframe(html) {
+    /* Quitar iframe previo si existe (impresiones consecutivas) */
+    var existing = document.getElementById('pdf-print-iframe');
+    if (existing) existing.parentNode.removeChild(existing);
+
+    var iframe = document.createElement('iframe');
+    iframe.id = 'pdf-print-iframe';
+    iframe.setAttribute('aria-hidden', 'true');
+    /* Ocultar visualmente sin sacarlo del flujo (left:-9999 puede hacer que
+       algunos engines no calculen layout, lo que rompe @page). */
+    iframe.style.cssText =
+      'position:fixed;right:0;bottom:0;width:0;height:0;border:0;' +
+      'visibility:hidden;opacity:0;pointer-events:none;';
+    document.body.appendChild(iframe);
+
+    var iDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iDoc.open();
+    iDoc.write(html);
+    iDoc.close();
+
+    var triggerPrint = function () {
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch (e) {
+        console.error('[SetListPDF] Error al imprimir desde iframe:', e);
+        alert('No se pudo abrir el menú de impresión. Intenta nuevamente.');
+      }
+      /* Limpiar el iframe después de que el usuario cierre el diálogo de
+         impresión. 60s es buffer suficiente; si el usuario no actuó en ese
+         tiempo, el iframe ya cumplió su función y se puede borrar. */
+      setTimeout(function () {
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      }, 60000);
+    };
+
+    /* Esperar a fonts.ready DENTRO del iframe (no del documento principal). */
+    if (iDoc.fonts && iDoc.fonts.ready) {
+      iDoc.fonts.ready.then(function () {
+        setTimeout(triggerPrint, 500);
+      }).catch(function () {
+        setTimeout(triggerPrint, 1500);
+      });
+    } else {
+      /* Sin Font Loading API → buffer más generoso para que carguen las
+         Google Fonts via @import. */
+      setTimeout(triggerPrint, 2200);
+    }
+  }
+
+  /* ── Imprimir via popup window (desktop) ───────────────────────────────
+     Comportamiento original que ya funciona perfecto en escritorio. */
+  function printViaPopup(html) {
     var printWindow = window.open('', '_blank', 'width=900,height=1100');
     if (!printWindow) {
       alert('Permite popups en este sitio para poder imprimir el setlist.');
@@ -865,8 +936,6 @@
     printWindow.document.write(html);
     printWindow.document.close();
 
-    /* Esperar a que las fuentes carguen — sin esto, Chrome puede imprimir
-       con tipografías fallback (serif genérica) y se pierde el diseño. */
     var triggerPrint = function () {
       printWindow.focus();
       printWindow.print();
@@ -881,494 +950,151 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-     COMPARTIR NATIVO EN MÓVILES (Web Share API + html2pdf.js)
+     ESTRATEGIA UNIFICADA: window.print() en TODAS las plataformas
      ════════════════════════════════════════════════════════════════════
-     En móviles modernos (iOS Safari 15+, Android Chrome 89+) el navegador
-     ofrece la Web Share API, que permite compartir archivos a apps
-     externas (WhatsApp, Telegram, Mail, etc.) sin necesidad de descargar
-     primero el PDF. Esto da una experiencia muy fluida: tap "Compartir"
-     → diálogo nativo → tap "WhatsApp" → enviado.
+     Decisión arquitectural (v3.2.43):
+       En v3.2.41-v3.2.42 intentamos usar html2pdf.js (basado en
+       html2canvas) en móviles para generar un Blob PDF y compartirlo
+       via Web Share API. La calidad fue inaceptable: html2canvas
+       rasteriza el HTML como imagen, las fuentes salen blurry, los
+       page-breaks no respetan el CSS, el layout colapsa en pantallas
+       altas (iOS limita el canvas a ~16384px), y el resultado es "un
+       enjambre de letras y acordes desperdigadas".
 
-     window.print() en móviles funciona pero abre el diálogo de impresión
-     del sistema, donde el usuario tiene que navegar a "Guardar como PDF",
-     elegir carpeta, salir, ir a Files, abrir, compartir... — flujo de
-     5 pasos. Con Web Share API es 1 paso.
+       La realidad técnica:
+         • NO existe una API JavaScript que genere PDF vectorial desde
+           HTML usando el motor del navegador.
+         • html2canvas / jsPDF.html() / html2pdf.js TODOS rasterizan.
+         • window.print() es la ÚNICA vía a calidad nativa: usa el
+           motor de impresión del navegador, respeta @page, page-breaks,
+           tipografías, y produce PDF vectorial con texto seleccionable.
 
-     Estrategia:
-       • Detectar si el navegador soporta Web Share con archivos PDF.
-       • Si sí: cambiar el label del botón a "Compartir" y enrutar la
-         acción a launchShare() en lugar de launchPrint().
-       • launchShare() carga html2pdf.js dinámicamente desde CDN, genera
-         un Blob PDF a partir del mismo HTML que usa launchPrint(), y
-         llama a navigator.share() con el archivo.
-       • Fallback elegante: si falla la generación o el share, se descarga
-         el PDF para que el usuario pueda compartirlo manualmente. */
+       Por eso en v3.2.43 unificamos: TANTO desktop COMO móvil usan
+       window.print(). El usuario móvil:
+         1. Tap "Imprimir" → diálogo nativo del SO
+         2. "Guardar como PDF" → archivo en Files/Descargas
+         3. Compartir desde Files (gestor del SO) → WhatsApp/Mail/etc.
 
-  /* ── Detectar si el dispositivo soporta Web Share con archivos ─────── */
-  function isMobileShareCapable() {
-    if (typeof navigator.share !== 'function') return false;
-    if (typeof navigator.canShare !== 'function') return false;
-    /* Probar canShare con un archivo dummy — algunos navegadores tienen
-       navigator.share pero NO soportan el campo `files`. */
-    try {
-      var probeFile = new File(['probe'], 'probe.pdf', { type: 'application/pdf' });
-      if (!navigator.canShare({ files: [probeFile] })) return false;
-    } catch (e) {
-      return false;
-    }
-    /* Heurística: solo activar en pantallas tamaño móvil/tablet o con
-       user-agent móvil. Web Share existe en algunos navegadores desktop
-       pero la experiencia esperada (compartir por WhatsApp) es móvil. */
-    var isMobileUA    = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-    var isSmallScreen = window.innerWidth < 900;
-    return isMobileUA || isSmallScreen;
-  }
+       Es un paso más que el flujo Web Share, pero la calidad del PDF
+       es perfecta. Para una parroquia compartiendo el setlist semanal,
+       la calidad importa más que el ahorro de un tap.
 
-  var IS_MOBILE_SHARE = isMobileShareCapable();
+       Mostramos un hint visual breve antes de invocar window.print()
+       en móvil, explicando los 3 pasos simples. ════════════════════ */
 
-  /* ── Si es móvil con Web Share, ajustar el botón del toolbar y el ──
-     título del diálogo para reflejar la acción real (Compartir). */
-  if (IS_MOBILE_SHARE) {
-    var printBtn = document.getElementById('sl-print');
-    if (printBtn) {
-      var label = printBtn.querySelector('.sl-print-label');
-      if (label) label.textContent = 'Compartir PDF';
-      printBtn.setAttribute('aria-label', 'Compartir SetList como PDF');
-      printBtn.setAttribute('title', 'Compartir SetList como PDF');
-      /* Reemplazar el SVG de impresora por uno de share (3 nodos conectados) */
-      var oldSvg = printBtn.querySelector('svg');
-      if (oldSvg) {
-        oldSvg.innerHTML =
-          '<circle cx="18" cy="5" r="3"></circle>' +
-          '<circle cx="6" cy="12" r="3"></circle>' +
-          '<circle cx="18" cy="19" r="3"></circle>' +
-          '<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>' +
-          '<line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>';
-      }
-    }
-    var dialogTitleEl = document.querySelector('.sl-print-dialog-title');
-    if (dialogTitleEl) dialogTitleEl.textContent = 'Compartir SetList';
-    var dialogSubEl = document.querySelector('.sl-print-dialog-subtitle');
-    if (dialogSubEl) dialogSubEl.textContent = '¿Cómo deseas compartir los cantos?';
-  }
+  /* ── Detección sencilla de móvil ────────────────────────────────────────
+     Usado en dos lugares:
+       1. launchPrint(): elegir entre iframe (móvil) y popup (desktop).
+       2. launchAction(): mostrar el hint de 3 pasos antes de imprimir. */
+  var IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+                  window.innerWidth < 900;
 
-  /* ── Cargar html2pdf.js dinámicamente desde CDN ──
-     Solo se carga cuando el usuario intenta compartir por primera vez.
-     ~500KB pero solo afecta a quien usa la feature. */
-  var HTML2PDF_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-  function loadHtml2Pdf(callback, errorCallback) {
-    if (typeof window.html2pdf === 'function') {
-      callback();
-      return;
-    }
-    var script = document.createElement('script');
-    script.src = HTML2PDF_CDN;
-    script.async = true;
-    script.onload = function () { callback(); };
-    script.onerror = function () {
-      if (errorCallback) errorCallback();
-      else alert('No se pudo cargar el generador de PDF. Verifica tu conexión a internet.');
-    };
-    document.head.appendChild(script);
-  }
-
-  /* ── Overlay de "generando..." mientras html2canvas/jsPDF trabaja ── */
-  function showLoadingOverlay() {
-    if (document.getElementById('pdf-loading-overlay')) return;
-    var overlay = document.createElement('div');
-    overlay.id = 'pdf-loading-overlay';
-    overlay.style.cssText =
-      'position:fixed;inset:0;background:rgba(14,26,12,0.92);z-index:200000;' +
-      'display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML =
-      '<div style="text-align:center;color:#C8943C;font-family:Cinzel,serif;letter-spacing:0.18em;font-size:0.85rem;text-transform:uppercase;">' +
-        'Generando PDF...' +
-        '<div style="width:38px;height:38px;border:3px solid rgba(200,148,60,0.2);border-top-color:#C8943C;border-radius:50%;animation:pdfSpin 0.9s linear infinite;margin:1.2rem auto 0;"></div>' +
-      '</div>' +
-      '<style>@keyframes pdfSpin{to{transform:rotate(360deg);}}</style>';
-    document.body.appendChild(overlay);
-  }
-  function hideLoadingOverlay() {
-    var overlay = document.getElementById('pdf-loading-overlay');
-    if (overlay) overlay.remove();
-  }
-
-  /* ── Lanzar el flujo de COMPARTIR en móviles ──
-     Genera el PDF a partir del mismo HTML que window.print() usaría, y
-     lo entrega al sistema operativo via navigator.share() para que el
-     usuario lo envíe por WhatsApp / Telegram / Mail / etc. */
-  function launchShare(withChords) {
-    closeDialog();
-
-    var byMoment = collectSetlistByMoment();
-    var hasContent = MOMENT_ORDER.some(function (m) {
-      return byMoment[m] && byMoment[m].length > 0;
-    });
-    if (!hasContent) {
-      alert('El SetList está vacío. Agrega cantos antes de compartir.');
-      return;
-    }
-
-    showLoadingOverlay();
-
-    loadHtml2Pdf(function () {
-      var html = buildPdfHtml(byMoment, withChords);
-
-      /* ── IFRAME aislado en lugar de div oculto ──
-         Razón crítica del cambio (v3.2.42r6): cuando hacemos
-         `div.innerHTML = '<!DOCTYPE html><html><head><style>...</style></head><body>...</body></html>'`,
-         el navegador DESCARTA los tags <!DOCTYPE>, <html>, <head>, <body> y
-         deja solo los hijos del body. El <style> dentro de <head> puede o
-         no preservarse, pero las reglas @page, @import de fonts, y otros
-         estilos no aplican correctamente al div. En móviles esto resulta
-         en un PDF vacío o con layout roto.
-
-         Con un iframe, el HTML completo se parsea como un documento real:
-         <head>, <body>, <style>, @page y @import funcionan correctamente
-         dentro del scope aislado del iframe. html2canvas/html2pdf puede
-         capturar el body del iframe limpio, con fuentes ya cargadas. */
-      var iframe = document.createElement('iframe');
-      iframe.setAttribute('aria-hidden', 'true');
-      /* width 794px = A4 a 96dpi. height inicial alto, después se ajusta
-         dinámicamente al scrollHeight del contenido. visibility: hidden +
-         opacity: 0 lo sacan del flujo visual sin romper el layout cálculo
-         (left:-9999px puede causar problemas en algunos engines móviles). */
-      iframe.style.cssText =
-        'position:fixed;top:0;left:0;width:794px;height:1123px;' +
-        'border:0;visibility:hidden;opacity:0;pointer-events:none;z-index:-1;';
-      document.body.appendChild(iframe);
-
-      /* Escribir el HTML al document del iframe usando open()/write()/close().
-         Este es el método estándar para inyectar un documento HTML completo. */
-      var iDoc = iframe.contentDocument || iframe.contentWindow.document;
-      iDoc.open();
-      iDoc.write(html);
-      iDoc.close();
-
-      /* Función que dispara html2pdf cuando el iframe esté listo */
-      var generate = function () {
-        var iBody = iDoc.body;
-        if (!iBody) {
-          /* Caso muy raro: el iframe no terminó de parsear. Reintentamos. */
-          setTimeout(generate, 200);
-          return;
-        }
-
-        /* Asegurar que el body tenga el ancho correcto. Algunos engines
-           móviles aplican un default zoom/viewport al iframe que distorsiona
-           el ancho efectivo. Forzamos el ancho explícitamente. */
-        iBody.style.width = '794px';
-        iBody.style.margin = '0';
-
-        /* Calcular la altura real del contenido para que html2canvas capture
-           todo. windowHeight necesita reflejar el alto total. */
-        var contentHeight = Math.max(iBody.scrollHeight, iBody.offsetHeight, 1123);
-        iframe.style.height = contentHeight + 'px';
-
-        window.html2pdf()
-          .set({
-            margin: 0,
-            filename: 'SetList_Coro_Pacem_Deus.pdf',
-            image: { type: 'jpeg', quality: 0.88 },
-            html2canvas: {
-              scale: 1.5,
-              useCORS: true,
-              allowTaint: true,
-              backgroundColor: '#F6F9F2',
-              logging: false,
-              /* IMPORTANTE: pasar el window del iframe para que html2canvas
-                 capture el documento correcto. Sin esto, captura el window
-                 principal (que está vacío en lo que respecta al PDF). */
-              windowWidth: 794,
-              windowHeight: contentHeight
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-            pagebreak: { mode: ['css', 'legacy'] }
-          })
-          .from(iBody)
-          .toPdf()
-          .output('blob')
-          .then(function (blob) {
-            if (iframe.parentNode) document.body.removeChild(iframe);
-            hideLoadingOverlay();
-            var fname = 'SetList_Coro_Pacem_Deus.pdf';
-            showPdfReadyOverlay(blob, fname);
-          })
-          .catch(function (err) {
-            if (iframe.parentNode) document.body.removeChild(iframe);
-            hideLoadingOverlay();
-            console.error('[SetListPDF] Error generando PDF:', err);
-            alert('Error generando el PDF: ' + (err && err.message ? err.message : 'desconocido'));
-          });
-      };
-
-      /* ── Esperar a que el iframe esté completamente listo ──
-         1. document.readyState === 'complete' (HTML parseado y subresources)
-         2. fonts.ready (Google Fonts cargadas) — si está disponible
-         3. Pequeño buffer adicional para que el layout se asiente */
-      var waitForIframe = function (attempt) {
-        attempt = attempt || 0;
-        if (attempt > 50) {
-          /* Timeout de seguridad: 50 intentos * 100ms = 5 segundos.
-             Aún sin readyState complete, intentamos generar. */
-          generate();
-          return;
-        }
-        if (iDoc.readyState !== 'complete' && iDoc.readyState !== 'interactive') {
-          setTimeout(function () { waitForIframe(attempt + 1); }, 100);
-          return;
-        }
-        /* Document listo. Ahora esperar a fuentes. */
-        if (iDoc.fonts && iDoc.fonts.ready) {
-          iDoc.fonts.ready.then(function () {
-            /* Buffer adicional para asegurar layout asentado */
-            setTimeout(generate, 400);
-          }).catch(function () {
-            /* Si fonts.ready rechaza por alguna razón, generar igual */
-            setTimeout(generate, 400);
-          });
-        } else {
-          /* Sin Font Loading API → timeout más generoso */
-          setTimeout(generate, 1500);
-        }
-      };
-      waitForIframe();
-    }, function () {
-      hideLoadingOverlay();
-    });
-  }
-
-  /* Helper: descargar un blob como archivo */
-  function triggerDownload(blob, filename) {
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    /* Pequeño delay antes de revocar para asegurar que el navegador inició
-       la descarga */
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-  }
-
-  /* ── Overlay post-PDF: ofrecer opciones explícitas de compartir ──
-     Después de generar el PDF, mostramos un mini-modal con tres botones:
-       • WhatsApp → descarga el PDF + abre wa.me con texto pre-llenado
-       • Otras apps → Web Share API (sistema operativo)
-       • Descargar → solo guarda el archivo
-
-     ¿Por qué WhatsApp explícito? El share sheet del SO no SIEMPRE incluye
-     WhatsApp (depende de versión Android/iOS, tamaño del archivo y registro
-     de apps). Ofreciéndolo como botón directo garantizamos el flujo más
-     común sin depender de que el sistema lo liste. */
-  function showPdfReadyOverlay(blob, fname) {
-    /* Quitar overlay previo si existe */
-    var existing = document.getElementById('pdf-action-overlay');
+  /* ── Hint visual de 3 pasos para guiar al usuario en móvil ─────────── */
+  function showMobilePrintHint(callback) {
+    /* Quitar hint previo si existe */
+    var existing = document.getElementById('pdf-mobile-hint');
     if (existing) existing.remove();
 
     var overlay = document.createElement('div');
-    overlay.id = 'pdf-action-overlay';
+    overlay.id = 'pdf-mobile-hint';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.style.cssText =
-      'position:fixed;inset:0;z-index:200000;background:rgba(0,0,0,0.65);' +
+      'position:fixed;inset:0;z-index:200000;background:rgba(0,0,0,0.78);' +
       'display:flex;align-items:center;justify-content:center;padding:1rem;';
 
-    /* Tamaño del PDF para mostrar al usuario (referencia visual) */
-    var sizeMb = (blob.size / (1024 * 1024)).toFixed(2);
-
     overlay.innerHTML =
-      '<div class="pdf-action-modal" style="background:#1A1F18;border:1px solid rgba(200,148,60,0.3);border-radius:8px;padding:1.5rem 1.2rem 1.2rem;max-width:380px;width:100%;">' +
-        '<div style="text-align:center;margin-bottom:1rem;">' +
-          '<div style="font-family:Cinzel,serif;font-size:0.78rem;letter-spacing:0.2em;text-transform:uppercase;color:#C8943C;margin-bottom:0.3rem;">PDF Listo</div>' +
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:0.95rem;color:#C0C5B5;font-style:italic;">SetList_Coro_Pacem_Deus.pdf · ' + sizeMb + ' MB</div>' +
+      '<div style="background:#1A1F18;border:1px solid rgba(200,148,60,0.35);' +
+            'border-radius:10px;padding:1.5rem 1.3rem 1.2rem;max-width:380px;width:100%;">' +
+        '<div style="text-align:center;margin-bottom:1.1rem;">' +
+          '<div style="font-family:Cinzel,serif;font-size:0.78rem;letter-spacing:0.22em;' +
+                'text-transform:uppercase;color:#C8943C;margin-bottom:0.4rem;">' +
+            'Cómo compartir el PDF' +
+          '</div>' +
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.05rem;' +
+                'color:#E8E0C8;font-style:italic;line-height:1.35;">' +
+            'En 3 pasos sencillos' +
+          '</div>' +
         '</div>' +
-        '<div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:0.8rem;">' +
-          /* WhatsApp — verde característico */
-          '<button id="pdf-action-whatsapp" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;padding:0.85rem 1rem;background:#25D366;border:none;border-radius:6px;color:white;font-family:Cinzel,serif;font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">' +
-            '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">' +
-              '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/>' +
-            '</svg>' +
-            '<span>WhatsApp</span>' +
+
+        /* Lista de pasos */
+        '<ol style="list-style:none;padding:0;margin:0 0 1.3rem 0;' +
+              'font-family:\'Cormorant Garamond\',serif;color:#C0C5B5;font-size:0.98rem;' +
+              'line-height:1.4;">' +
+          '<li style="display:flex;gap:0.7rem;margin-bottom:0.7rem;">' +
+            '<span style="flex-shrink:0;width:1.8rem;height:1.8rem;border-radius:50%;' +
+                  'background:rgba(200,148,60,0.18);border:1px solid rgba(200,148,60,0.4);' +
+                  'color:#C8943C;font-family:Cinzel,serif;font-size:0.75rem;font-weight:600;' +
+                  'display:flex;align-items:center;justify-content:center;">1</span>' +
+            '<span style="flex:1;padding-top:0.15rem;">Aparecerá el menú de impresión. Elige <strong style="color:#E8E0C8;">Guardar como PDF</strong>.</span>' +
+          '</li>' +
+          '<li style="display:flex;gap:0.7rem;margin-bottom:0.7rem;">' +
+            '<span style="flex-shrink:0;width:1.8rem;height:1.8rem;border-radius:50%;' +
+                  'background:rgba(200,148,60,0.18);border:1px solid rgba(200,148,60,0.4);' +
+                  'color:#C8943C;font-family:Cinzel,serif;font-size:0.75rem;font-weight:600;' +
+                  'display:flex;align-items:center;justify-content:center;">2</span>' +
+            '<span style="flex:1;padding-top:0.15rem;">Guarda el archivo en tu dispositivo.</span>' +
+          '</li>' +
+          '<li style="display:flex;gap:0.7rem;">' +
+            '<span style="flex-shrink:0;width:1.8rem;height:1.8rem;border-radius:50%;' +
+                  'background:rgba(200,148,60,0.18);border:1px solid rgba(200,148,60,0.4);' +
+                  'color:#C8943C;font-family:Cinzel,serif;font-size:0.75rem;font-weight:600;' +
+                  'display:flex;align-items:center;justify-content:center;">3</span>' +
+            '<span style="flex:1;padding-top:0.15rem;">Ábrelo desde <strong style="color:#E8E0C8;">Archivos</strong> y compártelo por WhatsApp.</span>' +
+          '</li>' +
+        '</ol>' +
+
+        /* Botones */
+        '<div style="display:flex;flex-direction:column;gap:0.55rem;">' +
+          '<button id="pdf-hint-continue" style="background:#C8943C;border:none;color:#0E1A0C;' +
+                'padding:0.85rem 1rem;border-radius:6px;font-family:Cinzel,serif;font-size:0.72rem;' +
+                'font-weight:600;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;">' +
+            'Entendido, continuar' +
           '</button>' +
-          /* Compartir genérico (Web Share API) — si está disponible */
-          '<button id="pdf-action-share" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;padding:0.85rem 1rem;background:rgba(200,148,60,0.12);border:1px solid rgba(200,148,60,0.4);border-radius:6px;color:#E8E0C8;font-family:Cinzel,serif;font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">' +
-            '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-              '<circle cx="18" cy="5" r="3"/>' +
-              '<circle cx="6" cy="12" r="3"/>' +
-              '<circle cx="18" cy="19" r="3"/>' +
-              '<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>' +
-              '<line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>' +
-            '</svg>' +
-            '<span>Otras apps</span>' +
-          '</button>' +
-          /* Solo descargar */
-          '<button id="pdf-action-download" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;padding:0.7rem 1rem;background:transparent;border:1px solid rgba(200,200,200,0.2);border-radius:6px;color:rgba(220,220,220,0.7);font-family:Cinzel,serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">' +
-            '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-              '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>' +
-              '<polyline points="7 10 12 15 17 10"/>' +
-              '<line x1="12" y1="15" x2="12" y2="3"/>' +
-            '</svg>' +
-            '<span>Solo descargar</span>' +
+          '<button id="pdf-hint-cancel" style="background:transparent;border:none;' +
+                'color:rgba(220,220,220,0.55);padding:0.4rem;font-family:Cinzel,serif;' +
+                'font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;">' +
+            'Cancelar' +
           '</button>' +
         '</div>' +
-        '<button id="pdf-action-cancel" style="width:100%;background:transparent;border:none;color:rgba(220,220,220,0.5);padding:0.5rem;font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Cancelar</button>' +
       '</div>';
 
     document.body.appendChild(overlay);
 
-    /* Cerrar al hacer click fuera del modal */
+    /* Cerrar al click fuera */
     overlay.addEventListener('click', function (ev) {
-      if (ev.target === overlay) overlay.remove();
+      if (ev.target === overlay) {
+        overlay.remove();
+      }
     });
 
-    /* Handlers */
-    document.getElementById('pdf-action-whatsapp').addEventListener('click', function () {
+    document.getElementById('pdf-hint-continue').addEventListener('click', function () {
       overlay.remove();
-      shareViaWhatsApp(blob, fname);
+      callback();
     });
-    document.getElementById('pdf-action-share').addEventListener('click', function () {
-      overlay.remove();
-      shareViaWebShareAPI(blob, fname);
-    });
-    document.getElementById('pdf-action-download').addEventListener('click', function () {
-      overlay.remove();
-      triggerDownload(blob, fname);
-    });
-    document.getElementById('pdf-action-cancel').addEventListener('click', function () {
+    document.getElementById('pdf-hint-cancel').addEventListener('click', function () {
       overlay.remove();
     });
   }
 
-  /* ── Compartir explícitamente por WhatsApp ──
-  /* ── Compartir explícitamente por WhatsApp ──
-     Estrategia DOBLE para máxima compatibilidad:
+  /* ── Enrutador principal: en ambos casos termina en window.print() ──
+     En móvil mostramos primero el hint de 3 pasos (solo la primera vez
+     por sesión, para no saturar al usuario que ya lo conoce). En desktop
+     vamos directo a launchPrint(). */
+  var hintShownThisSession = false;
 
-     Plan A (PRIMARIO): usar Web Share API con SOLO el archivo.
-        navigator.share({ files: [pdf] }) abre el share sheet del SO. El
-        usuario tap "WhatsApp" en el sheet y el PDF se adjunta como
-        documento real, listo para enviar al contacto.
-        IMPORTANTE: solo `files`, sin title/text. WhatsApp tiene un bug
-        conocido donde si vienen text+files juntos, prioriza el text y
-        descarta el archivo. Por eso enviamos solo files.
-
-     Plan B (FALLBACK): si Web Share no soporta archivos (o falla), caemos
-        a descargar el PDF + abrir wa.me con texto pre-llenado y un hint
-        visual. El usuario tendrá que adjuntar el PDF manualmente.
-
-     wa.me NO acepta archivos via URL — es solo texto. Por eso Plan A es
-     necesario para que WhatsApp reciba el PDF como adjunto. */
-  function shareViaWhatsApp(blob, fname) {
-    var file = new File([blob], fname, { type: 'application/pdf' });
-
-    /* Plan A: Web Share API con archivo */
-    var canShareFile = false;
-    try {
-      canShareFile = (typeof navigator.share === 'function') &&
-                     (typeof navigator.canShare === 'function') &&
-                     navigator.canShare({ files: [file] });
-    } catch (e) {}
-
-    if (canShareFile) {
-      /* SOLO files — sin title/text, por el bug de WhatsApp */
-      navigator.share({ files: [file] })
-        .then(function () {
-          /* Compartido con éxito — no hacer nada más */
-        })
-        .catch(function (err) {
-          if (err && err.name === 'AbortError') return;  /* usuario canceló */
-          /* Si Web Share falla por alguna razón (raro), fallback a Plan B */
-          console.warn('[SetListPDF] Web Share falló, fallback a wa.me:', err);
-          fallbackWhatsAppDownload(blob, fname);
-        });
-      return;
-    }
-
-    /* Plan B: navegador no soporta share con archivos */
-    fallbackWhatsAppDownload(blob, fname);
-  }
-
-  /* ── Fallback de WhatsApp: descargar + abrir wa.me ──
-     Se usa cuando el navegador no soporta navigator.share con archivos.
-     El usuario debe adjuntar el PDF manualmente desde la galería de Files. */
-  function fallbackWhatsAppDownload(blob, fname) {
-    /* 1. Descargar el PDF — queda en Files/Downloads del dispositivo */
-    triggerDownload(blob, fname);
-
-    /* 2. Mostrar un mensaje claro indicando los pasos */
-    var hint = document.createElement('div');
-    hint.style.cssText =
-      'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);' +
-      'background:rgba(14,26,12,0.95);color:#ECF4DC;padding:0.8rem 1.2rem;' +
-      'border:1px solid rgba(200,148,60,0.4);border-radius:6px;' +
-      'font-family:"Cormorant Garamond",serif;font-size:0.95rem;text-align:center;' +
-      'z-index:200001;max-width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
-    hint.innerHTML =
-      '<div style="font-family:Cinzel,serif;font-size:0.7rem;letter-spacing:0.15em;color:#C8943C;text-transform:uppercase;margin-bottom:0.3rem;">PDF descargado</div>' +
-      'En WhatsApp, presiona <strong>📎</strong> → <strong>Documento</strong> → selecciona <em>' + fname + '</em>';
-    document.body.appendChild(hint);
-    setTimeout(function () { hint.remove(); }, 8000);
-
-    /* 3. Abrir WhatsApp con texto pre-llenado */
-    var msg = 'SetList del próximo domingo — Coro Pacem Deus';
-    var url = 'https://wa.me/?text=' + encodeURIComponent(msg);
-    setTimeout(function () {
-      window.open(url, '_blank');
-    }, 600);
-  }
-
-  /* ── Compartir vía Web Share API estándar del sistema ──
-     Para usuarios que prefieran usar el share sheet nativo (donde pueden
-     aparecer Mail, Telegram, AirDrop, etc. — y a veces WhatsApp). */
-  function shareViaWebShareAPI(blob, fname) {
-    var file = new File([blob], fname, { type: 'application/pdf' });
-
-    if (typeof navigator.share !== 'function') {
-      /* Sin Web Share API → fallback a descarga */
-      triggerDownload(blob, fname);
-      return;
-    }
-
-    var canShareFile = false;
-    try {
-      canShareFile = (typeof navigator.canShare === 'function') &&
-                     navigator.canShare({ files: [file] });
-    } catch (e) {}
-
-    if (canShareFile) {
-      /* IMPORTANTE: NO pasar `title` ni `text` aquí.
-         Bug conocido de WhatsApp + Web Share API (también en Telegram y
-         varios chats): cuando el objeto compartido contiene `text`, esos
-         apps PRIORIZAN el texto y DESCARTAN el archivo. El usuario solo
-         recibe el mensaje "SetList del próximo domingo" sin el PDF.
-
-         La solución estándar de la comunidad es enviar SOLO `files`. Cada
-         app tomará el adjunto correctamente. Si el usuario quiere
-         acompañar el PDF con un mensaje, puede escribirlo en la app
-         destino una vez seleccionado el contacto. */
-      navigator.share({
-        files: [file]
-      }).catch(function (err) {
-        /* AbortError = usuario canceló el sheet — no es error */
-        if (err && err.name === 'AbortError') return;
-        console.warn('[SetListPDF] navigator.share falló:', err);
-        /* Cualquier otro error → fallback a descarga */
-        triggerDownload(blob, fname);
+  function launchAction(withChords) {
+    if (IS_MOBILE && !hintShownThisSession) {
+      hintShownThisSession = true;
+      showMobilePrintHint(function () {
+        launchPrint(withChords);
       });
     } else {
-      /* No soporta share con archivos → descarga directa */
-      triggerDownload(blob, fname);
+      launchPrint(withChords);
     }
   }
 
-  /* ── Enrutador: decide entre imprimir (desktop) o compartir (móvil) ── */
-  function launchAction(withChords) {
-    if (IS_MOBILE_SHARE) launchShare(withChords);
-    else                 launchPrint(withChords);
-  }
-
-  /* ── API pública para event-delegation (handlers en 25-event-delegation) */
+    /* ── API pública para event-delegation (handlers en 25-event-delegation) */
   window.PdSetlistPrint = {
     open:             openDialog,
     close:            closeDialog,

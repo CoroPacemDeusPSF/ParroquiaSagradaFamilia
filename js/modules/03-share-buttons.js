@@ -6,7 +6,7 @@
  *   @brief      Lógica de los botones de compartir (WhatsApp, copiar URL, toast)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r6
+ *   @version    v3.2.43
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

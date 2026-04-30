@@ -6,7 +6,7 @@
  *   @brief      Bloque de acordes: toggle, transposición ±, fullscreen, imprimir, zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r6
+ *   @version    v3.2.43
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
