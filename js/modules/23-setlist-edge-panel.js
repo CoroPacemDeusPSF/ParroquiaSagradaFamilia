@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r4
+ *   @version    v3.2.42r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

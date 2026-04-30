@@ -6,7 +6,7 @@
  *   @brief      Deep links a cantos específicos (#dXX) y scroll automático
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r4
+ *   @version    v3.2.42r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

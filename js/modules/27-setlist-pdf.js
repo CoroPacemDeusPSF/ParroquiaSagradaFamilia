@@ -6,7 +6,7 @@
  *   @brief      PDF del SetList — clonando fielmente la presentación del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r4
+ *   @version    v3.2.42r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -18,7 +18,7 @@
    como el cancionero web. La premisa: el PDF debe parecer una traducción
    1:1 del diseño de las song-cards a papel, no una versión empobrecida.
 
-   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r4 v1):
+   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r5 v1):
      • Cero margen de hoja → el fondo cream cubre A4 completo
      • Sin Acordes  → SOLO el contenido del .song-body (letras, chorus,
                        strophe, lp-section, song-ornament). El chord-block
@@ -1177,18 +1177,61 @@
   }
 
   /* ── Compartir explícitamente por WhatsApp ──
-     Estrategia: descargar el PDF + abrir WhatsApp con un mensaje
-     pre-llenado. El usuario tap el clip de adjuntar en WhatsApp y
-     selecciona el PDF que acaba de descargar.
+  /* ── Compartir explícitamente por WhatsApp ──
+     Estrategia DOBLE para máxima compatibilidad:
 
-     Esto SIEMPRE funciona, independientemente de si Web Share API muestra
-     WhatsApp o no en el sheet del sistema. La única "fricción" es el paso
-     manual de adjuntar el documento, pero es predecible y consistente. */
+     Plan A (PRIMARIO): usar Web Share API con SOLO el archivo.
+        navigator.share({ files: [pdf] }) abre el share sheet del SO. El
+        usuario tap "WhatsApp" en el sheet y el PDF se adjunta como
+        documento real, listo para enviar al contacto.
+        IMPORTANTE: solo `files`, sin title/text. WhatsApp tiene un bug
+        conocido donde si vienen text+files juntos, prioriza el text y
+        descarta el archivo. Por eso enviamos solo files.
+
+     Plan B (FALLBACK): si Web Share no soporta archivos (o falla), caemos
+        a descargar el PDF + abrir wa.me con texto pre-llenado y un hint
+        visual. El usuario tendrá que adjuntar el PDF manualmente.
+
+     wa.me NO acepta archivos via URL — es solo texto. Por eso Plan A es
+     necesario para que WhatsApp reciba el PDF como adjunto. */
   function shareViaWhatsApp(blob, fname) {
+    var file = new File([blob], fname, { type: 'application/pdf' });
+
+    /* Plan A: Web Share API con archivo */
+    var canShareFile = false;
+    try {
+      canShareFile = (typeof navigator.share === 'function') &&
+                     (typeof navigator.canShare === 'function') &&
+                     navigator.canShare({ files: [file] });
+    } catch (e) {}
+
+    if (canShareFile) {
+      /* SOLO files — sin title/text, por el bug de WhatsApp */
+      navigator.share({ files: [file] })
+        .then(function () {
+          /* Compartido con éxito — no hacer nada más */
+        })
+        .catch(function (err) {
+          if (err && err.name === 'AbortError') return;  /* usuario canceló */
+          /* Si Web Share falla por alguna razón (raro), fallback a Plan B */
+          console.warn('[SetListPDF] Web Share falló, fallback a wa.me:', err);
+          fallbackWhatsAppDownload(blob, fname);
+        });
+      return;
+    }
+
+    /* Plan B: navegador no soporta share con archivos */
+    fallbackWhatsAppDownload(blob, fname);
+  }
+
+  /* ── Fallback de WhatsApp: descargar + abrir wa.me ──
+     Se usa cuando el navegador no soporta navigator.share con archivos.
+     El usuario debe adjuntar el PDF manualmente desde la galería de Files. */
+  function fallbackWhatsAppDownload(blob, fname) {
     /* 1. Descargar el PDF — queda en Files/Downloads del dispositivo */
     triggerDownload(blob, fname);
 
-    /* 2. Mostrar un mensaje breve indicando qué hacer */
+    /* 2. Mostrar un mensaje claro indicando los pasos */
     var hint = document.createElement('div');
     hint.style.cssText =
       'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);' +
@@ -1202,14 +1245,9 @@
     document.body.appendChild(hint);
     setTimeout(function () { hint.remove(); }, 8000);
 
-    /* 3. Abrir WhatsApp con texto pre-llenado.
-       wa.me funciona en móvil (abre app si está instalada) y en desktop
-       (abre WhatsApp Web). Si no hay WhatsApp, el usuario verá la página
-       de descarga de la app. */
+    /* 3. Abrir WhatsApp con texto pre-llenado */
     var msg = 'SetList del próximo domingo — Coro Pacem Deus';
     var url = 'https://wa.me/?text=' + encodeURIComponent(msg);
-
-    /* Pequeño delay para que la descarga inicie antes de abrir WhatsApp */
     setTimeout(function () {
       window.open(url, '_blank');
     }, 600);
@@ -1234,10 +1272,18 @@
     } catch (e) {}
 
     if (canShareFile) {
+      /* IMPORTANTE: NO pasar `title` ni `text` aquí.
+         Bug conocido de WhatsApp + Web Share API (también en Telegram y
+         varios chats): cuando el objeto compartido contiene `text`, esos
+         apps PRIORIZAN el texto y DESCARTAN el archivo. El usuario solo
+         recibe el mensaje "SetList del próximo domingo" sin el PDF.
+
+         La solución estándar de la comunidad es enviar SOLO `files`. Cada
+         app tomará el adjunto correctamente. Si el usuario quiere
+         acompañar el PDF con un mensaje, puede escribirlo en la app
+         destino una vez seleccionado el contacto. */
       navigator.share({
-        files: [file],
-        title: 'SetList — Coro Pacem Deus',
-        text:  'SetList del próximo domingo'
+        files: [file]
       }).catch(function (err) {
         /* AbortError = usuario canceló el sheet — no es error */
         if (err && err.name === 'AbortError') return;

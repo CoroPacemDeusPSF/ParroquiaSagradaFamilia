@@ -6,7 +6,7 @@
  *   @brief      Partículas doradas animadas en el fondo (canvas)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r4
+ *   @version    v3.2.42r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
