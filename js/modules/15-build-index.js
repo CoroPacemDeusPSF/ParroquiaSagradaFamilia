@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.43
+ *   @version    v3.2.44r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -104,20 +104,25 @@
         //   3. Text nodes directos (legacy): título como texto suelto.
         // El triple fallback evita que cambios futuros en el renderer
         // rompan silenciosamente el índice.
+        //
+        // IMPORTANTE: titleEl SIEMPRE se busca, incluso si data-title está
+        // disponible. Esto es necesario porque más abajo se usa titleEl
+        // para localizar los botones .yt-play-btn de referencias YouTube.
+        // Si titleEl quedara undefined, las referencias desaparecerían
+        // silenciosamente del índice (bug detectado en v3.2.44r3).
         var titleTxt = '';
+        var titleEl  = card.querySelector('.song-title');
+
         if (card.dataset && card.dataset.title) {
           titleTxt = card.dataset.title;
-        } else {
-          var titleEl = card.querySelector('.song-title');
-          if (titleEl) {
-            var titleTextEl = titleEl.querySelector('.song-title-text');
-            if (titleTextEl) {
-              titleTxt = titleTextEl.textContent;
-            } else {
-              titleEl.childNodes.forEach(function(node) {
-                if (node.nodeType === 3) titleTxt += node.textContent;
-              });
-            }
+        } else if (titleEl) {
+          var titleTextEl = titleEl.querySelector('.song-title-text');
+          if (titleTextEl) {
+            titleTxt = titleTextEl.textContent;
+          } else {
+            titleEl.childNodes.forEach(function(node) {
+              if (node.nodeType === 3) titleTxt += node.textContent;
+            });
           }
         }
         titleTxt = titleTxt.trim();

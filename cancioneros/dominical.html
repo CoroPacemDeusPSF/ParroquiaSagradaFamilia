@@ -8,7 +8,7 @@
     @brief      Shell del Cancionero Dominical — los 111 cantos se renderizan en runtime desde data/songs.json
     @author     Renzo Núñez Berdejo
     @project    Cancionero Dominical
-    @version    v3.2.44r3
+    @version    v3.2.44r5
 
   ────────────────────────────────────────────────────────────────────────────
 -->
@@ -18,7 +18,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XCNZSLLBHQ"></script>
-<script src="../js/modules/01-analytics-init.js?v=3.2.44"></script>
+<script src="../js/modules/01-analytics-init.js?v=3.2.44r5"></script>
 <title>Cancionero Dominical – Coro Pacem Deus</title>
 
 <!-- Open Graph / WhatsApp / Social Preview
@@ -45,7 +45,7 @@
 <meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png">
 <meta name="description" content="Cancionero Dominical del Coro Pacem Deus — 103 cantos con acordes, contexto litúrgico y referencias bíblicas para la celebración eucarística. Parroquia de la Sagrada Familia.">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.2.44">
+<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.2.44r5">
 </head>
 <body class="no-x-overflow">
 
@@ -284,12 +284,12 @@
     <div class="sl-header-title">SetList Actual</div>
   </div>
   <div class="sl-slots" id="sl-slots"></div>
-  <!-- Toolbar inferior del SetList: Borrar Todo (solo Modo Dev) + Compartir (siempre).
+  <!-- Toolbar inferior del SetList: Limpiar (solo Modo Dev) + Compartir PDF (siempre).
        Layout horizontal con flex para que ambos convivan en una sola línea, lo
        que es importante en móviles donde el alto del panel es limitado. -->
   <div class="sl-toolbar">
-    <button class="sl-clear" id="sl-clear" data-action="sl-clear-all">Borrar todo</button>
-    <button class="sl-print" id="sl-print" data-action="sl-print" aria-label="Compartir setlist" title="Compartir setlist">
+    <button class="sl-clear" id="sl-clear" data-action="sl-clear-all">Limpiar</button>
+    <button class="sl-print" id="sl-print" data-action="sl-print" aria-label="Compartir PDF del setlist" title="Compartir PDF del setlist">
       <!-- Ícono de compartir: flecha saliendo hacia arriba desde un contenedor.
            Universalmente reconocible como "share" en iOS / Android / desktop. -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
@@ -297,7 +297,7 @@
         <polyline points="16 6 12 2 8 6"/>
         <line x1="12" y1="2" x2="12" y2="15"/>
       </svg>
-      <span class="sl-print-label">Compartir</span>
+      <span class="sl-print-label">Compartir PDF</span>
     </button>
   </div>
 </div>
@@ -349,7 +349,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.44r3</span>
+    <span class="cancionero-version">v3.2.44r5</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -388,52 +388,52 @@
 
 </div>
 
-<script src="../js/modules/00-songs-renderer.js?v=3.2.44"></script>
-<script src="../js/modules/02-fix-all.js?v=3.2.44"></script>
+<script src="../js/modules/00-songs-renderer.js?v=3.2.44r5"></script>
+<script src="../js/modules/02-fix-all.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/03-share-buttons.js?v=3.2.44"></script>
+<script src="../js/modules/03-share-buttons.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/04-exit-confirm.js?v=3.2.44"></script>
+<script src="../js/modules/04-exit-confirm.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/05-rehearsal-mode.js?v=3.2.44"></script>
-
-
-<script src="../js/modules/06-chords-toggle-transpose.js?v=3.2.44"></script>
-
-<script src="../js/modules/07-font-size-control.js?v=3.2.44"></script>
-
-<script src="../js/modules/08-deep-link-songs.js?v=3.2.44"></script>
+<script src="../js/modules/05-rehearsal-mode.js?v=3.2.44r5"></script>
 
 
+<script src="../js/modules/06-chords-toggle-transpose.js?v=3.2.44r5"></script>
 
+<script src="../js/modules/07-font-size-control.js?v=3.2.44r5"></script>
 
-
-<script src="../js/modules/09-particles-fireflies.js?v=3.2.44"></script>
-
-<script src="../js/modules/10-chord-editor.js?v=3.2.44"></script>
-
-
-<script src="../js/modules/11-dev-mode.js?v=3.2.44"></script>
-
-<script src="../js/modules/12-chord-multicolumn.js?v=3.2.44"></script>
-
-
-
-
-<script src="../js/modules/13-cpd-history.js?v=3.2.44"></script>
-
-<script src="../js/modules/14-lyrics-editor.js?v=3.2.44"></script>
-<script src="../js/modules/15-build-index.js?v=3.2.44"></script>
-
-<script src="../js/modules/16-decorate-chord-block.js?v=3.2.44"></script>
-<script src="../js/modules/17-expand-all-chords.js?v=3.2.44"></script>
+<script src="../js/modules/08-deep-link-songs.js?v=3.2.44r5"></script>
 
 
 
 
 
+<script src="../js/modules/09-particles-fireflies.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/18-context-toggle.js?v=3.2.44"></script>
+<script src="../js/modules/10-chord-editor.js?v=3.2.44r5"></script>
+
+
+<script src="../js/modules/11-dev-mode.js?v=3.2.44r5"></script>
+
+<script src="../js/modules/12-chord-multicolumn.js?v=3.2.44r5"></script>
+
+
+
+
+<script src="../js/modules/13-cpd-history.js?v=3.2.44r5"></script>
+
+<script src="../js/modules/14-lyrics-editor.js?v=3.2.44r5"></script>
+<script src="../js/modules/15-build-index.js?v=3.2.44r5"></script>
+
+<script src="../js/modules/16-decorate-chord-block.js?v=3.2.44r5"></script>
+<script src="../js/modules/17-expand-all-chords.js?v=3.2.44r5"></script>
+
+
+
+
+
+
+<script src="../js/modules/18-context-toggle.js?v=3.2.44r5"></script>
 
 <!-- AI Agent -->
 <button class="ai-fab" id="ai-fab" data-action="ai-panel-toggle" aria-label="Asistente litúrgico">
@@ -466,20 +466,20 @@
   </div>
 </div>
 
-<script src="../js/modules/19-ai-agent.js?v=3.2.44"></script>
+<script src="../js/modules/19-ai-agent.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/20-hamburger-menu.js?v=3.2.44"></script>
+<script src="../js/modules/20-hamburger-menu.js?v=3.2.44r5"></script>
 
 
-<script src="../js/modules/21-liturgical-card.js?v=3.2.44"></script>
+<script src="../js/modules/21-liturgical-card.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/22-effects-emanation.js?v=3.2.44"></script>
+<script src="../js/modules/22-effects-emanation.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/23-setlist-edge-panel.js?v=3.2.44"></script>
-<script src="../js/modules/24-search.js?v=3.2.44"></script>
-<script src="../js/modules/25-event-delegation.js?v=3.2.44"></script>
-<script src="../js/modules/26b-cinzel-font.js?v=3.2.44"></script>
-<script src="../js/modules/26c-pinyon-font.js?v=3.2.44"></script>
-<script src="../js/modules/26d-pdf-parser.js?v=3.2.44"></script>
-<script src="../js/modules/26e-pdf-builder.js?v=3.2.44"></script>
-<script src="../js/modules/27-setlist-pdf.js?v=3.2.44"></script>
+<script src="../js/modules/23-setlist-edge-panel.js?v=3.2.44r5"></script>
+<script src="../js/modules/24-search.js?v=3.2.44r5"></script>
+<script src="../js/modules/25-event-delegation.js?v=3.2.44r5"></script>
+<script src="../js/modules/26b-cinzel-font.js?v=3.2.44r5"></script>
+<script src="../js/modules/26c-pinyon-font.js?v=3.2.44r5"></script>
+<script src="../js/modules/26d-pdf-parser.js?v=3.2.44r5"></script>
+<script src="../js/modules/26e-pdf-builder.js?v=3.2.44r5"></script>
+<script src="../js/modules/27-setlist-pdf.js?v=3.2.44r5"></script>
