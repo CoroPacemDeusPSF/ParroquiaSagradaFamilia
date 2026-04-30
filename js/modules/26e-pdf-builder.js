@@ -6,7 +6,7 @@
  *   @brief      Constructor de PDF vectorial con identidad visual Pacem Deus
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.44
+ *   @version    v3.2.44r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -58,7 +58,9 @@
     color: {
       bgDeep:       [14, 26, 12],     /* #0E1A0C  fondo verde profundo    */
       bgDeepMid:    [26, 40, 24],     /* #1A2818  variante elevada        */
-      bgCardSoft:   [250, 250, 245],  /* #FAFAF5  fondo bloques claros    */
+      bgPage:       [248, 244, 230],  /* #F8F4E6  fondo beige suave       */
+      bgCardSoft:   [255, 255, 255],  /* #FFFFFF  cajas .chorus (blancas
+                                                    sobre el beige)        */
       accent:       [200, 148, 60],   /* #C8943C  dorado principal        */
       accentBright: [212, 160, 74],   /* #D4A04A  dorado claro            */
       accentDeep:   [176, 128, 48],   /* #B08030  dorado oscuro           */
@@ -138,6 +140,17 @@
   function setFill(doc, rgb) { doc.setFillColor(rgb[0], rgb[1], rgb[2]); }
   function setText(doc, rgb) { doc.setTextColor(rgb[0], rgb[1], rgb[2]); }
   function setDraw(doc, rgb) { doc.setDrawColor(rgb[0], rgb[1], rgb[2]); }
+
+  /**
+   * Pinta el fondo beige suave sobre toda la página actual.
+   * Llamado al inicio de cada página (incluyendo después de addPage()).
+   * El cancionero web no tiene fondo blanco puro: usa una paleta cálida.
+   * Replicar este matiz en el PDF da continuidad visual.
+   */
+  function paintPageBackground(doc) {
+    setFill(doc, CFG.color.bgPage);
+    doc.rect(0, 0, CFG.pageWidth, CFG.pageHeight, 'F');
+  }
 
   /* Registra Cinzel + Pinyon en el doc con fallback silencioso a Times. */
   function registerFonts(doc) {
@@ -232,6 +245,9 @@
   function drawCover(doc, songs, dateLabel, withChords) {
     const cx = CFG.pageWidth / 2;
 
+    /* Fondo beige suave de toda la página */
+    paintPageBackground(doc);
+
     /* Banda superior verde profundo (≈ site-header) */
     setFill(doc, CFG.color.bgDeep);
     doc.rect(0, 0, CFG.pageWidth, 100, 'F');
@@ -325,14 +341,17 @@
       y += 7;
     });
 
-    /* Pie de portada */
+    /* Pie de portada — coherente con el footer del resto de páginas */
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     setText(doc, CFG.color.accent);
     safeText(doc, '\u2022   \u2022   \u2022', cx, CFG.pageHeight - 22, { align: 'center' });
 
+    doc.setFont('times', 'italic');
+    doc.setFontSize(9);
     setText(doc, CFG.color.textMuted);
-    safeText(doc, 'coropacemdeuspsf.github.io', cx, CFG.pageHeight - 14, { align: 'center' });
+    safeText(doc, 'Cantamos al Amor de los Amores',
+             cx, CFG.pageHeight - 14, { align: 'center' });
   }
 
   function drawDecorativeRule(doc, cx, y) {
@@ -451,6 +470,7 @@
      ============================================================ */
 
   function drawSong(doc, song, number, total, withChords) {
+    paintPageBackground(doc);
     let y = CFG.marginTop;
     y = drawSongHeader(doc, song, number, y);
     y += 6;
@@ -467,9 +487,10 @@
     return CFG.pageHeight - CFG.marginBottom - 6 - y;
   }
 
-  /* Hacer page-break y devolver la nueva Y */
+  /* Hacer page-break y devolver la nueva Y. Pinta fondo de la nueva página. */
   function pageBreak(doc) {
     doc.addPage();
+    paintPageBackground(doc);
     return CFG.marginTop;
   }
 
@@ -747,13 +768,14 @@
     return y;
   }
 
-  /* Estimar altura de un array de items chord/lyric/note/blank */
+  /* Estimar altura de un array de items chord/lyric/note/intro/blank */
   function estimateChordItemsHeight(items) {
     let h = 0;
     items.forEach(function (el) {
-      if (el.type === 'blank')        h += 2;
-      else if (el.type === 'note')    h += 6;
-      else                            h += CFG.space.chordLineH;
+      if (el.type === 'blank')             h += 2;
+      else if (el.type === 'note')         h += 6;
+      else if (el.type === 'intro-line')   h += CFG.space.chordLineH + 1;
+      else                                 h += CFG.space.chordLineH;
     });
     return h;
   }
@@ -855,9 +877,10 @@
     let h = 0;
     for (let k = 0; k < size; k++) {
       const el = items[idx + k];
-      if (el.type === 'blank')      h += 2;
-      else if (el.type === 'note')  h += 6;
-      else                          h += CFG.space.chordLineH;
+      if (el.type === 'blank')           h += 2;
+      else if (el.type === 'note')       h += 6;
+      else if (el.type === 'intro-line') h += CFG.space.chordLineH + 1;
+      else                               h += CFG.space.chordLineH;
     }
     return h;
   }
@@ -874,6 +897,29 @@
       setText(doc, CFG.color.textSoft);
       safeText(doc, el.text, CFG.marginX, y + 3);
       return y + 6;
+    }
+
+    if (el.type === 'intro-line') {
+      /* Label (e.g. "INTRO:") en Cinzel UPPERCASE dorado oscuro
+         seguido de los acordes en courier bold dorado, en la misma línea. */
+      doc.setHeaderFont('bold');
+      doc.setFontSize(CFG.font.chordSize);
+      setText(doc, CFG.color.accentDeep);
+      doc.setCharSpace(0.5);
+      const labelText = el.label.toUpperCase();
+      safeText(doc, labelText, CFG.marginX, y);
+      /* Calcular ancho del label (jsPDF ignora char-spacing en getTextWidth) */
+      const baseW = doc.getTextWidth(sanitizeText(labelText));
+      const extraW = Math.max(0, labelText.length - 1) * 0.5;
+      const labelWidth = baseW + extraW;
+      doc.setCharSpace(0);
+
+      /* Acordes después del label */
+      doc.setFont('courier', 'bold');
+      setText(doc, CFG.color.accent);
+      safeText(doc, el.chords, CFG.marginX + labelWidth + 3, y);
+
+      return y + CFG.space.chordLineH + 1;
     }
 
     if (el.type === 'chord-line') {

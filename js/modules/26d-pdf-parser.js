@@ -6,7 +6,7 @@
  *   @brief      Parser semántico de body_html y chords_html para el generador PDF
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.44
+ *   @version    v3.2.44r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -157,10 +157,28 @@
         continue;
       }
 
-      /* Cualquier <b>...</b> sin caja → tratado como nota inline */
-      if (/^<b>.*<\/b>$/.test(trimmed)) {
-        const inner = trimmed.replace(/<\/?b>/g, '').trim();
-        elements.push({ type: 'note', text: inner });
+      /* Patrón "<b>LABEL:</b> contenido" — anotación con acordes después
+         (típicamente INTRO:, OUTRO:, INTERLUDIO:, PUENTE:, etc.).
+         Si el contenido tras el label son todos acordes válidos, emitimos
+         un tipo 'intro-line' que se renderiza con label + acordes en una
+         sola línea. Si no son acordes, lo tratamos como lyric-line para
+         evitar mostrar HTML literal. */
+      const labelMatch = trimmed.match(/^<b>([^<]+)<\/b>\s*(.*)$/);
+      if (labelMatch) {
+        const label = labelMatch[1].trim();
+        const rest = labelMatch[2].trim();
+
+        if (!rest) {
+          /* Solo "<b>X</b>" sin contenido extra → nota inline */
+          elements.push({ type: 'note', text: label });
+        } else if (isChordLine(rest)) {
+          /* "INTRO: SOL RE DO9..." → línea especial con label + acordes */
+          elements.push({ type: 'intro-line', label: label, chords: rest });
+        } else {
+          /* Contenido mixto que no son solo acordes → strip tags y tratar
+             como lyric-line para evitar mostrar HTML crudo. */
+          elements.push({ type: 'lyric-line', text: label + ' ' + rest });
+        }
         continue;
       }
 
