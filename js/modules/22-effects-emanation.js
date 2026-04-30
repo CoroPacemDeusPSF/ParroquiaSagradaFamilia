@@ -6,7 +6,7 @@
  *   @brief      Efecto de emanación de halo en cruces y elementos sagrados
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r8
+ *   @version    v3.2.40r9
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

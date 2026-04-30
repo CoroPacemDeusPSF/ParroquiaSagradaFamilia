@@ -7,7 +7,7 @@
  *   @brief      Ordena alfabéticamente los cantos dentro de cada sección
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r8
+ *   @version    v3.2.40r9
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

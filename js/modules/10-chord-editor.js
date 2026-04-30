@@ -6,7 +6,7 @@
  *   @brief      Editor fullscreen de acordes con guardado en Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r8
+ *   @version    v3.2.40r9
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -84,15 +84,19 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       });
 
       if (allChords) {
-        /* Colorear cada acorde preservando EXACTAMENTE el texto original.
-           IMPORTANTE: NO normalizar el token aquí. El highlight overlay debe
-           reproducir el texto del textarea byte por byte; cualquier cambio
-           de longitud (ej. `lam` → `Lam` ok, pero `Cmaj7+` → `DOmaj7+`
-           agrega 1 carácter) hace que la línea wrappee distinto en el
-           highlight vs el textarea, causando el bug de "escribo en una línea
-           y se edita la de abajo". La normalización ocurre solo al guardar. */
+        /* Colorear cada acorde y normalizarlo en vivo SOLO cuando la
+           normalización no cambia el largo del token. Esto preserva la UX
+           histórica (ej: SOLM → Solm, lam → Lam, mim → Mim) sin causar el
+           bug de desfase de líneas que ocurriría si normalizamos casos
+           que SÍ alteran el largo (ej: C → DO agrega 1 char, G → SOL
+           agrega 2, Cmaj7 → DOmaj7 agrega 1). En esos casos dejamos el
+           texto original en el highlight; la normalización completa se
+           aplica al guardar, momento en el que el usuario ya ve el
+           diálogo "se normalizaron N línea(s)" y decide si confirma. */
         return line.replace(/\S+/g, function(token) {
-          return '<span class="hl-chord">' + escHtml(token) + '</span>';
+          var normalized = normalizeChord(token);
+          var displayToken = (normalized.length === token.length) ? normalized : token;
+          return '<span class="hl-chord">' + escHtml(displayToken) + '</span>';
         });
       }
 

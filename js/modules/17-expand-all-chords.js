@@ -6,7 +6,7 @@
  *   @brief      Expandir/colapsar todos los bloques de acordes (Modo Dev)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r8
+ *   @version    v3.2.40r9
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
