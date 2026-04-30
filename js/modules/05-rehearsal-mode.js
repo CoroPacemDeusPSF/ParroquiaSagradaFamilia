@@ -6,7 +6,7 @@
  *   @brief      Modo Coro: 5-clicks en ícono iglesia, animación de ingreso, badge
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r6
+ *   @version    v3.2.40r8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

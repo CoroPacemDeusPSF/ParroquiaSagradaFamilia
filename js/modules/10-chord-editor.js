@@ -6,7 +6,7 @@
  *   @brief      Editor fullscreen de acordes con guardado en Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r6
+ *   @version    v3.2.40r8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -84,9 +84,15 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       });
 
       if (allChords) {
-        // Color each chord token, preserving original spacing
+        /* Colorear cada acorde preservando EXACTAMENTE el texto original.
+           IMPORTANTE: NO normalizar el token aquí. El highlight overlay debe
+           reproducir el texto del textarea byte por byte; cualquier cambio
+           de longitud (ej. `lam` → `Lam` ok, pero `Cmaj7+` → `DOmaj7+`
+           agrega 1 carácter) hace que la línea wrappee distinto en el
+           highlight vs el textarea, causando el bug de "escribo en una línea
+           y se edita la de abajo". La normalización ocurre solo al guardar. */
         return line.replace(/\S+/g, function(token) {
-          return '<span class="hl-chord">' + escHtml(normalizeChord(token)) + '</span>';
+          return '<span class="hl-chord">' + escHtml(token) + '</span>';
         });
       }
 
@@ -94,7 +100,29 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
       return escHtml(line);
     });
 
-    highlightDiv.innerHTML = htmlLines.join('\n');
+    // Compensar la línea fantasma del textarea: si textarea.value termina
+    // con '\n', el textarea renderiza una línea visual extra al final que el
+    // <div> con white-space:pre-wrap no muestra. Sin esto, el highlight
+    // queda 1 línea más corto que el textarea, y el cursor se desfasa.
+    // Agregamos un espacio invisible para forzar la línea final.
+    var html = htmlLines.join('\n');
+    if (textarea.value.endsWith('\n')) {
+      html += ' ';
+    }
+    highlightDiv.innerHTML = html;
+
+    // Compensar el ancho del scrollbar del textarea: el textarea tiene
+    // overflow-y:scroll que reserva ~15px de scrollbar reduciendo su ancho
+    // útil. El highlight no muestra ese scrollbar, así que tendría 15px más
+    // de ancho útil → wrappea más tarde → desincronización progresiva
+    // línea a línea. Medimos el scrollbar dinámicamente (varía por OS) y
+    // ajustamos el padding-right del highlight para que el ancho disponible
+    // para texto sea exactamente el mismo en ambos elementos.
+    var scrollbarWidth = textarea.offsetWidth - textarea.clientWidth;
+    if (scrollbarWidth > 0) {
+      var taPaddingRight = parseFloat(getComputedStyle(textarea).paddingRight) || 0;
+      highlightDiv.style.paddingRight = (taPaddingRight + scrollbarWidth) + 'px';
+    }
 
     // Sync scroll position with textarea
     highlightDiv.scrollTop = textarea.scrollTop;

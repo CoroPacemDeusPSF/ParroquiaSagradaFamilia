@@ -6,7 +6,7 @@
      @brief      Editor inline de acordes y letras (Modo Coro)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.40r6
+     @version    v3.2.40r8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -108,6 +108,11 @@
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.7;
+  letter-spacing: 0;            /* explícito para evitar herencia de ancestros */
+  font-variant-ligatures: none; /* desactivar ligaduras (f+i → fi) que cambian ancho */
+  font-feature-settings: normal;
+  font-kerning: none;            /* desactivar kerning entre caracteres */
+  unicode-bidi: normal;         /* default del textarea — el div hereda 'isolate' que rompe el wrap */
   color: #E8E0C8;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -120,12 +125,25 @@
   tab-size: 4;
   box-sizing: border-box;
 }
-/* Chord tokens in the editor */
-#editor-highlight .hl-chord  { color: #C8943C; font-weight: bold; }
-/* Header lines (═══, ♫, ⚠) */
+/* Chord tokens in the editor.
+   IMPORTANTE: NO usar `font-weight: bold` aquí — en fuentes monospace
+   (Courier New, fallback genérico), bold puede ocupar ancho ligeramente
+   distinto a regular, especialmente si la fuente no está completamente
+   cargada o si el navegador usa el fallback del sistema. Eso descalibra
+   el wrap entre el highlight overlay y el textarea, produciendo el bug
+   "escribo en la línea X y aparece en la línea Y". El color dorado por
+   sí solo da suficiente contraste visual sin afectar las métricas. */
+#editor-highlight .hl-chord  { color: #C8943C; }
+/* Header lines (═══, ♫, ⚠).
+   Solo color — sin font-weight bold ni padding/background, porque cualquier
+   propiedad que afecte ancho o altura del span descalibra el wrap entre el
+   highlight overlay y el textarea (que no tiene esos estilos). El bug
+   "escribo en línea X, aparece en línea Y" se origina en exactamente esto:
+   acumulación de offsets sutiles que después de varias líneas salta una
+   línea entera. */
 #editor-highlight .hl-header { color: rgba(200,148,60,0.55); }
-.hl-capo   { color: #7C3F00; font-weight: bold; background: rgba(200,148,60,0.15); border-radius: 3px; padding: 0 2px; }
-.hl-dynamic { color: #7E57C2; font-style: italic; font-weight: bold; }
+.hl-capo    { color: #7C3F00; }                 /* solo color */
+.hl-dynamic { color: #7E57C2; font-style: italic; }  /* italic mantiene mismo ancho en monospace */
 
 /* Ocultar el scrollbar del highlight — el espacio queda reservado pero
    no se ve, dejando que solo el scrollbar real del textarea sea visible. */
@@ -149,6 +167,10 @@
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.7;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+  font-kerning: none;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: break-word;
