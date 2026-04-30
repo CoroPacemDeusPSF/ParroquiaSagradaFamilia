@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r5
+ *   @version    v3.2.42r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -98,9 +98,9 @@
 
         // Título limpio (solo el texto del título, sin SVGs ni botones)
         // Estrategia de extracción en 3 niveles, de más robusto a menos:
-        //   1. card.dataset.title (v3.2.42r5+): atributo data-title en la card,
+        //   1. card.dataset.title (v3.2.42r6+): atributo data-title en la card,
         //      inmune a cambios futuros en la estructura interna del título.
-        //   2. .song-title-text span (v3.2.39-v3.2.42r5): título envuelto.
+        //   2. .song-title-text span (v3.2.39-v3.2.42r6): título envuelto.
         //   3. Text nodes directos (legacy): título como texto suelto.
         // El triple fallback evita que cambios futuros en el renderer
         // rompan silenciosamente el índice.

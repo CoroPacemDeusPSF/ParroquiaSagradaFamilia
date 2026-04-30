@@ -6,7 +6,7 @@
  *   @brief      PDF del SetList — clonando fielmente la presentación del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r5
+ *   @version    v3.2.42r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -18,7 +18,7 @@
    como el cancionero web. La premisa: el PDF debe parecer una traducción
    1:1 del diseño de las song-cards a papel, no una versión empobrecida.
 
-   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r5 v1):
+   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r6 v1):
      • Cero margen de hoja → el fondo cream cubre A4 completo
      • Sin Acordes  → SOLO el contenido del .song-body (letras, chorus,
                        strophe, lp-section, song-ornament). El chord-block
@@ -1014,60 +1014,125 @@
     loadHtml2Pdf(function () {
       var html = buildPdfHtml(byMoment, withChords);
 
-      /* Crear un contenedor oculto con el HTML para que html2canvas pueda
-         capturarlo. Ancho fijo de 794px = A4 a 96dpi. left:-9999px lo saca
-         de la vista pero permite renderizado completo. */
-      var container = document.createElement('div');
-      container.innerHTML = html;
-      container.style.cssText =
-        'position:fixed;left:-9999px;top:0;width:794px;background:#F6F9F2;';
-      document.body.appendChild(container);
+      /* ── IFRAME aislado en lugar de div oculto ──
+         Razón crítica del cambio (v3.2.42r6): cuando hacemos
+         `div.innerHTML = '<!DOCTYPE html><html><head><style>...</style></head><body>...</body></html>'`,
+         el navegador DESCARTA los tags <!DOCTYPE>, <html>, <head>, <body> y
+         deja solo los hijos del body. El <style> dentro de <head> puede o
+         no preservarse, pero las reglas @page, @import de fonts, y otros
+         estilos no aplican correctamente al div. En móviles esto resulta
+         en un PDF vacío o con layout roto.
 
-      /* Las fuentes Google deben estar cargadas para que el rendering sea
-         fiel. Esperamos un poco antes de capturar. */
+         Con un iframe, el HTML completo se parsea como un documento real:
+         <head>, <body>, <style>, @page y @import funcionan correctamente
+         dentro del scope aislado del iframe. html2canvas/html2pdf puede
+         capturar el body del iframe limpio, con fuentes ya cargadas. */
+      var iframe = document.createElement('iframe');
+      iframe.setAttribute('aria-hidden', 'true');
+      /* width 794px = A4 a 96dpi. height inicial alto, después se ajusta
+         dinámicamente al scrollHeight del contenido. visibility: hidden +
+         opacity: 0 lo sacan del flujo visual sin romper el layout cálculo
+         (left:-9999px puede causar problemas en algunos engines móviles). */
+      iframe.style.cssText =
+        'position:fixed;top:0;left:0;width:794px;height:1123px;' +
+        'border:0;visibility:hidden;opacity:0;pointer-events:none;z-index:-1;';
+      document.body.appendChild(iframe);
+
+      /* Escribir el HTML al document del iframe usando open()/write()/close().
+         Este es el método estándar para inyectar un documento HTML completo. */
+      var iDoc = iframe.contentDocument || iframe.contentWindow.document;
+      iDoc.open();
+      iDoc.write(html);
+      iDoc.close();
+
+      /* Función que dispara html2pdf cuando el iframe esté listo */
       var generate = function () {
+        var iBody = iDoc.body;
+        if (!iBody) {
+          /* Caso muy raro: el iframe no terminó de parsear. Reintentamos. */
+          setTimeout(generate, 200);
+          return;
+        }
+
+        /* Asegurar que el body tenga el ancho correcto. Algunos engines
+           móviles aplican un default zoom/viewport al iframe que distorsiona
+           el ancho efectivo. Forzamos el ancho explícitamente. */
+        iBody.style.width = '794px';
+        iBody.style.margin = '0';
+
+        /* Calcular la altura real del contenido para que html2canvas capture
+           todo. windowHeight necesita reflejar el alto total. */
+        var contentHeight = Math.max(iBody.scrollHeight, iBody.offsetHeight, 1123);
+        iframe.style.height = contentHeight + 'px';
+
         window.html2pdf()
           .set({
             margin: 0,
             filename: 'SetList_Coro_Pacem_Deus.pdf',
-            /* scale 1.5 (vs 2 anterior) reduce significativamente el tamaño
-               del PDF — importante para WhatsApp (mejor compatibilidad y
-               aparición en el share sheet) y para tiempos de upload. */
             image: { type: 'jpeg', quality: 0.88 },
-            html2canvas: { scale: 1.5, useCORS: true, allowTaint: true, backgroundColor: '#F6F9F2', logging: false },
+            html2canvas: {
+              scale: 1.5,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#F6F9F2',
+              logging: false,
+              /* IMPORTANTE: pasar el window del iframe para que html2canvas
+                 capture el documento correcto. Sin esto, captura el window
+                 principal (que está vacío en lo que respecta al PDF). */
+              windowWidth: 794,
+              windowHeight: contentHeight
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
             pagebreak: { mode: ['css', 'legacy'] }
           })
-          .from(container.firstElementChild || container)
+          .from(iBody)
           .toPdf()
           .output('blob')
           .then(function (blob) {
-            document.body.removeChild(container);
+            if (iframe.parentNode) document.body.removeChild(iframe);
             hideLoadingOverlay();
-
             var fname = 'SetList_Coro_Pacem_Deus.pdf';
-
-            /* Mostrar el overlay con opciones explícitas en lugar de saltar
-               directo a navigator.share(). Razón: el share sheet del SO no
-               siempre incluye WhatsApp (depende de versión de Android/iOS,
-               tamaño del archivo y registro de apps). Ofrecemos WhatsApp
-               como botón explícito que SIEMPRE funciona vía wa.me. */
             showPdfReadyOverlay(blob, fname);
           })
           .catch(function (err) {
-            if (container.parentNode) document.body.removeChild(container);
+            if (iframe.parentNode) document.body.removeChild(iframe);
             hideLoadingOverlay();
             console.error('[SetListPDF] Error generando PDF:', err);
             alert('Error generando el PDF: ' + (err && err.message ? err.message : 'desconocido'));
           });
       };
 
-      /* Esperar a fonts si está disponible, sino timeout corto */
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(function () { setTimeout(generate, 200); });
-      } else {
-        setTimeout(generate, 800);
-      }
+      /* ── Esperar a que el iframe esté completamente listo ──
+         1. document.readyState === 'complete' (HTML parseado y subresources)
+         2. fonts.ready (Google Fonts cargadas) — si está disponible
+         3. Pequeño buffer adicional para que el layout se asiente */
+      var waitForIframe = function (attempt) {
+        attempt = attempt || 0;
+        if (attempt > 50) {
+          /* Timeout de seguridad: 50 intentos * 100ms = 5 segundos.
+             Aún sin readyState complete, intentamos generar. */
+          generate();
+          return;
+        }
+        if (iDoc.readyState !== 'complete' && iDoc.readyState !== 'interactive') {
+          setTimeout(function () { waitForIframe(attempt + 1); }, 100);
+          return;
+        }
+        /* Document listo. Ahora esperar a fuentes. */
+        if (iDoc.fonts && iDoc.fonts.ready) {
+          iDoc.fonts.ready.then(function () {
+            /* Buffer adicional para asegurar layout asentado */
+            setTimeout(generate, 400);
+          }).catch(function () {
+            /* Si fonts.ready rechaza por alguna razón, generar igual */
+            setTimeout(generate, 400);
+          });
+        } else {
+          /* Sin Font Loading API → timeout más generoso */
+          setTimeout(generate, 1500);
+        }
+      };
+      waitForIframe();
     }, function () {
       hideLoadingOverlay();
     });
