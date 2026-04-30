@@ -348,6 +348,9 @@
   // ── Bootstrap ──────────────────────────────────────────────────────────
   const songs = loadSongsSync();
   if (songs) {
+    /* Exponer globalmente para que otros módulos (ej. 27-setlist-pdf) puedan
+       acceder al body_html y chords_html sin volver a hacer fetch. */
+    window.PACEM_SONGS_DATA = songs;
     renderAll(songs);
   }
 

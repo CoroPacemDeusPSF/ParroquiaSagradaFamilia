@@ -1,0 +1,214 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/pdf-overlays.css
+     @brief      Overlays del flujo de generación de PDF
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.2.44
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   pdf-overlays.css — feedback visual durante la generación del PDF
+   ============================================================================
+   3 overlays distintos según el estado:
+
+     1. .pdf-loading-overlay   → spinner + "Generando PDF..."
+     2. .pdf-error-overlay     → mensaje de error con botón "Cerrar"
+     3. .pdf-fallback-overlay  → cuando window.open() falla en móvil,
+                                  ofrecemos un link visible que el usuario
+                                  debe tocar para abrir el PDF (gesto
+                                  explícito necesario para sortear bloqueos
+                                  de popup de algunos móviles).
+
+   Paleta y radios coherentes con el resto del cancionero (modal-like).
+   ============================================================================ */
+
+
+/* ── Loading overlay ────────────────────────────────────────────────────── */
+.pdf-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(14, 26, 12, 0.78);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdf-loading-card {
+  background: #1E1E1C;
+  color: var(--color-text-on-dark);
+  padding: 1.6rem 2rem;
+  border-radius: 8px;
+  border: 1px solid rgba(200, 148, 60, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-width: 240px;
+  max-width: 90vw;
+}
+
+.pdf-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(200, 148, 60, 0.18);
+  border-top-color: #C8943C;
+  border-radius: 50%;
+  animation: pdf-spin 0.8s linear infinite;
+}
+
+.pdf-loading-msg {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: #C8943C;
+  text-align: center;
+}
+
+@keyframes pdf-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ── Error overlay ──────────────────────────────────────────────────────── */
+.pdf-error-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(14, 26, 12, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.pdf-error-card {
+  background: #1E1E1C;
+  color: var(--color-text-on-dark);
+  padding: 1.5rem 1.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(192, 48, 48, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  max-width: 360px;
+  width: 100%;
+}
+
+.pdf-error-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #E08080;
+  text-transform: uppercase;
+}
+
+.pdf-error-msg {
+  font-size: 0.85rem;
+  color: #D0CCBE;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.pdf-error-close {
+  margin-top: 0.4rem;
+  padding: 0.55rem 1.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  background: #C8943C;
+  border: 1px solid #B08030;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.pdf-error-close:active { transform: translateY(1px); }
+
+
+/* ── Fallback link overlay (cuando window.open falla) ───────────────────── */
+.pdf-fallback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(14, 26, 12, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.pdf-fallback-card {
+  background: #1E1E1C;
+  padding: 1.6rem 1.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(200, 148, 60, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 360px;
+  width: 100%;
+}
+
+.pdf-fallback-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: #C8943C;
+  text-transform: uppercase;
+}
+
+.pdf-fallback-msg {
+  font-size: 0.88rem;
+  color: var(--color-text-on-dark);
+  text-align: center;
+  line-height: 1.45;
+}
+
+.pdf-fallback-link {
+  display: inline-block;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  background: #C8943C;
+  border: 1px solid #B08030;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(200, 148, 60, 0.25);
+}
+
+.pdf-fallback-link:active { transform: translateY(1px); }
+
+.pdf-fallback-close {
+  padding: 0.5rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #B8B098;
+  background: transparent;
+  border: 1px solid rgba(184, 176, 152, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.pdf-fallback-close:hover {
+  background: rgba(255, 255, 255, 0.04);
+}

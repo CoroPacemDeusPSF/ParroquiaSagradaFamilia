@@ -53,6 +53,7 @@
 @import url('components/rehearsal.css');
 @import url('components/editor.css');
 @import url('components/setlist.css');
+@import url('components/pdf-overlays.css');
 
 /* ─── Componentes especializados (Evangelio, Salmo, AI, Efectos) ──────────── */
 @import url('components/lit-card.css');
