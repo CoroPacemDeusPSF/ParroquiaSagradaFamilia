@@ -6,7 +6,7 @@
  *   @brief      Bootstrap del index.html (selector de cancioneros)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r4
+ *   @version    v3.2.40r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

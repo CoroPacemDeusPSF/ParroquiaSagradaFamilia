@@ -6,7 +6,7 @@
      @brief      Editor inline de acordes y letras (Modo Coro)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.40r4
+     @version    v3.2.40r6
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -88,7 +88,19 @@
   background: #111;
 }
 
-/* Highlight div — sits behind the transparent textarea */
+/* Highlight div — sits behind the transparent textarea
+   IMPORTANTE: este div y el textarea deben tener IDÉNTICOS:
+     • padding, font-family, font-size, line-height, tab-size
+     • white-space, word-wrap/overflow-wrap (definen DÓNDE hace wrap el texto)
+     • box-sizing
+     • ANCHO ÚTIL para wrap (¡este es el más sutil!)
+   Cualquier mismatch entre ambos genera el bug clásico de "escribo en una
+   línea y aparece coloreado en otra" porque el wrap del textarea cae en
+   columna distinta al wrap del highlight overlay.
+   `scrollbar-gutter: stable` reserva el espacio del scrollbar de forma
+   permanente en ambos elementos, sincronizando el ancho útil para el
+   cálculo de wrap incluso cuando el contenido es corto y todavía no
+   activó el scrollbar. */
 #editor-highlight {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -99,7 +111,10 @@
   color: #E8E0C8;
   white-space: pre-wrap;
   word-wrap: break-word;
-  overflow: hidden;     /* scroll position synced via JS */
+  overflow-wrap: break-word;
+  overflow-y: scroll;       /* fuerza scrollbar siempre presente */
+  overflow-x: hidden;
+  scrollbar-gutter: stable; /* navegadores modernos: reserva el ancho */
   pointer-events: none;
   z-index: 1;
   tab-size: 4;
@@ -112,7 +127,16 @@
 .hl-capo   { color: #7C3F00; font-weight: bold; background: rgba(200,148,60,0.15); border-radius: 3px; padding: 0 2px; }
 .hl-dynamic { color: #7E57C2; font-style: italic; font-weight: bold; }
 
-/* Textarea — transparent so the highlight shows through */
+/* Ocultar el scrollbar del highlight — el espacio queda reservado pero
+   no se ve, dejando que solo el scrollbar real del textarea sea visible. */
+#editor-highlight::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Textarea — transparent so the highlight shows through.
+   DEBE espejar exactamente las propiedades de wrap del #editor-highlight,
+   incluyendo el reservado del scrollbar. */
 #chord-editor-textarea {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -125,13 +149,18 @@
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.7;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   border: none;
   outline: none;
   resize: none;
   tab-size: 4;
   z-index: 2;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow-y: scroll;           /* siempre con scrollbar para emparejar */
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 /* ── DIAGNOSE PANEL ── */
 #editor-diagnose-panel {

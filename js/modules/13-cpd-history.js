@@ -6,7 +6,7 @@
  *   @brief      Historial de versiones de acordes y letras (Firebase)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r4
+ *   @version    v3.2.40r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

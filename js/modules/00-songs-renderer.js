@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r4
+ *   @version    v3.2.40r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -228,9 +228,13 @@
     // Chords block — opcional, según si tiene chords_html
     const chordsBlock = renderChordsBlock(song);
 
+    // Escapar comillas dobles en el título para uso seguro en data-title
+    // (evita romper el HTML si algún título contiene comillas).
+    const safeTitle = song.title.replace(/"/g, '&quot;');
+
     return (
       '    <a class="back-link" id="' + did + '" href="#dominical-index">Volver al índice</a>\n' +
-      '    <div class="song-card" data-chord-id="' + cpd + '"' + dataAdded + '>\n' +
+      '    <div class="song-card" data-chord-id="' + cpd + '" data-title="' + safeTitle + '"' + dataAdded + '>\n' +
       '      <div class="song-header"><div class="song-header-bar"></div>\n' +
       '        <div class="song-number">00</div>\n' +
       '        <div class="song-header-text">\n' +

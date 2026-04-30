@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.40r4
+ *   @version    v3.2.40r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -726,12 +726,24 @@
     addSong: function(cpd) {
       var card = document.querySelector('[data-chord-id="' + cpd + '"]');
       if (!card) return;
-      var titleEl = card.querySelector('.song-title');
+      /* Estrategia de extracción del título en 3 niveles, de más robusto a
+         menos. Mismo patrón usado en 15-build-index.js y 24-search.js — la
+         fuente única de verdad es card.dataset.title cuando está disponible. */
       var title = '';
-      if (titleEl) {
-        titleEl.childNodes.forEach(function(n) {
-          if (n.nodeType === 3) title += n.textContent;
-        });
+      if (card.dataset && card.dataset.title) {
+        title = card.dataset.title;
+      } else {
+        var titleEl = card.querySelector('.song-title');
+        if (titleEl) {
+          var titleTextEl = titleEl.querySelector('.song-title-text');
+          if (titleTextEl) {
+            title = titleTextEl.textContent;
+          } else {
+            titleEl.childNodes.forEach(function(n) {
+              if (n.nodeType === 3) title += n.textContent;
+            });
+          }
+        }
       }
       title = title.trim();
       var moment = detectMoment(card);
