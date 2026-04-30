@@ -6,7 +6,7 @@
  *   @brief      Diálogo de confirmación al salir del Modo Coro
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r3
+ *   @version    v3.2.42r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

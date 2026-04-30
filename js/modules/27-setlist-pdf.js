@@ -6,7 +6,7 @@
  *   @brief      PDF del SetList — clonando fielmente la presentación del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r3
+ *   @version    v3.2.42r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -18,7 +18,7 @@
    como el cancionero web. La premisa: el PDF debe parecer una traducción
    1:1 del diseño de las song-cards a papel, no una versión empobrecida.
 
-   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r3 v1):
+   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r4 v1):
      • Cero margen de hoja → el fondo cream cubre A4 completo
      • Sin Acordes  → SOLO el contenido del .song-body (letras, chorus,
                        strophe, lp-section, song-ornament). El chord-block
@@ -932,9 +932,9 @@
     var printBtn = document.getElementById('sl-print');
     if (printBtn) {
       var label = printBtn.querySelector('.sl-print-label');
-      if (label) label.textContent = 'Compartir';
-      printBtn.setAttribute('aria-label', 'Compartir setlist');
-      printBtn.setAttribute('title', 'Compartir setlist');
+      if (label) label.textContent = 'Compartir PDF';
+      printBtn.setAttribute('aria-label', 'Compartir SetList como PDF');
+      printBtn.setAttribute('title', 'Compartir SetList como PDF');
       /* Reemplazar el SVG de impresora por uno de share (3 nodos conectados) */
       var oldSvg = printBtn.querySelector('svg');
       if (oldSvg) {
@@ -1030,10 +1030,12 @@
           .set({
             margin: 0,
             filename: 'SetList_Coro_Pacem_Deus.pdf',
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#F6F9F2', logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            /* mode: ['css','legacy'] respeta page-break-inside:avoid del CSS */
+            /* scale 1.5 (vs 2 anterior) reduce significativamente el tamaño
+               del PDF — importante para WhatsApp (mejor compatibilidad y
+               aparición en el share sheet) y para tiempos de upload. */
+            image: { type: 'jpeg', quality: 0.88 },
+            html2canvas: { scale: 1.5, useCORS: true, allowTaint: true, backgroundColor: '#F6F9F2', logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
             pagebreak: { mode: ['css', 'legacy'] }
           })
           .from(container.firstElementChild || container)
@@ -1044,27 +1046,13 @@
             hideLoadingOverlay();
 
             var fname = 'SetList_Coro_Pacem_Deus.pdf';
-            var file = new File([blob], fname, { type: 'application/pdf' });
 
-            /* Ofrecer al sistema operativo el archivo via Web Share API */
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              navigator.share({
-                files: [file],
-                title: 'SetList — Coro Pacem Deus',
-                text:  'SetList del próximo domingo'
-              }).catch(function (err) {
-                /* AbortError = usuario canceló el diálogo de share. No es
-                   un error real, no mostramos nada. */
-                if (err && err.name !== 'AbortError') {
-                  console.warn('[SetListPDF] navigator.share falló:', err);
-                  /* Fallback: descargar para que pueda compartir manual */
-                  triggerDownload(blob, fname);
-                }
-              });
-            } else {
-              /* Sistema no soporta share con archivos → descargar */
-              triggerDownload(blob, fname);
-            }
+            /* Mostrar el overlay con opciones explícitas en lugar de saltar
+               directo a navigator.share(). Razón: el share sheet del SO no
+               siempre incluye WhatsApp (depende de versión de Android/iOS,
+               tamaño del archivo y registro de apps). Ofrecemos WhatsApp
+               como botón explícito que SIEMPRE funciona vía wa.me. */
+            showPdfReadyOverlay(blob, fname);
           })
           .catch(function (err) {
             if (container.parentNode) document.body.removeChild(container);
@@ -1097,6 +1085,170 @@
     /* Pequeño delay antes de revocar para asegurar que el navegador inició
        la descarga */
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  /* ── Overlay post-PDF: ofrecer opciones explícitas de compartir ──
+     Después de generar el PDF, mostramos un mini-modal con tres botones:
+       • WhatsApp → descarga el PDF + abre wa.me con texto pre-llenado
+       • Otras apps → Web Share API (sistema operativo)
+       • Descargar → solo guarda el archivo
+
+     ¿Por qué WhatsApp explícito? El share sheet del SO no SIEMPRE incluye
+     WhatsApp (depende de versión Android/iOS, tamaño del archivo y registro
+     de apps). Ofreciéndolo como botón directo garantizamos el flujo más
+     común sin depender de que el sistema lo liste. */
+  function showPdfReadyOverlay(blob, fname) {
+    /* Quitar overlay previo si existe */
+    var existing = document.getElementById('pdf-action-overlay');
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.id = 'pdf-action-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.style.cssText =
+      'position:fixed;inset:0;z-index:200000;background:rgba(0,0,0,0.65);' +
+      'display:flex;align-items:center;justify-content:center;padding:1rem;';
+
+    /* Tamaño del PDF para mostrar al usuario (referencia visual) */
+    var sizeMb = (blob.size / (1024 * 1024)).toFixed(2);
+
+    overlay.innerHTML =
+      '<div class="pdf-action-modal" style="background:#1A1F18;border:1px solid rgba(200,148,60,0.3);border-radius:8px;padding:1.5rem 1.2rem 1.2rem;max-width:380px;width:100%;">' +
+        '<div style="text-align:center;margin-bottom:1rem;">' +
+          '<div style="font-family:Cinzel,serif;font-size:0.78rem;letter-spacing:0.2em;text-transform:uppercase;color:#C8943C;margin-bottom:0.3rem;">PDF Listo</div>' +
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:0.95rem;color:#C0C5B5;font-style:italic;">SetList_Coro_Pacem_Deus.pdf · ' + sizeMb + ' MB</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:0.8rem;">' +
+          /* WhatsApp — verde característico */
+          '<button id="pdf-action-whatsapp" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;padding:0.85rem 1rem;background:#25D366;border:none;border-radius:6px;color:white;font-family:Cinzel,serif;font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">' +
+            '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">' +
+              '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/>' +
+            '</svg>' +
+            '<span>WhatsApp</span>' +
+          '</button>' +
+          /* Compartir genérico (Web Share API) — si está disponible */
+          '<button id="pdf-action-share" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;padding:0.85rem 1rem;background:rgba(200,148,60,0.12);border:1px solid rgba(200,148,60,0.4);border-radius:6px;color:#E8E0C8;font-family:Cinzel,serif;font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">' +
+            '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              '<circle cx="18" cy="5" r="3"/>' +
+              '<circle cx="6" cy="12" r="3"/>' +
+              '<circle cx="18" cy="19" r="3"/>' +
+              '<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>' +
+              '<line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>' +
+            '</svg>' +
+            '<span>Otras apps</span>' +
+          '</button>' +
+          /* Solo descargar */
+          '<button id="pdf-action-download" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;padding:0.7rem 1rem;background:transparent;border:1px solid rgba(200,200,200,0.2);border-radius:6px;color:rgba(220,220,220,0.7);font-family:Cinzel,serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">' +
+            '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>' +
+              '<polyline points="7 10 12 15 17 10"/>' +
+              '<line x1="12" y1="15" x2="12" y2="3"/>' +
+            '</svg>' +
+            '<span>Solo descargar</span>' +
+          '</button>' +
+        '</div>' +
+        '<button id="pdf-action-cancel" style="width:100%;background:transparent;border:none;color:rgba(220,220,220,0.5);padding:0.5rem;font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Cancelar</button>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    /* Cerrar al hacer click fuera del modal */
+    overlay.addEventListener('click', function (ev) {
+      if (ev.target === overlay) overlay.remove();
+    });
+
+    /* Handlers */
+    document.getElementById('pdf-action-whatsapp').addEventListener('click', function () {
+      overlay.remove();
+      shareViaWhatsApp(blob, fname);
+    });
+    document.getElementById('pdf-action-share').addEventListener('click', function () {
+      overlay.remove();
+      shareViaWebShareAPI(blob, fname);
+    });
+    document.getElementById('pdf-action-download').addEventListener('click', function () {
+      overlay.remove();
+      triggerDownload(blob, fname);
+    });
+    document.getElementById('pdf-action-cancel').addEventListener('click', function () {
+      overlay.remove();
+    });
+  }
+
+  /* ── Compartir explícitamente por WhatsApp ──
+     Estrategia: descargar el PDF + abrir WhatsApp con un mensaje
+     pre-llenado. El usuario tap el clip de adjuntar en WhatsApp y
+     selecciona el PDF que acaba de descargar.
+
+     Esto SIEMPRE funciona, independientemente de si Web Share API muestra
+     WhatsApp o no en el sheet del sistema. La única "fricción" es el paso
+     manual de adjuntar el documento, pero es predecible y consistente. */
+  function shareViaWhatsApp(blob, fname) {
+    /* 1. Descargar el PDF — queda en Files/Downloads del dispositivo */
+    triggerDownload(blob, fname);
+
+    /* 2. Mostrar un mensaje breve indicando qué hacer */
+    var hint = document.createElement('div');
+    hint.style.cssText =
+      'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);' +
+      'background:rgba(14,26,12,0.95);color:#ECF4DC;padding:0.8rem 1.2rem;' +
+      'border:1px solid rgba(200,148,60,0.4);border-radius:6px;' +
+      'font-family:"Cormorant Garamond",serif;font-size:0.95rem;text-align:center;' +
+      'z-index:200001;max-width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
+    hint.innerHTML =
+      '<div style="font-family:Cinzel,serif;font-size:0.7rem;letter-spacing:0.15em;color:#C8943C;text-transform:uppercase;margin-bottom:0.3rem;">PDF descargado</div>' +
+      'En WhatsApp, presiona <strong>📎</strong> → <strong>Documento</strong> → selecciona <em>' + fname + '</em>';
+    document.body.appendChild(hint);
+    setTimeout(function () { hint.remove(); }, 8000);
+
+    /* 3. Abrir WhatsApp con texto pre-llenado.
+       wa.me funciona en móvil (abre app si está instalada) y en desktop
+       (abre WhatsApp Web). Si no hay WhatsApp, el usuario verá la página
+       de descarga de la app. */
+    var msg = 'SetList del próximo domingo — Coro Pacem Deus';
+    var url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+
+    /* Pequeño delay para que la descarga inicie antes de abrir WhatsApp */
+    setTimeout(function () {
+      window.open(url, '_blank');
+    }, 600);
+  }
+
+  /* ── Compartir vía Web Share API estándar del sistema ──
+     Para usuarios que prefieran usar el share sheet nativo (donde pueden
+     aparecer Mail, Telegram, AirDrop, etc. — y a veces WhatsApp). */
+  function shareViaWebShareAPI(blob, fname) {
+    var file = new File([blob], fname, { type: 'application/pdf' });
+
+    if (typeof navigator.share !== 'function') {
+      /* Sin Web Share API → fallback a descarga */
+      triggerDownload(blob, fname);
+      return;
+    }
+
+    var canShareFile = false;
+    try {
+      canShareFile = (typeof navigator.canShare === 'function') &&
+                     navigator.canShare({ files: [file] });
+    } catch (e) {}
+
+    if (canShareFile) {
+      navigator.share({
+        files: [file],
+        title: 'SetList — Coro Pacem Deus',
+        text:  'SetList del próximo domingo'
+      }).catch(function (err) {
+        /* AbortError = usuario canceló el sheet — no es error */
+        if (err && err.name === 'AbortError') return;
+        console.warn('[SetListPDF] navigator.share falló:', err);
+        /* Cualquier otro error → fallback a descarga */
+        triggerDownload(blob, fname);
+      });
+    } else {
+      /* No soporta share con archivos → descarga directa */
+      triggerDownload(blob, fname);
+    }
   }
 
   /* ── Enrutador: decide entre imprimir (desktop) o compartir (móvil) ── */

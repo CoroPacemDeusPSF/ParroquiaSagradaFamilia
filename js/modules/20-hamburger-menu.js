@@ -6,7 +6,7 @@
  *   @brief      Menú hamburguesa móvil
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r3
+ *   @version    v3.2.42r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
