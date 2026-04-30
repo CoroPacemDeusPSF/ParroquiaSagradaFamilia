@@ -6,7 +6,7 @@
  *   @brief      Controles A− / A+ para ajustar tamaño de letra del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r1
+ *   @version    v3.2.42r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

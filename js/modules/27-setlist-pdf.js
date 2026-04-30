@@ -6,7 +6,7 @@
  *   @brief      PDF del SetList — clonando fielmente la presentación del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r1
+ *   @version    v3.2.42r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -18,7 +18,7 @@
    como el cancionero web. La premisa: el PDF debe parecer una traducción
    1:1 del diseño de las song-cards a papel, no una versión empobrecida.
 
-   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r1 v1):
+   FILOSOFÍA DEL DISEÑO (leccionado de v3.2.42r2 v1):
      • Cero margen de hoja → el fondo cream cubre A4 completo
      • Sin Acordes  → SOLO el contenido del .song-body (letras, chorus,
                        strophe, lp-section, song-ornament). El chord-block
@@ -98,26 +98,56 @@
     return clone.innerHTML;
   }
 
+  /* ── Detectar si un <b> es un marcador de TÍTULO ──
+     Un título empieza con la nota musical ♫ seguida del nombre del canto.
+     Ej.: "♫ Vosotros Sois de Dios". */
+  function isChordTitleMarker(content) {
+    return /^\s*♫/.test(content);
+  }
+
+  /* ── Detectar si un <b> es un marcador de SECCIÓN ──
+     Las secciones se identifican por: caracteres de caja (═══, ───), barras
+     dobles (==), o palabras clave canónicas al inicio. */
+  function isChordSectionMarker(content) {
+    var trimmed = content.trim();
+    /* Caracteres de caja Unicode */
+    if (/[═─━]{2,}/.test(trimmed)) return true;
+    /* Doble barra ASCII */
+    if (/^=={1,}/.test(trimmed) || /=={1,}\s*$/.test(trimmed)) return true;
+    /* Palabras clave litúrgicas/musicales al inicio (sin caja) */
+    if (/^(INTRO|CORO|ESTROFA|PUENTE|FIN|FINAL|OUTRO|CAPO|TONALIDAD|KYRIE|CHRISTE|SANTO|BENDITO|HOSANNA)[\s:]/i.test(trimmed)) return true;
+    /* INTRO: o CORO: con dos puntos al final */
+    if (/^[A-ZÁÉÍÓÚÑ]{3,}:\s*$/.test(trimmed)) return true;
+    return false;
+  }
+
   /* ── Extraer el chord-block dividido en SECCIONES ──
-     El <pre> del cancionero contiene letra + acordes intercalados, separados
-     por <b class="chord-section">═══ ESTROFA N ═══</b> y similares.
+     El <pre> del cancionero contiene letra + acordes intercalados. Para que
+     el PDF haga page-break "inteligente" (sin cortar a la mitad de una
+     sección), DIVIDIMOS el <pre> por marcadores semánticos en bloques
+     atómicos.
 
-     Para que el PDF haga page-break "inteligente" (sin cortar acordes a la
-     mitad de una sección), DIVIDIMOS el <pre> en secciones lógicas. Cada
-     sección será renderizada como un bloque independiente con
-     `page-break-inside: avoid`. Si una sección no cabe al final de página,
-     pasa entera a la siguiente — sin cortar.
+     Detección de marcadores (en orden de prioridad):
+       1. <b class="chord-title">  → título dorado
+       2. <b class="chord-section"> → banda verde
+       3. <b> simple cuyo contenido empiece con ♫ → título dorado (heurística)
+       4. <b> simple con caracteres de caja (═══) o keywords litúrgicas
+          → sección verde (heurística)
 
-     Heurística para dividir:
-       • Buscamos los <b class="chord-section"> y <b class="chord-title">
-         como puntos de corte.
-       • Si el <pre> NO tiene esos marcadores (chord-blocks antiguos con <b>
-         simple), caemos a un solo bloque indivisible.
-       • Cualquier contenido antes del primer marcador (típicamente el
-         "♫ Título" + nota de modulación) se trata como bloque inicial.
+     Para los <b> simples detectados como marcadores, INYECTAMOS la clase
+     correspondiente (`chord-title` o `chord-section`) en el HTML emitido,
+     así heredan los estilos del CSS sin necesidad de cambiar el JSON.
 
-     Devuelve un array de strings (cada string es el innerHTML de una
-     sección, sin cambios al contenido más allá del split). */
+     Limpieza de espacio redundante:
+       • Los chord-blocks suelen tener "<\/b>\n\n[contenido]" — los \n\n
+         posteriores al cierre del marcador se ven como salto extra cuando
+         se renderea con white-space: pre. Normalizamos a "<\/b>\n[contenido]".
+       • También se elimina el \n al inicio si la primera sección comienza
+         con un salto.
+       • Y se elimina el \n redundante al final de cada sección.
+
+     Devuelve un array de strings (cada string es el HTML de una sección
+     limpia, lista para meterse en un <div class="pdf-chord-section">). */
   function getSongChordsPreSections(cpd) {
     var card = document.querySelector('.song-card[data-chord-id="' + cpd + '"]');
     if (!card) return [];
@@ -131,41 +161,123 @@
 
     var html = pre.innerHTML;
 
-    /* Regex que matchea cualquier <b class="chord-section">...</b> o
-       <b class="chord-title">...</b>. Usamos lazy match (.*?) para no
-       capturar tags anidados ni saltarnos cierres. */
-    var sectionRe = /<b class="chord-(?:section|title)"[^>]*>[\s\S]*?<\/b>/g;
+    /* Regex que matchea CUALQUIER <b...>...</b>. No usamos lazy en el
+       interior porque el contenido de los marcadores nunca contiene
+       <b> anidado. */
+    var allBoldsRe = /<b([^>]*)>([\s\S]*?)<\/b>/g;
     var matches = [];
     var m;
-    while ((m = sectionRe.exec(html)) !== null) {
-      matches.push({ start: m.index, end: m.index + m[0].length });
+    while ((m = allBoldsRe.exec(html)) !== null) {
+      var fullMatch = m[0];
+      var attrs     = m[1];          /* atributos como ' class="chord-title"' */
+      var content   = m[2];          /* texto interior */
+
+      /* Determinar si este <b> es un marcador de sección/título o solo un
+         <b> de énfasis dentro de la letra. */
+      var hasClassTitle   = /class=["']chord-title["']/.test(attrs);
+      var hasClassSection = /class=["']chord-section["']/.test(attrs);
+      var isTitle, isSection;
+
+      if (hasClassTitle)        { isTitle = true;   isSection = false; }
+      else if (hasClassSection) { isTitle = false;  isSection = true;  }
+      else                       { isTitle = isChordTitleMarker(content); isSection = !isTitle && isChordSectionMarker(content); }
+
+      if (!isTitle && !isSection) continue;  /* <b> de énfasis, ignorar */
+
+      /* Si el <b> es marcador pero no tiene clase, INYECTARLA para que tome
+         los estilos correspondientes en el CSS del PDF. */
+      var renderedTag;
+      if (hasClassTitle || hasClassSection) {
+        renderedTag = fullMatch;
+      } else if (isTitle) {
+        renderedTag = '<b class="chord-title">' + content + '</b>';
+      } else {
+        renderedTag = '<b class="chord-section">' + content + '</b>';
+      }
+
+      matches.push({
+        start: m.index,
+        end: m.index + fullMatch.length,
+        renderedTag: renderedTag
+      });
     }
 
-    /* Caso degenerado: chord-block sin marcadores semánticos (<b> simples).
-       Devolvemos el HTML completo como un solo bloque. */
+    /* Caso degenerado: chord-block sin marcadores reconocibles. Devolvemos
+       el HTML completo como un solo bloque (puede partirse entre páginas
+       si es muy largo, pero no hay manera de evitarlo sin marcadores). */
     if (matches.length === 0) return [html];
 
     var sections = [];
 
-    /* Contenido ANTES del primer marcador (suele ser el ♫ título inicial
-       en chord-blocks antiguos, o notas de modulación). Lo emitimos solo
-       si tiene contenido visible. */
+    /* Helper: limpiar espacio en blanco redundante alrededor de los
+       marcadores para que la letra venga inmediatamente después de
+       "═══ ESTROFA N ═══" sin línea en blanco extra. */
+    function cleanSection(s) {
+      /* Eliminar saltos de línea iniciales y finales sobrantes */
+      s = s.replace(/^\s*\n+/, '').replace(/\n+\s*$/, '');
+      /* Reducir múltiples saltos seguidos a uno solo entre el marcador y
+         la primera línea de letra: "<\/b>\n\n\nletra" → "<\/b>\nletra".
+         También aplica entre líneas internas (saltos triples → simples).
+         Esto deja el contenido compacto sin perder la separación lógica. */
+      s = s.replace(/(<\/b>)\s*\n\s*\n+/g, '$1\n');
+      return s;
+    }
+
+    /* Contenido ANTES del primer marcador (notas de modulación, comentarios) —
+       lo emitimos solo si tiene contenido visible. */
     if (matches[0].start > 0) {
       var prelude = html.substring(0, matches[0].start);
       if (prelude.replace(/\s+/g, '').length > 0) {
-        sections.push(prelude);
+        sections.push(cleanSection(prelude));
       }
     }
 
-    /* Cada sección va desde el marcador hasta justo antes del siguiente
-       marcador (o hasta el final del HTML). */
+    /* Cada sección va desde el inicio de un marcador hasta justo antes del
+       siguiente marcador (o hasta el final del HTML).
+       IMPORTANTE: reemplazamos el match original por la versión con clase
+       inyectada (renderedTag), para que tome los estilos del CSS aunque el
+       chord-block original use <b> simples. */
     for (var i = 0; i < matches.length; i++) {
-      var startIdx = matches[i].start;
-      var endIdx = (i + 1 < matches.length) ? matches[i + 1].start : html.length;
-      sections.push(html.substring(startIdx, endIdx));
+      var startIdx  = matches[i].start;
+      var endIdx    = (i + 1 < matches.length) ? matches[i + 1].start : html.length;
+      var rawChunk  = html.substring(startIdx, endIdx);
+      /* Reemplazar SOLO el primer match (que es el marcador al inicio) */
+      var origTag   = html.substring(matches[i].start, matches[i].end);
+      var newChunk  = matches[i].renderedTag + rawChunk.substring(origTag.length);
+      sections.push(cleanSection(newChunk));
     }
 
     return sections;
+  }
+
+  /* ── Splittear el body en (primer bloque atómico) + (resto) ──
+     Para evitar que el header del canto quede solo al final de página en
+     el modo "Sin Acordes", agrupamos el header con el PRIMER bloque
+     atómico del body (etiqueta lp-section + chorus o strophe siguiente,
+     o directamente la primera chorus/strophe si no hay etiqueta antes).
+     Esto se hace usando DOM parsing para no destruir el HTML. */
+  function splitBodyAtFirstAtomicBlock(bodyHtml) {
+    var div = document.createElement('div');
+    div.innerHTML = bodyHtml;
+
+    var children = Array.from(div.children);
+    var firstParts = [];
+
+    for (var i = 0; i < children.length; i++) {
+      var c = children[i];
+      firstParts.push(c.outerHTML);
+      /* Cuando encontramos el primer .chorus o .strophe, esa es la unidad
+         atómica que debe viajar con el header. Todo lo anterior (etiquetas
+         lp-section) entra en el primer grupo, todo lo posterior queda como
+         "rest". */
+      if (c.classList && (c.classList.contains('chorus') || c.classList.contains('strophe'))) {
+        var rest = children.slice(i + 1).map(function (x) { return x.outerHTML; }).join('\n');
+        return { firstPart: firstParts.join('\n'), rest: rest };
+      }
+    }
+
+    /* No hay chorus/strophe (caso degenerado) → todo va en el primer grupo */
+    return { firstPart: bodyHtml, rest: '' };
   }
 
   /* ── Verificar si un canto tiene chord-block ─────────────────────────── */
@@ -298,6 +410,26 @@
     '  display: flex;' +
     '  align-items: center;' +
     '  gap: 4mm;' +
+    '}' +
+
+    /* Wrapper indivisible: header + primer bloque de contenido.
+       Esto garantiza que el título de un canto NUNCA quede solo al final
+       de una página. Si el header + primer bloque no caben juntos, ambos
+       pasan a la siguiente página. El resto del canto fluye libremente,
+       con cada estrofa/coro/sección protegida individualmente. */
+    '.pdf-song-first-group {' +
+    '  page-break-inside: avoid;' +
+    '  break-inside: avoid;' +
+    '}' +
+
+    /* El body del canto NO debe duplicar el padding superior cuando está
+       dentro del first-group (ya viene pegado al header) ni en el "rest"
+       que continúa después (debe quedarse con flow normal). */
+    '.pdf-song-first-group .pdf-song-body {' +
+    '  padding-top: 4mm;' +
+    '}' +
+    '.pdf-song-body-rest {' +
+    '  padding-top: 0 !important;' +
     '}' +
     '.pdf-song-num {' +
     '  font-family: "Cinzel", serif;' +
@@ -567,38 +699,72 @@
       songs.forEach(function (song) {
         globalNum++;
 
-        /* Header del canto: número + tag de momento + título */
+        /* Pre-construir el header del canto: número + tag + título */
+        var headerHtml =
+          '<div class="pdf-song-header">' +
+            '<div class="pdf-song-num">' + globalNum + '</div>' +
+            '<div class="pdf-song-header-text">' +
+              '<div class="pdf-song-moment-tag">' + escapeHtml(moment) + '</div>' +
+              '<div class="pdf-song-title">' + escapeHtml(song.title) + '</div>' +
+            '</div>' +
+          '</div>';
+
         html += '<div class="pdf-song">';
-        html += '  <div class="pdf-song-header">';
-        html += '    <div class="pdf-song-num">' + globalNum + '</div>';
-        html += '    <div class="pdf-song-header-text">';
-        html += '      <div class="pdf-song-moment-tag">' + escapeHtml(moment) + '</div>';
-        html += '      <div class="pdf-song-title">' + escapeHtml(song.title) + '</div>';
-        html += '    </div>';
-        html += '  </div>';
 
         /* CONTENIDO según opción elegida ──
            "Con Acordes" → SOLO el <pre> del chord-block, dividido en
                             secciones (cada sección no se rompe entre páginas)
-           "Sin Acordes" → SOLO el body sin chord-block embebido */
+           "Sin Acordes" → SOLO el body sin chord-block embebido
+
+           Política de page-break:
+             • El header del canto + el PRIMER bloque de contenido se emiten
+               dentro de un wrapper .pdf-song-first-group con
+               page-break-inside: avoid. Esto evita que el título quede solo
+               al final de una página sin contenido debajo: si el header +
+               primer bloque no caben juntos, ambos pasan a la siguiente
+               página.
+             • Los bloques restantes se emiten directamente bajo .pdf-song,
+               cada uno con su propio page-break-inside: avoid (heredado de
+               .pdf-chord-section, .chorus, .strophe). */
         if (withChords) {
           var hasChords = songHasChords(song.cpd);
           if (hasChords) {
             var sections = getSongChordsPreSections(song.cpd);
             html += '<div class="pdf-song-chords">';
-            sections.forEach(function (sec) {
-              html += '<div class="pdf-chord-section">' + sec + '</div>';
+            sections.forEach(function (sec, idx) {
+              if (idx === 0) {
+                /* Primera sección: viaja agrupada con el header */
+                html += '<div class="pdf-song-first-group">';
+                html += headerHtml;
+                html += '<div class="pdf-chord-section">' + sec + '</div>';
+                html += '</div>';
+              } else {
+                html += '<div class="pdf-chord-section">' + sec + '</div>';
+              }
             });
             html += '</div>';
           } else {
-            /* Si el canto no tiene acordes pero el usuario eligió "Con
-               Acordes", caemos al body como fallback con un aviso. */
+            /* Sin acordes registrados → fallback al body con aviso. */
+            html += '<div class="pdf-song-first-group">';
+            html += headerHtml;
             html += '<div class="pdf-no-chords-notice">Este canto no tiene acordes registrados — se muestra la letra.</div>';
+            html += '</div>';
             html += '<div class="pdf-song-body">' + getSongBodyHtmlWithoutChords(song.cpd) + '</div>';
           }
         } else {
-          var bodyHtml = getSongBodyHtmlWithoutChords(song.cpd);
-          html += '<div class="pdf-song-body">' + bodyHtml + '</div>';
+          /* Sin Acordes: emitimos el body completo después del header.
+             Para evitar que el header quede solo al final de página, lo
+             agrupamos con el primer bloque atómico (etiqueta + chorus/
+             strophe siguiente). El resto del body fluye libremente y cada
+             chorus/strophe siguiente conserva su page-break-inside: avoid. */
+          var bodyParts = splitBodyAtFirstAtomicBlock(getSongBodyHtmlWithoutChords(song.cpd));
+          html += '<div class="pdf-song-first-group">';
+          html += headerHtml;
+          html += '<div class="pdf-song-body">' + bodyParts.firstPart + '</div>';
+          html += '</div>';
+          if (bodyParts.rest && bodyParts.rest.trim().length > 0) {
+            html += '<div class="pdf-song-body pdf-song-body-rest">' + bodyParts.rest + '</div>';
+          }
         }
 
         html += '</div>'; /* /pdf-song */
@@ -665,11 +831,236 @@
     }
   }
 
+  /* ════════════════════════════════════════════════════════════════════
+     COMPARTIR NATIVO EN MÓVILES (Web Share API + html2pdf.js)
+     ════════════════════════════════════════════════════════════════════
+     En móviles modernos (iOS Safari 15+, Android Chrome 89+) el navegador
+     ofrece la Web Share API, que permite compartir archivos a apps
+     externas (WhatsApp, Telegram, Mail, etc.) sin necesidad de descargar
+     primero el PDF. Esto da una experiencia muy fluida: tap "Compartir"
+     → diálogo nativo → tap "WhatsApp" → enviado.
+
+     window.print() en móviles funciona pero abre el diálogo de impresión
+     del sistema, donde el usuario tiene que navegar a "Guardar como PDF",
+     elegir carpeta, salir, ir a Files, abrir, compartir... — flujo de
+     5 pasos. Con Web Share API es 1 paso.
+
+     Estrategia:
+       • Detectar si el navegador soporta Web Share con archivos PDF.
+       • Si sí: cambiar el label del botón a "Compartir" y enrutar la
+         acción a launchShare() en lugar de launchPrint().
+       • launchShare() carga html2pdf.js dinámicamente desde CDN, genera
+         un Blob PDF a partir del mismo HTML que usa launchPrint(), y
+         llama a navigator.share() con el archivo.
+       • Fallback elegante: si falla la generación o el share, se descarga
+         el PDF para que el usuario pueda compartirlo manualmente. */
+
+  /* ── Detectar si el dispositivo soporta Web Share con archivos ─────── */
+  function isMobileShareCapable() {
+    if (typeof navigator.share !== 'function') return false;
+    if (typeof navigator.canShare !== 'function') return false;
+    /* Probar canShare con un archivo dummy — algunos navegadores tienen
+       navigator.share pero NO soportan el campo `files`. */
+    try {
+      var probeFile = new File(['probe'], 'probe.pdf', { type: 'application/pdf' });
+      if (!navigator.canShare({ files: [probeFile] })) return false;
+    } catch (e) {
+      return false;
+    }
+    /* Heurística: solo activar en pantallas tamaño móvil/tablet o con
+       user-agent móvil. Web Share existe en algunos navegadores desktop
+       pero la experiencia esperada (compartir por WhatsApp) es móvil. */
+    var isMobileUA    = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    var isSmallScreen = window.innerWidth < 900;
+    return isMobileUA || isSmallScreen;
+  }
+
+  var IS_MOBILE_SHARE = isMobileShareCapable();
+
+  /* ── Si es móvil con Web Share, ajustar el botón del toolbar y el ──
+     título del diálogo para reflejar la acción real (Compartir). */
+  if (IS_MOBILE_SHARE) {
+    var printBtn = document.getElementById('sl-print');
+    if (printBtn) {
+      var label = printBtn.querySelector('.sl-print-label');
+      if (label) label.textContent = 'Compartir';
+      printBtn.setAttribute('aria-label', 'Compartir setlist');
+      printBtn.setAttribute('title', 'Compartir setlist');
+      /* Reemplazar el SVG de impresora por uno de share (3 nodos conectados) */
+      var oldSvg = printBtn.querySelector('svg');
+      if (oldSvg) {
+        oldSvg.innerHTML =
+          '<circle cx="18" cy="5" r="3"></circle>' +
+          '<circle cx="6" cy="12" r="3"></circle>' +
+          '<circle cx="18" cy="19" r="3"></circle>' +
+          '<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>' +
+          '<line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>';
+      }
+    }
+    var dialogTitleEl = document.querySelector('.sl-print-dialog-title');
+    if (dialogTitleEl) dialogTitleEl.textContent = 'Compartir SetList';
+    var dialogSubEl = document.querySelector('.sl-print-dialog-subtitle');
+    if (dialogSubEl) dialogSubEl.textContent = '¿Cómo deseas compartir los cantos?';
+  }
+
+  /* ── Cargar html2pdf.js dinámicamente desde CDN ──
+     Solo se carga cuando el usuario intenta compartir por primera vez.
+     ~500KB pero solo afecta a quien usa la feature. */
+  var HTML2PDF_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  function loadHtml2Pdf(callback, errorCallback) {
+    if (typeof window.html2pdf === 'function') {
+      callback();
+      return;
+    }
+    var script = document.createElement('script');
+    script.src = HTML2PDF_CDN;
+    script.async = true;
+    script.onload = function () { callback(); };
+    script.onerror = function () {
+      if (errorCallback) errorCallback();
+      else alert('No se pudo cargar el generador de PDF. Verifica tu conexión a internet.');
+    };
+    document.head.appendChild(script);
+  }
+
+  /* ── Overlay de "generando..." mientras html2canvas/jsPDF trabaja ── */
+  function showLoadingOverlay() {
+    if (document.getElementById('pdf-loading-overlay')) return;
+    var overlay = document.createElement('div');
+    overlay.id = 'pdf-loading-overlay';
+    overlay.style.cssText =
+      'position:fixed;inset:0;background:rgba(14,26,12,0.92);z-index:200000;' +
+      'display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML =
+      '<div style="text-align:center;color:#C8943C;font-family:Cinzel,serif;letter-spacing:0.18em;font-size:0.85rem;text-transform:uppercase;">' +
+        'Generando PDF...' +
+        '<div style="width:38px;height:38px;border:3px solid rgba(200,148,60,0.2);border-top-color:#C8943C;border-radius:50%;animation:pdfSpin 0.9s linear infinite;margin:1.2rem auto 0;"></div>' +
+      '</div>' +
+      '<style>@keyframes pdfSpin{to{transform:rotate(360deg);}}</style>';
+    document.body.appendChild(overlay);
+  }
+  function hideLoadingOverlay() {
+    var overlay = document.getElementById('pdf-loading-overlay');
+    if (overlay) overlay.remove();
+  }
+
+  /* ── Lanzar el flujo de COMPARTIR en móviles ──
+     Genera el PDF a partir del mismo HTML que window.print() usaría, y
+     lo entrega al sistema operativo via navigator.share() para que el
+     usuario lo envíe por WhatsApp / Telegram / Mail / etc. */
+  function launchShare(withChords) {
+    closeDialog();
+
+    var byMoment = collectSetlistByMoment();
+    var hasContent = MOMENT_ORDER.some(function (m) {
+      return byMoment[m] && byMoment[m].length > 0;
+    });
+    if (!hasContent) {
+      alert('El SetList está vacío. Agrega cantos antes de compartir.');
+      return;
+    }
+
+    showLoadingOverlay();
+
+    loadHtml2Pdf(function () {
+      var html = buildPdfHtml(byMoment, withChords);
+
+      /* Crear un contenedor oculto con el HTML para que html2canvas pueda
+         capturarlo. Ancho fijo de 794px = A4 a 96dpi. left:-9999px lo saca
+         de la vista pero permite renderizado completo. */
+      var container = document.createElement('div');
+      container.innerHTML = html;
+      container.style.cssText =
+        'position:fixed;left:-9999px;top:0;width:794px;background:#F6F9F2;';
+      document.body.appendChild(container);
+
+      /* Las fuentes Google deben estar cargadas para que el rendering sea
+         fiel. Esperamos un poco antes de capturar. */
+      var generate = function () {
+        window.html2pdf()
+          .set({
+            margin: 0,
+            filename: 'SetList_Coro_Pacem_Deus.pdf',
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#F6F9F2', logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            /* mode: ['css','legacy'] respeta page-break-inside:avoid del CSS */
+            pagebreak: { mode: ['css', 'legacy'] }
+          })
+          .from(container.firstElementChild || container)
+          .toPdf()
+          .output('blob')
+          .then(function (blob) {
+            document.body.removeChild(container);
+            hideLoadingOverlay();
+
+            var fname = 'SetList_Coro_Pacem_Deus.pdf';
+            var file = new File([blob], fname, { type: 'application/pdf' });
+
+            /* Ofrecer al sistema operativo el archivo via Web Share API */
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({
+                files: [file],
+                title: 'SetList — Coro Pacem Deus',
+                text:  'SetList del próximo domingo'
+              }).catch(function (err) {
+                /* AbortError = usuario canceló el diálogo de share. No es
+                   un error real, no mostramos nada. */
+                if (err && err.name !== 'AbortError') {
+                  console.warn('[SetListPDF] navigator.share falló:', err);
+                  /* Fallback: descargar para que pueda compartir manual */
+                  triggerDownload(blob, fname);
+                }
+              });
+            } else {
+              /* Sistema no soporta share con archivos → descargar */
+              triggerDownload(blob, fname);
+            }
+          })
+          .catch(function (err) {
+            if (container.parentNode) document.body.removeChild(container);
+            hideLoadingOverlay();
+            console.error('[SetListPDF] Error generando PDF:', err);
+            alert('Error generando el PDF: ' + (err && err.message ? err.message : 'desconocido'));
+          });
+      };
+
+      /* Esperar a fonts si está disponible, sino timeout corto */
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { setTimeout(generate, 200); });
+      } else {
+        setTimeout(generate, 800);
+      }
+    }, function () {
+      hideLoadingOverlay();
+    });
+  }
+
+  /* Helper: descargar un blob como archivo */
+  function triggerDownload(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    /* Pequeño delay antes de revocar para asegurar que el navegador inició
+       la descarga */
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  /* ── Enrutador: decide entre imprimir (desktop) o compartir (móvil) ── */
+  function launchAction(withChords) {
+    if (IS_MOBILE_SHARE) launchShare(withChords);
+    else                 launchPrint(withChords);
+  }
+
   /* ── API pública para event-delegation (handlers en 25-event-delegation) */
   window.PdSetlistPrint = {
     open:             openDialog,
     close:            closeDialog,
-    printWithChords:  function () { launchPrint(true); },
-    printNoChords:    function () { launchPrint(false); }
+    printWithChords:  function () { launchAction(true); },
+    printNoChords:    function () { launchAction(false); }
   };
 })();

@@ -6,7 +6,7 @@
  *   @brief      Modal de búsqueda con índice invertido del cancionero
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.42r1
+ *   @version    v3.2.42r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -36,8 +36,8 @@
 
   /* ── Build song index (once) ──
      Estrategia de extracción del título en 3 niveles, de más robusto a menos:
-       1. card.dataset.title (v3.2.42r1+): atributo data-title en la card.
-       2. .song-title-text span (v3.2.39-v3.2.42r1).
+       1. card.dataset.title (v3.2.42r2+): atributo data-title en la card.
+       2. .song-title-text span (v3.2.39-v3.2.42r2).
        3. Text nodes directos (legacy).
      Mismo patrón que 15-build-index.js — sin él el buscador queda vacío
      cuando el renderer cambia la estructura interna del título. */
