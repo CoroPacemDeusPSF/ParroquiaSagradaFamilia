@@ -6,7 +6,7 @@
  *   @brief      Editor fullscreen de acordes con guardado en Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.43
+ *   @version    v3.2.45
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -132,150 +132,283 @@ var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
     highlightDiv.scrollTop = textarea.scrollTop;
   }
 
-  // ── Chord notation standard ──
-  // Major: ALL CAPS root → DO, RE7, SOL#, FA, SIb
-  // Minor: Title case root + m → Dom, Rem7, Solm, Lam, Fa#m
-  var ROOTS_UPPER = ['DO', 'RE', 'MI', 'FA', 'SOL', 'LA', 'SI'];
-  var ROOTS_TITLE = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
-  var ROOTS_ALL = ROOTS_UPPER.concat(ROOTS_TITLE);
-  var rootPat = '(?:' + ROOTS_ALL.join('|') + ')';
-  var accPat  = '[#b♭♯]?';
-  var qualPat = (function() {
-    return '(?:' +
-      // Minor-major 7th (antes que variantes menores)
-      'mM(?:aj)?\\d*|' +
-      // Semi-disminuido
-      '[ø]\\d*|m7[b#]5|' +
-      // Menor con cualquier extensión / alteración
-      'm(?:in)?(?:aj)?(?:\\d+(?:[b#]\\d+)*[+]?)?|' +
-      // Disminuido (dim7, °7, dim, °)
-      '(?:dim|°)\\d?|' +
-      // Aumentado (aug7, +7, aug, +)
-      '(?:aug|[+])\\d*|' +
-      // Mayor séptima y extensiones (Maj7, maj9, maj11, M7...)
-      '[Mm]aj?\\d*[+]?|' +
-      // Suspendido (sus, sus2, sus4)
-      'sus\\d*|' +
-      // Sexta-novena (6/9 — antes del bassPat para que / no se confunda)
-      '6\\/9|' +
-      // Add
-      'add\\d+|' +
-      // Quinta (power chord)
-      '5(?![\\d])|' +
-      // Numérico con alteraciones opcionales (7, 9, 13, 7b9, 7#9, 7b5, 9sus4, ...)
-      '\\d+(?:[b#]\\d+)*(?:sus\\d+)?[+]?' +
-    ')?';
-  })();
-  var bassPat = '(?:\\/(?:' + ROOTS_UPPER.join('|') + ')[#b♭♯]?)?';
-  var CHORD_RE = new RegExp('^' + rootPat + accPat + qualPat + bassPat + '$');
+  // ── Chord notation standard (v2 — cobertura completa de teoría musical) ──
+  // Anatomía de un acorde válido en notación latina:
+  //   [RAÍZ][ALTERACIÓN][CALIDAD][EXTENSIONES][ALT_INTERNAS][/BAJO]
+  //
+  // Ejemplos cubiertos:
+  //   Mayores: DO, RE7, FA#, SIb, DO7+, DOmaj7, DOM7, DO13b9
+  //   Menores: Dom, Fa#m, Fam# (orden flexible), Lam7, Sim7b5, Lamadd9
+  //   Aumentados: DOaug, DO+, DO7+, DOaug7
+  //   Disminuidos: SIdim, FA#°, DOdim7, SI°7
+  //   Semi-disminuidos: Sim7b5, Lamø, Simø7
+  //   Suspendidos: DOsus2, DOsus4, DOsus, LA4 (= LAsus4), RE2 (= REsus2)
+  //   Add: DOadd9, Lamadd9, DOadd11
+  //   Slash: DO/SOL, FA/LA, Lam/FA#, FA/SIb, DO7+(9)
+  //   Anglosajón aceptado y normalizado: G→SOL, Am→Lam, Bb→SIb, F#m→Fa#m
+  //
+  // Notación canónica de salida:
+  //   - Mayores en CAPS:    DO, RE7, FA#, SIb, DO7+
+  //   - Menores Title + m:  Dom, Rem7, Fa#m, Lam7b5
+  //   - Bajo siempre CAPS:  /SOL, /FA#, /SIb
+  //   - Alteración SIEMPRE entre raíz y calidad: Fa#m (NO Fam#), Sibm (NO Simb)
 
-  // ── Auto-correct chord notation ──
-  function normalizeChord(raw) {
-    if (!raw) return raw;
-    
-    // Handle compound chords: Lam-LA7
-    if (raw.indexOf('-') >= 0) {
-      return raw.split('-').map(function(p) { return normalizeChord(p.trim()); }).join('-');
-    }
-    
-    // Handle slash chords: FA/A, Do/MI
-    // But NOT quality-slash like LA4/7 (where bass would be a digit)
-    var slashIdx = raw.indexOf('/');
-    if (slashIdx > 0) {
-      var afterSlash = raw.substring(slashIdx + 1);
-      // If what follows the slash is a digit, it's a quality (e.g. 4/7 = sus47)
-      // Normalize: root + "4/7" → root + "sus47"
-      if (/^\d/.test(afterSlash)) {
-        var beforeSlash = raw.substring(0, slashIdx);
-        // Replace the quality notation: treat X/Y as sus-XY
-        return normalizeChord(beforeSlash.replace(/4$/, 'sus4') + afterSlash.replace(/^7/, '7'));
-      }
-      var mainPart = normalizeChord(raw.substring(0, slashIdx));
-      // normalizeChord ya produce la notación correcta (MIb, SOL#, etc.)
-      // NO llamar toUpperCase() — destruye la b del bemol (MIb → MIB)
-      var bassPart = normalizeChord(raw.substring(slashIdx + 1));
-      return mainPart + '/' + bassPart;
-    }
-    
-    // Root matching (case-insensitive, longest first)
-    var rootMap = [
-      ['sol','SOL'], ['SOL','SOL'], ['Sol','SOL'],
-      ['do','DO'],   ['DO','DO'],   ['Do','DO'],
-      ['re','RE'],   ['RE','RE'],   ['Re','RE'],
-      ['mi','MI'],   ['MI','MI'],   ['Mi','MI'],
-      ['fa','FA'],   ['FA','FA'],   ['Fa','FA'],
-      ['la','LA'],   ['LA','LA'],   ['La','LA'],
-      ['si','SI'],   ['SI','SI'],   ['Si','SI'],
-      // English notation
-      ['A','LA'], ['B','SI'], ['C','DO'], ['D','RE'],
-      ['E','MI'], ['F','FA'], ['G','SOL']
-    ];
-    
-    var matchedRoot = null;
-    var rest = raw;
-    
-    // Sort by length descending to match "sol" before "so"
-    rootMap.sort(function(a, b) { return b[0].length - a[0].length; });
-    
-    for (var i = 0; i < rootMap.length; i++) {
-      var pattern = rootMap[i][0];
-      var standard = rootMap[i][1];
-      if (raw.substring(0, pattern.length).toLowerCase() === pattern.toLowerCase() && 
-          raw.substring(0, pattern.length) === raw.substring(0, pattern.length).replace(new RegExp('^' + pattern, 'i'), pattern)) {
-        // More precise: check if the raw starts with this pattern (case-insensitive)
-        if (raw.length >= pattern.length && raw.substring(0, pattern.length).toLowerCase() === pattern.toLowerCase()) {
-          matchedRoot = standard;
-          rest = raw.substring(pattern.length);
-          break;
-        }
-      }
-    }
-    
-    if (!matchedRoot) return raw;
-    
-    // Check accidental
-    var acc = '';
-    if (rest.length > 0 && (rest[0] === '#' || rest[0] === 'b')) {
-      acc = rest[0];
-      rest = rest.substring(1);
-    }
+  // 1. Variantes de raíz (ordenadas por longitud — DO antes que D, etc.)
+  var ROOT_VARIANTS = [
+    { match: /^sol/i,  canonical: 'SOL', length: 3 },
+    { match: /^do/i,   canonical: 'DO',  length: 2 },
+    { match: /^re/i,   canonical: 'RE',  length: 2 },
+    { match: /^mi/i,   canonical: 'MI',  length: 2 },
+    { match: /^fa/i,   canonical: 'FA',  length: 2 },
+    { match: /^la/i,   canonical: 'LA',  length: 2 },
+    { match: /^si/i,   canonical: 'SI',  length: 2 },
+    { match: /^A/,     canonical: 'LA',  length: 1 },
+    { match: /^B/,     canonical: 'SI',  length: 1 },
+    { match: /^C/,     canonical: 'DO',  length: 1 },
+    { match: /^D/,     canonical: 'RE',  length: 1 },
+    { match: /^E/,     canonical: 'MI',  length: 1 },
+    { match: /^F/,     canonical: 'FA',  length: 1 },
+    { match: /^G/,     canonical: 'SOL', length: 1 }
+  ];
 
-    // Normalizar abreviaciones comunes en el sufijo
-    if (rest === '2')  rest = 'sus2';   // RE2  → REsus2
-    if (rest === '4')  rest = 'sus4';   // LA4  → LAsus4
-    rest = rest.replace(/^[Mm][Ii][Nn]/, 'm');           // min/Min → m
-    rest = rest.replace(/^[Aa][Uu][Gg]/, 'aug');          // AUG → aug
-    rest = rest.replace(/^[Dd][Ii][Mm]/, 'dim');          // DIM → dim
-    rest = rest.replace(/^[Mm][Aa][Jj]([^7-9]|$)/, 'maj7'); // MAJ → maj7
-    rest = rest.replace(/ø/, 'ø');                   // ø unicode
-    rest = rest.replace(/°/, '°');                   // ° unicode
-    
-    // Determine if minor (has 'm' at start of quality)
-    var isMinor = rest.length > 0 && rest[0] === 'm' && (rest.length === 1 || rest[1] !== 'a' || rest.substring(0, 3) === 'maj');
-    // "m", "m7", "m6", "m9", "maj7" 
-    if (rest === 'm' || /^m[7690]/.test(rest) || rest === 'maj7') isMinor = true;
-    
-    // Build normalized root
-    if (isMinor) {
-      // Title case: Do, Re, Mi, Fa, Sol, La, Si
-      return matchedRoot.charAt(0) + matchedRoot.substring(1).toLowerCase() + acc + rest;
-    } else {
-      // ALL CAPS: DO, RE, MI, FA, SOL, LA, SI
-      return matchedRoot + acc + rest;
+  // 2. Filtro: distinguir acordes de palabras de la letra
+  // Tokens "Mi", "Yo", "al", "Re", "Do" sin sufijos son texto, no acordes.
+  // El cancionero usa CAPS para acordes sin calidad → rechazamos Title-case
+  // de raíz sola y letras anglosajonas solas.
+  function looksLikeChord(raw) {
+    if (!raw || raw.length === 0) return false;
+    if (/^(?:Do|Re|Mi|Fa|Sol|La|Si)$/.test(raw)) return false;
+    if (/^[A-G]$/.test(raw)) return false;
+    if (/[#b♯♭0-9°ø+/()]/.test(raw)) return true;
+    if (/^(?:DO|RE|MI|FA|SOL|LA|SI|Do|Re|Mi|Fa|Sol|La|Si)/.test(raw)) {
+      if (/(?:m|min|Min|MIN|maj|Maj|MAJ|M|sus|aug|dim|add)$/.test(raw) ||
+          /(?:m|min|Min|MIN|maj|Maj|MAJ|sus|aug|dim|add)/.test(raw)) {
+        return true;
+      }
+      if (/^(?:DO|RE|MI|FA|SOL|LA|SI)$/.test(raw)) return true;
     }
+    if (/^[A-G](?:m|min|maj|sus|aug|dim|add)/.test(raw)) return true;
+    return false;
   }
 
+  function normalizeAccidental(acc) {
+    if (acc === '♯') return '#';
+    if (acc === '♭') return 'b';
+    return acc || '';
+  }
 
-  function isValidChord(token) {
-    token = token.replace(/[()]/g, '').trim();
-    if (!token) return false;
-    // Normalize first, then validate
-    var normalized = normalizeChord(token);
-    var parts = normalized.split('-');
-    return parts.every(function(p) {
-      p = p.trim();
-      return p && CHORD_RE.test(p);
+  // 3. Parser principal — prueba múltiples interpretaciones de orden
+  function parseChord(raw) {
+    if (!raw) return null;
+    var input = String(raw).trim();
+    if (!input) return null;
+
+    var cleaned = input.replace(/[()]/g, '');
+    if (!cleaned) return null;
+
+    var bassRoot = null;
+    var bassAccidental = '';
+    var slashIdx = cleaned.indexOf('/');
+    var mainPart = cleaned;
+
+    if (slashIdx > 0) {
+      var afterSlash = cleaned.substring(slashIdx + 1);
+      if (/^\d/.test(afterSlash)) {
+        // 6/9 — no es slash chord, es notación rara que dejamos en mainPart
+      } else {
+        mainPart = cleaned.substring(0, slashIdx);
+        var bassParsed = parseRoot(afterSlash);
+        if (!bassParsed || bassParsed.rest.length > 0) return null;
+        bassRoot = bassParsed.root;
+        bassAccidental = bassParsed.accidental;
+      }
+    }
+
+    var result = tryParseMainPart(mainPart);
+    if (!result) return null;
+
+    return {
+      root: result.root,
+      accidental: result.accidental,
+      isMinor: result.isMinor,
+      quality: result.quality,
+      bassRoot: bassRoot,
+      bassAccidental: normalizeAccidental(bassAccidental)
+    };
+  }
+
+  function parseRoot(input) {
+    if (!input) return null;
+    var sorted = ROOT_VARIANTS.slice().sort(function(a, b) {
+      return b.length - a.length;
     });
+    for (var i = 0; i < sorted.length; i++) {
+      var v = sorted[i];
+      if (v.match.test(input)) {
+        var rest = input.substring(v.length);
+        var accidental = '';
+        if (rest.length > 0) {
+          var ch = rest[0];
+          if (ch === '#' || ch === 'b' || ch === '♯' || ch === '♭') {
+            accidental = ch;
+            rest = rest.substring(1);
+          }
+        }
+        return { root: v.canonical, accidental: accidental, rest: rest };
+      }
+    }
+    return null;
+  }
+
+  function tryParseMainPart(mainPart) {
+    var sorted = ROOT_VARIANTS.slice().sort(function(a, b) {
+      return b.length - a.length;
+    });
+    for (var i = 0; i < sorted.length; i++) {
+      var v = sorted[i];
+      if (!v.match.test(mainPart)) continue;
+      var rootStr = v.canonical;
+      var afterRoot = mainPart.substring(v.length);
+      var candidates = generateCandidates(rootStr, afterRoot);
+      for (var j = 0; j < candidates.length; j++) {
+        var c = candidates[j];
+        if (isValidQuality(c.quality, c.isMinor)) return c;
+      }
+      break;
+    }
+    return null;
+  }
+
+  // Genera todas las interpretaciones del afterRoot (orden #/b vs m flexible)
+  function generateCandidates(root, afterRoot) {
+    var candidates = [];
+
+    // Caso 1: alteración + m + quality (Fa#m, Reb m, REbm)
+    var m1 = afterRoot.match(/^([#b♯♭])(m|min|Min|MIN)(.*)$/);
+    if (m1) candidates.push({
+      root: root, accidental: normalizeAccidental(m1[1]),
+      isMinor: true, quality: m1[3]
+    });
+
+    // Caso 2: m + alteración + quality (Fam#, Remb)
+    var m2 = afterRoot.match(/^(m|min|Min|MIN)([#b♯♭])(.*)$/);
+    if (m2) candidates.push({
+      root: root, accidental: normalizeAccidental(m2[2]),
+      isMinor: true, quality: m2[3]
+    });
+
+    // Caso 3: alteración + quality (mayor con alteración: FA#7, MIb9)
+    var m3 = afterRoot.match(/^([#b♯♭])(.*)$/);
+    if (m3) {
+      var q = m3[2];
+      // No aceptar si quality empieza con m que no sea maj/min
+      if (!/^m(?!aj|in|Min|MIN|M)/.test(q)) {
+        candidates.push({
+          root: root, accidental: normalizeAccidental(m3[1]),
+          isMinor: false, quality: q
+        });
+      }
+    }
+
+    // Caso 4: m + quality (Lamadd9, Dom7, Lamaug)
+    var m4 = afterRoot.match(/^(m|min|Min|MIN)(.*)$/);
+    if (m4) {
+      var q4 = m4[2];
+      // 'maj' empieza con m pero NO es menor
+      if (!/^aj/.test(q4)) {
+        candidates.push({
+          root: root, accidental: '', isMinor: true, quality: q4
+        });
+      }
+    }
+
+    // Caso 5: sin alteración, sin m, solo quality (mayor: DO7, FAmaj7, REsus4)
+    candidates.push({
+      root: root, accidental: '', isMinor: false, quality: afterRoot
+    });
+
+    return candidates;
+  }
+
+  // 4. Validador de quality/extensiones — cobertura completa
+  function isValidQuality(q, isMinor) {
+    if (!q) return true;
+    var QUALITY_RE = new RegExp('^(?:' +
+      // Mayor séptima: M7, maj7, Maj7, MAJ7, M, maj
+      '(?:M|maj|Maj|MAJ)(?:6|7|9|11|13)?(?:[b#]\\d+)*\\+?|' +
+      // Semi-disminuido: ø, ø7
+      'ø(?:7)?|' +
+      // Disminuido: dim, °, dim7, °7
+      '(?:dim|°)(?:7)?|' +
+      // Aumentado: aug, +, aug7, +7, +M7
+      '(?:aug|\\+)(?:[679]|11|13|M7|maj7)?|' +
+      // Suspendido: sus, sus2, sus4, sus(add9), 7sus4
+      'sus[24]?(?:7|9|11|13)?(?:[b#]\\d+)*|' +
+      // Add: add9, add11, add2, add4, add6
+      'add(?:2|4|6|9|11|13)|' +
+      // Sexta-novena: 6/9
+      '6\\/9|' +
+      // Quinta (power chord): 5
+      '5(?![0-9])|' +
+      // Suspendido abreviado: 4 = sus4, 2 = sus2
+      '[24](?![0-9])|' +
+      // Numérica con alteraciones internas: 7, 9, 13, 7b9, 7#5, 13b9#5, 7+9
+      '(?:6|7|9|11|13)(?:[b#](?:5|9|11|13))*\\+?(?:9|11|13)?(?:sus[24]?)?(?:add(?:2|4|9|11))?\\+?|' +
+      // 7 con add9 fusionado (residuo de quitar paréntesis: 7(9) → 79)
+      '7(?:9|11|13)|' +
+      // Solo + (mayor7 abreviado)
+      '\\+' +
+    ')$');
+    return QUALITY_RE.test(q);
+  }
+
+  // 5. Normalizador — produce notación canónica
+  function normalizeChord(raw) {
+    if (!raw) return raw;
+    var input = String(raw).trim();
+    if (input.indexOf('-') >= 0) {
+      return input.split('-').map(function(p) {
+        return normalizeChord(p.trim());
+      }).join('-');
+    }
+    var parsed = parseChord(input);
+    if (!parsed) return input;
+
+    var rootStr;
+    if (parsed.isMinor) {
+      rootStr = parsed.root.charAt(0) + parsed.root.substring(1).toLowerCase();
+    } else {
+      rootStr = parsed.root;
+    }
+
+    var result = rootStr + parsed.accidental;
+    if (parsed.isMinor) result += 'm';
+
+    if (parsed.quality) {
+      var q = parsed.quality;
+      q = q.replace(/^(?:Maj|MAJ)/, 'maj');
+      q = q.replace(/^M(?=\d|$)/, 'maj');
+      result += q;
+    }
+
+    if (parsed.bassRoot) {
+      result += '/' + parsed.bassRoot + parsed.bassAccidental;
+    }
+    return result;
+  }
+
+  // 6. Validador público
+  function isValidChord(token) {
+    if (!token) return false;
+    var clean = String(token).trim().replace(/[()]/g, '').trim();
+    if (!clean) return false;
+    if (clean.indexOf('-') >= 0) {
+      return clean.split('-').every(function(p) {
+        return isValidChord(p.trim());
+      });
+    }
+    if (!looksLikeChord(clean)) return false;
+    return parseChord(clean) !== null;
   }
 
   function isHeaderLine(line) {

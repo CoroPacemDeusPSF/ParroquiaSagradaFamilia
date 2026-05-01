@@ -6,7 +6,7 @@
  *   @brief      Fuente Cinzel embebida en base64 para jsPDF
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.44r6
+ *   @version    v3.2.45
  *
  *   Cinzel es la tipografía firma del Coro Pacem Deus — usada para títulos,
  *   etiquetas de sección y números de canto en todo el cancionero web.

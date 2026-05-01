@@ -6,7 +6,7 @@
  *   @brief      Fuente Pinyon Script embebida en base64 para jsPDF
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.44r6
+ *   @version    v3.2.45
  *
  *   Pinyon Script es la fuente cursiva firma del coro — usada para el
  *   logotipo "Coro Pacem Deus" en la portada del cancionero web. La
