@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r3
+ *   @version    v3.2.46r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -199,6 +199,18 @@
   // ────────────────────────────────────────────────────────────
   // CONSTRUIR el wrapper con secciones
   // ────────────────────────────────────────────────────────────
+  // Cada sección va a un <pre> con white-space: pre. Eso significa que
+  // CADA \n se renderea como un salto de línea visible.
+  //
+  // Como el splitSections fusiona varios bloques con '\n\n' o '\n' entre
+  // ellos, y los bloques originales pueden traer su propio \n al final,
+  // terminamos con secuencias de 2-3-4 saltos de línea consecutivos que
+  // generan ESPACIOS VERTICALES GIGANTESCOS dentro del <pre>.
+  //
+  // FIX: normalizar todos los saltos consecutivos a UN SOLO \n. La
+  // separación visual entre sub-bloques (título→capo, capo→header→cuerpo)
+  // viene del CSS (line-height + display:block + margin de los <b>), NO
+  // de líneas en blanco dentro del <pre>.
   function buildWrapper(sections) {
     var wrapper = document.createElement('div');
     wrapper.className = 'chord-fit-wrapper';
@@ -208,14 +220,13 @@
       section.className = 'chord-fit-section';
       var pre = document.createElement('pre');
 
-      // Limpiar líneas en blanco al inicio/final del bloque para evitar
-      // espacios verticales residuales dentro de cada sección.
-      // (Las líneas en blanco INTERMEDIAS, dentro de un bloque, se preservan
-      // porque pueden ser intencionales — pero los bloques ya están
-      // separados por splitSections así que esto rara vez aplica.)
+      // Normalizar saltos: 2+ saltos consecutivos → 1 solo. Evita espacios
+      // verticales muertos heredados de la concatenación o del HTML original.
       var cleaned = html
-        .replace(/^[\s\n]+/, '')   // strip blanks al inicio
-        .replace(/[\s\n]+$/, '');  // strip blanks al final
+        .replace(/^[\s\n]+/, '')       // strip blanks al inicio
+        .replace(/[\s\n]+$/, '')       // strip blanks al final
+        .replace(/\n[ \t]*\n+/g, '\n'); // colapsar dobles+ saltos a uno solo
+
       pre.innerHTML = cleaned;
 
       section.appendChild(pre);

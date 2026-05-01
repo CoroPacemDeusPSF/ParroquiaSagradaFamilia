@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r3
+     @version    v3.2.46r4
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -245,31 +245,42 @@
    OVERRIDE de los márgenes heredados de chords.css.
    El CSS general aplica `margin: 0 0 -1.394rem` (negativo) a chord-title
    y chord-section como truco para "consumir" la línea vacía del <pre>.
-   En nuestro wrapper con line-height ajustado y CSS columns, ese truco
-   no aplica. Los reseteamos a márgenes naturales y compactos.
+   En nuestro wrapper colapsamos las líneas vacías, así que ese truco no
+   aplica. Aplicamos márgenes naturales y compactos.
+
+   CRÍTICO: el wrapper colapsa los \n consecutivos a uno solo (ver
+   buildWrapper en JS). Por eso los <b> de título y de sección necesitan
+   margin-top y margin-bottom propios para crear separación visual entre
+   ellos y el contenido adyacente — sin esos márgenes quedarían pegados
+   contra el texto siguiente.
    ─────────────────────────────────────────────────────────────────── */
 
-/* Título: pegado abajo al capo o primer divisor, separado solo por la línea
-   horizontal de su propio border-bottom */
+/* Título de canción: línea horizontal dorada abajo, separación al
+   contenido siguiente */
 .chord-fit-section pre b.chord-title {
-  margin: 0 0 0.2em !important;
-  padding-bottom: 0.1em;
   display: block;
+  margin: 0 0 0.5em !important;
+  padding-bottom: 0.15em;
+  /* border-bottom heredado del CSS general */
 }
 
-/* Capo / Modulación / Tonalidad (líneas con ⚠) van pegadas al título arriba
-   y al primer divisor abajo. Como ⚠ no es un <b>, lo controlamos con la
-   altura natural del <pre> (que respeta los \n). Solo aseguramos que entre
-   el último ⚠ y el primer divisor haya un único espacio (1 línea). */
-
-/* Encabezado de sección: pegado a su cuerpo abajo, separado del bloque
-   anterior por el margin-bottom de la sección previa. */
+/* Encabezado de sección (═══ ESTROFA ═══):
+   margin-top para separarlo del bloque anterior (el cuerpo de la
+   estrofa previa) sin necesidad de líneas vacías en el <pre>;
+   margin-bottom mínimo para que quede pegado a su propio cuerpo. */
 .chord-fit-section pre b.chord-section {
-  margin: 0 0 0.15em !important;
   display: block;
+  margin: 0.7em 0 0.2em !important;
 }
 
-/* Capo badge inline */
+/* Si el chord-section es el primer hijo del <pre>, no necesita
+   margin-top (ya hay separación por la sección anterior o por estar
+   al inicio del wrapper) */
+.chord-fit-section pre b.chord-section:first-child {
+  margin-top: 0 !important;
+}
+
+/* Capo badge inline: sin afectar layout */
 .chord-fit-section pre b.chord-capo {
   display: inline-flex;
 }
