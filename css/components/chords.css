@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.2.46r1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -143,6 +143,25 @@
    para que un bloque (estrofa/coro) no se parta entre columnas.
    ════════════════════════════════════════════════════════════════════ */
 
+/* Cuando el módulo de fit está activo, el block fullscreen se vuelve flex
+   columna: la transpose-bar arriba (auto), el wrapper abajo (flex 1).
+   Esto le da al wrapper exactamente el alto disponible sin necesidad
+   de calcular TOOLBAR_H en JS. */
+.chords-block.fullscreen.cf-active {
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden !important;          /* sin scroll del block; el wrapper
+                                            maneja overflow internamente */
+}
+.chords-block.fullscreen.cf-active > .transpose-bar {
+  position: static !important;          /* sticky no aplica en flex column */
+  flex: 0 0 auto;
+}
+.chords-block.fullscreen.cf-active > .chord-fit-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;                        /* permite que el flex item se reduzca */
+}
+
 .chord-fit-wrapper {
   /* Variables aplicadas dinámicamente por el JS */
   --cf-cols: 1;
@@ -155,12 +174,11 @@
 
   font-size: var(--cf-fs);
   font-family: 'Courier New', monospace;
-  line-height: 1.7;
+  line-height: 1.5;                  /* compacto: menos espacio entre líneas */
   color: #e0d0b0;
 
   width: 100%;
-  height: 100%;
-  padding: 0.5rem 1.2rem 2rem;
+  padding: 0.5rem 1.2rem 1rem;
   box-sizing: border-box;
   overflow: hidden;                  /* sin scroll en fullscreen — el fit
                                         garantiza que todo cabe; pinch-zoom
@@ -169,7 +187,6 @@
   /* Permite que el navegador entregue gestos de pinch al JS */
   touch-action: none;
 
-  /* Suavizar transición al cambiar font-size con pinch */
   transition: none;
 }
 
@@ -187,16 +204,20 @@
   -webkit-column-break-inside: avoid;
   page-break-inside: avoid;
   display: block;                    /* más predecible que table en columns */
-  margin-bottom: 1.2em;
+  margin-bottom: 1em;
   overflow: hidden;                  /* contiene cualquier desborde residual */
 }
 
+/* CRÍTICO: forzar font-size para que herede del wrapper, IGNORANDO cualquier
+   font-size inline que el módulo 07 (controles A−/A+) haya inyectado.
+   Sin este !important, el zoom con pinch no afecta el texto porque
+   `style="font-size: Xrem"` tiene mayor prioridad que la regla heredada. */
 .chord-fit-section pre {
-  white-space: pre;
+  font-size: inherit !important;
   font-family: inherit;
-  font-size: inherit;                /* hereda el font-size del wrapper */
   line-height: inherit;
   color: inherit;
+  white-space: pre;
   background: none;
   border: none;
   padding: 0;

@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.2.46r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -49,7 +49,6 @@
   // ────────────────────────────────────────────────────────────
   // CONSTANTES
   // ────────────────────────────────────────────────────────────
-  var TOOLBAR_H        = 70;     // altura aprox de la transpose-bar
   var COL_GAP_PX       = 28;     // gap entre columnas (debe coincidir CSS)
   var FS_MIN           = 0.6;    // rem — font-size mínimo legible
   var FS_MAX           = 1.6;    // rem — font-size máximo razonable
@@ -77,11 +76,42 @@
   // Cada sección (estrofa, coro, etc.) se mantiene unida en su columna
   // gracias a `break-inside: avoid` en CSS. Las separamos manualmente
   // para que CSS-columns las reciba como bloques distintos.
+  //
+  // CRÍTICO: si una "sección" detectada es solo un label de cabecera tipo
+  //   <b>═══ ESTROFA 1 ═══</b>
+  //   <b>═══ CORO ═══</b>
+  // hay que UNIRLA con la siguiente (que es su cuerpo). De lo contrario el
+  // label puede caer en una columna y el cuerpo en otra, lo que rompe la
+  // intención de mantener juntos el rótulo y su contenido.
   function splitSections(html) {
-    return html
+    var raw = html
       .split(/\n[ \t]*\n+/)
       .map(function (s) { return s.trim(); })
       .filter(function (s) { return s.length > 0; });
+
+    // Detección de "sólo label": una línea con <b>═══ X ═══</b> o similar,
+    // sin contenido textual aparte. Si lo es, lo unimos al siguiente bloque.
+    function isOnlyHeader(s) {
+      // Quitar tags <b>...</b> y ver si queda sólo el patrón ═══ X ═══
+      var stripped = s.replace(/<\/?b>/g, '').trim();
+      // Patrón típico: ═══ ESTROFA 1 ═══, ═══ CORO ═══, ─── PUENTE ───, etc.
+      if (/^[═─━]{2,}\s+.+\s+[═─━]{2,}$/.test(stripped)) return true;
+      // También: una sola línea con sólo ⚠ TONALIDAD/CAPO (preservamos por
+      // separado — no es un header de bloque sino un meta-dato global)
+      return false;
+    }
+
+    var merged = [];
+    for (var i = 0; i < raw.length; i++) {
+      // Si esta sección es sólo un header y hay siguiente, las fusionamos
+      if (isOnlyHeader(raw[i]) && i + 1 < raw.length) {
+        merged.push(raw[i] + '\n' + raw[i + 1]);
+        i++;  // saltar la siguiente, ya consumida
+      } else {
+        merged.push(raw[i]);
+      }
+    }
+    return merged;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -377,13 +407,23 @@
 
     var wrapper = buildWrapper(sections);
 
-    // Insertar (oculto provisionalmente para medir)
+    // Activar el layout flex en el block (vía clase cf-active).
+    // Esto convierte el block en flex column: transpose-bar arriba (auto),
+    // wrapper abajo (flex 1). El wrapper recibe exactamente el alto
+    // disponible sin necesidad de descontar TOOLBAR_H manualmente.
+    block.classList.add('cf-active');
+
+    // Insertar el wrapper y ocultar el pre original
     pre.classList.add('cf-source-hidden');
     block.appendChild(wrapper);
 
-    // Calcular dimensiones disponibles
-    var availW = block.clientWidth || window.innerWidth;
-    var availH = (block.clientHeight || window.innerHeight) - TOOLBAR_H;
+    // Forzar reflow para que el flex layout se aplique antes de medir
+    wrapper.offsetHeight;  // eslint-disable-line no-unused-expressions
+
+    // Calcular dimensiones disponibles MIDIENDO EL WRAPPER REAL
+    // (no estimando con block.clientHeight - TOOLBAR_H)
+    var availW = wrapper.clientWidth  || window.innerWidth;
+    var availH = wrapper.clientHeight || window.innerHeight - 80;
 
     // Encontrar el mejor layout
     var best = findBestLayout(wrapper, availW, availH);
@@ -421,6 +461,9 @@
     }
     block._cfWrapper = null;
     block._cfBaseFs  = null;
+
+    // Quitar la clase de layout flex
+    block.classList.remove('cf-active');
 
     // Restaurar el <pre> original
     var hiddenPre = block.querySelector('pre.cf-source-hidden');
