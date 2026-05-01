@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r4
+ *   @version    v3.2.46r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -14,320 +14,131 @@
 /* ============================================================================
    12-chord-fullscreen-fit.js
    ============================================================================
-   FILOSOFÍA — Reemplazo del antiguo "multi-column con paginación manual"
-   ────────────────────────────────────────────────────────────────────────────
-   El objetivo del fullscreen de acordes es UNO SOLO: que el guitarrista vea
-   la mayor parte del canto posible sin tener que pasar página, en cualquier
-   tamaño de pantalla.
+   FILOSOFÍA — recalibrada en r5 después de iteraciones fallidas.
 
-   Approach anterior (descartado):
-     - Calculaba alturas de cada sección con clones invisibles.
-     - Paginaba manualmente en "páginas estilo Word".
-     - Re-evaluaba con ResizeObserver + debounce.
-     - Tenía botones + - de zoom (arcaicos, race-conditions).
-     - 275 líneas con bugs de overlap en móvil.
+   El objetivo del fullscreen de acordes es ÚNICO:
+     "Ver la mayor cantidad de letra y acordes en un solo pantallazo,
+      sin comerse nada, con espaciado optimizado."
 
-   Approach actual (este módulo):
-     - Una sola medición al entrar a fullscreen.
-     - CSS columns nativo (column-fill: balance) hace el layout automático.
-     - Búsqueda binaria: encuentra (cols, font-size) que maximiza ambos sin
-       que el contenido excede la altura disponible.
-     - Pinch-to-zoom táctil custom (fullscreen suprime el pinch del browser).
-     - Double-tap para reset al auto-fit.
-     - Una sola fuente de verdad: el font-size del wrapper.
+   APPROACH FINAL (simple y directo):
+
+     1. UN SOLO <pre> con TODO el contenido del canto. CSS-columns parte
+        el texto naturalmente entre columnas, igual que un cancionero
+        impreso. Una estrofa puede arrancar en col 1 y continuar en col 2.
+
+     2. Una línea en blanco entre estrofas (ni 0, ni 4). El HTML original
+        ya viene así; solo normalizamos secuencias de 3+ saltos a 2.
+
+     3. Solo el TÍTULO se protege con break-inside: avoid (no debe
+        partirse entre columnas). El resto fluye libremente.
+
+     4. Auto-fit del font-size: encuentra el más grande que hace que el
+        contenido CABE verticalmente con las columnas que aplican.
+
+     5. Decisión de columnas: si la línea más larga del canto no cabe en
+        un ancho de columna estrecho, FORZAR menos columnas. Solo subir
+        a 2/3 cols si las líneas SÍ caben en columnas más estrechas.
+
+     6. Pinch-to-zoom para ajuste manual. Si al ampliar el contenido
+        excede la altura, scroll vertical natural.
 
    API PÚBLICA:
-     window.enterChordFit(block) — al entrar a fullscreen
-     window.exitChordFit(block)  — al salir de fullscreen
-
-   ORDEN DE CARGA: posición 12 de 24 (orden DOM original).
+     window.enterChordFit(block)
+     window.exitChordFit(block)
    ============================================================================ */
 
 (function () {
   'use strict';
 
-  // ────────────────────────────────────────────────────────────
-  // CONSTANTES
-  // ────────────────────────────────────────────────────────────
-  var COL_GAP_PX       = 28;     // gap entre columnas (debe coincidir CSS)
-  var FS_MIN           = 0.6;    // rem — font-size mínimo legible
-  var FS_MAX           = 1.6;    // rem — font-size máximo razonable
-  var FS_TARGET_MIN    = 0.85;   // rem — font-size aceptable para preferir +cols
-  var BINARY_ITER      = 7;      // iteraciones de búsqueda binaria del fs
-  var PINCH_FS_MIN     = 0.5;    // rem — pinch puede ir más bajo que auto
-  var PINCH_FS_MAX     = 2.6;    // rem — pinch puede ir más alto que auto
-  var DOUBLETAP_MS     = 320;    // ms — ventana de double-tap
+  var FS_MIN           = 0.55;
+  var FS_MAX           = 1.6;
+  var FS_TARGET_MIN    = 0.85;
+  var BINARY_ITER      = 8;
+  var PINCH_FS_MIN     = 0.4;
+  var PINCH_FS_MAX     = 3.0;
+  var DOUBLETAP_MS     = 320;
 
-  // ────────────────────────────────────────────────────────────
-  // DETERMINAR CANDIDATOS DE COLUMNAS según ancho de pantalla
-  // ────────────────────────────────────────────────────────────
-  // En móvil portrait (< 600px) → solo 1 columna posible.
-  // En tablet/landscape (600-1100px) → probar 2, luego 1.
-  // En desktop wide (≥ 1100px) → probar 3, 2, 1.
   function colCandidates(availW) {
     if (availW < 600)  return [1];
     if (availW < 1100) return [2, 1];
     return [3, 2, 1];
   }
 
-  // ────────────────────────────────────────────────────────────
-  // PARTIR EL HTML EN SECCIONES por líneas vacías
-  // ────────────────────────────────────────────────────────────
-  // Cada sección (estrofa, coro, etc.) se mantiene unida en su columna
-  // gracias a `break-inside: avoid` en CSS. Las separamos manualmente
-  // para que CSS-columns las reciba como bloques distintos.
-  //
-  // FUSIONES PARA OPTIMIZAR ESPACIO VERTICAL:
-  //   1. Si un bloque es sólo "<b class='chord-title'>♫ ...</b>" → fusionar
-  //      con el siguiente (que es el ⚠ capo o la primera sección).
-  //   2. Si un bloque comienza con "⚠ Capo/Modulación/Tonalidad" y el
-  //      anterior es el título → fusionarlos.
-  //   3. Si un bloque es sólo header "═══ X ═══" → fusionar con su cuerpo.
-  //
-  // Resultado: el primer bloque visible (sección 0) contiene
-  //   título + capo + primer divisor + primer cuerpo, todo unido.
-  //   Las siguientes secciones tienen su propio divisor pegado al cuerpo.
-  function splitSections(html) {
-    var raw = html
-      .split(/\n[ \t]*\n+/)
-      .map(function (s) { return s.trim(); })
-      .filter(function (s) { return s.length > 0; });
-
-    function isOnlyTitle(s) {
-      // Solo <b class="chord-title">...</b>, sin más contenido textual
-      return /^<b\s+class=["']chord-title["']>[^<]*<\/b>$/.test(s.trim());
-    }
-
-    function isOnlyCapo(s) {
-      // Empieza con ⚠ — puede ser una o varias líneas de capo/modulación,
-      // pero no contiene HTML de acordes (sin spans .chord)
-      var t = s.trim();
-      if (t.charAt(0) !== '⚠') return false;
-      return !/<span\s+class=["']chord["']/.test(t);
-    }
-
-    function isOnlySectionHeader(s) {
-      // <b class="chord-section">═══ X ═══</b> sin nada más
-      var stripped = s.replace(/<\/?b[^>]*>/g, '').trim();
-      if (/^[═─━]{2,}\s+.+\s+[═─━]{2,}/.test(stripped)) {
-        // Sí es un header. Si la sección es SÓLO ese header (sin cuerpo
-        // detrás), entonces es candidato a fusión.
-        return /^<b[^>]*>[^<]*<\/b>$/.test(s.trim());
-      }
-      return false;
-    }
-
-    /**
-     * Detecta si el bloque es una "anotación" tipo:
-     *   INTRO: Lam Mim FA DO ...
-     *   FINAL: ...
-     *   OUTRO: ...
-     *   PUENTE: ...
-     *
-     * Estos bloques son contenido musical real (con acordes) pero NO tienen
-     * el patrón ═══ X ═══. Son frecuentes en cantos como "Tus Maravillas".
-     * Al fusionarlos con el bloque siguiente (o anterior), evitamos que
-     * queden flotando como "secciones huérfanas" sin cabecera visible.
-     *
-     * Criterio simple: si el primer trozo no-vacío del bloque es una
-     * palabra clave en MAYÚSCULAS seguida de ':', es anotación. No
-     * importa cuántas líneas tenga — un INTRO puede ser de 4 líneas con
-     * acordes y eso sigue siendo INTRO.
-     */
-    function isAnnotationLine(s) {
-      var t = s.trim();
-      return /^(INTRO|OUTRO|FINAL|PUENTE|INTERLUDIO|TAG|CODA)\s*:/i.test(t);
-    }
-
-    var merged = [];
-    var i = 0;
-    while (i < raw.length) {
-      var current = raw[i];
-
-      // Caso 1: título solo → consumir todo lo que sea capo/anotación/header
-      // adyacente hasta encontrar el primer cuerpo. Todo eso es la
-      // "cabecera compacta" del canto.
-      if (isOnlyTitle(current)) {
-        var combo = current;
-        i++;
-        // Anexar todos los capos consecutivos
-        while (i < raw.length && isOnlyCapo(raw[i])) {
-          combo += '\n\n' + raw[i];
-          i++;
-        }
-        // Anexar anotaciones inline (INTRO:, etc.) si aparecen antes del cuerpo
-        while (i < raw.length && isAnnotationLine(raw[i])) {
-          combo += '\n\n' + raw[i];
-          i++;
-        }
-        // Anexar el primer header de sección si lo hay
-        if (i < raw.length && isOnlySectionHeader(raw[i])) {
-          combo += '\n' + raw[i];
-          i++;
-        }
-        // Anexar el cuerpo de la primera sección
-        if (i < raw.length) {
-          combo += '\n' + raw[i];
-          i++;
-        }
-        merged.push(combo);
-        continue;
-      }
-
-      // Caso 2: header solo → fusionar con su cuerpo siguiente
-      if (isOnlySectionHeader(current) && i + 1 < raw.length) {
-        merged.push(current + '\n' + raw[i + 1]);
-        i += 2;
-        continue;
-      }
-
-      // Caso 3: anotación inline (INTRO/FINAL/PUENTE) — fusionar con el
-      // bloque anterior si es un cuerpo. Si no hay anterior, dejar suelta.
-      if (isAnnotationLine(current) && merged.length > 0) {
-        merged[merged.length - 1] += '\n\n' + current;
-        i++;
-        continue;
-      }
-
-      // Cualquier otro caso: bloque tal cual
-      merged.push(current);
-      i++;
-    }
-    return merged;
+  // Normaliza el HTML: strip blanks y colapsa 3+ saltos consecutivos a 2.
+  // Preserva pares letra/acordes (single \n) y separación entre estrofas
+  // (UN solo blank line, no más, no menos).
+  function normalizeContent(html) {
+    return html
+      .replace(/^[\s\n]+/, '')
+      .replace(/[\s\n]+$/, '')
+      .replace(/\n[ \t]*\n[\s\n]+/g, '\n\n');
   }
 
-  // ────────────────────────────────────────────────────────────
-  // CONSTRUIR el wrapper con secciones
-  // ────────────────────────────────────────────────────────────
-  // Cada sección va a un <pre> con white-space: pre. Eso significa que
-  // CADA \n se renderea como un salto de línea visible.
-  //
-  // Como el splitSections fusiona varios bloques con '\n\n' o '\n' entre
-  // ellos, y los bloques originales pueden traer su propio \n al final,
-  // terminamos con secuencias de 2-3-4 saltos de línea consecutivos que
-  // generan ESPACIOS VERTICALES GIGANTESCOS dentro del <pre>.
-  //
-  // FIX: normalizar todos los saltos consecutivos a UN SOLO \n. La
-  // separación visual entre sub-bloques (título→capo, capo→header→cuerpo)
-  // viene del CSS (line-height + display:block + margin de los <b>), NO
-  // de líneas en blanco dentro del <pre>.
-  function buildWrapper(sections) {
+  function buildWrapper(html) {
     var wrapper = document.createElement('div');
     wrapper.className = 'chord-fit-wrapper';
-
-    sections.forEach(function (html) {
-      var section = document.createElement('div');
-      section.className = 'chord-fit-section';
-      var pre = document.createElement('pre');
-
-      // Normalizar saltos: 2+ saltos consecutivos → 1 solo. Evita espacios
-      // verticales muertos heredados de la concatenación o del HTML original.
-      var cleaned = html
-        .replace(/^[\s\n]+/, '')       // strip blanks al inicio
-        .replace(/[\s\n]+$/, '')       // strip blanks al final
-        .replace(/\n[ \t]*\n+/g, '\n'); // colapsar dobles+ saltos a uno solo
-
-      pre.innerHTML = cleaned;
-
-      section.appendChild(pre);
-      wrapper.appendChild(section);
-    });
-
+    var pre = document.createElement('pre');
+    pre.className = 'chord-fit-pre';
+    pre.innerHTML = normalizeContent(html);
+    wrapper.appendChild(pre);
     return wrapper;
   }
 
-  // ────────────────────────────────────────────────────────────
-  // APLICAR un layout específico (cols, fontSize) al wrapper
-  // ────────────────────────────────────────────────────────────
   function applyLayout(wrapper, cols, fsRem) {
     wrapper.style.setProperty('--cf-cols', cols);
     wrapper.style.setProperty('--cf-fs', fsRem.toFixed(3) + 'rem');
   }
 
-  // ────────────────────────────────────────────────────────────
-  // ¿El contenido CABE en la altura disponible con este layout?
-  // ────────────────────────────────────────────────────────────
-  // Estrategia: aplicar el layout, forzar reflow leyendo offsetHeight,
-  // y comparar scrollHeight (altura total del contenido) contra la
-  // altura disponible. Pequeño margen anti-clipping.
   function fitsInHeight(wrapper, cols, fsRem, availH) {
     applyLayout(wrapper, cols, fsRem);
-    // Forzar reflow inmediato
-    wrapper.offsetHeight;  // eslint-disable-line no-unused-expressions
-    // Margen de seguridad de 4px contra clipping subpixel
+    wrapper.offsetHeight;  // forzar reflow
     return wrapper.scrollHeight <= availH + 4;
   }
 
-  // ────────────────────────────────────────────────────────────
-  // ¿La línea más larga cabe horizontalmente con este layout?
-  // ────────────────────────────────────────────────────────────
-  // Cuando hay más columnas, cada columna es más estrecha. Si la línea
-  // más larga del canto (con white-space: pre) no cabe, habría overflow
-  // horizontal o las columnas se romperían. Verificamos esto por separado.
-  //
-  // Implementación: aplicamos el layout, leemos clientWidth y scrollWidth.
-  // Si scrollWidth > clientWidth → hay líneas que se desbordan.
   function fitsInWidth(wrapper) {
     return wrapper.scrollWidth <= wrapper.clientWidth + 1;
   }
 
-  // ────────────────────────────────────────────────────────────
-  // BÚSQUEDA BINARIA: encontrar el font-size más grande que cabe
-  // ────────────────────────────────────────────────────────────
-  // Para una cantidad de columnas dada, encuentra el font-size más grande
-  // (entre FS_MIN y FS_MAX) tal que TODO el contenido cabe en la altura
-  // disponible Y la línea más larga cabe en el ancho de columna.
-  //
-  // Devuelve el font-size encontrado, o 0 si ni siquiera FS_MIN cabe.
-  function findMaxFontSize(wrapper, cols, availH) {
-    // Test rápido: ¿cabe con FS_MIN?
-    if (!fitsInHeight(wrapper, cols, FS_MIN, availH) ||
-        !fitsInWidth(wrapper)) {
-      // Re-comprobamos: si con el mínimo NO cabe horizontalmente,
-      // esa cantidad de columnas es inviable.
-      if (!fitsInWidth(wrapper)) return 0;
-      // Si cabe horizontal pero no vertical con FS_MIN, devolvemos
-      // FS_MIN igual (aceptamos scroll vertical en este caso extremo).
-      return FS_MIN;
-    }
+  function fitsInWidthAt(wrapper, cols, fsRem) {
+    applyLayout(wrapper, cols, fsRem);
+    wrapper.offsetHeight;
+    return fitsInWidth(wrapper);
+  }
 
-    // Test rápido: ¿cabe con FS_MAX? Si sí, no necesitamos búsqueda.
-    if (fitsInHeight(wrapper, cols, FS_MAX, availH) &&
-        fitsInWidth(wrapper)) {
+  // Búsqueda binaria del font-size más grande que cabe (alto + ancho)
+  function findMaxFontSize(wrapper, cols, availH) {
+    if (fitsInHeight(wrapper, cols, FS_MAX, availH) && fitsInWidth(wrapper)) {
       return FS_MAX;
     }
+    // ¿Cabe siquiera horizontalmente con FS_MIN?
+    if (!fitsInWidthAt(wrapper, cols, FS_MIN)) return 0;
 
-    // Búsqueda binaria propiamente dicha
-    var lo = FS_MIN;
-    var hi = FS_MAX;
-    var best = FS_MIN;
-
+    var lo = FS_MIN, hi = FS_MAX, best = FS_MIN;
     for (var i = 0; i < BINARY_ITER; i++) {
       var mid = (lo + hi) / 2;
       var fitsH = fitsInHeight(wrapper, cols, mid, availH);
       var fitsW = fitsInWidth(wrapper);
-
-      if (fitsH && fitsW) {
-        best = mid;
-        lo = mid;
-      } else {
-        hi = mid;
-      }
+      if (fitsH && fitsW) { best = mid; lo = mid; }
+      else                 { hi = mid; }
     }
-
     return best;
   }
 
-  // ────────────────────────────────────────────────────────────
-  // ENCONTRAR el mejor layout (cols, fs) para el canto y pantalla
-  // ────────────────────────────────────────────────────────────
-  // Lógica de prioridad:
-  //   1. Probar de más a menos columnas.
-  //   2. Para cada cantidad de columnas, encontrar el font-size máximo
-  //      que cabe.
-  //   3. Si ese font-size es ≥ FS_TARGET_MIN, ese layout es bueno.
-  //   4. Si NINGUNA cantidad alcanza FS_TARGET_MIN, elegir la cantidad
-  //      de columnas que dé el font-size más grande.
+  // Font-size más grande que cabe HORIZONTALMENTE (sin importar el alto).
+  // Usado cuando ningún layout cabe en el alto disponible — al menos quiero
+  // que las líneas no se desborden, dejando scroll vertical hacer el resto.
+  function findMaxFontSizeForWidth(wrapper, cols) {
+    if (fitsInWidthAt(wrapper, cols, FS_MAX)) return FS_MAX;
+    if (!fitsInWidthAt(wrapper, cols, FS_MIN)) return 0;
+    var lo = FS_MIN, hi = FS_MAX, best = FS_MIN;
+    for (var i = 0; i < BINARY_ITER; i++) {
+      var mid = (lo + hi) / 2;
+      if (fitsInWidthAt(wrapper, cols, mid)) { best = mid; lo = mid; }
+      else                                    { hi = mid; }
+    }
+    return best;
+  }
+
   function findBestLayout(wrapper, availW, availH) {
     var candidates = colCandidates(availW);
     var attempted = [];
@@ -335,62 +146,46 @@
     for (var i = 0; i < candidates.length; i++) {
       var cols = candidates[i];
       var fs = findMaxFontSize(wrapper, cols, availH);
-
-      attempted.push({ cols: cols, fs: fs });
-
-      // Layout aceptable encontrado — lo usamos
-      if (fs >= FS_TARGET_MIN) {
-        return { cols: cols, fs: fs };
+      if (fs === 0) {
+        attempted.push({ cols: cols, fs: 0, viable: false });
+        continue;
       }
+      attempted.push({ cols: cols, fs: fs, viable: true });
+      if (fs >= FS_TARGET_MIN) return { cols: cols, fs: fs };
     }
 
-    // Ningún layout alcanzó el target mínimo. Elegir el que dio mayor fs.
-    var best = attempted[0];
-    for (var j = 1; j < attempted.length; j++) {
-      if (attempted[j].fs > best.fs) best = attempted[j];
+    var viable = attempted.filter(function (a) { return a.viable; });
+    if (viable.length > 0) {
+      var best = viable[0];
+      for (var j = 1; j < viable.length; j++) {
+        if (viable[j].fs > best.fs) best = viable[j];
+      }
+      return { cols: best.cols, fs: best.fs };
     }
 
-    // Si todos dieron fs=0 (caso patológico), forzar 1 col con FS_MIN
-    if (best.fs === 0) {
-      return { cols: 1, fs: FS_MIN };
-    }
-
-    return best;
+    // Caso extremo: nada cabe. Forzar 1 col con el font que al menos
+    // hace que las líneas no se desborden horizontalmente.
+    var fsForWidth = findMaxFontSizeForWidth(wrapper, 1);
+    return { cols: 1, fs: fsForWidth || FS_MIN };
   }
 
-  // ────────────────────────────────────────────────────────────
-  // PINCH-TO-ZOOM táctil custom
-  // ────────────────────────────────────────────────────────────
-  // En modo fullscreen el navegador suprime el pinch-zoom natural del
-  // viewport. Implementamos pinch sobre el font-size del wrapper.
-  //
-  // Cuando el usuario amplía con pinch y el contenido no cabe en altura,
-  // activamos `cf-overflow` que permite scroll vertical.
+  // ─── Pinch-to-zoom ───
   function setupPinch(wrapper, baseFs, availH) {
     var currentFs = baseFs;
-    var initialDistance = 0;
-    var initialFs = baseFs;
-    var pinching = false;
+    var initialDistance = 0, initialFs = baseFs, pinching = false;
 
-    function distance(touches) {
-      var dx = touches[0].clientX - touches[1].clientX;
-      var dy = touches[0].clientY - touches[1].clientY;
+    function distance(t) {
+      var dx = t[0].clientX - t[1].clientX;
+      var dy = t[0].clientY - t[1].clientY;
       return Math.sqrt(dx * dx + dy * dy);
     }
-
-    function clamp(x, min, max) {
-      return Math.min(max, Math.max(min, x));
-    }
+    function clamp(x, mn, mx) { return Math.min(mx, Math.max(mn, x)); }
 
     function applyFs(fs) {
       currentFs = fs;
       wrapper.style.setProperty('--cf-fs', fs.toFixed(3) + 'rem');
-      // Si excede la altura, activar scroll vertical
-      if (wrapper.scrollHeight > availH + 4) {
-        wrapper.classList.add('cf-overflow');
-      } else {
-        wrapper.classList.remove('cf-overflow');
-      }
+      if (wrapper.scrollHeight > availH + 4) wrapper.classList.add('cf-overflow');
+      else                                    wrapper.classList.remove('cf-overflow');
     }
 
     function onTouchStart(e) {
@@ -401,36 +196,25 @@
         e.preventDefault();
       }
     }
-
     function onTouchMove(e) {
       if (pinching && e.touches.length === 2) {
-        var newDistance = distance(e.touches);
+        var nd = distance(e.touches);
         if (initialDistance > 0) {
-          var ratio = newDistance / initialDistance;
-          var newFs = clamp(initialFs * ratio, PINCH_FS_MIN, PINCH_FS_MAX);
-          applyFs(newFs);
+          applyFs(clamp(initialFs * (nd / initialDistance), PINCH_FS_MIN, PINCH_FS_MAX));
         }
         e.preventDefault();
       }
     }
-
     function onTouchEnd(e) {
-      if (e.touches.length < 2) {
-        pinching = false;
-      }
+      if (e.touches.length < 2) pinching = false;
     }
 
-    // Double-tap para reset al auto-fit
     var lastTap = 0;
     function onTap(e) {
-      // Ignorar taps en botones de la barra
       if (e.target.closest('button, a, .transpose-bar')) return;
-      // Solo si NO hubo pinch (evitar falsos doubletaps tras pinch)
       if (e.touches && e.touches.length > 0) return;
-
       var now = Date.now();
       if (now - lastTap < DOUBLETAP_MS) {
-        // Double-tap detectado → reset al auto-fit
         applyFs(baseFs);
         lastTap = 0;
         e.preventDefault();
@@ -444,7 +228,6 @@
     wrapper.addEventListener('touchend',   onTouchEnd,   { passive: true  });
     wrapper.addEventListener('touchend',   onTap,        { passive: false });
 
-    // Devolver función de cleanup
     return function cleanup() {
       wrapper.removeEventListener('touchstart', onTouchStart);
       wrapper.removeEventListener('touchmove',  onTouchMove);
@@ -453,134 +236,77 @@
     };
   }
 
-  // ────────────────────────────────────────────────────────────
-  // ZOOM CON RUEDA en desktop (Ctrl + wheel)
-  // ────────────────────────────────────────────────────────────
-  // En desktop no hay pinch — pero Ctrl+rueda es el equivalente esperado.
+  // ─── Wheel zoom (desktop) ───
   function setupWheelZoom(wrapper, baseFs, availH) {
-    var currentFs = baseFs;
-    var STEP = 0.05;
-
+    var currentFs = baseFs, STEP = 0.05;
     function applyFs(fs) {
       currentFs = Math.min(PINCH_FS_MAX, Math.max(PINCH_FS_MIN, fs));
       wrapper.style.setProperty('--cf-fs', currentFs.toFixed(3) + 'rem');
-      if (wrapper.scrollHeight > availH + 4) {
-        wrapper.classList.add('cf-overflow');
-      } else {
-        wrapper.classList.remove('cf-overflow');
-      }
+      if (wrapper.scrollHeight > availH + 4) wrapper.classList.add('cf-overflow');
+      else                                    wrapper.classList.remove('cf-overflow');
     }
-
     function onWheel(e) {
       if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
-      var delta = e.deltaY > 0 ? -STEP : STEP;
-      applyFs(currentFs + delta);
+      applyFs(currentFs + (e.deltaY > 0 ? -STEP : STEP));
     }
-
-    // Double-click para reset (equivalente desktop al double-tap)
     function onDblClick(e) {
       if (e.target.closest('button, a, .transpose-bar')) return;
       e.preventDefault();
       applyFs(baseFs);
     }
-
     wrapper.addEventListener('wheel', onWheel, { passive: false });
     wrapper.addEventListener('dblclick', onDblClick);
-
     return function cleanup() {
       wrapper.removeEventListener('wheel', onWheel);
       wrapper.removeEventListener('dblclick', onDblClick);
     };
   }
 
-  // ────────────────────────────────────────────────────────────
-  // ENTRAR A FULLSCREEN-FIT
-  // ────────────────────────────────────────────────────────────
+  // ─── ENTRAR A FULLSCREEN-FIT ───
   window.enterChordFit = function (block) {
     if (!block) return;
-    if (block._cfWrapper) return;  // ya activo
+    if (block._cfWrapper) return;
 
     var pre = block.querySelector('pre:not(.cf-source-hidden)');
     if (!pre) return;
 
-    // Crear wrapper con secciones
-    var sections = splitSections(pre.innerHTML);
-    if (sections.length === 0) return;
+    var wrapper = buildWrapper(pre.innerHTML);
 
-    var wrapper = buildWrapper(sections);
-
-    // Activar el layout flex en el block (vía clase cf-active).
-    // Esto convierte el block en flex column: transpose-bar arriba (auto),
-    // wrapper abajo (flex 1). El wrapper recibe exactamente el alto
-    // disponible sin necesidad de descontar TOOLBAR_H manualmente.
     block.classList.add('cf-active');
-
-    // Insertar el wrapper y ocultar el pre original
     pre.classList.add('cf-source-hidden');
     block.appendChild(wrapper);
 
-    // Forzar reflow para que el flex layout se aplique antes de medir
-    wrapper.offsetHeight;  // eslint-disable-line no-unused-expressions
+    wrapper.offsetHeight;
 
-    // Calcular dimensiones disponibles MIDIENDO EL WRAPPER REAL
-    // (no estimando con block.clientHeight - TOOLBAR_H)
     var availW = wrapper.clientWidth  || window.innerWidth;
     var availH = wrapper.clientHeight || window.innerHeight - 80;
 
-    // Encontrar el mejor layout
     var best = findBestLayout(wrapper, availW, availH);
     applyLayout(wrapper, best.cols, best.fs);
+    wrapper.offsetHeight;
 
-    // Forzar reflow una vez más con el layout final aplicado, para que
-    // scrollHeight refleje el contenido real con cols/font-size definitivos.
-    wrapper.offsetHeight;  // eslint-disable-line no-unused-expressions
+    if (wrapper.scrollHeight > availH + 4) wrapper.classList.add('cf-overflow');
+    else                                    wrapper.classList.remove('cf-overflow');
 
-    // SAFETY NET: si tras aplicar el mejor layout el contenido EXCEDE la
-    // altura disponible (caso de cantos extremadamente largos donde ni
-    // siquiera FS_MIN cabe), activamos scroll vertical automáticamente.
-    // Sin este safety, el usuario veía el canto cortado sin posibilidad
-    // de ver el resto.
-    if (wrapper.scrollHeight > availH + 4) {
-      wrapper.classList.add('cf-overflow');
-    } else {
-      wrapper.classList.remove('cf-overflow');
-    }
-
-    // Configurar pinch (móvil) y wheel (desktop)
     var cleanupPinch = setupPinch(wrapper, best.fs, availH);
     var cleanupWheel = setupWheelZoom(wrapper, best.fs, availH);
 
-    // Guardar referencias para cleanup
     block._cfWrapper = wrapper;
     block._cfBaseFs  = best.fs;
-    block._cfCleanup = function () {
-      cleanupPinch();
-      cleanupWheel();
-    };
+    block._cfCleanup = function () { cleanupPinch(); cleanupWheel(); };
   };
 
-  // ────────────────────────────────────────────────────────────
-  // SALIR DE FULLSCREEN-FIT
-  // ────────────────────────────────────────────────────────────
+  // ─── SALIR DE FULLSCREEN-FIT ───
   window.exitChordFit = function (block) {
     if (!block) return;
-
-    if (block._cfCleanup) {
-      block._cfCleanup();
-      block._cfCleanup = null;
-    }
-
+    if (block._cfCleanup) { block._cfCleanup(); block._cfCleanup = null; }
     if (block._cfWrapper && block._cfWrapper.parentNode) {
       block._cfWrapper.parentNode.removeChild(block._cfWrapper);
     }
     block._cfWrapper = null;
     block._cfBaseFs  = null;
-
-    // Quitar la clase de layout flex
     block.classList.remove('cf-active');
-
-    // Restaurar el <pre> original
     var hiddenPre = block.querySelector('pre.cf-source-hidden');
     if (hiddenPre) hiddenPre.classList.remove('cf-source-hidden');
   };
