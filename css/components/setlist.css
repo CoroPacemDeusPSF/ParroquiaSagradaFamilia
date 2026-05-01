@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.43
+     @version    v3.2.46
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -485,7 +485,7 @@ body.dev-mode .sl-clear { display: block; }
 body.dev-mode .idx-add-btn { display: inline-flex; }
 
 /* Nota: las reglas de `.song-add-btn` (botón "+" legacy inyectado en los
-   títulos por el SetList) fueron eliminadas en v3.2.43 — ahora el botón
+   títulos por el SetList) fueron eliminadas en v3.2.46 — ahora el botón
    "+" lo genera el renderer como `.add-setlist-btn` (estilo dorado grande,
    ver css/components/song-card.css). Tener ambos creaba dos botones "+"
    visibles en el mismo título. */
@@ -723,7 +723,7 @@ body.dev-mode .idx-add-btn { display: inline-flex; }
   transform: scale(1.05);
 }
 
-/* (las reglas de .song-add-btn aquí también fueron eliminadas en v3.2.43
+/* (las reglas de .song-add-btn aquí también fueron eliminadas en v3.2.46
    — eran un duplicado del bloque anterior. El botón "+" ahora vive en
    .add-setlist-btn dentro de css/components/song-card.css.) */
 

@@ -6,7 +6,7 @@
  *   @brief      Parser semántico de body_html y chords_html para el generador PDF
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.45
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.43
+     @version    v3.2.46
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -134,100 +134,98 @@
 
 
 
-/* ── MULTI-COLUMN CHORD LAYOUT (fullscreen) ── */
-/* Contenedor de páginas — apiladas verticalmente */
-.chords-pages-container { width: 100%; }
-/* Separador sutil entre páginas */
-.chords-multicolumn + .chords-multicolumn {
-  border-top: 1px solid rgba(200,148,60,0.15);
-  margin-top: 0.5rem;
-  padding-top: 0.3rem;
-}
-.chords-multicolumn {
-  column-gap: 1.5rem;
-  column-fill: auto;   /* llenar columna por columna, de arriba hacia abajo */
-  font-size: 0.9rem;   /* base zoom 100% — applyZoom lo sobreescribe */
-  overflow: hidden;    /* cada página muestra exactamente su contenido */
+/* ════════════════════════════════════════════════════════════════════
+   FULLSCREEN AUTO-FIT (módulo 12 — chord-fullscreen-fit.js)
+   ════════════════════════════════════════════════════════════════════
+   Un wrapper con CSS columns nativas. El JS calcula columnas y font-size
+   óptimos, aplicándolos vía variables CSS. CSS-columns nativo balancea
+   el contenido entre columnas; las secciones tienen break-inside: avoid
+   para que un bloque (estrofa/coro) no se parta entre columnas.
+   ════════════════════════════════════════════════════════════════════ */
+
+.chord-fit-wrapper {
+  /* Variables aplicadas dinámicamente por el JS */
+  --cf-cols: 1;
+  --cf-fs: 0.95rem;
+
+  column-count: var(--cf-cols);
+  column-gap: 1.8rem;
+  column-fill: balance;             /* balanceo automático entre columnas */
+  column-rule: 1px solid rgba(200, 148, 60, 0.12);
+
+  font-size: var(--cf-fs);
+  font-family: 'Courier New', monospace;
+  line-height: 1.7;
+  color: #e0d0b0;
+
   width: 100%;
-  padding: 0.5rem 1.5rem 3rem;
+  height: 100%;
+  padding: 0.5rem 1.2rem 2rem;
   box-sizing: border-box;
-  column-rule: 1px solid rgba(200,148,60,0.15);
+  overflow: hidden;                  /* sin scroll en fullscreen — el fit
+                                        garantiza que todo cabe; pinch-zoom
+                                        permite scroll si el usuario amplía */
+
+  /* Permite que el navegador entregue gestos de pinch al JS */
+  touch-action: none;
+
+  /* Suavizar transición al cambiar font-size con pinch */
+  transition: none;
 }
-/* Each section must never break across columns */
-.chord-section {
+
+/* Cuando el usuario amplía con pinch y el contenido excede la altura
+   disponible, permitimos scroll vertical sin perder la columna */
+.chord-fit-wrapper.cf-overflow {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Cada sección (estrofa/coro/etc.) NO se parte entre columnas */
+.chord-fit-section {
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
   page-break-inside: avoid;
-  display: table;        /* most reliable cross-browser for break-inside */
-  width: 100%;
-  margin-bottom: 1.4em;
-  overflow: hidden;      /* red de seguridad: corta cualquier desborde residual */
+  display: block;                    /* más predecible que table en columns */
+  margin-bottom: 1.2em;
+  overflow: hidden;                  /* contiene cualquier desborde residual */
 }
-.chord-section pre {
+
+.chord-fit-section pre {
   white-space: pre;
-  font-family: 'Courier New', monospace;
-  font-size: 1em;   /* hereda del wrapper — permite que el zoom funcione */
-  line-height: 1.7;
-  color: #e0d0b0;
+  font-family: inherit;
+  font-size: inherit;                /* hereda el font-size del wrapper */
+  line-height: inherit;
+  color: inherit;
   background: none;
   border: none;
   padding: 0;
   margin: 0;
-  overflow: hidden;
-  max-width: 100%;       /* contener texto en el ancho de la columna */
   tab-size: 4;
+  max-width: 100%;
 }
-.chord-section pre .chord { color: #E8C040; font-weight: bold; }
-.chord-section pre b      { font-weight: bold; }
-/* Toggle button — activo por defecto al entrar en fullscreen */
-.mc-toggle-btn { color: #C8943C; border-color: rgba(200,148,60,0.5); }
-/* When multi-column is active, remove the single-column max-width on the original pre */
-.chords-block.fullscreen pre.mc-hidden,
-.chords-block:fullscreen pre.mc-hidden,
-.chords-block:-webkit-full-screen pre.mc-hidden { display: none; }
+
+.chord-fit-section pre .chord {
+  color: #E8C040;
+  font-weight: bold;
+}
+
+.chord-fit-section pre b {
+  font-weight: bold;
+}
+
+/* Mientras el módulo de fit está activo, ocultamos el <pre> original
+   del bloque (el contenido se renderea en .chord-fit-wrapper) */
+.chords-block.fullscreen > pre.cf-source-hidden {
+  display: none;
+}
+
 
 /* ══════════════════════════════════════════════════════
    DOMINICAL THEME — Verde litúrgico sobre fondo oscuro
    Misma calidad visual que Semana Santa y Navidad
 ══════════════════════════════════════════════════════ */
 
-/* ── Fullscreen zoom controls ── */
-/* ── CONTROLES DE ZOOM (fullscreen) ── */
-/* Visibles solo en fullscreen — permiten ajustar tamaño de fuente en táctil */
-.fs-zoom-bar {
-  display: none;
-  position: fixed;
-  bottom: 1.2rem;
-  right: 1.2rem;
-  z-index: 100002;
-  align-items: center;
-  gap: 0;
-  background: rgba(30,30,30,0.9);
-  border: 1px solid rgba(200,148,60,0.35);
-  border-radius: 20px;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-}
-.chords-block.fullscreen .fs-zoom-bar,
-.chords-block:fullscreen .fs-zoom-bar,
-.chords-block:-webkit-full-screen .fs-zoom-bar { display: flex; }
-.fs-zoom-btn {
-  width: 44px; height: 44px;
-  background: none; border: none;
-  color: #C8943C; font-size: 1.3rem; font-weight: bold;
-  cursor: pointer; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-  touch-action: manipulation;
-  transition: background 0.15s;
-}
-.fs-zoom-btn:hover, .fs-zoom-btn:active { background: rgba(200,148,60,0.18); }
-.fs-zoom-divider { width: 1px; height: 24px; background: rgba(200,148,60,0.25); flex-shrink: 0; }
-.fs-zoom-label {
-  font-family: 'Cinzel', serif; font-size: 0.55rem;
-  letter-spacing: 0.1em; color: #C8943C;
-  padding: 0 0.6rem; min-width: 3rem; text-align: center;
-  pointer-events: none;
-}
 /* Versión del cancionero — debajo del ícono de iglesia */
 .cancionero-version {
   font-family: 'Cinzel', serif;

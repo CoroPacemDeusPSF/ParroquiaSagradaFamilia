@@ -6,7 +6,7 @@
  *   @brief      Constructor de PDF vectorial con identidad visual Pacem Deus
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.45
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

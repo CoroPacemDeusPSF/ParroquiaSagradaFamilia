@@ -6,7 +6,7 @@
  *   @brief      Asistente AI litúrgico (consulta a Gemini con contexto del cancionero)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.43
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */

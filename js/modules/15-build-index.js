@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.44r4
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -98,9 +98,9 @@
 
         // Título limpio (solo el texto del título, sin SVGs ni botones)
         // Estrategia de extracción en 3 niveles, de más robusto a menos:
-        //   1. card.dataset.title (v3.2.43+): atributo data-title en la card,
+        //   1. card.dataset.title (v3.2.46+): atributo data-title en la card,
         //      inmune a cambios futuros en la estructura interna del título.
-        //   2. .song-title-text span (v3.2.39-v3.2.43): título envuelto.
+        //   2. .song-title-text span (v3.2.46-v3.2.46): título envuelto.
         //   3. Text nodes directos (legacy): título como texto suelto.
         // El triple fallback evita que cambios futuros en el renderer
         // rompan silenciosamente el índice.
@@ -109,7 +109,7 @@
         // disponible. Esto es necesario porque más abajo se usa titleEl
         // para localizar los botones .yt-play-btn de referencias YouTube.
         // Si titleEl quedara undefined, las referencias desaparecerían
-        // silenciosamente del índice (bug detectado en v3.2.44r3).
+        // silenciosamente del índice (bug detectado en v3.2.46).
         var titleTxt = '';
         var titleEl  = card.querySelector('.song-title');
 

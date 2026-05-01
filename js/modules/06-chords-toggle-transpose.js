@@ -6,7 +6,7 @@
  *   @brief      Bloque de acordes: toggle, transposición ±, fullscreen, imprimir, zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.43
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -166,59 +166,9 @@
     var block = document.getElementById('chords-block-' + blockId);
     if (!block || block.querySelector('.transpose-bar')) return;
 
-    // ── Zoom táctil (esquina inferior derecha en fullscreen) ──
-    if (!block.querySelector('.fs-zoom-bar')) {
-      var zoomBar   = document.createElement('div');
-      zoomBar.className = 'fs-zoom-bar';
-      var zoomMinus = document.createElement('button');
-      zoomMinus.className = 'fs-zoom-btn';
-      zoomMinus.textContent = '−';
-      zoomMinus.setAttribute('aria-label', 'Reducir texto');
-      var zoomLabel = document.createElement('span');
-      zoomLabel.className = 'fs-zoom-label';
-      zoomLabel.textContent = '100%';
-      var zoomDiv   = document.createElement('div');
-      zoomDiv.className = 'fs-zoom-divider';
-      var zoomDiv2  = document.createElement('div');
-      zoomDiv2.className = 'fs-zoom-divider';
-      var zoomPlus  = document.createElement('button');
-      zoomPlus.className = 'fs-zoom-btn';
-      zoomPlus.textContent = '+';
-      zoomPlus.setAttribute('aria-label', 'Ampliar texto');
-      zoomBar.appendChild(zoomMinus);
-      zoomBar.appendChild(zoomDiv);
-      zoomBar.appendChild(zoomLabel);
-      zoomBar.appendChild(zoomDiv2);
-      zoomBar.appendChild(zoomPlus);
-      block.appendChild(zoomBar);
-
-      var ZOOM_STEP = 10, ZOOM_MIN = 70, ZOOM_MAX = 200, currentZoom = 100;
-      function applyZoom(z) {
-        currentZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
-        zoomLabel.textContent = currentZoom + '%';
-        // Escalar desde la base (0.9rem) con la proporción de zoom.
-        // Usar rem proporcional garantiza que el texto escale correctamente
-        // tanto en el wrapper (multi-col) como en el pre (single-col).
-        var zoomRem = (0.9 * currentZoom / 100).toFixed(3) + 'rem';
-        block._zoomFsEm = zoomRem;  // reutilizado por enterChordMultiColumn
-
-        var wrapper = block.querySelector('.chords-multicolumn');
-        var pre = block._mcPre || block.querySelector('pre:not(.mc-hidden)');
-        if (wrapper) wrapper.style.fontSize = zoomRem;
-        if (pre)     pre.style.fontSize     = zoomRem;
-
-        // Re-evaluar columnas con nuevo tamaño de fuente
-        window.scheduleChordReeval && window.scheduleChordReeval(block);
-      }
-      zoomMinus.addEventListener('click', function() { applyZoom(currentZoom - ZOOM_STEP); });
-      zoomPlus.addEventListener('click',  function() { applyZoom(currentZoom + ZOOM_STEP); });
-      // Reset zoom al salir de fullscreen
-      document.addEventListener('fullscreenchange', function() {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-          applyZoom(100);
-        }
-      });
-    }
+    /* En fullscreen: el zoom y la densidad de columnas los maneja
+       el módulo 12-chord-fullscreen-fit.js (auto-fit + pinch-to-zoom).
+       Aquí solo construimos la transpose-bar. */
 
     var bar = document.createElement('div');
     bar.className = 'transpose-bar';
@@ -257,7 +207,7 @@
       } else if (expand) {
         if (block.classList.contains('fullscreen')) {
           // ── Restaurar ──
-          window.exitChordMultiColumn && window.exitChordMultiColumn(block);
+          window.exitChordFit && window.exitChordFit(block);
           block.classList.remove('fullscreen');
           expand.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
           if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -282,7 +232,7 @@
             if ((w < 100 || h < 100) && attempts < 5) {
               setTimeout(function() { tryEnter(attempts + 1); }, 80);
             } else {
-              window.enterChordMultiColumn && window.enterChordMultiColumn(block);
+              window.enterChordFit && window.enterChordFit(block);
             }
           })(0);
         }, 60);
@@ -291,7 +241,7 @@
         // El botón ✕ sigue funcionando igual (por si acaso)
         var fsBtn = bar.querySelector('.fullscreen-btn');
         if (fsBtn) fsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
-        window.exitChordMultiColumn && window.exitChordMultiColumn(block);
+        window.exitChordFit && window.exitChordFit(block);
         block.classList.remove('fullscreen');
         document.body.style.overflow = '';
         if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -362,7 +312,7 @@
         // Resetear botón Expandir/Restaurar
         var fsBtn = fs.querySelector('.fullscreen-btn');
         if (fsBtn) fsBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Expandir';
-        window.exitChordMultiColumn && window.exitChordMultiColumn(fs);
+        window.exitChordFit && window.exitChordFit(fs);
         fs.classList.remove('fullscreen');
       }
     }

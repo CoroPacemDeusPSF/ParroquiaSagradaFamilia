@@ -6,7 +6,7 @@
  *   @brief      Orquestación: genera PDF vectorial del SetList y lo abre en el visor
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.45
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -399,6 +399,6 @@
     }
   });
 
-  console.log('[SetListPDF] Módulo PDF vectorial v3.2.44 inicializado');
+  console.log('[SetListPDF] Módulo PDF vectorial v3.2.46 inicializado');
 
 })();

@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.43
+ *   @version    v3.2.46
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -687,7 +687,7 @@
   }
 
   /* ── INJECT "+" BUTTONS NEXT TO SONG TITLES (LEGADO — DESACTIVADO) ──
-     Esta función fue reemplazada en v3.2.39 por el botón `.add-setlist-btn`
+     Esta función fue reemplazada en v3.2.46 por el botón `.add-setlist-btn`
      que el renderer (00-songs-renderer.js → renderSetlistBtn) genera junto
      al título de cada canto. Eliminamos la inyección legacy para evitar
      que aparezcan DOS botones "+" en cada título (uno dorado grande del
