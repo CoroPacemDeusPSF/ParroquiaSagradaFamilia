@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r5
+ *   @version    v3.2.46r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -184,8 +184,8 @@
     function applyFs(fs) {
       currentFs = fs;
       wrapper.style.setProperty('--cf-fs', fs.toFixed(3) + 'rem');
-      if (wrapper.scrollHeight > availH + 4) wrapper.classList.add('cf-overflow');
-      else                                    wrapper.classList.remove('cf-overflow');
+      // overflow-y: auto está siempre activo en el wrapper (CSS),
+      // así que el scroll aparece automáticamente si scrollHeight > clientHeight.
     }
 
     function onTouchStart(e) {
@@ -242,8 +242,6 @@
     function applyFs(fs) {
       currentFs = Math.min(PINCH_FS_MAX, Math.max(PINCH_FS_MIN, fs));
       wrapper.style.setProperty('--cf-fs', currentFs.toFixed(3) + 'rem');
-      if (wrapper.scrollHeight > availH + 4) wrapper.classList.add('cf-overflow');
-      else                                    wrapper.classList.remove('cf-overflow');
     }
     function onWheel(e) {
       if (!e.ctrlKey && !e.metaKey) return;
@@ -285,9 +283,6 @@
     var best = findBestLayout(wrapper, availW, availH);
     applyLayout(wrapper, best.cols, best.fs);
     wrapper.offsetHeight;
-
-    if (wrapper.scrollHeight > availH + 4) wrapper.classList.add('cf-overflow');
-    else                                    wrapper.classList.remove('cf-overflow');
 
     var cleanupPinch = setupPinch(wrapper, best.fs, availH);
     var cleanupWheel = setupWheelZoom(wrapper, best.fs, availH);

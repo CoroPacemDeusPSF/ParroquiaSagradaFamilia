@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r5
+     @version    v3.2.46r6
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -167,23 +167,26 @@
 
   column-count: var(--cf-cols);
   column-gap: 1.8rem;
-  column-fill: balance;
+  /* `auto` llena col 1 hasta arriba antes de pasar a col 2.
+     `balance` distribuiría altura uniformemente, pero eso CREA HUECOS
+     en medio cuando una línea no cabe. */
+  column-fill: auto;
   column-rule: 1px solid rgba(200, 148, 60, 0.12);
 
   width: 100%;
   padding: 0.5rem 1.2rem 1rem;
   box-sizing: border-box;
-  overflow: hidden;
 
-  /* Bloquea pan/scroll del browser para que pinch-to-zoom custom funcione */
-  touch-action: none;
-}
-
-/* Si pinch amplía y excede altura, permitir scroll vertical */
-.chord-fit-wrapper.cf-overflow {
+  /* Scroll vertical SIEMPRE disponible — si el contenido cabe, no se ve.
+     Si no cabe (canto largo o pinch amplió), aparece. Esa es la
+     "siguiente página". */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+
+  /* `pan-y` permite scroll vertical con un dedo, pero el navegador NO
+     hace pinch nativo (lo intercepto yo en JS con 2 dedos). */
+  touch-action: pan-y;
 }
 
 /* El <pre> único — todo el contenido del canto */
@@ -227,9 +230,11 @@
 .chord-fit-pre b.chord-section {
   display: block;
   margin: 0 0 0.1em !important;
+  /* break-inside: avoid SOLO para el <b> mismo (no se parte la línea del
+     divisor a la mitad). NO usamos page-break-after: avoid porque eso
+     arrastraría el divisor + bloque siguiente a la próxima columna. */
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
-  page-break-after: avoid;     /* el divisor no debe quedar al final de col */
 }
 
 /* Capo / Tonalidad badge inline */
