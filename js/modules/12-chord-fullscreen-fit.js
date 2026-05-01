@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r1
+ *   @version    v3.2.46r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -77,39 +77,86 @@
   // gracias a `break-inside: avoid` en CSS. Las separamos manualmente
   // para que CSS-columns las reciba como bloques distintos.
   //
-  // CRÍTICO: si una "sección" detectada es solo un label de cabecera tipo
-  //   <b>═══ ESTROFA 1 ═══</b>
-  //   <b>═══ CORO ═══</b>
-  // hay que UNIRLA con la siguiente (que es su cuerpo). De lo contrario el
-  // label puede caer en una columna y el cuerpo en otra, lo que rompe la
-  // intención de mantener juntos el rótulo y su contenido.
+  // FUSIONES PARA OPTIMIZAR ESPACIO VERTICAL:
+  //   1. Si un bloque es sólo "<b class='chord-title'>♫ ...</b>" → fusionar
+  //      con el siguiente (que es el ⚠ capo o la primera sección).
+  //   2. Si un bloque comienza con "⚠ Capo/Modulación/Tonalidad" y el
+  //      anterior es el título → fusionarlos.
+  //   3. Si un bloque es sólo header "═══ X ═══" → fusionar con su cuerpo.
+  //
+  // Resultado: el primer bloque visible (sección 0) contiene
+  //   título + capo + primer divisor + primer cuerpo, todo unido.
+  //   Las siguientes secciones tienen su propio divisor pegado al cuerpo.
   function splitSections(html) {
     var raw = html
       .split(/\n[ \t]*\n+/)
       .map(function (s) { return s.trim(); })
       .filter(function (s) { return s.length > 0; });
 
-    // Detección de "sólo label": una línea con <b>═══ X ═══</b> o similar,
-    // sin contenido textual aparte. Si lo es, lo unimos al siguiente bloque.
-    function isOnlyHeader(s) {
-      // Quitar tags <b>...</b> y ver si queda sólo el patrón ═══ X ═══
-      var stripped = s.replace(/<\/?b>/g, '').trim();
-      // Patrón típico: ═══ ESTROFA 1 ═══, ═══ CORO ═══, ─── PUENTE ───, etc.
-      if (/^[═─━]{2,}\s+.+\s+[═─━]{2,}$/.test(stripped)) return true;
-      // También: una sola línea con sólo ⚠ TONALIDAD/CAPO (preservamos por
-      // separado — no es un header de bloque sino un meta-dato global)
+    function isOnlyTitle(s) {
+      // Solo <b class="chord-title">...</b>, sin más contenido textual
+      return /^<b\s+class=["']chord-title["']>[^<]*<\/b>$/.test(s.trim());
+    }
+
+    function isOnlyCapo(s) {
+      // Empieza con ⚠ — puede ser una o varias líneas de capo/modulación,
+      // pero no contiene HTML de acordes (sin spans .chord)
+      var t = s.trim();
+      if (t.charAt(0) !== '⚠') return false;
+      return !/<span\s+class=["']chord["']/.test(t);
+    }
+
+    function isOnlySectionHeader(s) {
+      // <b class="chord-section">═══ X ═══</b> sin nada más
+      var stripped = s.replace(/<\/?b[^>]*>/g, '').trim();
+      if (/^[═─━]{2,}\s+.+\s+[═─━]{2,}/.test(stripped)) {
+        // Sí es un header. Si la sección es SÓLO ese header (sin cuerpo
+        // detrás), entonces es candidato a fusión.
+        return /^<b[^>]*>[^<]*<\/b>$/.test(s.trim());
+      }
       return false;
     }
 
     var merged = [];
-    for (var i = 0; i < raw.length; i++) {
-      // Si esta sección es sólo un header y hay siguiente, las fusionamos
-      if (isOnlyHeader(raw[i]) && i + 1 < raw.length) {
-        merged.push(raw[i] + '\n' + raw[i + 1]);
-        i++;  // saltar la siguiente, ya consumida
-      } else {
-        merged.push(raw[i]);
+    var i = 0;
+    while (i < raw.length) {
+      var current = raw[i];
+
+      // Caso 1: título solo → consumir todo lo que sea capo/header/cuerpo
+      // adyacente hasta encontrar el primer cuerpo. Todo eso es la
+      // "cabecera compacta" del canto.
+      if (isOnlyTitle(current)) {
+        var combo = current;
+        i++;
+        // Anexar todos los capos consecutivos
+        while (i < raw.length && isOnlyCapo(raw[i])) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        // Anexar el primer header de sección si lo hay
+        if (i < raw.length && isOnlySectionHeader(raw[i])) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        // Anexar el cuerpo de la primera sección
+        if (i < raw.length) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        merged.push(combo);
+        continue;
       }
+
+      // Caso 2: header solo → fusionar con su cuerpo siguiente
+      if (isOnlySectionHeader(current) && i + 1 < raw.length) {
+        merged.push(current + '\n' + raw[i + 1]);
+        i += 2;
+        continue;
+      }
+
+      // Cualquier otro caso: bloque tal cual
+      merged.push(current);
+      i++;
     }
     return merged;
   }
@@ -125,7 +172,17 @@
       var section = document.createElement('div');
       section.className = 'chord-fit-section';
       var pre = document.createElement('pre');
-      pre.innerHTML = html;
+
+      // Limpiar líneas en blanco al inicio/final del bloque para evitar
+      // espacios verticales residuales dentro de cada sección.
+      // (Las líneas en blanco INTERMEDIAS, dentro de un bloque, se preservan
+      // porque pueden ser intencionales — pero los bloques ya están
+      // separados por splitSections así que esto rara vez aplica.)
+      var cleaned = html
+        .replace(/^[\s\n]+/, '')   // strip blanks al inicio
+        .replace(/[\s\n]+$/, '');  // strip blanks al final
+      pre.innerHTML = cleaned;
+
       section.appendChild(pre);
       wrapper.appendChild(section);
     });
