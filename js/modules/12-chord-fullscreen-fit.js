@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r2
+ *   @version    v3.2.46r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -117,12 +117,34 @@
       return false;
     }
 
+    /**
+     * Detecta si el bloque es una "anotación" tipo:
+     *   INTRO: Lam Mim FA DO ...
+     *   FINAL: ...
+     *   OUTRO: ...
+     *   PUENTE: ...
+     *
+     * Estos bloques son contenido musical real (con acordes) pero NO tienen
+     * el patrón ═══ X ═══. Son frecuentes en cantos como "Tus Maravillas".
+     * Al fusionarlos con el bloque siguiente (o anterior), evitamos que
+     * queden flotando como "secciones huérfanas" sin cabecera visible.
+     *
+     * Criterio simple: si el primer trozo no-vacío del bloque es una
+     * palabra clave en MAYÚSCULAS seguida de ':', es anotación. No
+     * importa cuántas líneas tenga — un INTRO puede ser de 4 líneas con
+     * acordes y eso sigue siendo INTRO.
+     */
+    function isAnnotationLine(s) {
+      var t = s.trim();
+      return /^(INTRO|OUTRO|FINAL|PUENTE|INTERLUDIO|TAG|CODA)\s*:/i.test(t);
+    }
+
     var merged = [];
     var i = 0;
     while (i < raw.length) {
       var current = raw[i];
 
-      // Caso 1: título solo → consumir todo lo que sea capo/header/cuerpo
+      // Caso 1: título solo → consumir todo lo que sea capo/anotación/header
       // adyacente hasta encontrar el primer cuerpo. Todo eso es la
       // "cabecera compacta" del canto.
       if (isOnlyTitle(current)) {
@@ -130,7 +152,12 @@
         i++;
         // Anexar todos los capos consecutivos
         while (i < raw.length && isOnlyCapo(raw[i])) {
-          combo += '\n' + raw[i];
+          combo += '\n\n' + raw[i];
+          i++;
+        }
+        // Anexar anotaciones inline (INTRO:, etc.) si aparecen antes del cuerpo
+        while (i < raw.length && isAnnotationLine(raw[i])) {
+          combo += '\n\n' + raw[i];
           i++;
         }
         // Anexar el primer header de sección si lo hay
@@ -151,6 +178,14 @@
       if (isOnlySectionHeader(current) && i + 1 < raw.length) {
         merged.push(current + '\n' + raw[i + 1]);
         i += 2;
+        continue;
+      }
+
+      // Caso 3: anotación inline (INTRO/FINAL/PUENTE) — fusionar con el
+      // bloque anterior si es un cuerpo. Si no hay anterior, dejar suelta.
+      if (isAnnotationLine(current) && merged.length > 0) {
+        merged[merged.length - 1] += '\n\n' + current;
+        i++;
         continue;
       }
 
@@ -486,8 +521,20 @@
     var best = findBestLayout(wrapper, availW, availH);
     applyLayout(wrapper, best.cols, best.fs);
 
-    // Limpiar clase de overflow (el auto-fit garantiza que cabe)
-    wrapper.classList.remove('cf-overflow');
+    // Forzar reflow una vez más con el layout final aplicado, para que
+    // scrollHeight refleje el contenido real con cols/font-size definitivos.
+    wrapper.offsetHeight;  // eslint-disable-line no-unused-expressions
+
+    // SAFETY NET: si tras aplicar el mejor layout el contenido EXCEDE la
+    // altura disponible (caso de cantos extremadamente largos donde ni
+    // siquiera FS_MIN cabe), activamos scroll vertical automáticamente.
+    // Sin este safety, el usuario veía el canto cortado sin posibilidad
+    // de ver el resto.
+    if (wrapper.scrollHeight > availH + 4) {
+      wrapper.classList.add('cf-overflow');
+    } else {
+      wrapper.classList.remove('cf-overflow');
+    }
 
     // Configurar pinch (móvil) y wheel (desktop)
     var cleanupPinch = setupPinch(wrapper, best.fs, availH);
