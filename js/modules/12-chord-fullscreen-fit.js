@@ -6,36 +6,38 @@
  *   @brief      Pinch-to-zoom para acordes en fullscreen (cols + scroll natural)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r10
+ *   @version    v3.2.46r12
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js  —  v3.2.46r10
+   12-chord-fullscreen-fit.js  —  v3.2.46r12
    ============================================================================
-   APPROACH RADICAL POST-DIAGNÓSTICO (r10)
+   FIX r12: pickCols mide block.clientWidth (no viewport) + ResizeObserver
    ────────────────────────────────────────────────────────────────────────────
-   Diagnóstico con datos reales del JSON inspeccionado en producción (r9):
-     wrapper_W: 653, scrollW: 1297      → cols extras horizontales
-     altura_secciones: 2790 vs H: 595   → contenido 5x más alto que viewport
-     cssCols: "3" cuando availW=653     → eligió mal por timing de medición
-     break-inside: avoid + cols cortas  → huecos al final de col
-     overflow-y: auto sin scroll        → contenido fue horizontal, no vertical
+   Diagnóstico con datos reales del JSON r11 (tablet horizontal 1050×656):
 
-   FILOSOFÍA r10 (mucho más simple):
+     JSON 1: cssCols=1, wrapper_W=1018  ← cols mal elegidas
+     JSON 2: cssCols=2, wrapper_W=1018  ← funciona perfecto
 
-     1. UN <pre> por sección, todas dentro del wrapper.
-     2. SIN auto-fit complejo. Solo: cols por viewport, font-size por defecto.
-     3. column-fill: balance → cols equilibradas, sin huecos.
-     4. SIN altura fija en wrapper → crece naturalmente con el contenido.
-     5. SIN break-inside: avoid en secciones → fluyen entre cols.
-     6. Scroll vertical en el BLOCK fullscreen → "pasar página" natural.
-     7. Pinch-to-zoom intacto: ajusta font-size en vivo.
+   Mismo dispositivo, mismo viewport, mismo canto. Diferencia: timing.
+   La primera medición de pickCols(window.innerWidth) ocurría antes de que
+   el browser terminara de aplicar fullscreen, devolviendo un viewport viejo
+   <700px → cols=1. Después de algún evento (overlay, resize) algo refrescaba
+   y los siguientes cálculos daban cols=2.
 
-   API PÚBLICA:
-     window.enterChordFit(block)
-     window.exitChordFit(block)
+   ARREGLOS r12:
+     1. pickCols mide block.clientWidth (no window.innerWidth):
+        El módulo 06 ya garantiza con su retry pattern que block.clientWidth
+        >= 100 antes de llamar enterChordFit. Medir el contenedor real es
+        más confiable que medir el viewport, que puede estar desactualizado.
+
+     2. ResizeObserver en el block:
+        Si el block cambia de tamaño después del montaje (rotación de
+        tablet, fullscreen que termina de aplicarse, devtools abierto/cerrado,
+        etc.), recalculamos cols sin rebuildear el wrapper. Solo cambia la
+        CSS variable --cf-cols, así que zoom y scroll se preservan.
    ============================================================================ */
 
 (function () {
@@ -50,10 +52,12 @@
   var DOUBLETAP_MS     = 320;    // ventana double-tap
 
   // ────────────────────────────────────────────────────────────
-  // DECISIÓN DE COLUMNAS según ancho del viewport
+  // DECISIÓN DE COLUMNAS según ancho del CONTENEDOR (no viewport)
   // ────────────────────────────────────────────────────────────
-  // Simple y predecible. Sin auto-fit complejo que falla por timing.
-  // El usuario puede zoomear con pinch si quiere ver más/menos.
+  // r12: medimos el block real, no window.innerWidth. El viewport puede
+  // estar desactualizado durante la transición a fullscreen (timing race);
+  // el block ya tiene dimensiones correctas porque el módulo 06 espera
+  // con retry pattern hasta que clientWidth >= 100 antes de llamarnos.
   function pickCols(availW) {
     if (availW < 700)  return 1;
     if (availW < 1200) return 2;
@@ -253,6 +257,46 @@
   }
 
   // ────────────────────────────────────────────────────────────
+  // RESIZE OBSERVER — recalcular cols si el block cambia de tamaño
+  // ────────────────────────────────────────────────────────────
+  // r12: el bug del JSON 1 (cols=1 cuando debió ser 2) muestra que en
+  // tablets puede haber un delay entre que el block existe y que el
+  // browser termina de aplicarle el tamaño de fullscreen. Con un
+  // ResizeObserver, capturamos ese cambio y recalculamos cols sin
+  // tocar el wrapper completo. Esto preserva el zoom del usuario y
+  // su posición de scroll.
+  function setupResizeObserver(block, wrapper) {
+    if (typeof ResizeObserver === 'undefined') {
+      // Browser muy viejo — degradación silenciosa.
+      return function () {};
+    }
+
+    var debounceTimer = null;
+    var DEBOUNCE_MS   = 120; // suficiente para no recalcular en cada pixel
+
+    var ro = new ResizeObserver(function (entries) {
+      // Debounce: durante una rotación o resize manual hay decenas
+      // de eventos por segundo. Solo nos importa el último.
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function () {
+        var w = block.clientWidth || window.innerWidth;
+        var newCols = pickCols(w);
+        var current = parseInt(wrapper.style.getPropertyValue('--cf-cols'), 10);
+        if (newCols !== current) {
+          wrapper.style.setProperty('--cf-cols', newCols);
+        }
+      }, DEBOUNCE_MS);
+    });
+
+    ro.observe(block);
+
+    return function cleanup() {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      try { ro.disconnect(); } catch (e) { /* noop */ }
+    };
+  }
+
+  // ────────────────────────────────────────────────────────────
   // ENTRAR A FULLSCREEN-FIT
   // ────────────────────────────────────────────────────────────
   window.enterChordFit = function (block) {
@@ -268,17 +312,29 @@
     pre.classList.add('cf-source-hidden');
     block.appendChild(wrapper);
 
-    // Decidir cols según ancho del viewport (no del wrapper, evita timing issue)
-    var cols = pickCols(window.innerWidth);
+    // r12: cols según el block real (no viewport). El módulo 06 ya esperó
+    // con retry hasta que block.clientWidth >= 100 antes de llamarnos.
+    // Fallback al viewport si por alguna razón clientWidth es 0.
+    var availW = block.clientWidth || window.innerWidth;
+    var cols   = pickCols(availW);
     wrapper.style.setProperty('--cf-cols', cols);
     wrapper.style.setProperty('--cf-fs', FS_DEFAULT.toFixed(3) + 'rem');
 
     var cleanupPinch = setupPinch(wrapper, FS_DEFAULT);
     var cleanupWheel = setupWheelZoom(wrapper, FS_DEFAULT);
 
+    // r12: ResizeObserver — si el block cambia de tamaño (rotación, fullscreen
+    // tardío, devtools, etc.) recalcular cols sin rebuildear el wrapper.
+    // Cambiar solo la CSS variable preserva zoom (--cf-fs) y scroll del usuario.
+    var cleanupResize = setupResizeObserver(block, wrapper);
+
     block._cfWrapper = wrapper;
     block._cfBaseFs  = FS_DEFAULT;
-    block._cfCleanup = function () { cleanupPinch(); cleanupWheel(); };
+    block._cfCleanup = function () {
+      cleanupPinch();
+      cleanupWheel();
+      cleanupResize();
+    };
   };
 
   // ────────────────────────────────────────────────────────────
