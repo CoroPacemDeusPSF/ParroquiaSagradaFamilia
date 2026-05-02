@@ -6,7 +6,7 @@
      @brief      Modo Coro: animación de ingreso, badge, controles del director
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.3.0r1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -76,9 +76,10 @@ body.dev-mode #rehearsal-badge .badge-dev { display: block !important; }
 
 /* Partitura (acordes): siempre visible */
 .yt-play-btn[href^="#chords-block"] { display: inline-flex; }
-/* YouTube: solo en Modo Coro */
+/* YouTube: solo en modos activos (Modo Coro o Modo Bodas), no en público */
 .yt-play-btn[href*="youtu"] { display: none; }
-body.rehearsal-mode .yt-play-btn[href*="youtu"] { display: inline-flex; }
+body.rehearsal-mode .yt-play-btn[href*="youtu"],
+body.wedding-mode  .yt-play-btn[href*="youtu"] { display: inline-flex; }
 
 /* Confirm dialog */
 #rehearsal-confirm {

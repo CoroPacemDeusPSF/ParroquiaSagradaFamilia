@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.3.0r1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -729,10 +729,13 @@ body.dev-mode .idx-add-btn { display: inline-flex; }
 
 /* chords-toggle siempre visible */
 .chords-toggle { display: inline-block; }
-body.rehearsal-mode .chords-toggle { display: inline-block; }
+body.rehearsal-mode .chords-toggle,
+body.wedding-mode  .chords-toggle { display: inline-block; }
 .editor-open-btn { display: none; }
 body.dev-mode .editor-open-btn { display: inline-block !important; }
-body.rehearsal-mode .yt-play-btn { display: inline-flex; }  /* todos en Modo Coro */
+/* YouTube buttons: visibles en cualquier modo activo (Coro o Bodas) */
+body.rehearsal-mode .yt-play-btn,
+body.wedding-mode  .yt-play-btn { display: inline-flex; }
 
 /* Transpose controls */
 .transpose-bar {

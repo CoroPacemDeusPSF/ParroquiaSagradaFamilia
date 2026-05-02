@@ -61,14 +61,14 @@
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
 @import url('components/index.css?v=3.2.46r15');
-@import url('components/song-card.css?v=3.2.46r15');
+@import url('components/song-card.css?v=3.3.0r1');
 @import url('components/chords.css?v=3.2.46r15');
 @import url('components/context.css?v=3.2.46r15');
 
 /* ─── Componentes interactivos (modos especiales) ─────────────────────────── */
-@import url('components/rehearsal.css?v=3.2.46r15');
+@import url('components/rehearsal.css?v=3.3.0r1');
 @import url('components/editor.css?v=3.2.46r15');
-@import url('components/setlist.css?v=3.2.46r15');
+@import url('components/setlist.css?v=3.3.0r1');
 @import url('components/pdf-overlays.css?v=3.2.46r15');
 @import url('components/chord-diag.css?v=3.2.46r15');
 
@@ -84,7 +84,7 @@
    coexistir con los del dominical sin interferencia (clases prefijadas .slb-*
    y selectores body.wedding-mode evitan colisiones).                        */
 @import url('components/wedding-mode.css?v=3.3.0');
-@import url('components/setlist-bodas.css?v=3.3.0');
+@import url('components/setlist-bodas.css?v=3.3.0r2');
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.2.46r15');

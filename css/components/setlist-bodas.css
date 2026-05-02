@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0
+     @version    v3.3.0r2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -628,3 +628,85 @@ body.wedding-mode .slb-tab { display: flex; }
   transition: background 0.2s;
 }
 .slb-picker-new-btn:hover { background: #A55F69; }
+
+/* ════════════════════════════════════════════════════════════════════
+   INSTRUMENTAL — botón ♬ y render diferenciado del slot
+   ════════════════════════════════════════════════════════════════════
+   En slots marcados como `instrumentable` (Ingreso del Novio, Entrada de
+   la Novia, Salida de Novios) aparece un botón compacto al lado del slot
+   vacío para asignar una pieza instrumental escrita libremente.
+   El render del slot con instrumental usa estilo italic + ícono inline.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Botón compacto "violín + inst." que abre el prompt de título libre.
+   Aparece solo en slots vacíos instrumentables. Visualmente discreto
+   pero diferenciable del flujo principal del setlist.
+   El ícono es un SVG inline (violín estilizado) — definido en el JS
+   del módulo 30, NO usar emojis ni glifos Unicode. */
+.slb-inst-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed rgba(201, 125, 135, 0.5);
+  color: var(--wm-rose-deep);
+  padding: 0.18rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+.slb-inst-btn:hover {
+  background: var(--wm-rose-deep);
+  color: #fff;
+  border-style: solid;
+}
+.slb-inst-btn:active { transform: scale(0.95); }
+
+/* SVG del violín en el botón vacío — tamaño compacto */
+.slb-inst-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  /* color: hereda de currentColor del botón */
+}
+.slb-inst-text {
+  font-size: 0.5rem;
+  line-height: 1;
+}
+
+/* Render del slot cuando tiene un instrumental asignado.
+   - Fondo levemente acentuado para diferenciarlo de un canto del cancionero.
+   - Italic + ícono inline para refuerzo visual.
+   - Sin cursor pointer (no navega a un canto). */
+.slb-slot-instrumental {
+  background: rgba(245, 213, 218, 0.25) !important;
+}
+.slb-slot-instrumental:nth-child(even) {
+  background: rgba(245, 213, 218, 0.35) !important;
+}
+
+.slb-song-instrumental {
+  font-style: italic !important;
+  cursor: default !important;
+  color: var(--wm-rose-deep) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.slb-song-instrumental:hover {
+  color: var(--wm-rose-deep) !important;
+}
+
+/* SVG del violín inline en el slot ya asignado — un poco más grande
+   que en el botón para mejor lectura junto al título de la pieza. */
+.slb-inst-icon-inline {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}

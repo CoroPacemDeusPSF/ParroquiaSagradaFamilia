@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0
+ *   @version    v3.3.0r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -67,9 +67,17 @@
   //
   // El orden en SLOTS_FIJOS determina el orden de display. Los opcionales
   // se insertan en su `insertAfter` (id del slot fijo después del cual van).
+  //
+  // FLAG `instrumentable`:
+  //   Slots donde es común que el momento sea cubierto con música
+  //   instrumental (sin canto del cancionero). Para esos slots aparece
+  //   un botón "violín" (SVG) adicional que abre un mini-dialog para
+  //   libre (ej. "Marcha del Príncipe de Dinamarca", "Canon de Pachelbel").
+  //   Los datos guardan { instrumental: true, title: "..." } en lugar
+  //   del { cpd, title } de un canto del cancionero.
   var SLOTS_FIJOS = [
-    { id: 'ingreso-novio',    label: 'Ingreso del Novio'   },
-    { id: 'entrada-novia',    label: 'Entrada de la Novia' },
+    { id: 'ingreso-novio',    label: 'Ingreso del Novio',   instrumentable: true },
+    { id: 'entrada-novia',    label: 'Entrada de la Novia', instrumentable: true },
     { id: 'piedad',           label: 'Piedad'              },
     { id: 'gloria',           label: 'Gloria'              },
     { id: 'evangelio',        label: 'Evangelio'           },
@@ -82,7 +90,7 @@
     { id: 'foto-1',           label: 'Fotografía',  sub: '1' },
     { id: 'foto-2',           label: 'Fotografía',  sub: '2' },
     { id: 'foto-3',           label: 'Fotografía',  sub: '3' },
-    { id: 'salida',           label: 'Salida de Novios'    }
+    { id: 'salida',           label: 'Salida de Novios',    instrumentable: true }
   ];
 
   // Slots opcionales y dónde se insertan en el orden visual.
@@ -300,30 +308,80 @@
       var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
       var data  = setlistData[slot.id];
       var hasContent = !!data;
+      var isInstrumental = hasContent && data.instrumental === true;
 
       var labelClickable = LABEL_TO_SECTION[slot.label]
         ? ' clickable" onclick="window.SLB.scrollToIndex(\'' + LABEL_TO_SECTION[slot.label] + '\')" title="Ir al índice'
         : '"';
 
-      // Botón remove: para slots opcionales aparece siempre; para fijos
-      // solo cuando el slot tiene canto asignado.
-      var removeBtn = '';
-      if (slot.optional) {
-        removeBtn = '<button class="slb-remove-optional" onclick="window.SLB.removeOptional(\'' + slot.id + '\')" title="Quitar momento">&times;</button>';
-      }
+      // Botón quitar slot opcional: aparece siempre en slots opcionales.
+      var removeOptionalBtn = slot.optional
+        ? '<button class="slb-remove-optional" onclick="window.SLB.removeOptional(\'' + slot.id + '\')" title="Quitar momento">&times;</button>'
+        : '';
 
-      if (hasContent) {
-        var clearBtn = '<button class="slb-remove" onclick="window.SLB.remove(\'' + slot.id + '\')" title="Quitar canto">&times;</button>';
+      // Botón "+ instrumental" — solo en slots marcados instrumentables Y vacíos.
+      // Cuando ya hay contenido, el botón no aparece (para asignar otro,
+      // primero hay que quitar el actual con la X).
+      // Ícono: violín estilizado (SVG inline) — minimalista, line-based,
+      // coherente con la estética del cancionero. NO usar emojis.
+      var violinSvg =
+        '<svg class="slb-inst-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          // Cuerpo del violín (forma "8" estilizada)
+          '<path d="M9 13c0-2 1-3 3-3s3 1 3 3-1 3-3 3-3-1-3-3z"/>' +
+          '<path d="M10 16c-.5.6-.5 1.5 0 2s1.5.5 2 0 .5-1.5 0-2"/>' +
+          // Mástil
+          '<path d="M13 10l4-7"/>' +
+          '<path d="M16.5 3.5l1 1"/>' +
+          // Cuerdas (líneas finas paralelas)
+          '<line x1="11.5" y1="11.5" x2="14" y2="6.5" stroke-width="0.8"/>' +
+          '<line x1="12.5" y1="12" x2="15" y2="7" stroke-width="0.8"/>' +
+        '</svg>';
+
+      var instBtn = (slot.instrumentable && !hasContent)
+        ? '<button class="slb-inst-btn" onclick="window.SLB.promptInstrumental(\'' + slot.id + '\')" title="Marcar como instrumental">' +
+          violinSvg +
+          '<span class="slb-inst-text">inst.</span>' +
+          '</button>'
+        : '';
+
+      if (hasContent && isInstrumental) {
+        // Slot con instrumental asignado: render distinto (italic, sin link)
+        // El violín aparece inline a la izquierda del título para señalar
+        // visualmente que el momento es instrumental sin necesidad de leer.
+        var inlineViolinSvg =
+          '<svg class="slb-inst-icon-inline" viewBox="0 0 24 24" fill="none" ' +
+          'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" ' +
+          'stroke-linejoin="round" aria-hidden="true">' +
+            '<path d="M9 13c0-2 1-3 3-3s3 1 3 3-1 3-3 3-3-1-3-3z"/>' +
+            '<path d="M10 16c-.5.6-.5 1.5 0 2s1.5.5 2 0 .5-1.5 0-2"/>' +
+            '<path d="M13 10l4-7"/>' +
+            '<path d="M16.5 3.5l1 1"/>' +
+            '<line x1="11.5" y1="11.5" x2="14" y2="6.5" stroke-width="0.8"/>' +
+            '<line x1="12.5" y1="12" x2="15" y2="7" stroke-width="0.8"/>' +
+          '</svg>';
+        var clearBtn = '<button class="slb-remove" onclick="window.SLB.remove(\'' + slot.id + '\')" title="Quitar instrumental">&times;</button>';
+        html += '<div class="slb-slot slb-slot-instrumental" data-moment="' + slot.label + '" data-title="' + escapeHtml(data.title) + '">' +
+          '<span class="slb-moment' + labelClickable + '">' + label + '</span>' +
+          '<span class="slb-song slb-song-instrumental" title="Instrumental">' +
+            inlineViolinSvg + ' ' + escapeHtml(data.title) +
+          '</span>' +
+          clearBtn + removeOptionalBtn +
+          '</div>';
+      } else if (hasContent) {
+        // Slot con canto del cancionero asignado (caso normal)
+        var clearBtn2 = '<button class="slb-remove" onclick="window.SLB.remove(\'' + slot.id + '\')" title="Quitar canto">&times;</button>';
         html += '<div class="slb-slot" data-cpd="' + data.cpd + '" data-moment="' + slot.label + '" data-title="' + escapeHtml(data.title) + '">' +
           '<span class="slb-moment' + labelClickable + '">' + label + '</span>' +
           '<span class="slb-song" onclick="window.SLB.goTo(\'' + data.cpd + '\')">' + escapeHtml(data.title) + '</span>' +
-          (slot.optional ? clearBtn + removeBtn : clearBtn) +
+          clearBtn2 + removeOptionalBtn +
           '</div>';
       } else {
+        // Slot vacío. Si es instrumentable, agregamos el botón violín a la derecha.
         html += '<div class="slb-slot slb-slot-empty" data-moment="' + slot.label + '">' +
           '<span class="slb-moment' + labelClickable + '">' + label + '</span>' +
           '<span class="slb-song empty">— vacío —</span>' +
-          removeBtn +
+          instBtn + removeOptionalBtn +
           '</div>';
       }
     });
@@ -412,7 +470,7 @@
 
         if (data) {
           // _meta contiene novios y opcionales habilitados; los demás keys
-          // son slot-ids con { cpd, title }.
+          // son slot-ids con { cpd, title } o { instrumental: true, title }.
           if (data._meta) {
             if (typeof data._meta.novios === 'string') {
               noviosNombres = data._meta.novios;
@@ -423,8 +481,12 @@
           }
           Object.keys(data).forEach(function(slotId) {
             if (slotId === '_meta') return;
-            if (data[slotId] && data[slotId].cpd) {
-              setlistData[slotId] = data[slotId];
+            // Aceptar dos formatos válidos:
+            //   { cpd: 'cpd-XXX', title: '...' }            → canto del cancionero
+            //   { instrumental: true, title: '...' }        → pieza instrumental
+            var entry = data[slotId];
+            if (entry && (entry.cpd || entry.instrumental === true)) {
+              setlistData[slotId] = entry;
             }
           });
         }
@@ -457,6 +519,55 @@
       }
     }).catch(function(err) {
       console.warn('[SLB] Save error:', err.message);
+    });
+  }
+
+  // ── INSTRUMENTAL: prompt + save ─────────────────────────────────────
+  // Para slots como Ingreso del Novio o Salida de Novios donde es común
+  // tener una pieza instrumental sin canto del cancionero (ej. Marcha
+  // Nupcial, Canon de Pachelbel). El usuario escribe el título manual.
+  // Persiste en Firebase con flag `instrumental: true` para distinguirlo
+  // de un canto regular del cancionero.
+  function promptInstrumental(slotId) {
+    if (!currentDate) return;
+    var slot = SLOTS_FIJOS.concat(SLOTS_OPCIONALES).find(function(s) { return s.id === slotId; });
+    if (!slot || !slot.instrumentable) return;
+
+    // Pre-rellenar con título existente si ya había uno para este slot.
+    var existing = setlistData[slotId];
+    var initialValue = existing && existing.instrumental ? existing.title : '';
+
+    // Prompt nativo — simple y consistente con la edición de nombres novios.
+    // En r22+ podemos pasar a un dialog custom si el feedback lo amerita.
+    var label = slot.label + (slot.sub ? ' ' + slot.sub : '');
+    var title = window.prompt(
+      '🎼 Instrumental para "' + label + '"\nEscribe el nombre (ej. Marcha Nupcial, Canon de Pachelbel):',
+      initialValue
+    );
+    if (title === null) return; // cancel
+    title = title.trim();
+    if (!title) return; // vacío = no hacer nada
+
+    saveInstrumental(slotId, title);
+  }
+
+  function saveInstrumental(slotId, title) {
+    if (!currentDate) return;
+    var data = { instrumental: true, title: title };
+    setlistData[slotId] = data;
+    renderSlots();
+    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '/' + slotId + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function() {
+      console.log('[SLB] Instrumental guardado:', slotId, '→', title);
+      if (availableDates.indexOf(currentDate) === -1) {
+        availableDates.push(currentDate);
+        availableDates.sort();
+      }
+    }).catch(function(err) {
+      console.warn('[SLB] Instrumental save error:', err.message);
     });
   }
 
@@ -866,6 +977,9 @@
     closeDialog:    closeDialog,
     addOptional:    addOptional,
     removeOptional: removeOptional,
+
+    // Instrumentales (slots como Ingreso del Novio, Salida de Novios)
+    promptInstrumental: promptInstrumental,
 
     // Date picker
     openDatePicker:  openDatePicker,
