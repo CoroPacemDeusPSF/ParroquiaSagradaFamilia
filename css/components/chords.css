@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r8
+     @version    v3.2.46r9
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -135,15 +135,14 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
-   FULLSCREEN AUTO-FIT (módulo 12 — chord-fullscreen-fit.js) — r5
+   FULLSCREEN AUTO-FIT (módulo 12 — chord-fullscreen-fit.js) — r9
    ════════════════════════════════════════════════════════════════════
-   Filosofía simple: UN solo <pre> con todo el contenido. CSS-columns
-   parte el texto naturalmente entre columnas, igual que un cancionero
-   impreso. Una estrofa puede arrancar en col 1 y continuar en col 2 sin
-   problema. Solo el TÍTULO se protege contra ser partido entre columnas.
-
-   La separación entre estrofas la maneja UNA línea en blanco dentro del
-   <pre> (normalizada por buildWrapper en JS), no márgenes de divs.
+   Vuelta al approach del r3 con margenes mínimos:
+     - Múltiples .chord-fit-section como divs independientes
+     - CSS-columns en el WRAPPER (no en el pre)
+     - break-inside: avoid en cada sección → no se parte estrofa
+     - margin-bottom: 0.2em entre secciones (era 0.6em en r3)
+     - Wrapper con scroll vertical natural cuando no cabe
    ════════════════════════════════════════════════════════════════════ */
 
 /* Block fullscreen como flex column: toolbar arriba, wrapper abajo */
@@ -161,33 +160,52 @@
   min-height: 0;
 }
 
+/* WRAPPER: aquí viven las CSS-columns. Tiene scroll vertical natural
+   para "pasar página" cuando el contenido excede la altura. */
 .chord-fit-wrapper {
   --cf-cols: 1;
   --cf-fs: 0.95rem;
 
-  /* El wrapper EXTERIOR maneja solo el scroll vertical.
-     Las columnas viven en el .chord-fit-pre interno con altura fija. */
+  column-count: var(--cf-cols);
+  column-gap: 1.8rem;
+  /* `auto` llena col 1, luego col 2, sin balancear. Sin huecos en medio. */
+  column-fill: auto;
+  column-rule: 1px solid rgba(200, 148, 60, 0.12);
+
   width: 100%;
-  height: 100%;
   padding: 0.5rem 1.2rem 1rem;
   box-sizing: border-box;
 
+  /* Scroll vertical para "pasar página" cuando el contenido excede */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 
-  /* `pan-y` permite scroll vertical con un dedo, pero el navegador NO
-     hace pinch nativo (lo intercepto yo en JS con 2 dedos). */
+  /* pan-y permite scroll vertical de 1 dedo, pinch lo intercepto en JS */
   touch-action: pan-y;
 }
 
-/* El <pre> único — todo el contenido del canto */
-.chord-fit-pre {
-  font-size: var(--cf-fs);
-  font-family: 'Courier New', monospace;
-  line-height: 1.5;
-  color: #e0d0b0;
+/* SECCIÓN: cada estrofa, coro, etc. break-inside: avoid impide que se
+   parta entre columnas. margin-bottom mínimo (0.2em) para que estrofas
+   se distingan visualmente sin huecos gigantes. */
+.chord-fit-section {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  display: block;
+  margin-bottom: 0.2em;
+  overflow: hidden;
+}
+.chord-fit-section:last-child {
+  margin-bottom: 0;
+}
 
+/* PRE dentro de la sección. font-size hereda del wrapper vía variable. */
+.chord-fit-pre {
+  font-size: var(--cf-fs) !important;
+  font-family: 'Courier New', monospace;
+  line-height: 1.4;
+  color: #e0d0b0;
   white-space: pre;
   background: none;
   border: none;
@@ -195,29 +213,6 @@
   margin: 0;
   tab-size: 4;
   max-width: 100%;
-
-  /* CRÍTICO: las CSS-columns viven AQUÍ (en el pre), no en el wrapper.
-     El pre tiene altura fija (100% del wrapper) para que `column-fill: auto`
-     sepa dónde cortar columna 1 y empezar columna 2. */
-  column-count: var(--cf-cols);
-  column-gap: 1.8rem;
-  column-fill: auto;
-  column-rule: 1px solid rgba(200, 148, 60, 0.12);
-  height: 100%;
-
-  /* CRÍTICO: si CSS-columns intenta crear cols extras horizontales (cuando
-     el contenido excede el alto pedido), el `overflow: hidden` las oculta.
-     El JS detecta el desborde via scrollWidth > clientWidth y activa
-     `.cf-no-fit` para caer a 1 col + scroll vertical. */
-  overflow: hidden;
-}
-
-/* Modo fallback: cuando el contenido no cabe ni con N columnas + auto-fit,
-   caer a 1 sola columna sin altura fija → scroll vertical natural en
-   el wrapper. El JS aplica esta clase cuando detecta overflow. */
-.chord-fit-pre.cf-no-fit {
-  column-count: 1 !important;
-  height: auto !important;
 }
 
 .chord-fit-pre .chord {
@@ -228,40 +223,28 @@
   font-weight: bold;
 }
 
-/* TÍTULO: protegido contra romperse entre columnas */
+/* Override de los márgenes negativos heredados de chords.css.
+   El CSS general aplica margin: 0 0 -1.394rem; en chord-title y
+   chord-section como hack. En el fullscreen no aplica — los reseteamos. */
 .chord-fit-pre b.chord-title {
   display: block;
-  margin: 0 0 0.4em !important;
-  padding-bottom: 0.15em;
+  margin: 0 0 0.3em !important;
+  padding-bottom: 0.1em;
   break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
 }
-
-/* Divisor de sección (═══ ESTROFA ═══):
-   - Pegado a su cuerpo abajo
-   - Separación arriba viene de la línea en blanco del <pre> (no margin)
-   - break-inside: avoid PARA EL DIVISOR SOLO (no para todo el bloque) */
 .chord-fit-pre b.chord-section {
   display: block;
   margin: 0 0 0.1em !important;
-  /* break-inside: avoid SOLO para el <b> mismo (no se parte la línea del
-     divisor a la mitad). NO usamos page-break-after: avoid porque eso
-     arrastraría el divisor + bloque siguiente a la próxima columna. */
   break-inside: avoid;
-  -webkit-column-break-inside: avoid;
 }
-
-/* Capo / Tonalidad badge inline */
 .chord-fit-pre b.chord-capo {
   display: inline-flex;
 }
 
-/* Ocultar el <pre> original mientras el fit está activo */
+/* Ocultar pre original mientras fit está activo */
 .chords-block.fullscreen > pre.cf-source-hidden {
   display: none;
 }
-
 
 /* ══════════════════════════════════════════════════════
    DOMINICAL THEME — Verde litúrgico sobre fondo oscuro

@@ -6,41 +6,35 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r8
+ *   @version    v3.2.46r9
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js
+   12-chord-fullscreen-fit.js  —  v3.2.46r9
    ============================================================================
-   FILOSOFÍA — recalibrada en r5 después de iteraciones fallidas.
+   FILOSOFÍA — recalibrada en r9 después de retomar el approach del r3.
 
-   El objetivo del fullscreen de acordes es ÚNICO:
-     "Ver la mayor cantidad de letra y acordes en un solo pantallazo,
-      sin comerse nada, con espaciado optimizado."
+   El r3 estaba MUY cerca de funcionar:
+     ✅ Columnas se aplicaban correctamente
+     ✅ Zoom funcionaba
+     ✅ Distribución entre cols correcta
+     ❌ Margenes grandes entre estrofas → espacios gigantes en horizontal
 
-   APPROACH FINAL (simple y directo):
+   Los r5–r8 cambiaron de arquitectura ("un solo <pre>") y rompieron todo.
+   El r9 RETOMA la arquitectura del r3 (múltiples .chord-fit-section con
+   break-inside: avoid) y SÓLO cambia el margin a un valor mínimo.
 
-     1. UN SOLO <pre> con TODO el contenido del canto. CSS-columns parte
-        el texto naturalmente entre columnas, igual que un cancionero
-        impreso. Una estrofa puede arrancar en col 1 y continuar en col 2.
-
-     2. Una línea en blanco entre estrofas (ni 0, ni 4). El HTML original
-        ya viene así; solo normalizamos secuencias de 3+ saltos a 2.
-
-     3. Solo el TÍTULO se protege con break-inside: avoid (no debe
-        partirse entre columnas). El resto fluye libremente.
-
-     4. Auto-fit del font-size: encuentra el más grande que hace que el
-        contenido CABE verticalmente con las columnas que aplican.
-
-     5. Decisión de columnas: si la línea más larga del canto no cabe en
-        un ancho de columna estrecho, FORZAR menos columnas. Solo subir
-        a 2/3 cols si las líneas SÍ caben en columnas más estrechas.
-
-     6. Pinch-to-zoom para ajuste manual. Si al ampliar el contenido
-        excede la altura, scroll vertical natural.
+   ARQUITECTURA:
+     - Múltiples .chord-fit-section, cada una con un <pre>.
+     - CSS-columns aplicado al WRAPPER (no al pre).
+     - break-inside: avoid en cada sección → estrofa no se parte.
+     - margin-bottom: 0.2em entre secciones → separación mínima visible.
+     - Wrapper con overflow-y: auto + touch-action: pan-y → scroll vertical
+       natural cuando no cabe = "pasar página".
+     - Auto-fit del font-size para que QUEPA el máximo posible.
+     - Pinch-to-zoom para ajuste manual.
 
    API PÚBLICA:
      window.enterChordFit(block)
@@ -50,77 +44,162 @@
 (function () {
   'use strict';
 
-  var FS_MIN           = 0.55;
-  var FS_MAX           = 1.6;
-  var FS_TARGET_MIN    = 0.85;
-  var BINARY_ITER      = 8;
-  var PINCH_FS_MIN     = 0.4;
-  var PINCH_FS_MAX     = 3.0;
-  var DOUBLETAP_MS     = 320;
+  var FS_MIN           = 0.55;   // rem — auto-fit mínimo
+  var FS_MAX           = 1.6;    // rem — auto-fit máximo
+  var FS_TARGET_MIN    = 0.85;   // rem — preferir +cols si fs ≥ este valor
+  var BINARY_ITER      = 8;      // iteraciones binary search
+  var PINCH_FS_MIN     = 0.4;    // rem — pinch min
+  var PINCH_FS_MAX     = 3.0;    // rem — pinch max
+  var DOUBLETAP_MS     = 320;    // ventana double-tap
 
+  // ────────────────────────────────────────────────────────────
+  // CANDIDATOS DE COLUMNAS según ancho disponible
+  // ────────────────────────────────────────────────────────────
   function colCandidates(availW) {
     if (availW < 600)  return [1];
     if (availW < 1100) return [2, 1];
     return [3, 2, 1];
   }
 
-  // Normaliza el HTML: strip blanks y colapsa 3+ saltos consecutivos a 2.
-  // Preserva pares letra/acordes (single \n) y separación entre estrofas
-  // (UN solo blank line, no más, no menos).
-  function normalizeContent(html) {
-    return html
-      .replace(/^[\s\n]+/, '')
-      .replace(/[\s\n]+$/, '')
-      .replace(/\n[ \t]*\n[\s\n]+/g, '\n\n');
+  // ────────────────────────────────────────────────────────────
+  // PARTIR EL HTML EN SECCIONES por líneas vacías
+  // ────────────────────────────────────────────────────────────
+  // Cada sección (estrofa, coro, etc.) será un .chord-fit-section
+  // independiente. CSS-columns las distribuye entre cols, y
+  // break-inside: avoid impide que una estrofa se parta a la mitad.
+  //
+  // Fusiones para optimizar espacio:
+  //   - Título solo + capo + 1er header → cabecera compacta
+  //   - Header solo (═══ X ═══) → fusionar con cuerpo siguiente
+  //   - Anotaciones inline (INTRO:, FINAL:) → fusionar con vecino
+  function splitSections(html) {
+    var raw = html
+      .split(/\n[ \t]*\n+/)
+      .map(function (s) { return s.trim(); })
+      .filter(function (s) { return s.length > 0; });
+
+    function isOnlyTitle(s) {
+      return /^<b\s+class=["']chord-title["']>[^<]*<\/b>$/.test(s.trim());
+    }
+
+    function isOnlyCapo(s) {
+      var t = s.trim();
+      if (t.charAt(0) !== '⚠') return false;
+      return !/<span\s+class=["']chord["']/.test(t);
+    }
+
+    function isOnlySectionHeader(s) {
+      var stripped = s.replace(/<\/?b[^>]*>/g, '').trim();
+      if (/^[═─━]{2,}\s+.+\s+[═─━]{2,}/.test(stripped)) {
+        return /^<b[^>]*>[^<]*<\/b>$/.test(s.trim());
+      }
+      return false;
+    }
+
+    function isAnnotationLine(s) {
+      var t = s.trim();
+      return /^(INTRO|OUTRO|FINAL|PUENTE|INTERLUDIO|TAG|CODA)\s*:/i.test(t);
+    }
+
+    var merged = [];
+    var i = 0;
+    while (i < raw.length) {
+      var current = raw[i];
+
+      // Caso 1: título → cabecera compacta (título + capo + 1er header + 1er cuerpo)
+      if (isOnlyTitle(current)) {
+        var combo = current;
+        i++;
+        while (i < raw.length && isOnlyCapo(raw[i])) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        while (i < raw.length && isAnnotationLine(raw[i])) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        if (i < raw.length && isOnlySectionHeader(raw[i])) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        if (i < raw.length) {
+          combo += '\n' + raw[i];
+          i++;
+        }
+        merged.push(combo);
+        continue;
+      }
+
+      // Caso 2: header solo → fusionar con cuerpo siguiente
+      if (isOnlySectionHeader(current) && i + 1 < raw.length) {
+        merged.push(current + '\n' + raw[i + 1]);
+        i += 2;
+        continue;
+      }
+
+      // Caso 3: anotación inline → fusionar con bloque anterior
+      if (isAnnotationLine(current) && merged.length > 0) {
+        merged[merged.length - 1] += '\n' + current;
+        i++;
+        continue;
+      }
+
+      merged.push(current);
+      i++;
+    }
+    return merged;
   }
 
+  // ────────────────────────────────────────────────────────────
+  // CONSTRUIR el wrapper con secciones
+  // ────────────────────────────────────────────────────────────
   function buildWrapper(html) {
     var wrapper = document.createElement('div');
     wrapper.className = 'chord-fit-wrapper';
-    var pre = document.createElement('pre');
-    pre.className = 'chord-fit-pre';
-    pre.innerHTML = normalizeContent(html);
-    wrapper.appendChild(pre);
+
+    var sections = splitSections(html);
+
+    sections.forEach(function (sectionHtml) {
+      var section = document.createElement('div');
+      section.className = 'chord-fit-section';
+
+      var pre = document.createElement('pre');
+      pre.className = 'chord-fit-pre';
+      // Strip blanks al inicio/final para evitar líneas vacías visibles.
+      // Colapsar dobles+ saltos a uno (cada salto = línea visible en pre).
+      var cleaned = sectionHtml
+        .replace(/^[\s\n]+/, '')
+        .replace(/[\s\n]+$/, '')
+        .replace(/\n[ \t]*\n[\s\n]*/g, '\n');
+      pre.innerHTML = cleaned;
+
+      section.appendChild(pre);
+      wrapper.appendChild(section);
+    });
+
     return wrapper;
   }
 
+  // ────────────────────────────────────────────────────────────
+  // APLICAR layout (cols + font-size)
+  // ────────────────────────────────────────────────────────────
   function applyLayout(wrapper, cols, fsRem) {
     wrapper.style.setProperty('--cf-cols', cols);
     wrapper.style.setProperty('--cf-fs', fsRem.toFixed(3) + 'rem');
   }
 
-  // CRÍTICO: Con CSS-columns + altura fija, el contenido excedente NO crece
-  // verticalmente — el browser CREA COLUMNAS EXTRA HORIZONTALES a la derecha.
-  // Por eso "fitsInHeight" debe verificar TAMBIÉN scrollWidth: si el browser
-  // tuvo que crear cols extras, scrollWidth > clientWidth.
-  //
-  // En otras palabras: con CSS-columns, NO CABE si scrollWidth excede el
-  // ancho del pre (cualquier fs/cols donde el browser quiso poner más cols
-  // de las pedidas → desborde horizontal → no es un fit válido).
+  // ────────────────────────────────────────────────────────────
+  // ¿CABE el contenido en la altura disponible?
+  // ────────────────────────────────────────────────────────────
+  // Mide el wrapper directamente. El wrapper contiene las cols.
   function fitsInHeight(wrapper, cols, fsRem, availH) {
     applyLayout(wrapper, cols, fsRem);
-    wrapper.offsetHeight;
-    var pre = wrapper.querySelector('.chord-fit-pre');
-    if (!pre) return true;
-    // Detección combinada:
-    //   1. scrollHeight > clientHeight: el contenido ocupa más alto del fijado
-    //      (caso raro con column-fill: auto, pero posible)
-    //   2. scrollWidth > clientWidth: el browser creó cols extras horizontales
-    //      (caso común cuando CSS-columns no puede paginar lo pedido)
-    var heightFits = pre.scrollHeight <= pre.clientHeight + 4;
-    var widthFits  = pre.scrollWidth  <= pre.clientWidth  + 4;
-    return heightFits && widthFits;
+    wrapper.offsetHeight;  // forzar reflow
+    return wrapper.scrollHeight <= availH + 4;
   }
 
-  // fitsInWidth: la línea individual MÁS LARGA cabe en el ancho de columna
-  // (sin importar si CSS-columns crea cols extras por falta de altura).
-  // Esto es DIFERENTE de fitsInHeight: aquí queremos saber si una línea pre
-  // sin partir cabe en una col. Con CSS-columns esto es complicado de medir
-  // directamente, así que medimos a 1 columna como referencia.
   function fitsInWidth(wrapper) {
-    var pre = wrapper.querySelector('.chord-fit-pre');
-    if (!pre) return true;
-    return pre.scrollWidth <= pre.clientWidth + 4;
+    return wrapper.scrollWidth <= wrapper.clientWidth + 4;
   }
 
   function fitsInWidthAt(wrapper, cols, fsRem) {
@@ -129,12 +208,13 @@
     return fitsInWidth(wrapper);
   }
 
-  // Búsqueda binaria del font-size más grande que cabe (alto + ancho)
+  // ────────────────────────────────────────────────────────────
+  // BÚSQUEDA BINARIA del font-size más grande que cabe
+  // ────────────────────────────────────────────────────────────
   function findMaxFontSize(wrapper, cols, availH) {
     if (fitsInHeight(wrapper, cols, FS_MAX, availH) && fitsInWidth(wrapper)) {
       return FS_MAX;
     }
-    // ¿Cabe siquiera horizontalmente con FS_MIN?
     if (!fitsInWidthAt(wrapper, cols, FS_MIN)) return 0;
 
     var lo = FS_MIN, hi = FS_MAX, best = FS_MIN;
@@ -148,21 +228,9 @@
     return best;
   }
 
-  // Font-size más grande que cabe HORIZONTALMENTE (sin importar el alto).
-  // Usado cuando ningún layout cabe en el alto disponible — al menos quiero
-  // que las líneas no se desborden, dejando scroll vertical hacer el resto.
-  function findMaxFontSizeForWidth(wrapper, cols) {
-    if (fitsInWidthAt(wrapper, cols, FS_MAX)) return FS_MAX;
-    if (!fitsInWidthAt(wrapper, cols, FS_MIN)) return 0;
-    var lo = FS_MIN, hi = FS_MAX, best = FS_MIN;
-    for (var i = 0; i < BINARY_ITER; i++) {
-      var mid = (lo + hi) / 2;
-      if (fitsInWidthAt(wrapper, cols, mid)) { best = mid; lo = mid; }
-      else                                    { hi = mid; }
-    }
-    return best;
-  }
-
+  // ────────────────────────────────────────────────────────────
+  // ENCONTRAR mejor layout (cols, fs) para el canto y pantalla
+  // ────────────────────────────────────────────────────────────
   function findBestLayout(wrapper, availW, availH) {
     var candidates = colCandidates(availW);
     var attempted = [];
@@ -170,15 +238,17 @@
     for (var i = 0; i < candidates.length; i++) {
       var cols = candidates[i];
       var fs = findMaxFontSize(wrapper, cols, availH);
+
       if (fs === 0) {
-        attempted.push({ cols: cols, fs: 0, viable: false });
+        attempted.push({ cols: cols, fs: 0 });
         continue;
       }
-      attempted.push({ cols: cols, fs: fs, viable: true });
+      attempted.push({ cols: cols, fs: fs });
       if (fs >= FS_TARGET_MIN) return { cols: cols, fs: fs };
     }
 
-    var viable = attempted.filter(function (a) { return a.viable; });
+    // Ningún layout alcanzó el target. Elegir el de fs mayor.
+    var viable = attempted.filter(function (a) { return a.fs > 0; });
     if (viable.length > 0) {
       var best = viable[0];
       for (var j = 1; j < viable.length; j++) {
@@ -187,14 +257,14 @@
       return { cols: best.cols, fs: best.fs };
     }
 
-    // Caso extremo: nada cabe. Forzar 1 col con el font que al menos
-    // hace que las líneas no se desborden horizontalmente.
-    var fsForWidth = findMaxFontSizeForWidth(wrapper, 1);
-    return { cols: 1, fs: fsForWidth || FS_MIN };
+    // Caso extremo: nada cabe. 1 col con FS_MIN, scroll vertical hará lo demás.
+    return { cols: 1, fs: FS_MIN };
   }
 
-  // ─── Pinch-to-zoom ───
-  function setupPinch(wrapper, baseFs, availH) {
+  // ────────────────────────────────────────────────────────────
+  // PINCH-TO-ZOOM
+  // ────────────────────────────────────────────────────────────
+  function setupPinch(wrapper, baseFs) {
     var currentFs = baseFs;
     var initialDistance = 0, initialFs = baseFs, pinching = false;
 
@@ -208,16 +278,6 @@
     function applyFs(fs) {
       currentFs = fs;
       wrapper.style.setProperty('--cf-fs', fs.toFixed(3) + 'rem');
-      // Re-evaluar si cabe en columnas o necesita modo scroll.
-      // Verificar ambas dimensiones (ver fitsInHeight para explicación).
-      var p = wrapper.querySelector('.chord-fit-pre');
-      if (p) {
-        p.classList.remove('cf-no-fit');
-        wrapper.offsetHeight;
-        var hO = p.scrollHeight > p.clientHeight + 4;
-        var wO = p.scrollWidth  > p.clientWidth  + 4;
-        if (hO || wO) p.classList.add('cf-no-fit');
-      }
     }
 
     function onTouchStart(e) {
@@ -268,20 +328,14 @@
     };
   }
 
-  // ─── Wheel zoom (desktop) ───
-  function setupWheelZoom(wrapper, baseFs, availH) {
+  // ────────────────────────────────────────────────────────────
+  // WHEEL ZOOM (desktop)
+  // ────────────────────────────────────────────────────────────
+  function setupWheelZoom(wrapper, baseFs) {
     var currentFs = baseFs, STEP = 0.05;
     function applyFs(fs) {
       currentFs = Math.min(PINCH_FS_MAX, Math.max(PINCH_FS_MIN, fs));
       wrapper.style.setProperty('--cf-fs', currentFs.toFixed(3) + 'rem');
-      var p = wrapper.querySelector('.chord-fit-pre');
-      if (p) {
-        p.classList.remove('cf-no-fit');
-        wrapper.offsetHeight;
-        var hO = p.scrollHeight > p.clientHeight + 4;
-        var wO = p.scrollWidth  > p.clientWidth  + 4;
-        if (hO || wO) p.classList.add('cf-no-fit');
-      }
     }
     function onWheel(e) {
       if (!e.ctrlKey && !e.metaKey) return;
@@ -301,7 +355,9 @@
     };
   }
 
-  // ─── ENTRAR A FULLSCREEN-FIT ───
+  // ────────────────────────────────────────────────────────────
+  // ENTRAR A FULLSCREEN-FIT
+  // ────────────────────────────────────────────────────────────
   window.enterChordFit = function (block) {
     if (!block) return;
     if (block._cfWrapper) return;
@@ -315,37 +371,25 @@
     pre.classList.add('cf-source-hidden');
     block.appendChild(wrapper);
 
-    wrapper.offsetHeight;
+    wrapper.offsetHeight;  // forzar reflow
 
     var availW = wrapper.clientWidth  || window.innerWidth;
-    var availH = wrapper.clientHeight || window.innerHeight - 80;
+    var availH = wrapper.clientHeight || (window.innerHeight - 80);
 
     var best = findBestLayout(wrapper, availW, availH);
     applyLayout(wrapper, best.cols, best.fs);
-    wrapper.offsetHeight;
 
-    // Verificar si el contenido REALMENTE cabe con el layout aplicado.
-    // CRÍTICO: medir AMBAS dimensiones. CSS-columns + altura fija + contenido
-    // excedente = columnas extra HORIZONTALES, no scrollHeight crecido.
-    var pre = wrapper.querySelector('.chord-fit-pre');
-    if (pre) {
-      var hOverflow = pre.scrollHeight > pre.clientHeight + 4;
-      var wOverflow = pre.scrollWidth  > pre.clientWidth  + 4;
-      if (hOverflow || wOverflow) {
-        // El contenido se desborda. Caer a modo "1 col + scroll vertical".
-        pre.classList.add('cf-no-fit');
-      }
-    }
-
-    var cleanupPinch = setupPinch(wrapper, best.fs, availH);
-    var cleanupWheel = setupWheelZoom(wrapper, best.fs, availH);
+    var cleanupPinch = setupPinch(wrapper, best.fs);
+    var cleanupWheel = setupWheelZoom(wrapper, best.fs);
 
     block._cfWrapper = wrapper;
     block._cfBaseFs  = best.fs;
     block._cfCleanup = function () { cleanupPinch(); cleanupWheel(); };
   };
 
-  // ─── SALIR DE FULLSCREEN-FIT ───
+  // ────────────────────────────────────────────────────────────
+  // SALIR DE FULLSCREEN-FIT
+  // ────────────────────────────────────────────────────────────
   window.exitChordFit = function (block) {
     if (!block) return;
     if (block._cfCleanup) { block._cfCleanup(); block._cfCleanup = null; }
