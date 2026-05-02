@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r2
+     @version    v3.3.0r3
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -207,8 +207,9 @@ body.wedding-mode .slb-tab { display: flex; }
 /* Nombres de los novios (placeholder cuando vacío) */
 .slb-header-novios-empty {
   background: none;
-  border: 1px dashed rgba(201, 125, 135, 0.4);
-  color: rgba(90, 38, 48, 0.55);
+  border: 1px dashed rgba(201, 125, 135, 0.55);
+  /* r3: 0.55 → #5A2030 con opacidad 0.85 (más legible, conserva look "placeholder") */
+  color: rgba(90, 38, 48, 0.85);
   font-family: 'Cinzel', serif;
   font-size: 0.6rem;
   letter-spacing: 0.12em;
@@ -242,7 +243,8 @@ body.wedding-mode .slb-tab { display: flex; }
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.8rem;
-  color: rgba(90, 38, 48, 0.7);
+  /* r3: 0.7 → 0.9 para legibilidad */
+  color: rgba(90, 38, 48, 0.9);
   text-align: center;
 }
 .slb-header-action {
@@ -286,7 +288,11 @@ body.wedding-mode .slb-tab { display: flex; }
   font-size: 0.5rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: rgba(90, 38, 48, 0.7);
+  /* r3: subido de rgba(90,38,48,0.7) a #5A2030 sólido para mejor contraste
+     en tablets bajo luz directa. La paleta dominical usa el mismo principio
+     de moment labels semi-opacos pero sobre fondo crema más cálido — aquí
+     el rosa perlado del wedding-mode pierde contraste con bajos opacidades. */
+  color: #5A2030;
   width: 5.5rem;
   flex-shrink: 0;
   line-height: 1.2;
@@ -298,14 +304,17 @@ body.wedding-mode .slb-tab { display: flex; }
   flex: 1;
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.92rem;
-  color: #3A1820;
+  /* r3: ya estaba oscuro (#3A1820) — solo se mantiene */
+  color: #2A0F18;
   cursor: pointer;
   transition: color 0.2s;
   word-break: break-word;
 }
 .slb-song:hover { color: var(--wm-rose-deep); }
 .slb-song.empty {
-  color: rgba(90, 38, 48, 0.35);
+  /* r3: subido de rgba(90,38,48,0.35) a 0.6 para legibilidad sin perder
+     la jerarquía visual (debe lucir "vacío" pero no fantasma). */
+  color: rgba(90, 38, 48, 0.6);
   font-style: italic;
   cursor: default;
 }
@@ -482,7 +491,8 @@ body.wedding-mode .slb-tab { display: flex; }
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.78rem;
-  color: rgba(90, 38, 48, 0.65);
+  /* r3: 0.65 → 0.85 para que el "actual: ..." sea claramente legible */
+  color: rgba(90, 38, 48, 0.85);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -496,7 +506,8 @@ body.wedding-mode .slb-tab { display: flex; }
   font-size: 0.65rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(90, 38, 48, 0.7);
+  /* r3: 0.7 → 0.9 */
+  color: rgba(90, 38, 48, 0.9);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -567,7 +578,8 @@ body.wedding-mode .slb-tab { display: flex; }
   font-family: 'Cinzel', serif;
   font-size: 0.55rem;
   font-weight: 600;
-  color: rgba(90, 38, 48, 0.5);
+  /* r3: 0.5 → 0.8 — días de la semana legibles */
+  color: rgba(90, 38, 48, 0.8);
   padding: 0.3rem 0;
   letter-spacing: 0.05em;
 }
@@ -579,7 +591,8 @@ body.wedding-mode .slb-tab { display: flex; }
   justify-content: center;
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.85rem;
-  color: rgba(90, 38, 48, 0.4);
+  /* r3: 0.4 → 0.65 — días sin setlist todavía discretos pero legibles */
+  color: rgba(90, 38, 48, 0.65);
   cursor: default;
   border-radius: 50%;
   transition: all 0.15s;

@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.3.0r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -170,11 +170,17 @@
         // Construir el <li>
         var li = document.createElement('li');
         var cpdId = card.dataset.chordId || '';
+        // El botón "+" usa data-action para pasar por la event-delegation
+        // del módulo 25, que decide a qué setlist agregar según el modo
+        // activo. NO usar onclick="window.SL.addSong(...)" hardcoded
+        // porque causaría sobrescritura del setlist dominical estando en
+        // wedding-mode (bug v3.3.0r2 — corregido en r3).
         li.innerHTML =
           '<span class="idx-num">' + String(globalN).padStart(2, '0') + '<\/span>' +
           '<a href="#' + d + '">' + titleTxt + '<\/a>' +
           sparkleHtml + chordBtn + ytBtn +
-          '<button class="idx-add-btn" title="Agregar al setlist" onclick="window.SL&&window.SL.addSong(\'' + cpdId + '\')">+<\/button>';
+          '<button class="idx-add-btn" title="Agregar al setlist" ' +
+            'data-action="add-to-setlist" data-target="' + cpdId + '">+<\/button>';
         frag.appendChild(li);
       });
     });
