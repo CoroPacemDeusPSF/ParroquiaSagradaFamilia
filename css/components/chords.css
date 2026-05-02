@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r10
+     @version    v3.2.46r14
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -135,126 +135,295 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
-   FULLSCREEN AUTO-FIT (módulo 12 — chord-fullscreen-fit.js) — r10
+   FULLSCREEN PAGINACIÓN HORIZONTAL (módulo 12 — chord-fullscreen-fit.js) — r14
    ════════════════════════════════════════════════════════════════════
-   APPROACH RADICAL: scroll vertical en el BLOCK, no en el wrapper.
+   APPROACH PAGINADO — REEMPLAZA EL SCROLL VERTICAL DE r10/r12
 
-   Bugs anteriores diagnosticados con datos reales (r9):
-     wrapper_W: 653, scrollW: 1297    → cols extras horizontal
-     altura_secciones: 2790, wrapper_H: 595  → 5x más alto que viewport
+   Estructura del DOM:
+     .chords-block.fullscreen.cf-active           ← display: flex column, fixed
+       .transpose-bar                             ← flex: 0 0 auto (top)
+       .chord-fit-pager                           ← flex: 1, scroll horizontal + snap
+         .chord-fit-wrapper                       ← cols, height 100%, browser
+                                                    crea cols extras horizontal
+                                                    cuando excede pageH
+       .chord-fit-hints                           ← flechas izq/der absolute
+         .cf-hint.cf-hint-left
+         .cf-hint.cf-hint-right
+       .chord-fit-page-indicator                  ← "1/3" abajo centrado
 
-   La causa: `column-fill: auto` + altura fija = browser crea cols
-   horizontales extras cuando no cabe. Eso era TODO.
-
-   SOLUCIÓN:
-     1. column-fill: balance        → distribuye en N cols sin huecos
-     2. SIN altura fija en wrapper  → crece naturalmente
-     3. SIN break-inside: avoid     → estrofas pueden partirse entre cols
-        (excepto el título que debe quedar entero)
-     4. overflow-y: auto en BLOCK   → scroll vertical natural cuando hay
-                                       más contenido del que cabe en viewport
-     5. transpose-bar sticky        → siempre visible durante scroll
+   El browser distribuye contenido en N cols dentro del wrapper. Si excede
+   la altura disponible (pageH), genera cols extras horizontalmente. El
+   pager scrollea horizontal entre estas cols extras, snappeando cada
+   pageW. JS complementa con snap programático tras touchend para máxima
+   fluidez en tablet.
    ════════════════════════════════════════════════════════════════════ */
 
-/* Block fullscreen: scroll vertical natural en el block entero */
+/* ─── BLOCK FULLSCREEN: contenedor principal, layout flex column ─── */
 .chords-block.fullscreen.cf-active {
-  display: block !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
+  display:        flex !important;
+  flex-direction: column;
+  overflow:       hidden !important;
+  /* position: fixed/inset:0 los hereda de la regla base de fullscreen */
 }
 
-/* Toolbar sticky en la parte superior */
+/* La transpose-bar ocupa su altura natural arriba */
 .chords-block.fullscreen.cf-active > .transpose-bar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  position:    relative; /* ya no sticky — el flex la mantiene fija arriba */
+  flex:        0 0 auto;
+  z-index:     10;
 }
 
-/* Wrapper: contiene las cols, crece naturalmente con su contenido */
+/* ─── PAGER: contenedor scrollable horizontal con snap ─── */
+.chord-fit-pager {
+  flex:        1 1 auto;
+  position:    relative;
+  width:       100%;
+  min-height:  0; /* importante en flex: permite que se contraiga */
+  overflow-x:  auto;
+  overflow-y:  hidden;
+
+  /* Snap horizontal nativo. JS complementa con snap programático en
+     touchend para garantizar precisión en tablets */
+  scroll-snap-type:           x mandatory;
+  scroll-behavior:            smooth;
+  -webkit-overflow-scrolling: touch;
+
+  /* Solo el pinch interceptado en JS; el resto: pan horizontal nativo */
+  touch-action: pan-x pinch-zoom;
+
+  /* Ocultar scrollbar visualmente — el indicador 1/3 hace su trabajo */
+  scrollbar-width:    none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE/Edge legacy */
+}
+.chord-fit-pager::-webkit-scrollbar { display: none; }
+
+/* ─── WRAPPER: contenedor de cols, crece horizontalmente con el contenido ─── */
 .chord-fit-wrapper {
   --cf-cols: 1;
-  --cf-fs: 0.95rem;
+  --cf-fs:   0.95rem;
 
   column-count: var(--cf-cols);
-  column-gap: 1.5rem;
-  /* `balance` distribuye uniformemente entre N cols. Sin huecos en medio,
-     sin cols extras horizontales. El wrapper crece verticalmente cuando
-     el contenido excede la altura del viewport. */
-  column-fill: balance;
+  column-gap:   1.5rem;
+  /* column-fill: auto = altura fija → cols extras crecen HORIZONTAL.
+     Eso es exactamente lo que queremos: cada N cols = 1 página. */
+  column-fill: auto;
   column-rule: 1px solid rgba(200, 148, 60, 0.12);
 
-  width: 100%;
-  padding: 0.5rem 1.2rem 1rem;
+  height:     100%;
+  padding:    0.5rem 1.2rem;
   box-sizing: border-box;
 
-  font-size: var(--cf-fs);
+  /* Snap-align en el wrapper: ancla el inicio. JS calcula numPages y
+     se encarga del resto del snap programáticamente. */
+  scroll-snap-align: start;
+
+  font-size:   var(--cf-fs);
   font-family: 'Courier New', monospace;
   line-height: 1.4;
-  color: #e0d0b0;
-
-  /* pan-y: scroll vertical de 1 dedo, pinch lo intercepto en JS */
-  touch-action: pan-y;
+  color:       #e0d0b0;
 }
 
-/* SECCIÓN: SIN break-inside avoid. El contenido fluye natural entre cols.
-   margin-bottom mínimo (0.4em) para distinguir estrofas. */
+/* SECCIÓN: bloque atómico que el browser puede fluir entre cols */
 .chord-fit-section {
-  display: block;
+  display:       block;
   margin-bottom: 0.4em;
 }
-.chord-fit-section:last-child {
-  margin-bottom: 0;
-}
+.chord-fit-section:last-child { margin-bottom: 0; }
 
-/* PRE: hereda font-size del wrapper. !important contra el inline-style
+/* PRE: hereda fontsize del wrapper. !important contra el inline-style
    que aplica el módulo 07 (controles A−/A+). */
 .chord-fit-pre {
-  font-size: inherit !important;
+  font-size:   inherit !important;
   font-family: inherit;
   line-height: inherit;
-  color: inherit;
+  color:       inherit;
   white-space: pre;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  tab-size: 4;
-  max-width: 100%;
+  background:  none;
+  border:      none;
+  padding:     0;
+  margin:      0;
+  tab-size:    4;
+  max-width:   100%;
 }
 
-.chord-fit-pre .chord {
-  color: #E8C040;
-  font-weight: bold;
-}
-.chord-fit-pre b {
-  font-weight: bold;
-}
+.chord-fit-pre .chord { color: #E8C040; font-weight: bold; }
+.chord-fit-pre b      { font-weight: bold; }
 
-/* TÍTULO: sí protegido contra romperse entre cols */
+/* TÍTULO: protegido contra romperse entre cols */
 .chord-fit-pre b.chord-title {
-  display: block;
-  margin: 0 0 0.3em !important;
-  padding-bottom: 0.1em;
-  break-inside: avoid;
+  display:                    block;
+  margin:                     0 0 0.3em !important;
+  padding-bottom:             0.1em;
+  break-inside:               avoid;
   -webkit-column-break-inside: avoid;
 }
 
 /* Divisor de sección: pegado a su cuerpo */
 .chord-fit-pre b.chord-section {
-  display: block;
-  margin: 0 0 0.1em !important;
-  break-inside: avoid;
+  display:                     block;
+  margin:                      0 0 0.1em !important;
+  break-inside:                avoid;
   -webkit-column-break-inside: avoid;
 }
 
-.chord-fit-pre b.chord-capo {
-  display: inline-flex;
-}
+.chord-fit-pre b.chord-capo { display: inline-flex; }
 
 /* Ocultar pre original mientras fit está activo */
-.chords-block.fullscreen > pre.cf-source-hidden {
-  display: none;
+.chords-block.fullscreen > pre.cf-source-hidden { display: none; }
+
+/* ════════════════════════════════════════════════════════════════════
+   FLECHAS HINT (izq/der) — estilo "tutorial móvil"
+   ════════════════════════════════════════════════════════════════════
+   Sutiles pero visibles. Pulsan suavemente para llamar la atención sin
+   ser intrusivas. Solo aparecen cuando hay página en esa dirección.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Container de las flechas: ocupa todo el block, pero NO scrollea con
+   el contenido (es hijo del block, no del pager). pointer-events: none
+   en el container para que solo los botones internos sean clickables. */
+.chord-fit-hints {
+  position:       absolute;
+  inset:          0;
+  pointer-events: none;
+  z-index:        15;
+}
+
+/* Botón flecha — circular, semi-transparente, blur del fondo */
+.cf-hint {
+  position:        absolute;
+  top:             50%;
+  width:           54px;
+  height:          54px;
+  border-radius:   50%;
+  border:          1px solid rgba(200, 148, 60, 0.4);
+  background:      rgba(20, 20, 16, 0.62);
+  backdrop-filter:         blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color:           #C8943C;
+  cursor:          pointer;
+  display:         none; /* hidden por defecto */
+  align-items:     center;
+  justify-content: center;
+  pointer-events:  auto;
+  opacity:         0;
+  padding:         0;
+
+  /* Transición de aparición/desaparición */
+  transition: opacity 0.32s ease,
+              background 0.18s,
+              border-color 0.18s;
+}
+.cf-hint svg {
+  width:  26px;
+  height: 26px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.cf-hint-left  { left:  0.7rem; }
+.cf-hint-right { right: 0.7rem; }
+
+/* Visible: la lógica JS añade .cf-hint-visible cuando aplica */
+.cf-hint.cf-hint-visible {
+  display: flex;
+  opacity: 0.78;
+}
+
+.cf-hint:hover,
+.cf-hint:active {
+  opacity:      1 !important;
+  background:   rgba(200, 148, 60, 0.22);
+  border-color: rgba(200, 148, 60, 0.7);
+}
+
+/* Pulse animado en la flecha derecha — sugiere "puedes ir aquí" */
+.cf-hint-right.cf-hint-visible {
+  animation: cf-hint-pulse-right 2.6s ease-in-out infinite;
+}
+@keyframes cf-hint-pulse-right {
+  0%, 100% { transform: translate(0,    -50%); }
+  50%      { transform: translate(8px,  -50%); }
+}
+
+/* Pulse simétrico en la flecha izquierda */
+.cf-hint-left.cf-hint-visible {
+  animation:        cf-hint-pulse-left 2.6s ease-in-out infinite;
+  animation-delay:  0.3s;
+}
+@keyframes cf-hint-pulse-left {
+  0%, 100% { transform: translate(0,    -50%); }
+  50%      { transform: translate(-8px, -50%); }
+}
+
+/* Reducir movimiento si el usuario lo prefiere (accesibilidad) */
+@media (prefers-reduced-motion: reduce) {
+  .cf-hint-right.cf-hint-visible,
+  .cf-hint-left.cf-hint-visible {
+    animation: none;
+  }
+  .cf-hint-right.cf-hint-visible { transform: translate(0, -50%); }
+  .cf-hint-left.cf-hint-visible  { transform: translate(0, -50%); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   INDICADOR DE PÁGINA "1 / 3"
+   ════════════════════════════════════════════════════════════════════
+   Pequeño, abajo al centro. Solo visible si hay >1 páginas.
+   ════════════════════════════════════════════════════════════════════ */
+
+.chord-fit-page-indicator {
+  position:                absolute;
+  bottom:                  0.6rem;
+  left:                    50%;
+  transform:               translateX(-50%);
+  z-index:                 14;
+
+  display:                 none; /* mostrado solo via .cf-pi-visible */
+  align-items:             baseline;
+  gap:                     0.1rem;
+
+  padding:                 0.3rem 0.75rem;
+  background:              rgba(20, 20, 16, 0.72);
+  backdrop-filter:         blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border:                  1px solid rgba(200, 148, 60, 0.3);
+  border-radius:           12px;
+
+  font-family:    'Cinzel', serif;
+  font-size:      0.65rem;
+  letter-spacing: 0.12em;
+  color:          #C8943C;
+
+  pointer-events: none;
+  user-select:    none;
+  opacity:        0;
+  transition:     opacity 0.3s ease;
+}
+.chord-fit-page-indicator.cf-pi-visible {
+  display: inline-flex;
+  opacity: 0.9;
+}
+.cf-pi-current { color: #E8C040; font-weight: 700; }
+.cf-pi-sep     { opacity: 0.5; margin: 0 0.1rem; }
+.cf-pi-total   { opacity: 0.85; }
+
+/* ════════════════════════════════════════════════════════════════════
+   ADAPTACIÓN MÓVIL / TABLET PORTRAIT
+   ════════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* Flechas más compactas en pantallas estrechas */
+  .cf-hint {
+    width:  46px;
+    height: 46px;
+  }
+  .cf-hint svg { width: 22px; height: 22px; }
+  .cf-hint-left  { left:  0.45rem; }
+  .cf-hint-right { right: 0.45rem; }
+
+  .chord-fit-page-indicator {
+    bottom:    0.4rem;
+    padding:   0.25rem 0.6rem;
+    font-size: 0.58rem;
+  }
 }
 
 /* ══════════════════════════════════════════════════════

@@ -6,14 +6,32 @@
  *   @brief      Botón "Diag" + modo grabación de eventos para fullscreen-fit
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r12
+ *   @version    v3.2.46r14
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12d-fullscreen-diag.js  —  v3.2.46r12
+   12d-fullscreen-diag.js  —  v3.2.46r14
    ============================================================================
+   FIX r13: overlay y badge visibles dentro del fullscreen API mode
+   ────────────────────────────────────────────────────────────────────────────
+   En r12 el overlay solo aparecía al SALIR de fullscreen porque vivía en
+   document.body, y cuando el browser está en fullscreen API (vía
+   block.requestFullscreen), solo el elemento promovido a fullscreen es
+   visible. Cualquier nodo en body queda fuera del viewport del fullscreen.
+
+   Solución r13:
+     • Helper getOverlayHost() devuelve document.fullscreenElement si lo
+       hay, con fallback a document.body.
+     • placeInHost(el) reubica overlay/badge al host correcto antes de
+       mostrarlos.
+     • Listener fullscreenchange los reubica si el estado cambia mientras
+       están visibles.
+
+   El indicador "● REC" ahora también es visible durante el fullscreen API
+   y se mueve automáticamente entre block ↔ body al cambiar el estado.
+
    PROPÓSITO
    ────────────────────────────────────────────────────────────────────────────
    Diagnóstico del módulo 12-chord-fullscreen-fit.js directamente desde la
@@ -196,7 +214,7 @@
       : null;
 
     return {
-      version: 'v3.2.46r12',
+      version: 'v3.2.46r14',
       timestamp: new Date().toISOString(),
 
       canto:    cantoTitulo,
@@ -238,6 +256,49 @@
       userAgent: navigator.userAgent
     };
   }
+
+  // ────────────────────────────────────────────────────────────
+  // HOST DEL OVERLAY — soluciona el bug del fullscreen API
+  // ────────────────────────────────────────────────────────────
+  // r13: cuando el browser entra en fullscreen API mode (block.requestFullscreen),
+  // SOLO el elemento promovido a fullscreen es visible. Cualquier nodo en
+  // document.body queda fuera del viewport del fullscreen, por eso en r12 el
+  // overlay solo se veía al salir de fullscreen.
+  //
+  // Solución: insertar overlay y badge dentro del elemento que esté en
+  // fullscreen, si lo hay. Si no, fallback a document.body. También
+  // reubicamos en cada cambio de fullscreen para mantener consistencia.
+
+  // Devuelve el contenedor donde overlay/badge deben vivir AHORA
+  function getOverlayHost() {
+    return document.fullscreenElement
+        || document.webkitFullscreenElement
+        || document.body;
+  }
+
+  // Mueve el elemento al host correcto si no está ya ahí
+  function placeInHost(el) {
+    if (!el) return;
+    var host = getOverlayHost();
+    if (el.parentNode !== host) {
+      host.appendChild(el);
+    }
+  }
+
+  // Listener global: cuando cambia el estado de fullscreen, reubicar
+  // overlay y badge al lugar correcto (si están visibles).
+  function onFullscreenChange() {
+    var overlay = document.getElementById(DIAG_OVERLAY_ID);
+    var badge   = document.getElementById(DIAG_REC_ID);
+    if (overlay && overlay.classList.contains(DIAG_OVERLAY_OPEN)) {
+      placeInHost(overlay);
+    }
+    if (badge && badge.classList.contains('cdr-visible')) {
+      placeInHost(badge);
+    }
+  }
+  document.addEventListener('fullscreenchange',       onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
   // ────────────────────────────────────────────────────────────
   // OVERLAY MODAL
@@ -306,6 +367,10 @@
       overlay._diagText = pretty;
     }
 
+    // r13: asegurar que el overlay vive dentro del fullscreen element
+    // (si lo hay) para que sea visible. Si no, va al body.
+    placeInHost(overlay);
+
     overlay.classList.add(DIAG_OVERLAY_OPEN);
   }
 
@@ -357,6 +422,7 @@
     var overlay = buildOverlay();
     overlay._diagOriginBlk = origin;
     renderTimeline(overlay);
+    placeInHost(overlay); // r13: asegurar host correcto antes de mostrar
     overlay.classList.add(DIAG_OVERLAY_OPEN);
   }
 
@@ -467,6 +533,9 @@
 
       document.body.appendChild(badge);
     }
+    // r13: asegurar que el badge vive dentro del fullscreen element
+    // (si lo hay) para que sea visible durante el fullscreen API mode.
+    placeInHost(badge);
     badge.classList.add('cdr-visible');
     updateRecorderBadge();
   }
@@ -582,7 +651,7 @@
 
   function serializeRecording() {
     var out = {
-      version: 'v3.2.46r12',
+      version: 'v3.2.46r14',
       type:    'recording',
       duration_ms: recState.snapshots.length
         ? recState.snapshots[recState.snapshots.length - 1].tRel
