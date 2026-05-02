@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r7
+     @version    v3.2.46r8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -204,6 +204,12 @@
   column-fill: auto;
   column-rule: 1px solid rgba(200, 148, 60, 0.12);
   height: 100%;
+
+  /* CRÍTICO: si CSS-columns intenta crear cols extras horizontales (cuando
+     el contenido excede el alto pedido), el `overflow: hidden` las oculta.
+     El JS detecta el desborde via scrollWidth > clientWidth y activa
+     `.cf-no-fit` para caer a 1 col + scroll vertical. */
+  overflow: hidden;
 }
 
 /* Modo fallback: cuando el contenido no cabe ni con N columnas + auto-fit,

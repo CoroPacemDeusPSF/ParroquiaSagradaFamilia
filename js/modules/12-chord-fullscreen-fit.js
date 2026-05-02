@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r7
+ *   @version    v3.2.46r8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -89,25 +89,38 @@
     wrapper.style.setProperty('--cf-fs', fsRem.toFixed(3) + 'rem');
   }
 
+  // CRÍTICO: Con CSS-columns + altura fija, el contenido excedente NO crece
+  // verticalmente — el browser CREA COLUMNAS EXTRA HORIZONTALES a la derecha.
+  // Por eso "fitsInHeight" debe verificar TAMBIÉN scrollWidth: si el browser
+  // tuvo que crear cols extras, scrollWidth > clientWidth.
+  //
+  // En otras palabras: con CSS-columns, NO CABE si scrollWidth excede el
+  // ancho del pre (cualquier fs/cols donde el browser quiso poner más cols
+  // de las pedidas → desborde horizontal → no es un fit válido).
   function fitsInHeight(wrapper, cols, fsRem, availH) {
     applyLayout(wrapper, cols, fsRem);
-    wrapper.offsetHeight;  // forzar reflow
-    // Medimos el <pre> interno donde viven las columnas.
-    // Con `column-fill: auto` y altura fija, si el contenido no cabe en
-    // las N columnas, scrollHeight > clientHeight.
+    wrapper.offsetHeight;
     var pre = wrapper.querySelector('.chord-fit-pre');
     if (!pre) return true;
-    return pre.scrollHeight <= pre.clientHeight + 4;
+    // Detección combinada:
+    //   1. scrollHeight > clientHeight: el contenido ocupa más alto del fijado
+    //      (caso raro con column-fill: auto, pero posible)
+    //   2. scrollWidth > clientWidth: el browser creó cols extras horizontales
+    //      (caso común cuando CSS-columns no puede paginar lo pedido)
+    var heightFits = pre.scrollHeight <= pre.clientHeight + 4;
+    var widthFits  = pre.scrollWidth  <= pre.clientWidth  + 4;
+    return heightFits && widthFits;
   }
 
+  // fitsInWidth: la línea individual MÁS LARGA cabe en el ancho de columna
+  // (sin importar si CSS-columns crea cols extras por falta de altura).
+  // Esto es DIFERENTE de fitsInHeight: aquí queremos saber si una línea pre
+  // sin partir cabe en una col. Con CSS-columns esto es complicado de medir
+  // directamente, así que medimos a 1 columna como referencia.
   function fitsInWidth(wrapper) {
     var pre = wrapper.querySelector('.chord-fit-pre');
     if (!pre) return true;
-    // Con CSS-columns, scrollWidth incluye las columnas. Si la línea más
-    // larga no cabe en el ancho de columna, el browser crea columnas
-    // extras fuera del viewport — eso lo detectamos comparando scrollWidth
-    // con clientWidth.
-    return pre.scrollWidth <= pre.clientWidth + 1;
+    return pre.scrollWidth <= pre.clientWidth + 4;
   }
 
   function fitsInWidthAt(wrapper, cols, fsRem) {
@@ -195,15 +208,15 @@
     function applyFs(fs) {
       currentFs = fs;
       wrapper.style.setProperty('--cf-fs', fs.toFixed(3) + 'rem');
-      // Re-evaluar si cabe en columnas o necesita modo scroll
+      // Re-evaluar si cabe en columnas o necesita modo scroll.
+      // Verificar ambas dimensiones (ver fitsInHeight para explicación).
       var p = wrapper.querySelector('.chord-fit-pre');
       if (p) {
-        // Quitar cf-no-fit temporal para medir
         p.classList.remove('cf-no-fit');
         wrapper.offsetHeight;
-        if (p.scrollHeight > p.clientHeight + 4) {
-          p.classList.add('cf-no-fit');
-        }
+        var hO = p.scrollHeight > p.clientHeight + 4;
+        var wO = p.scrollWidth  > p.clientWidth  + 4;
+        if (hO || wO) p.classList.add('cf-no-fit');
       }
     }
 
@@ -265,9 +278,9 @@
       if (p) {
         p.classList.remove('cf-no-fit');
         wrapper.offsetHeight;
-        if (p.scrollHeight > p.clientHeight + 4) {
-          p.classList.add('cf-no-fit');
-        }
+        var hO = p.scrollHeight > p.clientHeight + 4;
+        var wO = p.scrollWidth  > p.clientWidth  + 4;
+        if (hO || wO) p.classList.add('cf-no-fit');
       }
     }
     function onWheel(e) {
@@ -312,15 +325,16 @@
     wrapper.offsetHeight;
 
     // Verificar si el contenido REALMENTE cabe con el layout aplicado.
-    // Si no cabe (caso extremo: canto muy largo, líneas anchas, etc.),
-    // caer a modo scroll: 1 columna sin altura fija, scroll vertical natural.
-    // Esto se detecta midiendo si el pre interno excede su contenedor.
+    // CRÍTICO: medir AMBAS dimensiones. CSS-columns + altura fija + contenido
+    // excedente = columnas extra HORIZONTALES, no scrollHeight crecido.
     var pre = wrapper.querySelector('.chord-fit-pre');
-    if (pre && pre.scrollHeight > pre.clientHeight + 4) {
-      // El contenido se desborda dentro del pre con altura fija.
-      // CSS-columns crearía columnas adicionales fuera de pantalla.
-      // Activamos modo "scroll" para que el wrapper haga scroll vertical.
-      pre.classList.add('cf-no-fit');
+    if (pre) {
+      var hOverflow = pre.scrollHeight > pre.clientHeight + 4;
+      var wOverflow = pre.scrollWidth  > pre.clientWidth  + 4;
+      if (hOverflow || wOverflow) {
+        // El contenido se desborda. Caer a modo "1 col + scroll vertical".
+        pre.classList.add('cf-no-fit');
+      }
     }
 
     var cleanupPinch = setupPinch(wrapper, best.fs, availH);
