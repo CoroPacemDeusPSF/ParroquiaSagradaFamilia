@@ -6,13 +6,13 @@
  *   @brief      Paginación horizontal de acordes en fullscreen + pinch zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r18
+ *   @version    v3.2.46r19
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js  —  v3.2.46r18
+   12-chord-fullscreen-fit.js  —  v3.2.46r19
    ============================================================================
    PAGINACIÓN HORIZONTAL — REESCRITURA COMPLETA
    ────────────────────────────────────────────────────────────────────────────
@@ -233,16 +233,39 @@
   function getPageState(block) {
     var pager = block._cfPager;
     if (!pager || pager.clientWidth === 0) {
-      return { pageW: 0, totalPages: 1, currentPage: 1 };
+      return { pageW: 0, totalPages: 1, currentPage: 1, maxScroll: 0 };
     }
-    var pageW = pager.clientWidth;
-    var totalW = pager.scrollWidth;
-    var totalPages = Math.max(1, Math.round(totalW / pageW));
-    var currentPage = Math.min(
-      totalPages,
-      Math.max(1, Math.round(pager.scrollLeft / pageW) + 1)
-    );
-    return { pageW: pageW, totalPages: totalPages, currentPage: currentPage };
+    var pageW    = pager.clientWidth;
+    var totalW   = pager.scrollWidth;
+    var maxScroll = Math.max(0, totalW - pageW);
+
+    // r19: ceil con tolerancia -0.05 para errores de floating point.
+    // Antes era Math.round → bug: con scrollW=1511 y pageW=1018 daba 1
+    // (round(1.484)) cuando claramente hay 2 páginas (la 2da parcial).
+    var totalPages = Math.max(1, Math.ceil(totalW / pageW - 0.05));
+
+    // r19: currentPage por proximidad a las posiciones REALES de cada
+    // página. La última página puede ser parcial (su posición = maxScroll
+    // < (totalPages-1)*pageW). Antes usaba round simple → fallaba en
+    // landscape donde la última página queda parcial.
+    var scrollLeft = pager.scrollLeft;
+    var nearestPage = 1;
+    var nearestDist = Math.abs(scrollLeft - 0);
+    for (var i = 1; i < totalPages; i++) {
+      var pos  = (i === totalPages - 1) ? maxScroll : (i * pageW);
+      var dist = Math.abs(scrollLeft - pos);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestPage = i + 1;
+      }
+    }
+
+    return {
+      pageW:       pageW,
+      totalPages:  totalPages,
+      currentPage: nearestPage,
+      maxScroll:   maxScroll
+    };
   }
 
   function updateUI(block) {
@@ -288,26 +311,49 @@
       block._cfSnapTimer = null;
     }
 
-    pager.scrollTo({
-      left: (page - 1) * state.pageW,
-      behavior: 'smooth'
-    });
+    // r19: la última página puede ser parcial — su posición es maxScroll,
+    // no (totalPages-1)*pageW. Usar maxScroll evita scrollear más allá
+    // del límite real del browser.
+    var targetPx;
+    if (page === state.totalPages && state.totalPages > 1) {
+      targetPx = state.maxScroll;
+    } else {
+      targetPx = (page - 1) * state.pageW;
+    }
+
+    pager.scrollTo({ left: targetPx, behavior: 'smooth' });
   }
 
-  // Snap programático: redondea al entero más cercano.
-  // Complementa el CSS scroll-snap nativo. En algunos browsers móviles
-  // el snap nativo no es 100% confiable tras inertia scroll; este snap
-  // garantiza que siempre quedamos centrados en una página.
+  // Snap programático: encuentra la posición de página más cercana.
+  // r19: usa positions reales (con la última = maxScroll). Antes
+  // usaba Math.round simple → fallaba con páginas parciales: si maxScroll
+  // < pageW/2, scrollLeft nunca alcanzaba round=1 y el snap regresaba
+  // siempre a 0 (síntoma "avanza y retrocede solo").
   function snapToNearest(block) {
     var pager = block._cfPager;
     if (!pager) return;
-    var pageW = pager.clientWidth;
-    if (pageW === 0) return;
-    var current = pager.scrollLeft / pageW;
-    var target  = Math.round(current);
-    var targetPx = target * pageW;
-    if (Math.abs(pager.scrollLeft - targetPx) > 1) {
-      pager.scrollTo({ left: targetPx, behavior: 'smooth' });
+    var state = getPageState(block);
+    if (state.totalPages <= 1) return;
+
+    // Construir array de posiciones reales de cada página:
+    //   [0, pageW, 2*pageW, ..., maxScroll]
+    var positions = [];
+    for (var i = 0; i < state.totalPages - 1; i++) {
+      positions.push(i * state.pageW);
+    }
+    positions.push(state.maxScroll);
+
+    // Encontrar la posición más cercana al scrollLeft actual
+    var scrollLeft = pager.scrollLeft;
+    var nearest    = positions[0];
+    var minDist    = Math.abs(scrollLeft - positions[0]);
+    for (var j = 1; j < positions.length; j++) {
+      var d = Math.abs(scrollLeft - positions[j]);
+      if (d < minDist) { minDist = d; nearest = positions[j]; }
+    }
+
+    if (Math.abs(scrollLeft - nearest) > 1) {
+      pager.scrollTo({ left: nearest, behavior: 'smooth' });
     }
   }
 

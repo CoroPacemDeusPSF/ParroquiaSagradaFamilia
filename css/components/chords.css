@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r18
+     @version    v3.2.46r19
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -223,11 +223,36 @@
   color:       #e0d0b0;
 }
 
-/* SECCIÓN: bloque que el browser puede partir entre cols */
+/* ════════════════════════════════════════════════════════════════════
+   ESPACIADO ENTRE SECCIONES — REGLAS r19 (reescritas desde cero)
+   ════════════════════════════════════════════════════════════════════
+   Lineamientos definidos por Renzo:
+     1. UN espacio (una línea en blanco visible) entre INTRO y la primera
+        estrofa.
+     2. UN espacio entre estrofas consecutivas.
+     3. Cada par "letra + acordes" puede repartirse entre columnas, no
+        es un bloque atómico.
+
+   Regla 3 ya está resuelta por el cambio <pre>→<div> en r18.
+
+   Reglas 1 y 2 se cumplen con margin-bottom adecuado en .chord-fit-section:
+   cada sección que produce splitSections() representa un párrafo/estrofa.
+   El margin-bottom debe equivaler aproximadamente a 1 line-height para
+   producir el efecto visual de "una línea en blanco".
+
+   Cálculo: line-height: 1.32, así que margin-bottom: 1em es ~76% de una
+   línea. Usamos 1.1em para que se vea clarito como "una línea de espacio"
+   sin ser exagerado.
+
+   No se aplica margin-bottom al :last-child para no dejar un hueco al
+   final de la última columna.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* SECCIÓN: una unidad lógica del canto (estrofa, coro, intro, etc.).
+   Puede partirse libremente entre columnas (break-inside: auto). */
 .chord-fit-section {
-  display:       block;
-  margin-bottom: 0.18em;         /* r17: 0.4em → 0.18em (más compacto) */
-  /* r18: explícito para anular cualquier herencia que fuerce atomic */
+  display:                     block;
+  margin-bottom:               1.1em;        /* r19: línea en blanco entre estrofas */
   break-inside:                auto;
   -webkit-column-break-inside: auto;
 }
