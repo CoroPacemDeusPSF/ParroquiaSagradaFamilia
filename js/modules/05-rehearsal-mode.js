@@ -6,7 +6,7 @@
  *   @brief      Modo Coro: 5-clicks en ícono iglesia, animación de ingreso, badge
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.3.0
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -45,6 +45,24 @@
 
   function activateRehearsal() {
     active = true;
+
+    // Mutex con Modo Bodas (módulo 29): si está activo, lo desactivamos
+    // primero para evitar que ambos modos especiales coexistan. El módulo
+    // 29 hace lo mismo en su activateWedding(). Cierre simétrico.
+    if (document.body.classList.contains('wedding-mode')) {
+      document.body.classList.remove('wedding-mode');
+      var weddingBadge = document.getElementById('wedding-badge');
+      if (weddingBadge) weddingBadge.classList.remove('active');
+      if (window.SLB && typeof window.SLB.close === 'function') {
+        window.SLB.close();
+      }
+      if (window.WeddingMode && typeof window.WeddingMode.deactivate === 'function') {
+        // Ya removimos las clases arriba; esta llamada limpia el estado
+        // interno del módulo 29 (active = false, etc.).
+        window.WeddingMode.deactivate();
+      }
+    }
+
     playRehearsalIntro(function() {
       document.body.classList.add('rehearsal-mode');
       var badge = document.getElementById('rehearsal-badge');
@@ -99,14 +117,28 @@
   }
 
   // ── RESTORE MODE ON PAGE LOAD (silent, no animation) ──
+  // Solo restauramos el Modo Coro aquí. La restauración del Modo Bodas la
+  // hace el módulo 29-wedding-mode.js leyendo el mismo localStorage. Como
+  // los modos son mutuamente excluyentes, solo uno se ejecuta a la vez.
+  //
+  // Valores válidos de pdMode:
+  //   'coro'       → restaurar Modo Coro
+  //   'coro+dev'   → restaurar Modo Coro + Dev
+  //   'bodas'      → manejado por el módulo 29
+  //   'bodas+dev'  → manejado por el módulo 29
+  //   'dev'        → legacy, se interpreta como 'coro+dev' (para compatibilidad
+  //                   con sesiones guardadas con la versión anterior).
   (function restoreMode() {
     try {
       var saved = localStorage.getItem('pdMode');
       if (!saved) return;
+      // Si el modo guardado corresponde a bodas, no hacemos nada aquí.
+      if (saved === 'bodas' || saved === 'bodas+dev') return;
+
       active = true;
       document.body.classList.add('rehearsal-mode');
       document.getElementById('rehearsal-badge').classList.add('active');
-      if (saved === 'dev') {
+      if (saved === 'coro+dev' || saved === 'dev') {
         document.body.classList.add('dev-mode');
       }
       console.log('[Mode] Restaurado: ' + saved);

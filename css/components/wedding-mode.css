@@ -1,0 +1,249 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/wedding-mode.css
+     @brief      Estilos del Modo Bodas: badge con anillos, sello rosa, dialog
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.3.0
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   wedding-mode.css — Modo Bodas (paralelo al Modo Coro)
+   ============================================================================
+   Paleta rosa perlado para diferenciar visualmente del Modo Coro (dorado).
+
+     --wm-rose:        #E8B4B8   (rosa perlado base — badge, acentos)
+     --wm-rose-deep:   #C97D87   (rosa más saturado para hover/active)
+     --wm-rose-soft:   #F5D5DA   (rosa pálido para fondos suaves)
+     --wm-rose-pearl:  #EDD8DC   (rosa con luminosidad perlada)
+
+   La paleta se define localmente (dentro de :root) en lugar de en tokens.css
+   para no contaminar el resto del proyecto. Solo el Modo Bodas la usa.
+
+   COMPONENTES:
+     #wedding-badge         — Badge flotante (tap = salir). Símil a #rehearsal-badge.
+     #wedding-confirm       — Dialog "¿Salir del Modo Bodas?". Símil a #rehearsal-confirm.
+     #wedding-intro         — Overlay del sello bodas. Símil a #rehearsal-intro.
+     .wi-seal, .wi-ring-*   — Animación del sello (corazones + anillos).
+   ============================================================================ */
+
+:root {
+  --wm-rose:       #E8B4B8;
+  --wm-rose-deep:  #C97D87;
+  --wm-rose-soft:  #F5D5DA;
+  --wm-rose-pearl: #EDD8DC;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BADGE BODAS — flotante, tap para salir
+   ════════════════════════════════════════════════════════════════════
+   Posición y comportamiento idénticos al rehearsal-badge — coexisten
+   en el mismo nav (visualmente excluyentes vía body classes).
+   ════════════════════════════════════════════════════════════════════ */
+#wedding-badge {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.6rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+#wedding-badge.active { display: flex; }
+
+/* En Dev Mode (cuando ya estás en bodas+dev), el badge cambia ícono y color */
+body.dev-mode #wedding-badge svg { background: #B45309; }
+body.dev-mode #wedding-badge .badge-rings { display: none; }
+body.dev-mode #wedding-badge .badge-dev   { display: block !important; }
+
+#wedding-badge svg {
+  width: 22px; height: 22px;
+  color: #fff;
+  background: var(--wm-rose-deep);
+  border-radius: 50%;
+  padding: 3px;
+  transition: background 0.3s;
+
+  /* Pulse rosa para coherencia visual con el rehearsal-badge dorado */
+  box-shadow: 0 0 0 0 rgba(201, 125, 135, 0.7);
+  animation: weddingPulse 1.4s ease-in-out infinite;
+}
+@keyframes weddingPulse {
+  0%   { box-shadow: 0 0 0 0    rgba(201, 125, 135, 0.7); }
+  70%  { box-shadow: 0 0 0 8px  rgba(201, 125, 135, 0);   }
+  100% { box-shadow: 0 0 0 0    rgba(201, 125, 135, 0);   }
+}
+
+/* Animación de entrada del badge — reusamos el mismo keyframe del rehearsal */
+#wedding-badge.entrance {
+  animation: badgeEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             weddingPulse 1.4s ease-in-out 0.7s infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   DIÁLOGO DE CONFIRMACIÓN "¿Salir del Modo Bodas?"
+   ════════════════════════════════════════════════════════════════════
+   Misma estructura visual que #rehearsal-confirm pero con paleta rosa.
+   ════════════════════════════════════════════════════════════════════ */
+#wedding-confirm {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+}
+#wedding-confirm.open { display: flex; }
+
+#wedding-confirm-box {
+  background: #FFF8F8;
+  padding: 1.2rem 1.5rem;
+  border-radius: 6px;
+  text-align: center;
+  max-width: 90%;
+  border-top: 3px solid var(--wm-rose-deep);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+#wedding-confirm-box p {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: #4A2A30;
+  margin: 0 0 1rem;
+  letter-spacing: 0.1em;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   OVERLAY DEL SELLO DE INTRO
+   ════════════════════════════════════════════════════════════════════
+   Misma cinemática que #rehearsal-intro: fondo oscuro fade-in, sello
+   estampándose en el centro, fade-out. Cambia paleta y simbología.
+   ════════════════════════════════════════════════════════════════════ */
+#wedding-intro {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300000;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0);
+}
+#wedding-intro.playing {
+  display: flex !important;
+  animation: wiBgIn 0.4s ease-out forwards;
+}
+#wedding-intro.fade-out { animation: wiFadeOut 0.5s ease-in forwards; }
+@keyframes wiBgIn    { to   { background: rgba(0, 0, 0, 0.92); } }
+@keyframes wiFadeOut {
+  from { background: rgba(0, 0, 0, 0.92); opacity: 1; }
+  to   { background: rgba(0, 0, 0, 0);    opacity: 0; }
+}
+
+/* ── SEAL CONTAINER ──────────────────────────────────────────────────
+   Reutilizamos el patrón de "estampado" del módulo de coro pero con
+   geometría idéntica para que se sienta del mismo sistema visual.
+   ──────────────────────────────────────────────────────────────────── */
+.wi-seal {
+  position: relative;
+  width:  clamp(220px, 60vmin, 320px);
+  height: clamp(220px, 60vmin, 320px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(-80px) scale(0.3) rotate(-15deg);
+}
+#wedding-intro.playing .wi-seal {
+  animation: wiSealStamp 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) 0.3s forwards;
+}
+@keyframes wiSealStamp {
+  0%   { opacity: 0; transform: translateY(-80px) scale(0.3)  rotate(-15deg); }
+  60%  { opacity: 1; transform: translateY(8px)   scale(1.05) rotate(2deg); }
+  80%  {             transform: translateY(-3px)  scale(0.97) rotate(-1deg); }
+  100% { opacity: 1; transform: translateY(0)     scale(1)    rotate(0deg); }
+}
+
+/* ── ANILLOS DEL SELLO ───────────────────────────────────────────────
+   Dos anillos concéntricos rosa claros — en lugar del dorado del coro.
+   ──────────────────────────────────────────────────────────────────── */
+.wi-ring-outer, .wi-ring-inner {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(232, 180, 184, 0.7);
+  box-shadow: 0 0 15px rgba(232, 180, 184, 0.25);
+}
+.wi-ring-outer { inset: 0; }
+.wi-ring-inner {
+  inset: 10%;
+  border-color: rgba(245, 213, 218, 0.5);
+  border-width: 0.5px;
+}
+
+/* ── TEXTO ROTANTE ALREDEDOR DEL SELLO ───────────────────────────────
+   Mismo SVG path que el sello de coro — gira indefinidamente.
+   ──────────────────────────────────────────────────────────────────── */
+.wi-ring-text {
+  position: absolute;
+  inset: 2%;
+  animation: wiSealSpin 12s linear infinite;
+}
+@keyframes wiSealSpin { to { transform: rotate(360deg); } }
+
+/* ── CENTRO: ANILLOS ENTRELAZADOS + LABEL ────────────────────────────
+   El centro del sello bodas usa el glifo "⚭" (anillos entrelazados,
+   U+2B2D) o un SVG custom de anillos. Optamos por SVG por mejor control.
+   ──────────────────────────────────────────────────────────────────── */
+.wi-seal-center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.wi-seal-rings {
+  width: clamp(2.5rem, 8.5vmin, 3.6rem);
+  height: clamp(2.5rem, 8.5vmin, 3.6rem);
+  margin: 0 auto;
+  color: var(--wm-rose);
+  filter: drop-shadow(0 0 30px rgba(232, 180, 184, 0.5));
+  opacity: 0;
+}
+#wedding-intro.playing .wi-seal-rings {
+  animation: wiReveal 0.4s ease-out 0.8s forwards;
+}
+.wi-seal-label {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.2rem, 4.5vmin, 1.8rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--wm-rose);
+  text-shadow: 0 0 30px rgba(232, 180, 184, 0.5);
+  opacity: 0;
+  margin-top: 0.3rem;
+}
+#wedding-intro.playing .wi-seal-label {
+  animation: wiReveal 0.4s ease-out 1s forwards;
+}
+@keyframes wiReveal { from { opacity: 0; } to { opacity: 1; } }
+
+/* ════════════════════════════════════════════════════════════════════
+   EMANACIÓN DE CORAZONES (paralelo a fx-tab-note del Modo Coro)
+   ════════════════════════════════════════════════════════════════════
+   Mientras body.wedding-mode esté activo y el tab del setlist bodas
+   sea visible, emanan corazones rosa perlado. Reusa el sistema de
+   emanación del módulo 22 (que solo cambia clase + color).
+
+   La animación `fx-note-float` ya está definida en effects.css y la
+   compartimos. Solo agregamos el variante de color para corazones.
+   ════════════════════════════════════════════════════════════════════ */
+.fx-note.fx-tab-heart {
+  position: fixed;
+  color: var(--wm-rose);
+  z-index: 90001;
+  /* Los corazones renderizados como glifo Unicode ❤ U+2764 — ver módulo 22 */
+}

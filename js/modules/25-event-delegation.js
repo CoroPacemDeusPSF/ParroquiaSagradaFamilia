@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.3.0
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -131,12 +131,19 @@
     /**
      * Agrega una canción al SetList desde el botón "+" del título.
      * El elemento debe llevar data-target="cpd-XXX" con el id del canto.
-     * Invoca window.SL.addSong() que abre el diálogo de selección de slot.
+     * Invoca el setlist activo según el modo:
+     *   • body.wedding-mode → window.SLB.addSong (setlist bodas)
+     *   • por defecto       → window.SL.addSong  (setlist dominical)
      */
     'add-to-setlist': (el) => {
       const cpd = el.getAttribute('data-target');
-      if (window.SL && typeof window.SL.addSong === 'function') {
-        window.SL.addSong(cpd);
+      // El botón "+" se inyecta una sola vez por el renderer; aquí
+      // decidimos a qué setlist agregar en función del modo activo.
+      // Mutuamente excluyentes (módulos 05 y 29 garantizan invariante).
+      const inWedding = document.body.classList.contains('wedding-mode');
+      const target = inWedding ? window.SLB : window.SL;
+      if (target && typeof target.addSong === 'function') {
+        target.addSong(cpd);
       }
     },
 

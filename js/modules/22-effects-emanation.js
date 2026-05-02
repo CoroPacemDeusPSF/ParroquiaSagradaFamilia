@@ -6,7 +6,7 @@
  *   @brief      Efecto de emanación de halo en cruces y elementos sagrados
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.3.0
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -34,8 +34,14 @@
   'use strict';
 
   /* Repertorio de glifos: caracteres unicode (no emojis) renderizados en
-     fuente serif/symbol del sistema, monocromáticos y livianos. */
+     fuente serif/symbol del sistema, monocromáticos y livianos.
+     - Notas musicales: emanan del tab dominical y del botón Salmo.
+     - Corazones: emanan del tab bodas (modo wedding-mode).
+       Usamos el corazón pequeño U+2665 (♥) y el corazón estilizado
+       U+2766 (❦) — ambos rinden con peso visual liviano.
+   */
   var GLYPHS = ['\u266A','\u266B','\u2669','\u266C']; // ♪ ♫ ♩ ♬
+  var HEARTS = ['\u2665','\u2766','\u2764','\u2661']; // ♥ ❦ ❤ ♡
 
   /* Si el usuario prefiere movimiento reducido, omitimos por completo
      la emisión de notas (la respiración del halo y el latido se desactivan
@@ -43,11 +49,16 @@
   var prm = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (prm.matches) return;
 
-  /* Spawn helper interno: ejecuta inmediatamente o tras un delay */
+  /* Spawn helper interno: ejecuta inmediatamente o tras un delay.
+     El glyph set se elige según la clase del efecto:
+       • fx-tab-heart → HEARTS (corazones, para Modo Bodas)
+       • cualquier otra → GLYPHS (notas musicales, default)
+   */
   function _doSpawn(opts) {
     var n = document.createElement('span');
     n.className = 'fx-note ' + (opts.cls || '');
-    n.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+    var pool = (opts.cls && opts.cls.indexOf('fx-tab-heart') !== -1) ? HEARTS : GLYPHS;
+    n.textContent = pool[Math.floor(Math.random() * pool.length)];
     n.style.left = opts.x + 'px';
     n.style.top  = opts.y + 'px';
     /* Variación por nota: deriva horizontal ±15px, vertical -50 a -75px,
@@ -78,7 +89,10 @@
     count = count || (2 + Math.floor(Math.random() * 2));
     stagger = stagger || 90;
     var rect = target.getBoundingClientRect();
-    var isFixed = (cls === 'fx-tab-note'); /* tab usa coordenadas viewport */
+    /* Tanto fx-tab-note (Modo Coro) como fx-tab-heart (Modo Bodas) usan
+       coordenadas viewport (position:fixed) porque emanan desde el borde
+       de pantalla. El resto de efectos usan coordenadas relativas. */
+    var isFixed = (cls === 'fx-tab-note' || cls === 'fx-tab-heart');
     for (var i = 0; i < count; i++) {
       var x, y, parent;
       if (isFixed) {
@@ -108,6 +122,19 @@
         if (!document.body.classList.contains('rehearsal-mode')) return;
         if (tab.classList.contains('sl-tab-hidden')) return;
         spawnBurst(tab, 'fx-tab-note');
+      });
+    }
+
+    /* Tab del Modo Bodas: emite corazones rosa perlado en cada latido.
+       Misma mecánica que el tab dominical, pero con keyframe distinto
+       (slb-tab-heartbeat) y guardia por wedding-mode. */
+    var slbTab = document.getElementById('slb-tab');
+    if (slbTab) {
+      slbTab.addEventListener('animationiteration', function(e) {
+        if (e.animationName !== 'slb-tab-heartbeat') return;
+        if (!document.body.classList.contains('wedding-mode')) return;
+        if (slbTab.classList.contains('slb-tab-hidden')) return;
+        spawnBurst(slbTab, 'fx-tab-heart');
       });
     }
 

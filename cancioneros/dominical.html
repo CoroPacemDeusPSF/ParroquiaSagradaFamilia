@@ -8,7 +8,7 @@
     @brief      Shell del Cancionero Dominical — los 111 cantos se renderizan en runtime desde data/songs.json
     @author     Renzo Núñez Berdejo
     @project    Cancionero Dominical
-    @version    v3.2.46r20
+    @version    v3.3.0
 
   ────────────────────────────────────────────────────────────────────────────
 -->
@@ -45,7 +45,7 @@
 <meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png">
 <meta name="description" content="Cancionero Dominical del Coro Pacem Deus — 103 cantos con acordes, contexto litúrgico y referencias bíblicas para la celebración eucarística. Parroquia de la Sagrada Familia.">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.2.46r20">
+<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.3.0">
 </head>
 <body class="no-x-overflow">
 
@@ -121,6 +121,21 @@
       <polyline points="8 6 2 12 8 18"/>
     </svg>
   </button>
+  <!-- ══ Badge Modo Bodas (paralelo al rehearsal-badge) ══
+       Aparece solo cuando body.wedding-mode está activo (CSS lo controla).
+       Tap muestra el dialog de confirmación de salida (módulo 29). -->
+  <button id="wedding-badge" title="Modo Bodas activo — toca para salir">
+    <!-- Ícono anillos entrelazados (Modo Bodas) -->
+    <svg class="badge-rings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="14" r="5"/>
+      <circle cx="15" cy="10" r="5"/>
+    </svg>
+    <!-- Ícono terminal </> (Modo Dev sobre Bodas) -->
+    <svg class="badge-dev is-hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"/>
+      <polyline points="8 6 2 12 8 18"/>
+    </svg>
+  </button>
   <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
     <span></span><span></span><span></span>
   </button>
@@ -161,6 +176,41 @@
     <div class="ri-seal-center">
       <div class="ri-seal-cross">&#10013;</div>
       <div class="ri-seal-label">Modo<br>Coro</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WEDDING MODE — Confirmación de salida (paralelo a rehearsal-confirm) ══ -->
+<div id="wedding-confirm">
+  <div id="wedding-confirm-box">
+    <p id="wedding-confirm-text">¿Salir del modo Bodas?</p>
+    <div class="dialog-actions-row">
+      <button id="wedding-confirm-yes" style="padding:0.5rem 1.5rem;border-radius:3px;border:1px solid #C97D87;background:#C97D87;color:#fff;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.15em;cursor:pointer;">Sí</button>
+      <button id="wedding-confirm-no"  style="padding:0.5rem 1.5rem;border-radius:3px;border:1px solid rgba(80,30,40,0.3);background:transparent;color:#5A2030;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.15em;cursor:pointer;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WEDDING MODE — Overlay del sello (paralelo a rehearsal-intro) ══
+     Mismo patrón visual: anillo exterior + interior + texto rotante + centro
+     con anillos entrelazados (en lugar de cruz) y label "Modo Bodas". -->
+<div class="is-hidden" id="wedding-intro">
+  <div class="wi-seal">
+    <div class="wi-ring-outer"></div>
+    <div class="wi-ring-inner"></div>
+    <svg class="wi-ring-text" viewBox="0 0 200 200">
+      <defs><path id="wi-text-arc" d="M100,15 a85,85 0 1,1 -0.01,0" fill="none"/></defs>
+      <text fill="#C97D87" font-family="Cinzel,serif" font-size="12" letter-spacing="2">
+        <textPath href="#wi-text-arc" textLength="530" lengthAdjust="spacing">•   C O R O   •   P A C E M   •   D E U S   </textPath>
+      </text>
+    </svg>
+    <div class="wi-seal-center">
+      <!-- Anillos entrelazados — símbolo del matrimonio -->
+      <svg class="wi-seal-rings" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="22" cy="36" r="14"/>
+        <circle cx="42" cy="28" r="14"/>
+      </svg>
+      <div class="wi-seal-label">Modo<br>Bodas</div>
     </div>
   </div>
 </div>
@@ -339,6 +389,40 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     SETLIST EDGE PANEL — BODAS (paralelo al de Coro/Dominical)
+     ══════════════════════════════════════════
+     Visible solo cuando body.wedding-mode está activo (CSS lo controla).
+     Misma estructura que el panel SL pero con clases prefijadas .slb-*
+     y paleta rosa perlado. Manejado por window.SLB (módulo 30). -->
+<div class="slb-overlay" id="slb-overlay" onclick="window.SLB && window.SLB.close()"></div>
+<div class="slb-tab" id="slb-tab" onclick="window.SLB && window.SLB.toggle()" title="Setlist de Boda">
+  <!-- Ícono corazón — emanación HEARTS sincronizada con el latido del tab -->
+  <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+    <path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5 6 5c2 0 3.5 1 4 2 1-1 2.5-2 4-2 3.5 0 5 4 3.5 7-2.5 4.5-9.5 9-9.5 9z"/>
+  </svg>
+</div>
+<div class="slb-panel" id="slb-panel">
+  <!-- Header: título + selector de fecha + nombres novios opcionales.
+       El módulo 30 lo rellena dinámicamente vía renderHeader(). -->
+  <div class="slb-header" id="slb-header"></div>
+  <!-- Slots o vista de calendario: el módulo 30 alterna su contenido
+       según currentView ('main' = lista de slots, 'date-picker' = calendario). -->
+  <div class="slb-slots" id="slb-slots"></div>
+  <!-- Footer: botones de slots opcionales por agregar + Borrar todo. -->
+  <div class="slb-footer" id="slb-footer"></div>
+</div>
+
+<!-- Dialog "Agregar al setlist de boda" — paralelo al sl-dialog-overlay. -->
+<div class="slb-dialog-overlay" id="slb-dialog-overlay">
+  <div class="slb-dialog">
+    <div class="slb-dialog-title">Agregar al setlist de boda</div>
+    <div class="slb-dialog-song" id="slb-dialog-song"></div>
+    <div class="slb-dialog-slots" id="slb-dialog-slots"></div>
+    <button class="slb-dialog-cancel" onclick="window.SLB && window.SLB.closeDialog()">Cancelar</button>
+  </div>
+</div>
+
 <div class="ceremony dominical active" id="ceremony-dominical">
   <!-- Animated background: soft golden light particles -->
   <canvas id="pd-dominical-canvas" style="
@@ -349,7 +433,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.2.46r20</span>
+    <span class="cancionero-version">v3.3.0</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -395,7 +479,7 @@
 
 <script src="../js/modules/04-exit-confirm.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/05-rehearsal-mode.js?v=3.2.44r5"></script>
+<script src="../js/modules/05-rehearsal-mode.js?v=3.3.0"></script>
 
 
 <script src="../js/modules/06-chords-toggle-transpose.js?v=3.2.44r5"></script>
@@ -413,7 +497,7 @@
 <script src="../js/modules/10-chord-editor.js?v=3.2.44r5"></script>
 
 
-<script src="../js/modules/11-dev-mode.js?v=3.2.44r5"></script>
+<script src="../js/modules/11-dev-mode.js?v=3.3.0"></script>
 
 <script src="../js/modules/12-chord-fullscreen-fit.js?v=3.2.46r20"></script>
 <script src="../js/modules/12d-fullscreen-diag.js?v=3.2.46r20"></script>
@@ -474,13 +558,19 @@
 
 <script src="../js/modules/21-liturgical-card.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/22-effects-emanation.js?v=3.2.44r5"></script>
+<script src="../js/modules/22-effects-emanation.js?v=3.3.0"></script>
 
 <script src="../js/modules/23-setlist-edge-panel.js?v=3.2.44r5"></script>
 <script src="../js/modules/24-search.js?v=3.2.44r5"></script>
-<script src="../js/modules/25-event-delegation.js?v=3.2.44r5"></script>
+<script src="../js/modules/25-event-delegation.js?v=3.3.0"></script>
 <script src="../js/modules/26b-cinzel-font.js?v=3.2.44r5"></script>
 <script src="../js/modules/26c-pinyon-font.js?v=3.2.44r5"></script>
 <script src="../js/modules/26d-pdf-parser.js?v=3.2.44r5"></script>
 <script src="../js/modules/26e-pdf-builder.js?v=3.2.44r5"></script>
 <script src="../js/modules/27-setlist-pdf.js?v=3.2.44r5"></script>
+<!-- ══ MÓDULOS NUEVOS DEL MODO BODAS (v3.3.0) ══
+     29 depende de window.playModeIntro (módulo 05). 30 es paralelo al 23.
+     Ambos deben cargar después de los módulos del Modo Coro para que la
+     mutex y la restoración de estado funcionen correctamente. -->
+<script src="../js/modules/29-wedding-mode.js?v=3.3.0"></script>
+<script src="../js/modules/30-setlist-bodas.js?v=3.3.0"></script>

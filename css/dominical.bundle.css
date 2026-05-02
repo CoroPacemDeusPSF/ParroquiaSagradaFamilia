@@ -6,7 +6,7 @@
      @brief      Orquestador CSS del cancionero dominical (importa todos los módulos en orden de cascada)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r20
+     @version    v3.3.0
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -77,6 +77,14 @@
 @import url('components/psalm-player.css?v=3.2.46r15');
 @import url('components/effects.css?v=3.2.46r15');
 @import url('components/ai-agent.css?v=3.2.46r15');
+
+/* ─── Modo Bodas (v3.3.0) ──────────────────────────────────────────────
+   Componentes nuevos para el segundo modo especial (paralelo al Modo Coro).
+   Cargan después de rehearsal.css y setlist.css para que sus estilos puedan
+   coexistir con los del dominical sin interferencia (clases prefijadas .slb-*
+   y selectores body.wedding-mode evitan colisiones).                        */
+@import url('components/wedding-mode.css?v=3.3.0');
+@import url('components/setlist-bodas.css?v=3.3.0');
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.2.46r15');

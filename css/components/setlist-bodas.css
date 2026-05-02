@@ -1,0 +1,630 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/setlist-bodas.css
+     @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.3.0
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   setlist-bodas.css — Panel SetList Bodas
+   ============================================================================
+   Estructura visual idéntica al setlist dominical (.sl-*) pero con:
+     • Clases prefijadas .slb-* (paralelo, no override)
+     • Paleta rosa perlado (vs dorado del dominical)
+     • Visible solo en body.wedding-mode
+     • Tab del lado IZQUIERDO con corazón (vs nota del dominical)
+     • Picker de calendario para navegar entre fechas
+
+   COMPONENTES:
+     .slb-tab            → Tab handle del lado izquierdo, color rosa
+     .slb-overlay        → Overlay oscuro detrás del panel cuando abierto
+     .slb-panel          → Drawer principal del panel
+     .slb-header         → Header con título + selector fecha + nombres
+     .slb-slots          → Lista de slots o vista de calendario
+     .slb-footer         → Botones "+ agregar momento" + "Borrar todo"
+     .slb-dialog-*       → Dialog "Agregar al setlist de boda"
+     .slb-picker-*       → Vista de calendario (selector de fecha)
+
+   Reusa --wm-rose, --wm-rose-deep, --wm-rose-soft, --wm-rose-pearl de
+   wedding-mode.css.
+   ============================================================================ */
+
+/* ════════════════════════════════════════════════════════════════════
+   TAB HANDLE — solo visible en wedding-mode
+   ════════════════════════════════════════════════════════════════════ */
+.slb-tab {
+  display: none; /* Por defecto oculto — solo en wedding-mode aparece */
+  position: fixed;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 90000;
+  width: 26px; height: 64px;
+  background: linear-gradient(135deg, var(--wm-rose) 0%, var(--wm-rose-deep) 60%, var(--wm-rose) 100%);
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 14px rgba(201, 125, 135, 0.5),
+              0 0 0 1px rgba(255, 225, 230, 0.2) inset;
+  animation: slb-tab-heartbeat 3.5s ease-out infinite;
+  transition: width 0.2s, box-shadow 0.2s;
+}
+body.wedding-mode .slb-tab { display: flex; }
+
+.slb-tab svg {
+  width: 14px; height: 14px;
+  stroke: #fff; fill: #fff; stroke-width: 2;
+  animation: slb-tab-icon-pulse 3.5s ease-out infinite;
+}
+
+@keyframes slb-tab-heartbeat {
+  0%        { transform: translateY(-50%) scale(1); }
+  4%        { transform: translateY(-50%) scale(1.09); }
+  8%        { transform: translateY(-50%) scale(1); }
+  12%       { transform: translateY(-50%) scale(1.06); }
+  16%, 100% { transform: translateY(-50%) scale(1); }
+}
+@keyframes slb-tab-icon-pulse {
+  0%        { transform: scale(1); }
+  4%        { transform: scale(1.22); }
+  8%        { transform: scale(1); }
+  12%       { transform: scale(1.15); }
+  16%, 100% { transform: scale(1); }
+}
+
+.slb-tab-hidden { display: none !important; }
+.slb-tab:hover {
+  width: 32px;
+  box-shadow: 3px 3px 18px rgba(201, 125, 135, 0.75),
+              0 0 0 1px rgba(255, 225, 230, 0.3) inset;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   OVERLAY (fondo semi-transparente cuando el panel está abierto)
+   ════════════════════════════════════════════════════════════════════ */
+.slb-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 89998;
+  background: rgba(0, 0, 0, 0.4);
+}
+.slb-overlay.open { display: block; }
+
+/* ════════════════════════════════════════════════════════════════════
+   PANEL DRAWER PRINCIPAL
+   ════════════════════════════════════════════════════════════════════ */
+.slb-panel {
+  position: fixed;
+  left: -340px;
+  top: 50%; transform: translateY(-50%);
+  width: 320px;
+  max-height: 88vh;
+  z-index: 89999;
+  background: #FFF8F8;
+  border-radius: 0 1rem 1rem 0;
+  border: 1px solid rgba(201, 125, 135, 0.25);
+  box-shadow: 4px 4px 30px rgba(80, 30, 40, 0.3);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.slb-panel.open { left: 0; }
+
+/* Adaptación móvil */
+@media (max-height: 700px) {
+  .slb-panel {
+    top: 50px; transform: none;
+    max-height: calc(100vh - 50px);
+    max-height: calc(100dvh - 50px);
+    border-radius: 0 1rem 1rem 0;
+  }
+  .slb-header { padding-top: 1.2rem; }
+}
+@media (max-width: 600px) {
+  .slb-panel {
+    top: 50px; transform: none;
+    max-height: calc(100vh - 50px);
+    max-height: calc(100dvh - 50px);
+    border-radius: 0;
+    width: min(320px, 90vw);
+  }
+  .slb-header { padding-top: 1.2rem; border-radius: 0; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HEADER DEL PANEL
+   ════════════════════════════════════════════════════════════════════ */
+.slb-header {
+  background: linear-gradient(135deg, var(--wm-rose-pearl) 0%, var(--wm-rose-soft) 100%);
+  padding: 1rem 1rem 0.8rem;
+  border-bottom: 1px solid rgba(201, 125, 135, 0.3);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.slb-header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wm-rose-deep);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Selector de fecha (botón principal del header) */
+.slb-header-date {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(201, 125, 135, 0.3);
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #5A2630;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+.slb-header-date:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--wm-rose-deep);
+}
+.slb-date-text { flex: 1; text-align: left; }
+.slb-date-chev {
+  color: var(--wm-rose-deep);
+  font-size: 0.85rem;
+}
+
+/* Nombres de los novios (si están definidos) */
+.slb-header-novios {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #4A2030;
+  text-align: center;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.slb-header-novios:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Nombres de los novios (placeholder cuando vacío) */
+.slb-header-novios-empty {
+  background: none;
+  border: 1px dashed rgba(201, 125, 135, 0.4);
+  color: rgba(90, 38, 48, 0.55);
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.slb-header-novios-empty:hover {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+}
+
+/* Input para edición inline de nombres */
+.slb-header-novios-input {
+  background: #fff;
+  border: 1px solid var(--wm-rose-deep);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: #5A2030;
+  width: 100%;
+  text-align: center;
+}
+.slb-header-novios-input:focus { outline: 2px solid var(--wm-rose); }
+
+/* Header en estado "sin fecha seleccionada" */
+.slb-header-empty {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: rgba(90, 38, 48, 0.7);
+  text-align: center;
+}
+.slb-header-action {
+  background: var(--wm-rose-deep);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  align-self: center;
+  transition: background 0.2s;
+}
+.slb-header-action:hover { background: #A55F69; }
+
+/* ════════════════════════════════════════════════════════════════════
+   LISTA DE SLOTS
+   ════════════════════════════════════════════════════════════════════ */
+.slb-slots {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.slb-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid rgba(201, 125, 135, 0.08);
+  min-height: 2.5rem;
+}
+.slb-slot:nth-child(even) { background: rgba(245, 213, 218, 0.15); }
+.slb-slot:hover { background: rgba(245, 213, 218, 0.3); }
+
+.slb-moment {
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(90, 38, 48, 0.7);
+  width: 5.5rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.slb-moment.clickable { cursor: pointer; }
+.slb-moment.clickable:hover { color: var(--wm-rose-deep); }
+
+.slb-song {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.92rem;
+  color: #3A1820;
+  cursor: pointer;
+  transition: color 0.2s;
+  word-break: break-word;
+}
+.slb-song:hover { color: var(--wm-rose-deep); }
+.slb-song.empty {
+  color: rgba(90, 38, 48, 0.35);
+  font-style: italic;
+  cursor: default;
+}
+
+/* Botón remove canto (X) */
+.slb-remove {
+  background: none;
+  border: none;
+  color: rgba(150, 40, 50, 0.5);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.slb-remove:hover { color: #C03030; }
+
+/* Botón quitar slot opcional (marcado distinto del remove canto) */
+.slb-remove-optional {
+  background: none;
+  border: 1px solid rgba(150, 40, 50, 0.25);
+  color: rgba(150, 40, 50, 0.55);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 0.35rem;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  line-height: 14px;
+  transition: all 0.2s;
+}
+.slb-remove-optional:hover {
+  background: rgba(192, 48, 48, 0.1);
+  color: #C03030;
+  border-color: #C03030;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FOOTER (botones "+ agregar momento" + "Borrar todo")
+   ════════════════════════════════════════════════════════════════════ */
+.slb-footer {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(201, 125, 135, 0.2);
+  padding: 0.6rem 0.85rem;
+  background: rgba(245, 213, 218, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.slb-footer-optionals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.slb-add-optional-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.slb-add-optional-btn:hover {
+  background: var(--wm-rose-deep);
+  color: #fff;
+}
+
+.slb-clear {
+  background: rgba(150, 40, 50, 0.85);
+  color: #fff;
+  border: none;
+  padding: 0.45rem 0.8rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  align-self: flex-end;
+}
+.slb-clear:hover  { background: #8A2828; }
+.slb-clear:active { transform: translateY(1px); }
+
+/* ════════════════════════════════════════════════════════════════════
+   DIALOG "AGREGAR AL SETLIST DE BODA"
+   ════════════════════════════════════════════════════════════════════ */
+.slb-dialog-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90100;
+  background: rgba(0, 0, 0, 0.55);
+  align-items: center;
+  justify-content: center;
+}
+.slb-dialog-overlay.open { display: flex; }
+
+.slb-dialog {
+  background: #FFF8F8;
+  width: min(360px, 90vw);
+  max-height: 85vh;
+  border-radius: 8px;
+  border-top: 3px solid var(--wm-rose-deep);
+  box-shadow: 0 10px 40px rgba(40, 10, 20, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.slb-dialog-title {
+  background: var(--wm-rose-pearl);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wm-rose-deep);
+  text-align: center;
+  padding: 0.7rem;
+  border-bottom: 1px solid rgba(201, 125, 135, 0.25);
+}
+
+.slb-dialog-song {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: #3A1820;
+  text-align: center;
+  padding: 0.7rem 1rem 0.4rem;
+}
+
+.slb-dialog-slots {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.4rem 0.6rem 0.6rem;
+}
+
+.slb-dialog-slot-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(201, 125, 135, 0.2);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  margin-bottom: 0.3rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #3A1820;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transition: all 0.15s;
+}
+.slb-dialog-slot-btn:hover {
+  background: var(--wm-rose-soft);
+  border-color: var(--wm-rose-deep);
+}
+.slb-dialog-slot-btn.suggested {
+  background: var(--wm-rose-pearl);
+  border-color: var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+  font-weight: 600;
+}
+
+.slb-btn-current {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(90, 38, 48, 0.65);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.slb-dialog-cancel {
+  background: rgba(80, 30, 40, 0.08);
+  border: none;
+  border-top: 1px solid rgba(201, 125, 135, 0.2);
+  padding: 0.7rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(90, 38, 48, 0.7);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.slb-dialog-cancel:hover { background: rgba(80, 30, 40, 0.15); }
+
+/* ════════════════════════════════════════════════════════════════════
+   DATE PICKER (vista de calendario dentro del panel)
+   ════════════════════════════════════════════════════════════════════ */
+.slb-picker-back {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: var(--wm-rose-deep);
+  cursor: pointer;
+  position: absolute;
+  left: 0.6rem; top: 0.6rem;
+  padding: 0.2rem 0.5rem;
+  line-height: 1;
+}
+.slb-picker-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wm-rose-deep);
+  text-align: center;
+}
+
+/* Header del header en modo picker se vuelve relativo para el botón back */
+.slb-header:has(.slb-picker-back) { position: relative; padding-top: 0.7rem; }
+
+.slb-picker-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem 0.4rem;
+  background: rgba(245, 213, 218, 0.1);
+}
+.slb-picker-nav-btn {
+  background: none;
+  border: none;
+  color: var(--wm-rose-deep);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.slb-picker-nav-btn:hover { background: rgba(245, 213, 218, 0.4); }
+
+.slb-picker-month {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5A2030;
+  text-transform: capitalize;
+}
+
+.slb-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 0.4rem 0.6rem;
+}
+
+.slb-picker-dayhead {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: rgba(90, 38, 48, 0.5);
+  padding: 0.3rem 0;
+  letter-spacing: 0.05em;
+}
+
+.slb-picker-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  color: rgba(90, 38, 48, 0.4);
+  cursor: default;
+  border-radius: 50%;
+  transition: all 0.15s;
+}
+.slb-picker-cell.empty { visibility: hidden; }
+
+/* Día con setlist guardado: clickable + acentuado */
+.slb-picker-cell.has-setlist {
+  background: var(--wm-rose-pearl);
+  color: var(--wm-rose-deep);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(201, 125, 135, 0.3);
+}
+.slb-picker-cell.has-setlist:hover {
+  background: var(--wm-rose);
+  color: #fff;
+  border-color: var(--wm-rose-deep);
+  transform: scale(1.08);
+}
+
+/* Día actualmente seleccionado: indicador adicional */
+.slb-picker-cell.current {
+  background: var(--wm-rose-deep);
+  color: #fff;
+  border-color: var(--wm-rose-deep);
+}
+
+/* Botón "+ Nueva fecha" */
+.slb-picker-new {
+  padding: 0.5rem 0.85rem 0.85rem;
+  display: flex;
+  justify-content: center;
+}
+.slb-picker-new-btn {
+  background: var(--wm-rose-deep);
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.slb-picker-new-btn:hover { background: #A55F69; }
