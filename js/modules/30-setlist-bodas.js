@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r5
+ *   @version    v3.3.0r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -81,10 +81,15 @@
     { id: 'piedad',           label: 'Piedad'              },
     { id: 'gloria',           label: 'Gloria'              },
     { id: 'evangelio',        label: 'Evangelio'           },
+    /* Rito Matrimonial entre la Liturgia de la Palabra (Evangelio) y la
+       Liturgia Eucarística (Ofertorio): orden litúrgico correcto del Rito
+       del Matrimonio dentro de la Misa según el Ritual Romano — el
+       sacramento se celebra después de la homilía y antes de las plegarias
+       universales / ofertorio. */
+    { id: 'rito-matrimonial', label: 'Rito Matrimonial'    },
     { id: 'ofertorio',        label: 'Ofertorio'           },
     { id: 'santo',            label: 'Santo'               },
     { id: 'cordero',          label: 'Cordero de Dios'     },
-    { id: 'rito-matrimonial', label: 'Rito Matrimonial'    },
     { id: 'comunion',         label: 'Comunión'            },
     { id: 'firma-pliego',     label: 'Firma del Pliego'    },
     { id: 'foto-1',           label: 'Fotografía',  sub: '1' },
