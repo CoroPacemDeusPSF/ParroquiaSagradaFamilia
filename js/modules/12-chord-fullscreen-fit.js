@@ -6,13 +6,13 @@
  *   @brief      Paginación horizontal de acordes en fullscreen + pinch zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r15
+ *   @version    v3.2.46r17
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js  —  v3.2.46r15
+   12-chord-fullscreen-fit.js  —  v3.2.46r17
    ============================================================================
    PAGINACIÓN HORIZONTAL — REESCRITURA COMPLETA
    ────────────────────────────────────────────────────────────────────────────
@@ -75,8 +75,8 @@
   var DOUBLETAP_MS     = 320;    // ventana double-tap
 
   var SCROLL_UI_DEBOUNCE_MS = 30;   // delay para actualizar UI tras scroll
-  var SNAP_AFTER_TOUCH_MS   = 100;  // snap programático tras touchend
-  var SNAP_AFTER_SCROLL_MS  = 140;  // snap programático tras inertia scroll
+  var SNAP_AFTER_TOUCH_MS   = 300;  // r16: era 100, muy rápido — interrumpía inertia
+  var SNAP_AFTER_SCROLL_MS  = 320;  // r16: era 140, mismo motivo
   var RESIZE_DEBOUNCE_MS    = 120;  // debounce de ResizeObserver
 
   // ────────────────────────────────────────────────────────────
@@ -270,6 +270,14 @@
     if (!pager) return;
     var state = getPageState(block);
     page = Math.max(1, Math.min(state.totalPages, page));
+
+    // r16: cancelar cualquier snap programático pendiente que pueda
+    // interferir con la navegación explícita por flecha.
+    if (block._cfSnapTimer) {
+      clearTimeout(block._cfSnapTimer);
+      block._cfSnapTimer = null;
+    }
+
     pager.scrollTo({
       left: (page - 1) * state.pageW,
       behavior: 'smooth'
@@ -438,7 +446,6 @@
   // ────────────────────────────────────────────────────────────
   function setupScrollListener(pager, block) {
     var uiTimer = null;
-    var snapTimer = null;
     var isTouching = false;
 
     function onScroll() {
@@ -446,23 +453,33 @@
       if (uiTimer) clearTimeout(uiTimer);
       uiTimer = setTimeout(function () { updateUI(block); }, SCROLL_UI_DEBOUNCE_MS);
 
-      // Snap solo cuando NO está siendo tocado (deja que el browser
-      // haga el snap CSS durante touchmove + inertia)
+      // Snap solo cuando NO está siendo tocado (deja que el navegador
+      // termine la inertia primero). Usamos block._cfSnapTimer para
+      // que gotoPage pueda cancelarlo si el usuario tap en flecha.
       if (!isTouching) {
-        if (snapTimer) clearTimeout(snapTimer);
-        snapTimer = setTimeout(function () { snapToNearest(block); }, SNAP_AFTER_SCROLL_MS);
+        if (block._cfSnapTimer) clearTimeout(block._cfSnapTimer);
+        block._cfSnapTimer = setTimeout(function () {
+          snapToNearest(block);
+          block._cfSnapTimer = null;
+        }, SNAP_AFTER_SCROLL_MS);
       }
     }
 
     function onTouchStart() {
       isTouching = true;
-      if (snapTimer) clearTimeout(snapTimer);
+      if (block._cfSnapTimer) {
+        clearTimeout(block._cfSnapTimer);
+        block._cfSnapTimer = null;
+      }
     }
     function onTouchEnd() {
       isTouching = false;
-      if (snapTimer) clearTimeout(snapTimer);
-      // Pequeño delay tras touchend para dejar que la inertia llegue al lugar
-      snapTimer = setTimeout(function () { snapToNearest(block); }, SNAP_AFTER_TOUCH_MS);
+      if (block._cfSnapTimer) clearTimeout(block._cfSnapTimer);
+      // Tras touchend, dejar que la inertia termine antes del snap final
+      block._cfSnapTimer = setTimeout(function () {
+        snapToNearest(block);
+        block._cfSnapTimer = null;
+      }, SNAP_AFTER_TOUCH_MS);
     }
 
     pager.addEventListener('scroll',      onScroll,    { passive: true });
@@ -471,8 +488,11 @@
     pager.addEventListener('touchcancel', onTouchEnd,  { passive: true });
 
     return function cleanup() {
-      if (uiTimer)   clearTimeout(uiTimer);
-      if (snapTimer) clearTimeout(snapTimer);
+      if (uiTimer) clearTimeout(uiTimer);
+      if (block._cfSnapTimer) {
+        clearTimeout(block._cfSnapTimer);
+        block._cfSnapTimer = null;
+      }
       pager.removeEventListener('scroll',      onScroll);
       pager.removeEventListener('touchstart',  onTouchStart);
       pager.removeEventListener('touchend',    onTouchEnd);
@@ -565,6 +585,12 @@
     if (block._cfCleanup) {
       block._cfCleanup();
       block._cfCleanup = null;
+    }
+
+    // r16: limpiar timer de snap si quedó pendiente
+    if (block._cfSnapTimer) {
+      clearTimeout(block._cfSnapTimer);
+      block._cfSnapTimer = null;
     }
 
     // Quitar pager, hints, indicator

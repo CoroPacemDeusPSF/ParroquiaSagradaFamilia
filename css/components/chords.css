@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r15
+     @version    v3.2.46r17
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -173,7 +173,7 @@
   z-index:     10;
 }
 
-/* ─── PAGER: contenedor scrollable horizontal con snap ─── */
+/* ─── PAGER: contenedor scrollable horizontal ─── */
 .chord-fit-pager {
   flex:        1 1 auto;
   position:    relative;
@@ -182,9 +182,10 @@
   overflow-x:  auto;
   overflow-y:  hidden;
 
-  /* Snap horizontal nativo. JS complementa con snap programático en
-     touchend para garantizar precisión en tablets */
-  scroll-snap-type:           x mandatory;
+  /* r16: snap programático en JS (snapToNearest tras inertia).
+     CSS scroll-snap-type generaba conflicto: el browser intentaba
+     snappear al ÚNICO target del wrapper (left=0) en lugar de cada
+     página. JS snap es más predecible y respeta gotoPage. */
   scroll-behavior:            smooth;
   -webkit-overflow-scrolling: touch;
 
@@ -203,30 +204,29 @@
   --cf-fs:   0.95rem;
 
   column-count: var(--cf-cols);
-  column-gap:   1.5rem;
+  column-gap:   1.3rem;          /* r17: 1.5rem → 1.3rem (cols más cercanas) */
   /* column-fill: auto = altura fija → cols extras crecen HORIZONTAL.
      Eso es exactamente lo que queremos: cada N cols = 1 página. */
   column-fill: auto;
   column-rule: 1px solid rgba(200, 148, 60, 0.12);
 
   height:     100%;
-  padding:    0.5rem 1.2rem;
+  padding:    0.3rem 0.85rem;    /* r17: 0.5rem 1.2rem → 0.3rem 0.85rem */
   box-sizing: border-box;
 
-  /* Snap-align en el wrapper: ancla el inicio. JS calcula numPages y
-     se encarga del resto del snap programáticamente. */
-  scroll-snap-align: start;
+  /* r16: SIN scroll-snap-align — el snap es 100% programático en JS.
+     CSS snap creaba conflicto cuando había 1 solo target. */
 
   font-size:   var(--cf-fs);
   font-family: 'Courier New', monospace;
-  line-height: 1.4;
+  line-height: 1.32;             /* r17: 1.4 → 1.32 (más texto por col) */
   color:       #e0d0b0;
 }
 
 /* SECCIÓN: bloque atómico que el browser puede fluir entre cols */
 .chord-fit-section {
   display:       block;
-  margin-bottom: 0.4em;
+  margin-bottom: 0.18em;         /* r17: 0.4em → 0.18em (más compacto) */
 }
 .chord-fit-section:last-child { margin-bottom: 0; }
 
@@ -252,8 +252,8 @@
 /* TÍTULO: protegido contra romperse entre cols */
 .chord-fit-pre b.chord-title {
   display:                    block;
-  margin:                     0 0 0.3em !important;
-  padding-bottom:             0.1em;
+  margin:                     0 0 0.15em !important;  /* r17: 0.3em → 0.15em */
+  padding-bottom:             0.05em;                  /* r17: 0.1em → 0.05em */
   break-inside:               avoid;
   -webkit-column-break-inside: avoid;
 }
@@ -261,7 +261,7 @@
 /* Divisor de sección: pegado a su cuerpo */
 .chord-fit-pre b.chord-section {
   display:                     block;
-  margin:                      0 0 0.1em !important;
+  margin:                      0 0 0.02em !important;  /* r17: 0.1em → 0.02em (casi pegado) */
   break-inside:                avoid;
   -webkit-column-break-inside: avoid;
 }
