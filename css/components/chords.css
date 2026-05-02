@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r9
+     @version    v3.2.46r10
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -135,77 +135,85 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
-   FULLSCREEN AUTO-FIT (módulo 12 — chord-fullscreen-fit.js) — r9
+   FULLSCREEN AUTO-FIT (módulo 12 — chord-fullscreen-fit.js) — r10
    ════════════════════════════════════════════════════════════════════
-   Vuelta al approach del r3 con margenes mínimos:
-     - Múltiples .chord-fit-section como divs independientes
-     - CSS-columns en el WRAPPER (no en el pre)
-     - break-inside: avoid en cada sección → no se parte estrofa
-     - margin-bottom: 0.2em entre secciones (era 0.6em en r3)
-     - Wrapper con scroll vertical natural cuando no cabe
+   APPROACH RADICAL: scroll vertical en el BLOCK, no en el wrapper.
+
+   Bugs anteriores diagnosticados con datos reales (r9):
+     wrapper_W: 653, scrollW: 1297    → cols extras horizontal
+     altura_secciones: 2790, wrapper_H: 595  → 5x más alto que viewport
+
+   La causa: `column-fill: auto` + altura fija = browser crea cols
+   horizontales extras cuando no cabe. Eso era TODO.
+
+   SOLUCIÓN:
+     1. column-fill: balance        → distribuye en N cols sin huecos
+     2. SIN altura fija en wrapper  → crece naturalmente
+     3. SIN break-inside: avoid     → estrofas pueden partirse entre cols
+        (excepto el título que debe quedar entero)
+     4. overflow-y: auto en BLOCK   → scroll vertical natural cuando hay
+                                       más contenido del que cabe en viewport
+     5. transpose-bar sticky        → siempre visible durante scroll
    ════════════════════════════════════════════════════════════════════ */
 
-/* Block fullscreen como flex column: toolbar arriba, wrapper abajo */
+/* Block fullscreen: scroll vertical natural en el block entero */
 .chords-block.fullscreen.cf-active {
-  display: flex !important;
-  flex-direction: column;
-  overflow: hidden !important;
-}
-.chords-block.fullscreen.cf-active > .transpose-bar {
-  position: static !important;
-  flex: 0 0 auto;
-}
-.chords-block.fullscreen.cf-active > .chord-fit-wrapper {
-  flex: 1 1 auto;
-  min-height: 0;
+  display: block !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* WRAPPER: aquí viven las CSS-columns. Tiene scroll vertical natural
-   para "pasar página" cuando el contenido excede la altura. */
+/* Toolbar sticky en la parte superior */
+.chords-block.fullscreen.cf-active > .transpose-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Wrapper: contiene las cols, crece naturalmente con su contenido */
 .chord-fit-wrapper {
   --cf-cols: 1;
   --cf-fs: 0.95rem;
 
   column-count: var(--cf-cols);
-  column-gap: 1.8rem;
-  /* `auto` llena col 1, luego col 2, sin balancear. Sin huecos en medio. */
-  column-fill: auto;
+  column-gap: 1.5rem;
+  /* `balance` distribuye uniformemente entre N cols. Sin huecos en medio,
+     sin cols extras horizontales. El wrapper crece verticalmente cuando
+     el contenido excede la altura del viewport. */
+  column-fill: balance;
   column-rule: 1px solid rgba(200, 148, 60, 0.12);
 
   width: 100%;
   padding: 0.5rem 1.2rem 1rem;
   box-sizing: border-box;
 
-  /* Scroll vertical para "pasar página" cuando el contenido excede */
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  font-size: var(--cf-fs);
+  font-family: 'Courier New', monospace;
+  line-height: 1.4;
+  color: #e0d0b0;
 
-  /* pan-y permite scroll vertical de 1 dedo, pinch lo intercepto en JS */
+  /* pan-y: scroll vertical de 1 dedo, pinch lo intercepto en JS */
   touch-action: pan-y;
 }
 
-/* SECCIÓN: cada estrofa, coro, etc. break-inside: avoid impide que se
-   parta entre columnas. margin-bottom mínimo (0.2em) para que estrofas
-   se distingan visualmente sin huecos gigantes. */
+/* SECCIÓN: SIN break-inside avoid. El contenido fluye natural entre cols.
+   margin-bottom mínimo (0.4em) para distinguir estrofas. */
 .chord-fit-section {
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
   display: block;
-  margin-bottom: 0.2em;
-  overflow: hidden;
+  margin-bottom: 0.4em;
 }
 .chord-fit-section:last-child {
   margin-bottom: 0;
 }
 
-/* PRE dentro de la sección. font-size hereda del wrapper vía variable. */
+/* PRE: hereda font-size del wrapper. !important contra el inline-style
+   que aplica el módulo 07 (controles A−/A+). */
 .chord-fit-pre {
-  font-size: var(--cf-fs) !important;
-  font-family: 'Courier New', monospace;
-  line-height: 1.4;
-  color: #e0d0b0;
+  font-size: inherit !important;
+  font-family: inherit;
+  line-height: inherit;
+  color: inherit;
   white-space: pre;
   background: none;
   border: none;
@@ -223,20 +231,23 @@
   font-weight: bold;
 }
 
-/* Override de los márgenes negativos heredados de chords.css.
-   El CSS general aplica margin: 0 0 -1.394rem; en chord-title y
-   chord-section como hack. En el fullscreen no aplica — los reseteamos. */
+/* TÍTULO: sí protegido contra romperse entre cols */
 .chord-fit-pre b.chord-title {
   display: block;
   margin: 0 0 0.3em !important;
   padding-bottom: 0.1em;
   break-inside: avoid;
+  -webkit-column-break-inside: avoid;
 }
+
+/* Divisor de sección: pegado a su cuerpo */
 .chord-fit-pre b.chord-section {
   display: block;
   margin: 0 0 0.1em !important;
   break-inside: avoid;
+  -webkit-column-break-inside: avoid;
 }
+
 .chord-fit-pre b.chord-capo {
   display: inline-flex;
 }
