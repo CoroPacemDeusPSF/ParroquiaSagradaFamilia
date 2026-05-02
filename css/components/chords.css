@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r6
+     @version    v3.2.46r7
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -165,21 +165,13 @@
   --cf-cols: 1;
   --cf-fs: 0.95rem;
 
-  column-count: var(--cf-cols);
-  column-gap: 1.8rem;
-  /* `auto` llena col 1 hasta arriba antes de pasar a col 2.
-     `balance` distribuiría altura uniformemente, pero eso CREA HUECOS
-     en medio cuando una línea no cabe. */
-  column-fill: auto;
-  column-rule: 1px solid rgba(200, 148, 60, 0.12);
-
+  /* El wrapper EXTERIOR maneja solo el scroll vertical.
+     Las columnas viven en el .chord-fit-pre interno con altura fija. */
   width: 100%;
+  height: 100%;
   padding: 0.5rem 1.2rem 1rem;
   box-sizing: border-box;
 
-  /* Scroll vertical SIEMPRE disponible — si el contenido cabe, no se ve.
-     Si no cabe (canto largo o pinch amplió), aparece. Esa es la
-     "siguiente página". */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -203,6 +195,23 @@
   margin: 0;
   tab-size: 4;
   max-width: 100%;
+
+  /* CRÍTICO: las CSS-columns viven AQUÍ (en el pre), no en el wrapper.
+     El pre tiene altura fija (100% del wrapper) para que `column-fill: auto`
+     sepa dónde cortar columna 1 y empezar columna 2. */
+  column-count: var(--cf-cols);
+  column-gap: 1.8rem;
+  column-fill: auto;
+  column-rule: 1px solid rgba(200, 148, 60, 0.12);
+  height: 100%;
+}
+
+/* Modo fallback: cuando el contenido no cabe ni con N columnas + auto-fit,
+   caer a 1 sola columna sin altura fija → scroll vertical natural en
+   el wrapper. El JS aplica esta clase cuando detecta overflow. */
+.chord-fit-pre.cf-no-fit {
+  column-count: 1 !important;
+  height: auto !important;
 }
 
 .chord-fit-pre .chord {

@@ -6,7 +6,7 @@
  *   @brief      Auto-fit + pinch-to-zoom para acordes en fullscreen
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r6
+ *   @version    v3.2.46r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -92,11 +92,22 @@
   function fitsInHeight(wrapper, cols, fsRem, availH) {
     applyLayout(wrapper, cols, fsRem);
     wrapper.offsetHeight;  // forzar reflow
-    return wrapper.scrollHeight <= availH + 4;
+    // Medimos el <pre> interno donde viven las columnas.
+    // Con `column-fill: auto` y altura fija, si el contenido no cabe en
+    // las N columnas, scrollHeight > clientHeight.
+    var pre = wrapper.querySelector('.chord-fit-pre');
+    if (!pre) return true;
+    return pre.scrollHeight <= pre.clientHeight + 4;
   }
 
   function fitsInWidth(wrapper) {
-    return wrapper.scrollWidth <= wrapper.clientWidth + 1;
+    var pre = wrapper.querySelector('.chord-fit-pre');
+    if (!pre) return true;
+    // Con CSS-columns, scrollWidth incluye las columnas. Si la línea más
+    // larga no cabe en el ancho de columna, el browser crea columnas
+    // extras fuera del viewport — eso lo detectamos comparando scrollWidth
+    // con clientWidth.
+    return pre.scrollWidth <= pre.clientWidth + 1;
   }
 
   function fitsInWidthAt(wrapper, cols, fsRem) {
@@ -184,8 +195,16 @@
     function applyFs(fs) {
       currentFs = fs;
       wrapper.style.setProperty('--cf-fs', fs.toFixed(3) + 'rem');
-      // overflow-y: auto está siempre activo en el wrapper (CSS),
-      // así que el scroll aparece automáticamente si scrollHeight > clientHeight.
+      // Re-evaluar si cabe en columnas o necesita modo scroll
+      var p = wrapper.querySelector('.chord-fit-pre');
+      if (p) {
+        // Quitar cf-no-fit temporal para medir
+        p.classList.remove('cf-no-fit');
+        wrapper.offsetHeight;
+        if (p.scrollHeight > p.clientHeight + 4) {
+          p.classList.add('cf-no-fit');
+        }
+      }
     }
 
     function onTouchStart(e) {
@@ -242,6 +261,14 @@
     function applyFs(fs) {
       currentFs = Math.min(PINCH_FS_MAX, Math.max(PINCH_FS_MIN, fs));
       wrapper.style.setProperty('--cf-fs', currentFs.toFixed(3) + 'rem');
+      var p = wrapper.querySelector('.chord-fit-pre');
+      if (p) {
+        p.classList.remove('cf-no-fit');
+        wrapper.offsetHeight;
+        if (p.scrollHeight > p.clientHeight + 4) {
+          p.classList.add('cf-no-fit');
+        }
+      }
     }
     function onWheel(e) {
       if (!e.ctrlKey && !e.metaKey) return;
@@ -283,6 +310,18 @@
     var best = findBestLayout(wrapper, availW, availH);
     applyLayout(wrapper, best.cols, best.fs);
     wrapper.offsetHeight;
+
+    // Verificar si el contenido REALMENTE cabe con el layout aplicado.
+    // Si no cabe (caso extremo: canto muy largo, líneas anchas, etc.),
+    // caer a modo scroll: 1 columna sin altura fija, scroll vertical natural.
+    // Esto se detecta midiendo si el pre interno excede su contenedor.
+    var pre = wrapper.querySelector('.chord-fit-pre');
+    if (pre && pre.scrollHeight > pre.clientHeight + 4) {
+      // El contenido se desborda dentro del pre con altura fija.
+      // CSS-columns crearía columnas adicionales fuera de pantalla.
+      // Activamos modo "scroll" para que el wrapper haga scroll vertical.
+      pre.classList.add('cf-no-fit');
+    }
 
     var cleanupPinch = setupPinch(wrapper, best.fs, availH);
     var cleanupWheel = setupWheelZoom(wrapper, best.fs, availH);
