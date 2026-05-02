@@ -1,0 +1,255 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/chord-diag.css
+     @brief      Botón Diag (Modo Dev en fullscreen) y overlay modal de diagnóstico
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.2.46r11
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   chord-diag.css — Diagnóstico de fullscreen-fit (Modo Dev)
+   ============================================================================
+   Estilos del botón "Diag" inyectado en la transpose-bar por el módulo
+   12d-fullscreen-diag.js, y del overlay modal que muestra el JSON.
+
+   VISIBILIDAD DEL BOTÓN:
+     Por defecto, oculto siempre.
+     Solo se muestra cuando se cumplen dos condiciones simultáneas:
+       1. body.dev-mode (Modo Dev activo)
+       2. .chords-block en .fullscreen.cf-active (fullscreen del módulo 12)
+
+     Esto significa que:
+       - Modo Coro normal sin Dev → no se ve.
+       - Modo Dev sin estar en fullscreen → no se ve.
+       - Solo en fullscreen + Dev → visible.
+
+   ESTILO DEL OVERLAY:
+     Match con la paleta del cancionero: ámbar #C8943C sobre fondo oscuro.
+     Tipografía Cinzel para títulos, Courier New (heredado del pre del
+     cancionero) para el JSON.
+   ============================================================================ */
+
+/* ─────────────────────────────────────────────
+   BOTÓN "DIAG" EN LA TRANSPOSE-BAR
+   ───────────────────────────────────────────── */
+
+/* Oculto por defecto. Match exacto con el estilo de .fullscreen-btn y
+   .print-chords-btn para consistencia visual de la barra. */
+.chord-diag-btn {
+  display:        none;
+  font-family:    'Cinzel', serif;
+  font-size:      0.55rem;
+  letter-spacing: 0.1em;
+  color:          #888;
+  background:     none;
+  border:         1px solid rgba(136, 136, 136, 0.3);
+  border-radius:  2px;
+  padding:        0.2rem 0.5rem;
+  cursor:         pointer;
+  align-items:    center;
+  gap:            0.3rem;
+  transition:     all 0.2s;
+}
+.chord-diag-btn:hover {
+  color:        #C8943C;
+  border-color: rgba(200, 148, 60, 0.5);
+}
+.chord-diag-btn svg {
+  width:  12px;
+  height: 12px;
+}
+
+/* CONDICIÓN DE VISIBILIDAD:
+   Solo visible en Modo Dev + fullscreen activo.
+   !important para ganar contra el inline-style display:none del CSS base
+   y contra cualquier other display que herede de la barra. */
+body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
+  display: inline-flex !important;
+}
+
+/* ─────────────────────────────────────────────
+   OVERLAY MODAL DE DIAGNÓSTICO
+   ─────────────────────────────────────────────
+   z-index muy alto porque la propia .chords-block.fullscreen ya está
+   en z-index 100000 (ver setlist.css). El overlay debe quedar por
+   encima incluso del fullscreen del browser. */
+
+#chord-diag-overlay {
+  position:  fixed;
+  inset:     0;
+  z-index:   2147483000; /* casi el máximo, garantiza encima de fullscreen */
+  display:   none;
+  font-family: 'Cinzel', serif;
+}
+
+#chord-diag-overlay.chord-diag-overlay--open {
+  display: block;
+}
+
+.chord-diag-backdrop {
+  position:   absolute;
+  inset:      0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter:         blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.chord-diag-panel {
+  position:        absolute;
+  top:             50%;
+  left:            50%;
+  transform:       translate(-50%, -50%);
+  width:           min(720px, 94vw);
+  max-height:      88vh;
+  display:         flex;
+  flex-direction:  column;
+  background:      #141410;
+  border:          1px solid rgba(200, 148, 60, 0.45);
+  border-radius:   4px;
+  box-shadow:      0 12px 48px rgba(0, 0, 0, 0.6),
+                   0 0 0 1px rgba(200, 148, 60, 0.08) inset;
+  overflow:        hidden;
+}
+
+/* Header del overlay */
+.chord-diag-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         0.85rem 1.1rem;
+  background:      #1a1a10;
+  border-bottom:   1px solid rgba(200, 148, 60, 0.25);
+  flex-shrink:     0;
+}
+
+.chord-diag-title {
+  margin:         0;
+  font-family:    'Cinzel', serif;
+  font-size:      0.78rem;
+  font-weight:    600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          #C8943C;
+}
+
+.chord-diag-close {
+  width:           32px;
+  height:          32px;
+  border-radius:   50%;
+  border:          1px solid rgba(200, 148, 60, 0.4);
+  background:      transparent;
+  color:           #C8943C;
+  font-size:       1rem;
+  line-height:     1;
+  cursor:          pointer;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  transition:      all 0.18s;
+  padding:         0;
+}
+.chord-diag-close:hover {
+  background:   rgba(200, 148, 60, 0.18);
+  border-color: rgba(200, 148, 60, 0.7);
+}
+
+/* Cuerpo del overlay con el JSON */
+.chord-diag-body {
+  flex:                       1 1 auto;
+  overflow:                   auto;
+  -webkit-overflow-scrolling: touch;
+  padding:                    1rem 1.1rem;
+}
+
+.chord-diag-pre {
+  margin:         0;
+  font-family:    'Courier New', Consolas, Monaco, monospace;
+  font-size:      0.78rem;
+  line-height:    1.5;
+  color:          #d8c98a;
+  background:     transparent;
+  white-space:    pre-wrap;     /* permite wrap en líneas largas como userAgent */
+  word-break:     break-word;
+  tab-size:       2;
+}
+
+/* Footer con acciones y status */
+.chord-diag-footer {
+  display:       flex;
+  align-items:   center;
+  gap:           0.7rem;
+  padding:       0.75rem 1.1rem;
+  background:    #1a1a10;
+  border-top:    1px solid rgba(200, 148, 60, 0.2);
+  flex-shrink:   0;
+}
+
+.chord-diag-status {
+  flex:           1 1 auto;
+  font-family:    'Cinzel', serif;
+  font-size:      0.6rem;
+  letter-spacing: 0.08em;
+  color:          #888;
+  min-height:     1em;
+}
+.chord-diag-status.chord-diag-status--ok  { color: #6BB86B; }
+.chord-diag-status.chord-diag-status--err { color: #C8884C; }
+
+/* Botones del footer */
+.chord-diag-btn-primary,
+.chord-diag-btn-secondary {
+  font-family:    'Cinzel', serif;
+  font-size:      0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding:        0.5rem 0.95rem;
+  border-radius:  3px;
+  cursor:         pointer;
+  transition:     all 0.18s;
+  flex-shrink:    0;
+}
+
+.chord-diag-btn-secondary {
+  color:        #aaa;
+  background:   transparent;
+  border:       1px solid rgba(170, 170, 170, 0.35);
+}
+.chord-diag-btn-secondary:hover {
+  color:        #fff;
+  border-color: rgba(200, 200, 200, 0.6);
+}
+
+.chord-diag-btn-primary {
+  color:        #1a1a10;
+  background:   #C8943C;
+  border:       1px solid #C8943C;
+  font-weight:  600;
+}
+.chord-diag-btn-primary:hover {
+  background:   #D8A24C;
+  border-color: #D8A24C;
+}
+
+/* ─────────────────────────────────────────────
+   ADAPTACIÓN MÓVIL / TABLET PORTRAIT
+   ─────────────────────────────────────────────
+   En pantallas estrechas el panel ocupa más ancho y los botones del footer
+   se reducen su padding para no romper el flow. */
+@media (max-width: 600px) {
+  .chord-diag-panel {
+    width:      96vw;
+    max-height: 90vh;
+  }
+  .chord-diag-title { font-size: 0.7rem; }
+  .chord-diag-pre   { font-size: 0.72rem; }
+  .chord-diag-btn-primary,
+  .chord-diag-btn-secondary {
+    padding:   0.45rem 0.7rem;
+    font-size: 0.58rem;
+  }
+  .chord-diag-status { font-size: 0.55rem; }
+}

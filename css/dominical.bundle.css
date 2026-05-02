@@ -6,7 +6,7 @@
      @brief      Orquestador CSS del cancionero dominical (importa todos los módulos en orden de cascada)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.2.46r11
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -54,6 +54,7 @@
 @import url('components/editor.css');
 @import url('components/setlist.css');
 @import url('components/pdf-overlays.css');
+@import url('components/chord-diag.css');
 
 /* ─── Componentes especializados (Evangelio, Salmo, AI, Efectos) ──────────── */
 @import url('components/lit-card.css');
