@@ -6,13 +6,13 @@
  *   @brief      Paginación horizontal de acordes en fullscreen + pinch zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r14
+ *   @version    v3.2.46r15
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js  —  v3.2.46r14
+   12-chord-fullscreen-fit.js  —  v3.2.46r15
    ============================================================================
    PAGINACIÓN HORIZONTAL — REESCRITURA COMPLETA
    ────────────────────────────────────────────────────────────────────────────

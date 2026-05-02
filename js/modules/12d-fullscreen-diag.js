@@ -6,13 +6,13 @@
  *   @brief      Botón "Diag" + modo grabación de eventos para fullscreen-fit
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r14
+ *   @version    v3.2.46r15
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12d-fullscreen-diag.js  —  v3.2.46r14
+   12d-fullscreen-diag.js  —  v3.2.46r15
    ============================================================================
    FIX r13: overlay y badge visibles dentro del fullscreen API mode
    ────────────────────────────────────────────────────────────────────────────
@@ -192,6 +192,38 @@
       };
     }
 
+    // r15: capturar info del pager (paradigma r14+) y del estado interno
+    // del módulo 12. Permite diferenciar "CSS no se cargó" vs "JS no
+    // corrió" vs "ambos OK pero el contenido no excede en cols".
+    var pager      = block.querySelector('.chord-fit-pager');
+    var pagerCs    = pager ? getComputedStyle(pager) : null;
+    var pagerInfo  = pager ? {
+      pager_existe:        true,
+      pager_W:             pager.clientWidth,
+      pager_H:             pager.clientHeight,
+      pager_scrollW:       pager.scrollWidth,
+      pager_scrollH:       pager.scrollHeight,
+      pager_scrollLeft:    pager.scrollLeft,
+      pager_overflowX:     pagerCs.overflowX,
+      pager_overflowY:     pagerCs.overflowY,
+      pager_scrollSnapType: pagerCs.scrollSnapType,
+      pager_touchAction:   pagerCs.touchAction
+    } : { pager_existe: false };
+
+    // Estado interno del módulo 12 r14+ (paginación)
+    var cfState = block._cfState || null;
+    var hintsEl = block.querySelector('.chord-fit-hints');
+    var indEl   = block.querySelector('.chord-fit-page-indicator');
+    var paginationInfo = {
+      cfState:                cfState,
+      hints_existen:          !!hintsEl,
+      hint_left_visible:      hintsEl  ? hintsEl.querySelector('.cf-hint-left.cf-hint-visible')  !== null : false,
+      hint_right_visible:     hintsEl  ? hintsEl.querySelector('.cf-hint-right.cf-hint-visible') !== null : false,
+      indicator_existe:       !!indEl,
+      indicator_visible:      indEl ? indEl.classList.contains('cf-pi-visible') : false,
+      indicator_text:         indEl ? indEl.textContent.replace(/\s+/g, '') : null
+    };
+
     var sections = wrapper.querySelectorAll('.chord-fit-section');
     var cs       = getComputedStyle(wrapper);
     var blockCs  = getComputedStyle(block);
@@ -213,8 +245,8 @@
       ? titleEl.textContent.replace(/[𝄞▾▴]/g, '').trim()
       : null;
 
-    return {
-      version: 'v3.2.46r14',
+    var snapshot = {
+      version: 'v3.2.46r15',
       timestamp: new Date().toISOString(),
 
       canto:    cantoTitulo,
@@ -224,6 +256,7 @@
 
       blockClasses:   block.className,
       blockOverflow:  blockCs.overflowY,
+      blockDisplay:   blockCs.display,            // r15: detectar flex vs block
       blockScrollH:   block.scrollHeight,
       blockClientH:   block.clientHeight,
       blockScrollTop: block.scrollTop,
@@ -255,6 +288,12 @@
 
       userAgent: navigator.userAgent
     };
+
+    // r15: merge pager + pagination info al snapshot
+    Object.keys(pagerInfo).forEach(function (k) { snapshot[k] = pagerInfo[k]; });
+    Object.keys(paginationInfo).forEach(function (k) { snapshot[k] = paginationInfo[k]; });
+
+    return snapshot;
   }
 
   // ────────────────────────────────────────────────────────────
@@ -553,13 +592,21 @@
   // ────────────────────────────────────────────────────────────
   // TIMELINE
   // ────────────────────────────────────────────────────────────
-  // Campos que se muestran en el diff entre snapshots consecutivos
+  // Campos que se muestran en el diff entre snapshots consecutivos.
+  // r15: agregados campos de pager + paginación para detectar cambios
+  // del nuevo paradigma r14 (totalPages, currentPage, scroll horizontal).
   var DIFF_KEYS = [
-    'cssCols', 'cssFs', 'wrapper_W', 'wrapper_H',
-    'wrapper_scrollH', 'wrapper_scrollW',
-    'blockClientH', 'blockScrollH', 'blockScrollTop',
+    'cssCols', 'cssFs', 'cssColumnFill',
+    'wrapper_W', 'wrapper_H', 'wrapper_scrollH', 'wrapper_scrollW',
+    'blockClientH', 'blockScrollH', 'blockScrollTop', 'blockDisplay',
     'viewportW', 'viewportH', 'orientation',
-    'excede_altura_block', 'excede_ancho'
+    'excede_altura_block', 'excede_ancho',
+    // r15: pager (paradigma de paginación)
+    'pager_existe', 'pager_W', 'pager_scrollW', 'pager_scrollLeft',
+    'pager_overflowX', 'pager_scrollSnapType',
+    // r15: paginación visible al usuario
+    'indicator_visible', 'indicator_text',
+    'hint_left_visible', 'hint_right_visible'
   ];
 
   function renderTimeline(overlay) {
@@ -651,7 +698,7 @@
 
   function serializeRecording() {
     var out = {
-      version: 'v3.2.46r14',
+      version: 'v3.2.46r15',
       type:    'recording',
       duration_ms: recState.snapshots.length
         ? recState.snapshots[recState.snapshots.length - 1].tRel
