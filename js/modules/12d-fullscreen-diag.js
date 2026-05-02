@@ -6,13 +6,13 @@
  *   @brief      Botón "Diag" + modo grabación de eventos para fullscreen-fit
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r19
+ *   @version    v3.2.46r20
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12d-fullscreen-diag.js  —  v3.2.46r19
+   12d-fullscreen-diag.js  —  v3.2.46r20
    ============================================================================
    FIX r13: overlay y badge visibles dentro del fullscreen API mode
    ────────────────────────────────────────────────────────────────────────────
@@ -246,7 +246,7 @@
       : null;
 
     var snapshot = {
-      version: 'v3.2.46r19',
+      version: 'v3.2.46r20',
       timestamp: new Date().toISOString(),
 
       canto:    cantoTitulo,
@@ -698,7 +698,7 @@
 
   function serializeRecording() {
     var out = {
-      version: 'v3.2.46r19',
+      version: 'v3.2.46r20',
       type:    'recording',
       duration_ms: recState.snapshots.length
         ? recState.snapshots[recState.snapshots.length - 1].tRel

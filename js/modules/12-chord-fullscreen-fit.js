@@ -6,13 +6,13 @@
  *   @brief      Paginación horizontal de acordes en fullscreen + pinch zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r19
+ *   @version    v3.2.46r20
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js  —  v3.2.46r19
+   12-chord-fullscreen-fit.js  —  v3.2.46r20
    ============================================================================
    PAGINACIÓN HORIZONTAL — REESCRITURA COMPLETA
    ────────────────────────────────────────────────────────────────────────────
@@ -130,10 +130,35 @@
       if (isOnlyTitle(current)) {
         var combo = current;
         i++;
+
+        // r20: rastrear si hubo annotation tipo "INTRO:" para decidir si
+        // mergear el siguiente chunk con el título o dejarlo como sección
+        // aparte (con su propio margen).
+        var hadAnnotation = false;
+
         while (i < raw.length && isOnlyCapo(raw[i]))         { combo += '\n' + raw[i]; i++; }
-        while (i < raw.length && isAnnotationLine(raw[i]))   { combo += '\n' + raw[i]; i++; }
-        if (i < raw.length && isOnlySectionHeader(raw[i]))   { combo += '\n' + raw[i]; i++; }
-        if (i < raw.length)                                  { combo += '\n' + raw[i]; i++; }
+        while (i < raw.length && isAnnotationLine(raw[i]))   {
+          combo += '\n' + raw[i];
+          i++;
+          hadAnnotation = true;
+        }
+
+        if (i < raw.length && isOnlySectionHeader(raw[i])) {
+          // Section header (═══ ESTROFA ═══) debe pegarse a su body
+          // siguiente — el header sin body sería raro.
+          combo += '\n' + raw[i]; i++;
+          if (i < raw.length) { combo += '\n' + raw[i]; i++; }
+        } else if (!hadAnnotation) {
+          // Caso tradicional: título seguido directo por body, sin
+          // annotation ni header. Mergear como una unidad.
+          if (i < raw.length) { combo += '\n' + raw[i]; i++; }
+        }
+        // r20: si HUBO annotation (INTRO:) y NO hay section header, NO
+        // mergear más. La primera estrofa queda como sección aparte y
+        // recibe el margin-bottom: 1.1em entre intro/estrofa que pidió
+        // Renzo. Antes de r20, la INTRO se pegaba a la primera estrofa
+        // sin separación visual.
+
         merged.push(combo);
         continue;
       }
