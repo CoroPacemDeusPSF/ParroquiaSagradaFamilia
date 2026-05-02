@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r3
+     @version    v3.3.0r5
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -400,10 +400,85 @@ body.wedding-mode .slb-tab { display: flex; }
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
-  align-self: flex-end;
 }
 .slb-clear:hover  { background: #8A2828; }
 .slb-clear:active { transform: translateY(1px); }
+
+/* Wrapper de acciones del footer: Borrar todo (izq) + Grabar (der).
+   Layout horizontal con space-between para separar acciones destructivas
+   de constructivas, y dar al botón "Grabar" peso visual diferenciado. */
+.slb-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Botón "Grabar" — la acción principal del footer, visualmente prominente
+   con la paleta rosa profundo. Convive con el botón "Borrar todo" (rojo)
+   para que sean fácilmente distinguibles. */
+.slb-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--wm-rose-deep);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.95rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  /* Peso visual sutil con sombra rosa para denotar que es la acción
+     principal del footer, sin gritar. */
+  box-shadow: 0 1px 4px rgba(201, 125, 135, 0.35);
+}
+.slb-save svg {
+  flex-shrink: 0;
+  /* color hereda de currentColor */
+}
+.slb-save:hover  {
+  background: #A55F69;
+  box-shadow: 0 2px 6px rgba(201, 125, 135, 0.5);
+}
+.slb-save:active { transform: translateY(1px); }
+
+/* Estado: grabando — botón deshabilitado visualmente con opacidad reducida
+   y cursor wait, indica progreso al usuario. */
+.slb-save.saving {
+  background: rgba(201, 125, 135, 0.6);
+  cursor: wait;
+  pointer-events: none;
+}
+.slb-save.saving svg {
+  /* Animación sutil de pulsación para señalar actividad */
+  animation: slbSavePulse 0.8s ease-in-out infinite;
+}
+@keyframes slbSavePulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+/* Estado: éxito — verde por 2s tras grabar correctamente */
+.slb-save.saved {
+  background: #5C7A3A;
+  box-shadow: 0 1px 4px rgba(92, 122, 58, 0.4);
+  pointer-events: none;
+}
+
+/* Estado: error — rojo por 3s tras fallo */
+.slb-save.error {
+  background: #B43030;
+  box-shadow: 0 1px 4px rgba(180, 48, 48, 0.4);
+  pointer-events: none;
+}
+
+.slb-save-label {
+  line-height: 1;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    DIALOG "AGREGAR AL SETLIST DE BODA"

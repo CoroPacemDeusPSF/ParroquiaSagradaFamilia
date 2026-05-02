@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r2
+ *   @version    v3.3.0r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -392,6 +392,17 @@
   }
 
   // ── RENDER DEL FOOTER ─────────────────────────────────────────────────
+  // Layout del footer (cuando hay fecha activa):
+  //   ┌─ slots opcionales por agregar ──────────────────────────────┐
+  //   │ [+ Salmo] [+ Canto a María] [+ Foto 4]                     │
+  //   └────────────────────────────────────────────────────────────┘
+  //   ┌─ acciones del setlist ────────────────────────────────────┐
+  //   │              [Borrar todo]      [💾 Grabar]               │
+  //   └────────────────────────────────────────────────────────────┘
+  //
+  // El botón "Grabar" reenvía TODA la fecha activa a Firebase de una sola
+  // vez, sirve como red de seguridad si por alguna razón un save individual
+  // falló (ej. red intermitente). Muestra confirmación visual al terminar.
   function renderFooter() {
     if (!footerEl) return;
     if (!currentDate) { footerEl.innerHTML = ''; return; }
@@ -402,20 +413,30 @@
       return enabledOptionals.indexOf(opt.id) === -1;
     });
 
-    if (available.length === 0) {
-      footerEl.innerHTML =
-        '<button class="slb-clear" onclick="window.SLB.clearAll()">Borrar todo</button>';
-      return;
+    var optionalsHtml = '';
+    if (available.length > 0) {
+      var optionsHtml = available.map(function(opt) {
+        var label = opt.label + (opt.sub ? ' ' + opt.sub : '');
+        return '<button class="slb-add-optional-btn" onclick="window.SLB.addOptional(\'' + opt.id + '\')">+ ' + label + '</button>';
+      }).join('');
+      optionalsHtml = '<div class="slb-footer-optionals">' + optionsHtml + '</div>';
     }
 
-    var optionsHtml = available.map(function(opt) {
-      var label = opt.label + (opt.sub ? ' ' + opt.sub : '');
-      return '<button class="slb-add-optional-btn" onclick="window.SLB.addOptional(\'' + opt.id + '\')">+ ' + label + '</button>';
-    }).join('');
+    // Acciones del setlist: Borrar todo (izq) + Grabar (der)
+    var actionsHtml =
+      '<div class="slb-footer-actions">' +
+        '<button class="slb-clear" onclick="window.SLB.clearAll()">Borrar todo</button>' +
+        '<button class="slb-save" id="slb-save-btn" onclick="window.SLB.saveAll()" title="Forzar guardado en Firebase">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">' +
+            '<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>' +
+            '<polyline points="17 21 17 13 7 13 7 21"/>' +
+            '<polyline points="7 3 7 8 15 8"/>' +
+          '</svg>' +
+          '<span class="slb-save-label">Grabar</span>' +
+        '</button>' +
+      '</div>';
 
-    footerEl.innerHTML =
-      '<div class="slb-footer-optionals">' + optionsHtml + '</div>' +
-      '<button class="slb-clear" onclick="window.SLB.clearAll()">Borrar todo</button>';
+    footerEl.innerHTML = optionalsHtml + actionsHtml;
   }
 
   // ── SLOTS OPCIONALES: AGREGAR / QUITAR ────────────────────────────────
@@ -601,6 +622,81 @@
       body: JSON.stringify(enabledOptionals)
     }).catch(function(err) {
       console.warn('[SLB] Optionals save error:', err.message);
+    });
+  }
+
+  // ── GRABAR TODO (reenvío explícito a Firebase) ──────────────────────
+  // El botón "Grabar" del footer llama esta función. Reenvía TODA la fecha
+  // activa de una sola vez con un PUT al nodo /setlist-bodas/{fecha}.
+  // Esto sirve como:
+  //   1. Red de seguridad: si algún save individual falló por red
+  //      intermitente, esto reenvía todo el estado consistente.
+  //   2. Feedback visual: el usuario obtiene confirmación explícita
+  //      ("✓ Grabado") tras la operación. Útil porque el auto-save
+  //      por slot es silencioso.
+  // No reemplaza al auto-save — es complementario.
+  function saveAll() {
+    if (!currentDate) {
+      window.alert('No hay fecha activa para grabar.');
+      return;
+    }
+
+    var btn = document.getElementById('slb-save-btn');
+    var labelEl = btn ? btn.querySelector('.slb-save-label') : null;
+    var originalLabel = labelEl ? labelEl.textContent : 'Grabar';
+
+    // Estado visual: "Grabando..."
+    if (btn) btn.classList.add('saving');
+    if (labelEl) labelEl.textContent = 'Grabando...';
+
+    // Construir payload completo: slots + _meta. Firebase con PUT en el
+    // nodo padre reemplaza todo el contenido — así el estado en remoto
+    // queda exactamente igual al local, eliminando cualquier inconsistencia.
+    var payload = {};
+    Object.keys(setlistData).forEach(function(slotId) {
+      payload[slotId] = setlistData[slotId];
+    });
+    payload._meta = {
+      novios:    noviosNombres,
+      optionals: enabledOptionals
+    };
+
+    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function() {
+      // Asegurar que la fecha está en availableDates
+      if (availableDates.indexOf(currentDate) === -1) {
+        availableDates.push(currentDate);
+        availableDates.sort();
+      }
+      // Confirmación visual: cambiar label a "✓ Grabado" por 2s
+      if (btn) {
+        btn.classList.remove('saving');
+        btn.classList.add('saved');
+      }
+      if (labelEl) labelEl.textContent = '✓ Grabado';
+      console.log('[SLB] Grabado completo:', currentDate, '·', Object.keys(setlistData).length, 'cantos');
+
+      setTimeout(function() {
+        if (btn) btn.classList.remove('saved');
+        if (labelEl) labelEl.textContent = originalLabel;
+      }, 2000);
+    }).catch(function(err) {
+      console.error('[SLB] Save error:', err.message);
+      if (btn) {
+        btn.classList.remove('saving');
+        btn.classList.add('error');
+      }
+      if (labelEl) labelEl.textContent = '✗ Error';
+      setTimeout(function() {
+        if (btn) btn.classList.remove('error');
+        if (labelEl) labelEl.textContent = originalLabel;
+      }, 3000);
     });
   }
 
@@ -793,6 +889,10 @@
   function selectDate(dateKey) {
     currentDate = dateKey;
     currentView = 'main';
+    // Persistir en localStorage para sobrevivir refreshes. La fecha es lo
+    // único que necesita persistir aquí — el setlist en sí vive en Firebase
+    // y se recarga llamando a loadFromFirebase con esta fecha.
+    try { localStorage.setItem('pdSlbDate', dateKey); } catch (e) {}
     loadFromFirebase(dateKey);
   }
 
@@ -925,9 +1025,27 @@
       return;
     }
 
+    // Restaurar fecha activa de la sesión anterior (si existe).
+    // Sin esto, currentDate quedaba null tras refresh y el usuario tenía que
+    // re-seleccionar la fecha cada vez. Bug histórico v3.3.0r4 — corregido r5.
+    var savedDate = null;
+    try { savedDate = localStorage.getItem('pdSlbDate'); } catch (e) {}
+
     loadAvailableDates().then(function() {
-      renderHeader();
-      renderSlots();
+      // Si había una fecha guardada Y existe en Firebase, la cargamos
+      // automáticamente. Si la fecha guardada ya no tiene setlist (alguien
+      // la borró), limpiamos la persistencia y dejamos que el usuario elija.
+      if (savedDate && availableDates.indexOf(savedDate) !== -1) {
+        currentDate = savedDate;
+        loadFromFirebase(savedDate);
+      } else {
+        if (savedDate) {
+          // La fecha guardada ya no existe — limpiar
+          try { localStorage.removeItem('pdSlbDate'); } catch (e) {}
+        }
+        renderHeader();
+        renderSlots();
+      }
     });
 
     // Click outside del dialog cierra
@@ -971,6 +1089,7 @@
     goTo:           goToSong,
     remove:         function(slotId) { removeSlot(slotId, false); },
     clearAll:       clearAll,
+    saveAll:        saveAll,
     scrollToIndex:  scrollToIndex,
     addSong:        addSong,
     confirmAdd:     confirmAdd,
