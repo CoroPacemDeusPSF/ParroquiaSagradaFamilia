@@ -6,13 +6,13 @@
  *   @brief      Paginación horizontal de acordes en fullscreen + pinch zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r17
+ *   @version    v3.2.46r18
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
 
 /* ============================================================================
-   12-chord-fullscreen-fit.js  —  v3.2.46r17
+   12-chord-fullscreen-fit.js  —  v3.2.46r18
    ============================================================================
    PAGINACIÓN HORIZONTAL — REESCRITURA COMPLETA
    ────────────────────────────────────────────────────────────────────────────
@@ -165,7 +165,17 @@
       var section = document.createElement('div');
       section.className = 'chord-fit-section';
 
-      var pre = document.createElement('pre');
+      // r18: <div> en lugar de <pre>.
+      // Los browsers tratan <pre> como ATÓMICO en CSS multi-column —
+      // no permiten partirlos entre columnas. Cuando una estrofa entera
+      // no cabe en lo que queda de col, el browser la mueve completa a
+      // la siguiente, dejando un gran hueco. Confirmado por el JSON r17:
+      // contenido 1609px, espacio efectivo 2×562=1124px → ~480px de
+      // hueco desperdiciado.
+      // Un <div> con white-space:pre se ve idéntico (alineación
+      // preservada) pero NO es atómico: el browser lo parte
+      // naturalmente entre líneas, llenando completamente las cols.
+      var pre = document.createElement('div');
       pre.className = 'chord-fit-pre';
       var cleaned = sectionHtml
         .replace(/^[\s\n]+/, '')

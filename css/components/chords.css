@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r17
+     @version    v3.2.46r18
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -223,27 +223,35 @@
   color:       #e0d0b0;
 }
 
-/* SECCIÓN: bloque atómico que el browser puede fluir entre cols */
+/* SECCIÓN: bloque que el browser puede partir entre cols */
 .chord-fit-section {
   display:       block;
   margin-bottom: 0.18em;         /* r17: 0.4em → 0.18em (más compacto) */
+  /* r18: explícito para anular cualquier herencia que fuerce atomic */
+  break-inside:                auto;
+  -webkit-column-break-inside: auto;
 }
 .chord-fit-section:last-child { margin-bottom: 0; }
 
-/* PRE: hereda fontsize del wrapper. !important contra el inline-style
-   que aplica el módulo 07 (controles A−/A+). */
+/* PRE: ahora es un <div> (r18) con white-space: pre.
+   Hereda fontsize del wrapper. !important contra el inline-style
+   que aplica el módulo 07 (controles A−/A+).
+   r18: break-inside auto explícito porque <pre> tiene atomic implícito
+   y queremos asegurar que el contenido se pueda partir entre cols. */
 .chord-fit-pre {
-  font-size:   inherit !important;
+  font-size: inherit !important;
   font-family: inherit;
   line-height: inherit;
-  color:       inherit;
+  color: inherit;
   white-space: pre;
-  background:  none;
-  border:      none;
-  padding:     0;
-  margin:      0;
-  tab-size:    4;
-  max-width:   100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  tab-size: 4;
+  max-width: 100%;
+  break-inside:                auto !important;
+  -webkit-column-break-inside: auto !important;
 }
 
 .chord-fit-pre .chord { color: #E8C040; font-weight: bold; }
