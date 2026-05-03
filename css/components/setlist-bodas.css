@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r9
+     @version    v3.3.0r10
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -197,10 +197,10 @@ body.rehearsal-mode .slb-dialog-overlay {
   top: 0.55rem;
   left: 0.6rem;
   background: none;
-  border: 1px solid rgba(184, 138, 130, 0.55);
+  border: 1px solid var(--wm-ink-soft);
   border-radius: 50%;
   width: 24px; height: 24px;
-  color: rgba(90, 38, 48, 0.8);
+  color: var(--wm-ink-soft);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -217,9 +217,9 @@ body.rehearsal-mode .slb-dialog-overlay {
   transition: transform 0.25s;
 }
 .slb-pin-btn:hover {
-  border-color: var(--wm-rose-deep);
-  color: var(--wm-rose-deep);
-  background: rgba(255, 255, 255, 0.45);
+  border-color: var(--wm-ink);
+  color: var(--wm-ink);
+  background: rgba(255, 255, 255, 0.55);
 }
 .slb-pin-btn.pinned {
   /* Gradiente perlado coherente con el resto de botones primarios:
@@ -228,8 +228,8 @@ body.rehearsal-mode .slb-dialog-overlay {
      llegaría la luz (esquina superior-izquierda) sin invadir el centro. */
   background: linear-gradient(135deg,
     var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          25%,
-    var(--wm-rose-deep)     100%
+    var(--wm-rose-deep)     30%,
+    #7E5A54                 100%
   );
   color: #fff;
   border-color: var(--wm-rose-deep);
@@ -249,7 +249,8 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-size: 0.65rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--wm-rose-deep);
+  /* r10: rosa-deep → gris oscuro para contraste real sobre el rosa pálido */
+  color: var(--wm-ink);
   font-weight: 600;
   text-align: center;
 }
@@ -257,14 +258,15 @@ body.rehearsal-mode .slb-dialog-overlay {
 /* Selector de fecha (botón principal del header) */
 .slb-header-date {
   background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(184, 138, 130, 0.3);
+  border: 1px solid var(--wm-ink-muted);
   border-radius: 6px;
   padding: 0.45rem 0.75rem;
   cursor: pointer;
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #5A2630;
+  /* r10: borgoña → gris oscuro */
+  color: var(--wm-ink);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -273,11 +275,11 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 .slb-header-date:hover {
   background: rgba(255, 255, 255, 0.95);
-  border-color: var(--wm-rose-deep);
+  border-color: var(--wm-ink);
 }
 .slb-date-text { flex: 1; text-align: left; }
 .slb-date-chev {
-  color: var(--wm-rose-deep);
+  color: var(--wm-ink-soft);
   font-size: 0.85rem;
 }
 
@@ -286,7 +288,8 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.85rem;
-  color: #4A2030;
+  /* r10: borgoña → gris oscuro */
+  color: var(--wm-ink);
   text-align: center;
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
@@ -300,9 +303,9 @@ body.rehearsal-mode .slb-dialog-overlay {
 /* Nombres de los novios (placeholder cuando vacío) */
 .slb-header-novios-empty {
   background: none;
-  border: 1px dashed rgba(184, 138, 130, 0.55);
-  /* r3: 0.55 → #5A2030 con opacidad 0.85 (más legible, conserva look "placeholder") */
-  color: rgba(90, 38, 48, 0.85);
+  border: 1px dashed var(--wm-ink-muted);
+  /* r10: rosa borgoña → gris oscuro para contraste real */
+  color: var(--wm-ink-soft);
   font-family: 'Cinzel', serif;
   font-size: 0.6rem;
   letter-spacing: 0.12em;
@@ -313,39 +316,39 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 .slb-header-novios-empty:hover {
   background: rgba(255, 255, 255, 0.5);
-  border-color: var(--wm-rose-deep);
-  color: var(--wm-rose-deep);
+  border-color: var(--wm-ink);
+  color: var(--wm-ink);
 }
 
 /* Input para edición inline de nombres */
 .slb-header-novios-input {
   background: #fff;
-  border: 1px solid var(--wm-rose-deep);
+  border: 1px solid var(--wm-ink-soft);
   border-radius: 4px;
   padding: 0.3rem 0.5rem;
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.9rem;
-  color: #5A2030;
+  color: var(--wm-ink);
   width: 100%;
   text-align: center;
 }
-.slb-header-novios-input:focus { outline: 2px solid var(--wm-rose); }
+.slb-header-novios-input:focus { outline: 2px solid var(--wm-rose-deep); }
 
 /* Header en estado "sin fecha seleccionada" */
 .slb-header-empty {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.8rem;
-  /* r3: 0.7 → 0.9 para legibilidad */
-  color: rgba(90, 38, 48, 0.9);
+  /* r10: borgoña → gris oscuro */
+  color: var(--wm-ink-soft);
   text-align: center;
 }
 .slb-header-action {
   /* Gradiente perlado coherente con .slb-save y demás botones primarios */
   background: linear-gradient(135deg,
     var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          25%,
-    var(--wm-rose-deep)     100%
+    var(--wm-rose-deep)     30%,
+    #7E5A54                 100%
   );
   color: #fff;
   border: none;
@@ -386,33 +389,33 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-size: 0.5rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  /* r3: subido de rgba(90,38,48,0.7) a #5A2030 sólido para mejor contraste
-     en tablets bajo luz directa. La paleta dominical usa el mismo principio
-     de moment labels semi-opacos pero sobre fondo crema más cálido — aquí
-     el rosa perlado del wedding-mode pierde contraste con bajos opacidades. */
-  color: #5A2030;
+  /* r10: borgoña → gris oscuro suave. Los moment labels son secundarios
+     (etiquetan al canto que es el dato principal) así que usamos
+     ink-soft en lugar del ink completo, manteniendo jerarquía. */
+  color: var(--wm-ink-soft);
   width: 5.5rem;
   flex-shrink: 0;
   line-height: 1.2;
 }
 .slb-moment.clickable { cursor: pointer; }
-.slb-moment.clickable:hover { color: var(--wm-rose-deep); }
+.slb-moment.clickable:hover { color: var(--wm-ink); }
 
 .slb-song {
   flex: 1;
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.92rem;
-  /* r3: ya estaba oscuro (#3A1820) — solo se mantiene */
-  color: #2A0F18;
+  /* r10: borgoña casi negro → gris oscuro (sigue siendo el más oscuro
+     del trio porque el nombre del canto es el dato principal). */
+  color: var(--wm-ink);
   cursor: pointer;
   transition: color 0.2s;
   word-break: break-word;
 }
-.slb-song:hover { color: var(--wm-rose-deep); }
+.slb-song:hover { color: #000; }
 .slb-song.empty {
-  /* r3: subido de rgba(90,38,48,0.35) a 0.6 para legibilidad sin perder
-     la jerarquía visual (debe lucir "vacío" pero no fantasma). */
-  color: rgba(90, 38, 48, 0.6);
+  /* r10: rgba borgoña → gris medio para placeholder "vacío" — debe lucir
+     placeholder pero ahora claramente legible sobre el rosa pálido. */
+  color: var(--wm-ink-muted);
   font-style: italic;
   cursor: default;
 }
@@ -421,20 +424,23 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-remove {
   background: none;
   border: none;
-  color: rgba(150, 40, 50, 0.5);
+  /* r10: rojo fresa para coherencia con .slb-clear y mejor visibilidad
+     sobre el rosa pálido. El alpha al 65% le da peso suficiente sin
+     gritar; al hover sube a strawberry-deep sólido. */
+  color: rgba(232, 89, 94, 0.65);
   font-size: 1.1rem;
   cursor: pointer;
   padding: 0 0.3rem;
   line-height: 1;
   transition: color 0.2s;
 }
-.slb-remove:hover { color: #C03030; }
+.slb-remove:hover { color: var(--wm-strawberry-deep); }
 
 /* Botón quitar slot opcional (marcado distinto del remove canto) */
 .slb-remove-optional {
   background: none;
-  border: 1px solid rgba(150, 40, 50, 0.25);
-  color: rgba(150, 40, 50, 0.55);
+  border: 1px solid rgba(232, 89, 94, 0.4);
+  color: rgba(232, 89, 94, 0.75);
   font-size: 0.85rem;
   cursor: pointer;
   padding: 0 0.35rem;
@@ -444,9 +450,9 @@ body.rehearsal-mode .slb-dialog-overlay {
   transition: all 0.2s;
 }
 .slb-remove-optional:hover {
-  background: rgba(192, 48, 48, 0.1);
-  color: #C03030;
-  border-color: #C03030;
+  background: rgba(232, 89, 94, 0.12);
+  color: var(--wm-strawberry-deep);
+  border-color: var(--wm-strawberry-deep);
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -469,9 +475,12 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 
 .slb-add-optional-btn {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px dashed var(--wm-rose-deep);
-  color: var(--wm-rose-deep);
+  background: rgba(255, 255, 255, 0.75);
+  /* r10: borde y texto en gris oscuro para que estos botones secundarios
+     resalten sobre el fondo rosa pálido. Sin estos contrastes parecían
+     "flotando" sin presencia. */
+  border: 1px dashed var(--wm-ink-soft);
+  color: var(--wm-ink);
   font-family: 'Cinzel', serif;
   font-size: 0.55rem;
   letter-spacing: 0.1em;
@@ -479,27 +488,38 @@ body.rehearsal-mode .slb-dialog-overlay {
   padding: 0.3rem 0.55rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 .slb-add-optional-btn:hover {
-  background: var(--wm-rose-deep);
+  background: var(--wm-ink);
   color: #fff;
+  border-color: var(--wm-ink);
 }
 
+/* Botón "Borrar todo" — acción destructiva.
+   Refactorizado en r10 a rojo fresa con tratamiento perlado (el mismo
+   estilo de gradiente que .slb-save) para que ambos botones del footer
+   sean visualmente coherentes pese a representar acciones opuestas.
+   Antes era un rojo borgoña plano que rompía con la paleta perlada. */
 .slb-clear {
-  background: rgba(150, 40, 50, 0.85);
+  background: linear-gradient(135deg,
+    var(--wm-strawberry-bright) 0%,
+    var(--wm-strawberry)        25%,
+    var(--wm-strawberry-deep)   100%
+  );
   color: #fff;
   border: none;
-  padding: 0.45rem 0.8rem;
+  padding: 0.5rem 0.95rem;
   border-radius: 4px;
   font-family: 'Cinzel', serif;
   font-size: 0.6rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: filter 0.2s, transform 0.1s;
+  box-shadow: 0 1px 4px rgba(184, 51, 64, 0.35);
 }
-.slb-clear:hover  { background: #8A2828; }
+.slb-clear:hover  { filter: brightness(0.92); }
 .slb-clear:active { transform: translateY(1px); }
 
 /* Wrapper de acciones del footer: Borrar todo (izq) + Grabar (der).
@@ -513,19 +533,20 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 
 /* Botón "Grabar" — la acción principal del footer, visualmente prominente
-   con la paleta rosa perlada. Convive con el botón "Borrar todo" (rojo)
+   con la paleta rosa perlada. Convive con el botón "Borrar todo" (fresa)
    para que sean fácilmente distinguibles. */
 .slb-save {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  /* Gradiente perlado: destello blanco-cremoso en esquina superior izquierda
-     que se desvanece hacia el rosa nude profundo. Coherente con el resto
-     de botones primarios (Elegir fecha, Nueva fecha, pin clavado). */
+  /* Gradiente perlado más oscuro (r10): partía con destello, transición
+     muy rápida al rose-deep, y termina en un tono café-rosa más profundo
+     para que el botón se sienta sólido y "pesado" como una acción primaria
+     y no etéreo como una propuesta visual. */
   background: linear-gradient(135deg,
     var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          25%,
-    var(--wm-rose-deep)     100%
+    var(--wm-rose-deep)     30%,
+    #7E5A54                 100%
   );
   color: #fff;
   border: none;
@@ -536,26 +557,13 @@ body.rehearsal-mode .slb-dialog-overlay {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  /* Peso visual sutil con sombra rosa para denotar que es la acción
-     principal del footer, sin gritar. */
-  box-shadow: 0 1px 4px rgba(184, 138, 130, 0.35);
+  transition: filter 0.2s, transform 0.1s;
+  box-shadow: 0 1px 4px rgba(126, 90, 84, 0.45);
 }
 .slb-save svg {
   flex-shrink: 0;
-  /* color hereda de currentColor */
 }
-.slb-save:hover  {
-  /* Hover: gradiente intensificado — el destello sigue presente pero
-     todo el rango se desplaza hacia tonos más profundos para señalar
-     la interacción sin perder el carácter perlado. */
-  background: linear-gradient(135deg,
-    var(--wm-rose-blush) 0%,
-    var(--wm-rose)       25%,
-    #9C7770              100%
-  );
-  box-shadow: 0 2px 6px rgba(184, 138, 130, 0.5);
-}
+.slb-save:hover  { filter: brightness(0.92); }
 .slb-save:active { transform: translateY(1px); }
 
 /* Estado: grabando — botón deshabilitado visualmente con opacidad reducida
@@ -624,17 +632,18 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--wm-rose-deep);
+  /* r10: borgoña → gris oscuro para contraste real sobre el rosa pearl */
+  color: var(--wm-ink);
   text-align: center;
   padding: 0.7rem;
-  border-bottom: 1px solid rgba(184, 138, 130, 0.25);
+  border-bottom: 1px solid var(--wm-ink-muted);
 }
 
 .slb-dialog-song {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 1.05rem;
-  color: #3A1820;
+  color: var(--wm-ink);
   text-align: center;
   padding: 0.7rem 1rem 0.4rem;
 }
@@ -647,15 +656,15 @@ body.rehearsal-mode .slb-dialog-overlay {
 
 .slb-dialog-slot-btn {
   width: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(184, 138, 130, 0.2);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--wm-ink-muted);
   border-radius: 4px;
   padding: 0.5rem 0.7rem;
   margin-bottom: 0.3rem;
   font-family: 'Cinzel', serif;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
-  color: #3A1820;
+  color: var(--wm-ink);
   cursor: pointer;
   text-align: left;
   display: flex;
@@ -665,12 +674,12 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 .slb-dialog-slot-btn:hover {
   background: var(--wm-rose-soft);
-  border-color: var(--wm-rose-deep);
+  border-color: var(--wm-ink);
 }
 .slb-dialog-slot-btn.suggested {
   background: var(--wm-rose-pearl);
-  border-color: var(--wm-rose-deep);
-  color: var(--wm-rose-deep);
+  border-color: var(--wm-ink);
+  color: var(--wm-ink);
   font-weight: 600;
 }
 
@@ -678,27 +687,27 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 0.78rem;
-  /* r3: 0.65 → 0.85 para que el "actual: ..." sea claramente legible */
-  color: rgba(90, 38, 48, 0.85);
+  /* r10: borgoña → gris suave para "actual: ..." */
+  color: var(--wm-ink-soft);
   letter-spacing: 0;
   text-transform: none;
 }
 
 .slb-dialog-cancel {
-  background: rgba(80, 30, 40, 0.08);
+  background: rgba(0, 0, 0, 0.04);
   border: none;
-  border-top: 1px solid rgba(184, 138, 130, 0.2);
+  border-top: 1px solid var(--wm-ink-muted);
   padding: 0.7rem;
   font-family: 'Cinzel', serif;
   font-size: 0.65rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  /* r3: 0.7 → 0.9 */
-  color: rgba(90, 38, 48, 0.9);
+  /* r10: borgoña → gris oscuro */
+  color: var(--wm-ink);
   cursor: pointer;
   transition: background 0.2s;
 }
-.slb-dialog-cancel:hover { background: rgba(80, 30, 40, 0.15); }
+.slb-dialog-cancel:hover { background: rgba(0, 0, 0, 0.08); }
 
 /* ════════════════════════════════════════════════════════════════════
    DATE PICKER (vista de calendario dentro del panel)
@@ -707,7 +716,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   background: none;
   border: none;
   font-size: 1.3rem;
-  color: var(--wm-rose-deep);
+  color: var(--wm-ink);
   cursor: pointer;
   position: absolute;
   left: 0.6rem; top: 0.6rem;
@@ -719,7 +728,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--wm-rose-deep);
+  color: var(--wm-ink);
   text-align: center;
 }
 
@@ -736,20 +745,20 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-picker-nav-btn {
   background: none;
   border: none;
-  color: var(--wm-rose-deep);
+  color: var(--wm-ink);
   font-size: 1.3rem;
   cursor: pointer;
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
   transition: background 0.2s;
 }
-.slb-picker-nav-btn:hover { background: rgba(245, 221, 213, 0.4); }
+.slb-picker-nav-btn:hover { background: rgba(0, 0, 0, 0.06); }
 
 .slb-picker-month {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #5A2030;
+  color: var(--wm-ink);
   text-transform: capitalize;
 }
 
@@ -765,8 +774,8 @@ body.rehearsal-mode .slb-dialog-overlay {
   font-family: 'Cinzel', serif;
   font-size: 0.55rem;
   font-weight: 600;
-  /* r3: 0.5 → 0.8 — días de la semana legibles */
-  color: rgba(90, 38, 48, 0.8);
+  /* r10: borgoña → gris oscuro suave */
+  color: var(--wm-ink-soft);
   padding: 0.3rem 0;
   letter-spacing: 0.05em;
 }
@@ -778,8 +787,8 @@ body.rehearsal-mode .slb-dialog-overlay {
   justify-content: center;
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.85rem;
-  /* r3: 0.4 → 0.65 — días sin setlist todavía discretos pero legibles */
-  color: rgba(90, 38, 48, 0.65);
+  /* r10: días sin setlist en gris medio (placeholder) */
+  color: var(--wm-ink-muted);
   cursor: default;
   border-radius: 50%;
   transition: all 0.15s;
@@ -789,15 +798,16 @@ body.rehearsal-mode .slb-dialog-overlay {
 /* Día con setlist guardado: clickable + acentuado */
 .slb-picker-cell.has-setlist {
   background: var(--wm-rose-pearl);
-  color: var(--wm-rose-deep);
+  /* r10: número del día en gris oscuro para legibilidad sobre el rosa pearl */
+  color: var(--wm-ink);
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba(184, 138, 130, 0.3);
+  border: 1px solid var(--wm-ink-muted);
 }
 .slb-picker-cell.has-setlist:hover {
   background: var(--wm-rose);
   color: #fff;
-  border-color: var(--wm-rose-deep);
+  border-color: var(--wm-ink);
   transform: scale(1.08);
 }
 
@@ -806,8 +816,8 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-picker-cell.current {
   background: linear-gradient(135deg,
     var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          30%,
-    var(--wm-rose-deep)     100%
+    var(--wm-rose-deep)     30%,
+    #7E5A54                 100%
   );
   color: #fff;
   border-color: var(--wm-rose-deep);
@@ -823,8 +833,8 @@ body.rehearsal-mode .slb-dialog-overlay {
   /* Gradiente perlado coherente con .slb-save y .slb-header-action */
   background: linear-gradient(135deg,
     var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          25%,
-    var(--wm-rose-deep)     100%
+    var(--wm-rose-deep)     30%,
+    #7E5A54                 100%
   );
   color: #fff;
   border: none;
@@ -858,9 +868,12 @@ body.rehearsal-mode .slb-dialog-overlay {
    El ícono es un SVG inline (violín estilizado) — definido en el JS
    del módulo 30, NO usar emojis ni glifos Unicode. */
 .slb-inst-btn {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px dashed rgba(184, 138, 130, 0.5);
-  color: var(--wm-rose-deep);
+  background: rgba(255, 255, 255, 0.75);
+  /* r10: borde + texto en gris oscuro para que el botón "INST." sea
+     claramente legible sobre el rosa pálido. Antes su rosa-deep tenía
+     muy poco contraste y se "fundía" con el fondo. */
+  border: 1px dashed var(--wm-ink-soft);
+  color: var(--wm-ink);
   padding: 0.18rem 0.4rem;
   border-radius: 4px;
   cursor: pointer;
@@ -875,9 +888,10 @@ body.rehearsal-mode .slb-dialog-overlay {
   flex-shrink: 0;
 }
 .slb-inst-btn:hover {
-  background: var(--wm-rose-deep);
+  background: var(--wm-ink);
   color: #fff;
   border-style: solid;
+  border-color: var(--wm-ink);
 }
 .slb-inst-btn:active { transform: scale(0.95); }
 
@@ -907,13 +921,16 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-song-instrumental {
   font-style: italic !important;
   cursor: default !important;
-  color: var(--wm-rose-deep) !important;
+  /* r10: rosa-deep → gris oscuro. El violín inline al lado mantiene
+     el carácter distintivo de "instrumental" sin necesitar también el
+     color rosa que se perdía sobre el fondo. */
+  color: var(--wm-ink) !important;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
 }
 .slb-song-instrumental:hover {
-  color: var(--wm-rose-deep) !important;
+  color: var(--wm-ink) !important;
 }
 
 /* SVG del violín inline en el slot ya asignado — un poco más grande

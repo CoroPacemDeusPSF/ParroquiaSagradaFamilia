@@ -6,7 +6,7 @@
      @brief      Estilos del Modo Bodas: badge con anillos, sello rosa, dialog
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r9
+     @version    v3.3.0r10
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -42,6 +42,19 @@
   --wm-rose-pearl:    #F0DCD3;
   --wm-pearl-shimmer: #FFF6F0;
   --wm-rose-blush:    #E8D5CD;
+
+  /* Tipografía: gris oscuro cálido para todo el texto del Modo Bodas.
+     Contraste alto sobre los fondos rosa pálido sin recurrir al negro
+     plano (que rompía con la paleta). Tres niveles según jerarquía: */
+  --wm-ink:        #2C2C2C; /* títulos, texto principal, fechas, novios */
+  --wm-ink-soft:   #4A4A4A; /* etiquetas secundarias, moment labels */
+  --wm-ink-muted:  #6E6E6E; /* placeholders, "vacío", días sin setlist */
+
+  /* Botones de acción destructiva: rojo fresa con el mismo tratamiento
+     perlado que el botón GRABAR. Variables paralelas a las rosa. */
+  --wm-strawberry:        #E8595E; /* fresa medio */
+  --wm-strawberry-deep:   #B83340; /* fresa intenso para gradiente */
+  --wm-strawberry-bright: #FFE0DC; /* destello cremoso para perlado */
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -127,7 +140,8 @@ body.dev-mode #wedding-badge .badge-dev   { display: block !important; }
 #wedding-confirm-box p {
   font-family: 'Cinzel', serif;
   font-size: 0.85rem;
-  color: #4A2A30;
+  /* r10: borgoña → gris oscuro */
+  color: var(--wm-ink);
   margin: 0 0 1rem;
   letter-spacing: 0.1em;
 }
@@ -142,27 +156,27 @@ body.dev-mode #wedding-badge .badge-dev   { display: block !important; }
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   cursor: pointer;
-  transition: filter 0.2s;
+  transition: filter 0.2s, background 0.2s;
 }
 .wedding-confirm-btn.yes {
-  /* Botón primario "Sí": gradiente perlado coherente con .slb-save y demás
-     botones primarios del Modo Bodas. */
-  border: 1px solid var(--wm-rose-deep);
+  /* Botón primario "Sí": gradiente perlado más oscuro coherente con
+     .slb-save (r10) — destello + transición rápida a tonos profundos. */
+  border: 1px solid #7E5A54;
   color: #fff;
   background: linear-gradient(135deg,
     var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          25%,
-    var(--wm-rose-deep)     100%
+    var(--wm-rose-deep)     30%,
+    #7E5A54                 100%
   );
 }
 .wedding-confirm-btn.yes:hover { filter: brightness(0.92); }
 .wedding-confirm-btn.no {
-  /* Botón secundario "Cancelar": transparente con borde discreto */
-  border: 1px solid rgba(80, 30, 40, 0.3);
-  color: #5A2030;
+  /* Botón secundario "Cancelar": transparente con borde gris discreto */
+  border: 1px solid var(--wm-ink-muted);
+  color: var(--wm-ink);
   background: transparent;
 }
-.wedding-confirm-btn.no:hover { background: rgba(80, 30, 40, 0.05); }
+.wedding-confirm-btn.no:hover { background: rgba(0, 0, 0, 0.05); }
 
 /* ════════════════════════════════════════════════════════════════════
    OVERLAY DEL SELLO DE INTRO
