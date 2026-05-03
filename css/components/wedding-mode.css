@@ -6,7 +6,7 @@
      @brief      Estilos del Modo Bodas: badge con anillos, sello rosa, dialog
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r8
+     @version    v3.3.0r9
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -131,6 +131,38 @@ body.dev-mode #wedding-badge .badge-dev   { display: block !important; }
   margin: 0 0 1rem;
   letter-spacing: 0.1em;
 }
+
+/* Botones del dialog de confirmación.
+   Refactorizados de inline-style a clases CSS en r9 para coherencia con
+   el resto del proyecto y aplicar el gradiente perlado al botón primario. */
+.wedding-confirm-btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.wedding-confirm-btn.yes {
+  /* Botón primario "Sí": gradiente perlado coherente con .slb-save y demás
+     botones primarios del Modo Bodas. */
+  border: 1px solid var(--wm-rose-deep);
+  color: #fff;
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          25%,
+    var(--wm-rose-deep)     100%
+  );
+}
+.wedding-confirm-btn.yes:hover { filter: brightness(0.92); }
+.wedding-confirm-btn.no {
+  /* Botón secundario "Cancelar": transparente con borde discreto */
+  border: 1px solid rgba(80, 30, 40, 0.3);
+  color: #5A2030;
+  background: transparent;
+}
+.wedding-confirm-btn.no:hover { background: rgba(80, 30, 40, 0.05); }
 
 /* ════════════════════════════════════════════════════════════════════
    OVERLAY DEL SELLO DE INTRO

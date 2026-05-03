@@ -83,8 +83,8 @@
    Cargan después de rehearsal.css y setlist.css para que sus estilos puedan
    coexistir con los del dominical sin interferencia (clases prefijadas .slb-*
    y selectores body.wedding-mode evitan colisiones).                        */
-@import url('components/wedding-mode.css?v=3.3.0r8');
-@import url('components/setlist-bodas.css?v=3.3.0r8');
+@import url('components/wedding-mode.css?v=3.3.0r9');
+@import url('components/setlist-bodas.css?v=3.3.0r9');
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.2.46r15');

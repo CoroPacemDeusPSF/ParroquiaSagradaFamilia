@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r8
+     @version    v3.3.0r9
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -222,7 +222,15 @@ body.rehearsal-mode .slb-dialog-overlay {
   background: rgba(255, 255, 255, 0.45);
 }
 .slb-pin-btn.pinned {
-  background: var(--wm-rose-deep);
+  /* Gradiente perlado coherente con el resto de botones primarios:
+     destello blanco-cremoso en esquina superior izquierda → rosa nude profundo.
+     El stop al 25% concentra el destello en la zona donde naturalmente
+     llegaría la luz (esquina superior-izquierda) sin invadir el centro. */
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          25%,
+    var(--wm-rose-deep)     100%
+  );
   color: #fff;
   border-color: var(--wm-rose-deep);
 }
@@ -333,7 +341,12 @@ body.rehearsal-mode .slb-dialog-overlay {
   text-align: center;
 }
 .slb-header-action {
-  background: var(--wm-rose-deep);
+  /* Gradiente perlado coherente con .slb-save y demás botones primarios */
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          25%,
+    var(--wm-rose-deep)     100%
+  );
   color: #fff;
   border: none;
   padding: 0.5rem 1rem;
@@ -344,9 +357,9 @@ body.rehearsal-mode .slb-dialog-overlay {
   text-transform: uppercase;
   cursor: pointer;
   align-self: center;
-  transition: background 0.2s;
+  transition: filter 0.2s;
 }
-.slb-header-action:hover { background: #A55F69; }
+.slb-header-action:hover { filter: brightness(0.92); }
 
 /* ════════════════════════════════════════════════════════════════════
    LISTA DE SLOTS
@@ -500,13 +513,20 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 
 /* Botón "Grabar" — la acción principal del footer, visualmente prominente
-   con la paleta rosa profundo. Convive con el botón "Borrar todo" (rojo)
+   con la paleta rosa perlada. Convive con el botón "Borrar todo" (rojo)
    para que sean fácilmente distinguibles. */
 .slb-save {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background: var(--wm-rose-deep);
+  /* Gradiente perlado: destello blanco-cremoso en esquina superior izquierda
+     que se desvanece hacia el rosa nude profundo. Coherente con el resto
+     de botones primarios (Elegir fecha, Nueva fecha, pin clavado). */
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          25%,
+    var(--wm-rose-deep)     100%
+  );
   color: #fff;
   border: none;
   padding: 0.5rem 0.95rem;
@@ -526,7 +546,14 @@ body.rehearsal-mode .slb-dialog-overlay {
   /* color hereda de currentColor */
 }
 .slb-save:hover  {
-  background: #A55F69;
+  /* Hover: gradiente intensificado — el destello sigue presente pero
+     todo el rango se desplaza hacia tonos más profundos para señalar
+     la interacción sin perder el carácter perlado. */
+  background: linear-gradient(135deg,
+    var(--wm-rose-blush) 0%,
+    var(--wm-rose)       25%,
+    #9C7770              100%
+  );
   box-shadow: 0 2px 6px rgba(184, 138, 130, 0.5);
 }
 .slb-save:active { transform: translateY(1px); }
@@ -774,9 +801,14 @@ body.rehearsal-mode .slb-dialog-overlay {
   transform: scale(1.08);
 }
 
-/* Día actualmente seleccionado: indicador adicional */
+/* Día actualmente seleccionado: indicador adicional con gradiente perlado
+   para que el día activo destaque sin verse plano. */
 .slb-picker-cell.current {
-  background: var(--wm-rose-deep);
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          30%,
+    var(--wm-rose-deep)     100%
+  );
   color: #fff;
   border-color: var(--wm-rose-deep);
 }
@@ -788,7 +820,12 @@ body.rehearsal-mode .slb-dialog-overlay {
   justify-content: center;
 }
 .slb-picker-new-btn {
-  background: var(--wm-rose-deep);
+  /* Gradiente perlado coherente con .slb-save y .slb-header-action */
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          25%,
+    var(--wm-rose-deep)     100%
+  );
   color: #fff;
   border: none;
   padding: 0.55rem 1.1rem;
@@ -798,9 +835,13 @@ body.rehearsal-mode .slb-dialog-overlay {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: filter 0.2s;
 }
-.slb-picker-new-btn:hover { background: #A55F69; }
+.slb-picker-new-btn:hover {
+  /* Filter brightness en lugar de cambiar el background — preserva el
+     gradiente perlado y solo lo intensifica ligeramente. */
+  filter: brightness(0.92);
+}
 
 /* ════════════════════════════════════════════════════════════════════
    INSTRUMENTAL — botón ♬ y render diferenciado del slot
