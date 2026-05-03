@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r4
+ *   @version    v3.4.0
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -302,7 +302,12 @@
     '✦ Momentos Especiales ✦':                  'sec-momentos',
     'Adoración/Reflexión':                      'sec-adoracion-reflexion',
     'Animación':                                'sec-animacion',
-    /* Bodas: nuevo moment para cantos nupciales (v3.3.0r4).
+    /* Misa de Honras: nuevo moment para cantos exequiales / aniversarios
+       por difuntos (v3.4.0). Posición litúrgica: después de Animación,
+       antes de Bodas, agrupando cantos pastoralmente diferenciados de
+       los demás moments por su carácter consolador y exequial. */
+    'Misa de Honras':                           'sec-misa-honras',
+    /* Bodas: moment para cantos nupciales (v3.3.0r4).
        Por ahora visible en ambos modos (Coro y Bodas) — en r5+
        podríamos filtrar para que solo aparezca en Modo Bodas si Renzo
        lo decide. La lógica de filtrado iría en renderAll() a partir
