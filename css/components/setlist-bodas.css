@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r7
+     @version    v3.3.0r8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -44,13 +44,22 @@
   transform: translateY(-50%);
   z-index: 90000;
   width: 26px; height: 64px;
-  background: linear-gradient(135deg, var(--wm-rose) 0%, var(--wm-rose-deep) 60%, var(--wm-rose) 100%);
+  /* Gradiente perlado con destello superior-izquierdo (15% pearl-shimmer)
+     que simula el reflejo de luz sobre una perla pulida. La transición
+     desde el rosa-deep al base y otra vez al deep crea una curva nacarada
+     en lugar del rosa plano del tab original. */
+  background: linear-gradient(135deg,
+    var(--wm-pearl-shimmer) 0%,
+    var(--wm-rose)          15%,
+    var(--wm-rose-deep)     60%,
+    var(--wm-rose)          100%
+  );
   border-radius: 0 8px 8px 0;
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  box-shadow: 2px 2px 14px rgba(201, 125, 135, 0.5),
-              0 0 0 1px rgba(255, 225, 230, 0.2) inset;
+  box-shadow: 2px 2px 14px rgba(184, 138, 130, 0.5),
+              0 0 0 1px rgba(255, 246, 240, 0.35) inset;
   animation: slb-tab-heartbeat 3.5s ease-out infinite;
   transition: width 0.2s, box-shadow 0.2s;
 }
@@ -92,7 +101,7 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-tab-hidden { display: none !important; }
 .slb-tab:hover {
   width: 32px;
-  box-shadow: 3px 3px 18px rgba(201, 125, 135, 0.75),
+  box-shadow: 3px 3px 18px rgba(184, 138, 130, 0.75),
               0 0 0 1px rgba(255, 225, 230, 0.3) inset;
 }
 
@@ -120,7 +129,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   z-index: 89999;
   background: #FFF8F8;
   border-radius: 0 1rem 1rem 0;
-  border: 1px solid rgba(201, 125, 135, 0.25);
+  border: 1px solid rgba(184, 138, 130, 0.25);
   box-shadow: 4px 4px 30px rgba(80, 30, 40, 0.3);
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -154,9 +163,20 @@ body.rehearsal-mode .slb-dialog-overlay {
    HEADER DEL PANEL
    ════════════════════════════════════════════════════════════════════ */
 .slb-header {
-  background: linear-gradient(135deg, var(--wm-rose-pearl) 0%, var(--wm-rose-soft) 100%);
+  /* Gradiente perlado con destello blanco diagonal: el stop intermedio
+     en --wm-pearl-shimmer crea un brillo nacarado que se intensifica
+     hacia el cuarto superior izquierdo, simulando reflejo de luz sobre
+     una perla. Los stops asimétricos (35%/65%) ubican el destello
+     ligeramente arriba del centro para que no parezca "centrado de
+     manera artificial". */
+  background: linear-gradient(135deg,
+    var(--wm-rose-pearl)    0%,
+    var(--wm-pearl-shimmer) 35%,
+    var(--wm-rose-blush)    65%,
+    var(--wm-rose-soft)     100%
+  );
   padding: 1rem 1rem 0.8rem;
-  border-bottom: 1px solid rgba(201, 125, 135, 0.3);
+  border-bottom: 1px solid rgba(184, 138, 130, 0.3);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -177,7 +197,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   top: 0.55rem;
   left: 0.6rem;
   background: none;
-  border: 1px solid rgba(201, 125, 135, 0.55);
+  border: 1px solid rgba(184, 138, 130, 0.55);
   border-radius: 50%;
   width: 24px; height: 24px;
   color: rgba(90, 38, 48, 0.8);
@@ -229,7 +249,7 @@ body.rehearsal-mode .slb-dialog-overlay {
 /* Selector de fecha (botón principal del header) */
 .slb-header-date {
   background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(201, 125, 135, 0.3);
+  border: 1px solid rgba(184, 138, 130, 0.3);
   border-radius: 6px;
   padding: 0.45rem 0.75rem;
   cursor: pointer;
@@ -272,7 +292,7 @@ body.rehearsal-mode .slb-dialog-overlay {
 /* Nombres de los novios (placeholder cuando vacío) */
 .slb-header-novios-empty {
   background: none;
-  border: 1px dashed rgba(201, 125, 135, 0.55);
+  border: 1px dashed rgba(184, 138, 130, 0.55);
   /* r3: 0.55 → #5A2030 con opacidad 0.85 (más legible, conserva look "placeholder") */
   color: rgba(90, 38, 48, 0.85);
   font-family: 'Cinzel', serif;
@@ -342,11 +362,11 @@ body.rehearsal-mode .slb-dialog-overlay {
   align-items: center;
   gap: 0.5rem;
   padding: 0.55rem 0.85rem;
-  border-bottom: 1px solid rgba(201, 125, 135, 0.08);
+  border-bottom: 1px solid rgba(184, 138, 130, 0.08);
   min-height: 2.5rem;
 }
-.slb-slot:nth-child(even) { background: rgba(245, 213, 218, 0.15); }
-.slb-slot:hover { background: rgba(245, 213, 218, 0.3); }
+.slb-slot:nth-child(even) { background: rgba(245, 221, 213, 0.15); }
+.slb-slot:hover { background: rgba(245, 221, 213, 0.3); }
 
 .slb-moment {
   font-family: 'Cinzel', serif;
@@ -421,9 +441,9 @@ body.rehearsal-mode .slb-dialog-overlay {
    ════════════════════════════════════════════════════════════════════ */
 .slb-footer {
   flex-shrink: 0;
-  border-top: 1px solid rgba(201, 125, 135, 0.2);
+  border-top: 1px solid rgba(184, 138, 130, 0.2);
   padding: 0.6rem 0.85rem;
-  background: rgba(245, 213, 218, 0.2);
+  background: rgba(245, 221, 213, 0.2);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -499,7 +519,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   transition: background 0.2s, transform 0.1s;
   /* Peso visual sutil con sombra rosa para denotar que es la acción
      principal del footer, sin gritar. */
-  box-shadow: 0 1px 4px rgba(201, 125, 135, 0.35);
+  box-shadow: 0 1px 4px rgba(184, 138, 130, 0.35);
 }
 .slb-save svg {
   flex-shrink: 0;
@@ -507,14 +527,14 @@ body.rehearsal-mode .slb-dialog-overlay {
 }
 .slb-save:hover  {
   background: #A55F69;
-  box-shadow: 0 2px 6px rgba(201, 125, 135, 0.5);
+  box-shadow: 0 2px 6px rgba(184, 138, 130, 0.5);
 }
 .slb-save:active { transform: translateY(1px); }
 
 /* Estado: grabando — botón deshabilitado visualmente con opacidad reducida
    y cursor wait, indica progreso al usuario. */
 .slb-save.saving {
-  background: rgba(201, 125, 135, 0.6);
+  background: rgba(184, 138, 130, 0.6);
   cursor: wait;
   pointer-events: none;
 }
@@ -580,7 +600,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   color: var(--wm-rose-deep);
   text-align: center;
   padding: 0.7rem;
-  border-bottom: 1px solid rgba(201, 125, 135, 0.25);
+  border-bottom: 1px solid rgba(184, 138, 130, 0.25);
 }
 
 .slb-dialog-song {
@@ -601,7 +621,7 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-dialog-slot-btn {
   width: 100%;
   background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(201, 125, 135, 0.2);
+  border: 1px solid rgba(184, 138, 130, 0.2);
   border-radius: 4px;
   padding: 0.5rem 0.7rem;
   margin-bottom: 0.3rem;
@@ -640,7 +660,7 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-dialog-cancel {
   background: rgba(80, 30, 40, 0.08);
   border: none;
-  border-top: 1px solid rgba(201, 125, 135, 0.2);
+  border-top: 1px solid rgba(184, 138, 130, 0.2);
   padding: 0.7rem;
   font-family: 'Cinzel', serif;
   font-size: 0.65rem;
@@ -684,7 +704,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   align-items: center;
   justify-content: space-between;
   padding: 0.6rem 1rem 0.4rem;
-  background: rgba(245, 213, 218, 0.1);
+  background: rgba(245, 221, 213, 0.1);
 }
 .slb-picker-nav-btn {
   background: none;
@@ -696,7 +716,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   border-radius: 4px;
   transition: background 0.2s;
 }
-.slb-picker-nav-btn:hover { background: rgba(245, 213, 218, 0.4); }
+.slb-picker-nav-btn:hover { background: rgba(245, 221, 213, 0.4); }
 
 .slb-picker-month {
   font-family: 'Cormorant Garamond', serif;
@@ -745,7 +765,7 @@ body.rehearsal-mode .slb-dialog-overlay {
   color: var(--wm-rose-deep);
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba(201, 125, 135, 0.3);
+  border: 1px solid rgba(184, 138, 130, 0.3);
 }
 .slb-picker-cell.has-setlist:hover {
   background: var(--wm-rose);
@@ -798,7 +818,7 @@ body.rehearsal-mode .slb-dialog-overlay {
    del módulo 30, NO usar emojis ni glifos Unicode. */
 .slb-inst-btn {
   background: rgba(255, 255, 255, 0.7);
-  border: 1px dashed rgba(201, 125, 135, 0.5);
+  border: 1px dashed rgba(184, 138, 130, 0.5);
   color: var(--wm-rose-deep);
   padding: 0.18rem 0.4rem;
   border-radius: 4px;
@@ -837,10 +857,10 @@ body.rehearsal-mode .slb-dialog-overlay {
    - Italic + ícono inline para refuerzo visual.
    - Sin cursor pointer (no navega a un canto). */
 .slb-slot-instrumental {
-  background: rgba(245, 213, 218, 0.25) !important;
+  background: rgba(245, 221, 213, 0.25) !important;
 }
 .slb-slot-instrumental:nth-child(even) {
-  background: rgba(245, 213, 218, 0.35) !important;
+  background: rgba(245, 221, 213, 0.35) !important;
 }
 
 .slb-song-instrumental {
