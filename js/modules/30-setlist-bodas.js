@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r6
+ *   @version    v3.3.0r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -59,6 +59,7 @@
   // ── CONSTANTES ────────────────────────────────────────────────────────
   var FIREBASE_URL = 'https://coropacemdeusdominical-default-rtdb.firebaseio.com';
   var FB_BASE      = '/setlist-bodas';
+  var PIN_KEY      = 'pdSlbPinned'; // localStorage del estado pinned del panel
 
   // ── DEFINICIÓN DE SLOTS ───────────────────────────────────────────────
   // SLOTS_FIJOS: siempre visibles en el panel (defaultEmpty implícito).
@@ -148,6 +149,7 @@
   var currentDate       = null; // YYYY-MM-DD de la fecha activa
   var availableDates    = [];   // array de fechas con setlist guardado
   var isOpen            = false;
+  var isPinned          = false; // panel fijo (no se cierra al click outside / swipe / Esc)
   var pendingAdd        = null;
   var touchStartX       = 0;
 
@@ -230,12 +232,27 @@
   function renderHeader() {
     if (!headerEl) return;
 
+    // Botón pin SVG (chinche) — mismo SVG que el setlist dominical para
+    // coherencia visual. Posicionado absoluto en la esquina (CSS).
+    // El estado .pinned se sincroniza vía updatePinUI() después del render.
+    var pinBtn =
+      '<button class="slb-pin-btn" id="slb-pin-btn" onclick="window.SLB.togglePin()" ' +
+        'title="Mantener panel abierto" aria-label="Fijar panel">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+          'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M12 17v5"/>' +
+          '<path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>' +
+        '</svg>' +
+      '</button>';
+
     if (!currentDate) {
       // Sin fecha seleccionada: mostrar invitación a elegir/crear
       headerEl.innerHTML =
+        pinBtn +
         '<div class="slb-header-title">Setlist de Boda</div>' +
         '<div class="slb-header-empty">Selecciona una fecha para empezar</div>' +
         '<button class="slb-header-action" onclick="window.SLB.openDatePicker()">Elegir fecha</button>';
+      updatePinUI();
       return;
     }
 
@@ -247,6 +264,7 @@
         'title="Agregar nombres de los novios">+ Nombres de los novios</button>';
 
     headerEl.innerHTML =
+      pinBtn +
       '<div class="slb-header-title">Setlist de Boda</div>' +
       '<button class="slb-header-date" onclick="window.SLB.openDatePicker()" title="Cambiar fecha">' +
         '<span class="slb-date-text">' + formatDateDisplay(currentDate) + '</span>' +
@@ -259,6 +277,9 @@
     if (noviosEl) {
       noviosEl.addEventListener('click', editNovios);
     }
+
+    // Sincronizar estado visual del pin tras el re-render
+    updatePinUI();
   }
 
   // ── EDICIÓN INLINE DE NOMBRES DE NOVIOS ───────────────────────────────
@@ -923,12 +944,67 @@
     }
   }
   function closePanel() {
+    // Respetar el pin: si el usuario fijó el panel, ningún cierre auto
+    // (click outside, swipe, Esc) debe afectarlo. Solo se cierra
+    // explícitamente con togglePin() primero, o con close() forzado
+    // (ej. desde activateWedding del módulo 29 al cambiar de modo,
+    // que tiene prioridad sobre el pin).
+    if (isPinned) return;
+    isOpen = false;
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+    if (tab) tab.classList.remove('slb-tab-hidden');
+  }
+
+  // Cierre forzoso: ignora el pin. Usado por el módulo 29 al desactivar
+  // wedding-mode (porque el panel ya no debe estar visible en ningún caso).
+  function forceClosePanel() {
     isOpen = false;
     panel.classList.remove('open');
     overlay.classList.remove('open');
     if (tab) tab.classList.remove('slb-tab-hidden');
   }
   function togglePanel() { isOpen ? closePanel() : openPanel(); }
+
+  // ── PIN PANEL ─────────────────────────────────────────────────────────
+  // Mismo patrón que el setlist dominical (módulo 23): el pin mantiene el
+  // panel abierto bloqueando los cierres por click outside, swipe out y
+  // tecla Escape. Persiste en localStorage como pdSlbPinned para que la
+  // preferencia sobreviva refreshes.
+  function togglePin() {
+    isPinned = !isPinned;
+    updatePinUI();
+    try {
+      if (isPinned) localStorage.setItem(PIN_KEY, '1');
+      else          localStorage.removeItem(PIN_KEY);
+    } catch (e) {}
+  }
+  function updatePinUI() {
+    var btn = document.getElementById('slb-pin-btn');
+    if (!btn) return;
+    btn.classList.toggle('pinned', isPinned);
+    btn.title = isPinned ? 'Panel fijo (click para soltar)' : 'Mantener panel abierto';
+    // Cuando está pineado, oculta el overlay para permitir interacción
+    // con el cancionero detrás del panel (especialmente útil en desktop).
+    if (overlay) {
+      if (isPinned) overlay.classList.add('slb-overlay-pinned');
+      else          overlay.classList.remove('slb-overlay-pinned');
+    }
+  }
+  function restorePinState() {
+    try {
+      isPinned = localStorage.getItem(PIN_KEY) === '1';
+    } catch (e) { isPinned = false; }
+    updatePinUI();
+    // Si el panel estaba pineado Y wedding-mode está activo, abre auto.
+    // La doble guardia (rehearsal-mode no debe estar) evita que se abra
+    // si el modo coro está activo simultáneamente por race condition.
+    if (isPinned &&
+        document.body.classList.contains('wedding-mode') &&
+        !document.body.classList.contains('rehearsal-mode')) {
+      openPanel();
+    }
+  }
 
   // ── NAVEGACIÓN AL ÍNDICE / CANTO ──────────────────────────────────────
   function scrollToIndex(sectionId) {
@@ -1051,6 +1127,9 @@
         renderHeader();
         renderSlots();
       }
+      // Restaurar pin después del render (necesita el botón ya en DOM).
+      // Si el pin estaba activo y wedding-mode también, el panel se abre auto.
+      restorePinState();
     });
 
     // Click outside del dialog cierra
@@ -1089,7 +1168,10 @@
   // ── API PÚBLICA ───────────────────────────────────────────────────────
   window.SLB = {
     open:           openPanel,
-    close:          closePanel,
+    // close: cierre forzoso (ignora pin). Usado por el módulo 29 al
+    // desactivar wedding-mode. Para cierre que respete el pin, usar
+    // closePanel internamente (vía Esc, swipe, click outside).
+    close:          forceClosePanel,
     toggle:         togglePanel,
     goTo:           goToSong,
     remove:         function(slotId) { removeSlot(slotId, false); },
@@ -1101,6 +1183,10 @@
     closeDialog:    closeDialog,
     addOptional:    addOptional,
     removeOptional: removeOptional,
+
+    // Pin del panel (mantener abierto)
+    togglePin:      togglePin,
+    isPinned:       function() { return isPinned; },
 
     // Instrumentales (slots como Ingreso del Novio, Salida de Novios)
     promptInstrumental: promptInstrumental,

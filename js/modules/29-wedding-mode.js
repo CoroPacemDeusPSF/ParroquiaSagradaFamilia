@@ -6,7 +6,7 @@
  *   @brief      Modo Bodas: activación con 5 clicks invisibles en el contador de cantos
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0
+ *   @version    v3.3.0r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -87,15 +87,30 @@
     if (active) return;
     active = true;
 
-    // Mutex con Modo Coro: si está activo, lo desactivamos primero.
-    // Esto cierra el panel de setlist dominical y limpia rehearsal-mode.
+    // ── Mutex con Modo Coro ──
+    // Cerramos cualquier resto del setlist dominical, sin importar el modo
+    // previo. Razón: el módulo 23 puede haber abierto el panel SL en
+    // restorePinState() (si pdSetlistPinned estaba en localStorage), incluso
+    // estando ya en wedding-mode persistido. La guardia CSS body.wedding-mode
+    // ya oculta el panel visualmente, pero hay que limpiar el estado interno
+    // del módulo SL para que no quede inconsistente:
+    //   1. Forzar close() del panel.
+    //   2. Forzar unpin (el pin del SL es exclusivo del Modo Coro/Dev).
+    if (window.SL) {
+      if (typeof window.SL.close === 'function') {
+        window.SL.close();
+      }
+      // Si SL.isPinned() existe y devuelve true, hacer unpin.
+      if (typeof window.SL.isPinned === 'function' && window.SL.isPinned() &&
+          typeof window.SL.togglePin === 'function') {
+        window.SL.togglePin();
+      }
+    }
+
+    // Si rehearsal-mode estaba activo, además limpiar las clases del coro.
     if (document.body.classList.contains('rehearsal-mode')) {
       document.body.classList.remove('rehearsal-mode');
       document.body.classList.remove('dev-mode');
-      // Cerrar panel dominical si estaba abierto
-      if (window.SL && typeof window.SL.close === 'function') {
-        window.SL.close();
-      }
       // Ocultar el badge del Modo Coro
       var coroBadge = document.getElementById('rehearsal-badge');
       if (coroBadge) coroBadge.classList.remove('active');

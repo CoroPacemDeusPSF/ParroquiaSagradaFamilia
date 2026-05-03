@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r1
+     @version    v3.3.0r7
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -24,7 +24,11 @@
   /* Visible siempre por defecto. En modo Coro/Dev se preserva la presencia
      mágica completa (latido + emisión de notas musicales). En modo público
      el latido sigue activo (señaliza interactividad) pero la emisión de notas
-     queda desactivada por el guardia rehearsal-mode en EmanationFX. */
+     queda desactivada por el guardia rehearsal-mode en EmanationFX.
+     EXCEPCIÓN: en wedding-mode (r7+) ocultamos el tab del coro porque el
+     espacio izquierdo lo usa el tab del setlist bodas (.slb-tab). Sin esta
+     guardia, ambos tabs coexistían en left:0 y se podían tocar accidentalmente,
+     abriendo el panel del coro mientras el usuario quería el de bodas. */
   display: flex;
   position: fixed;
   left: 0; top: 50%;
@@ -67,6 +71,22 @@
 .sl-tab:hover {
   width: 32px;
   box-shadow: 3px 3px 18px rgba(200,148,60,0.8), 0 0 0 1px rgba(255,225,170,0.3) inset;
+}
+
+/* ── MUTEX DE MODOS: ocultar todo el setlist dominical en wedding-mode ──
+   Cuando el usuario activa Modo Bodas, el setlist dominical (tab + panel +
+   overlay + dialogs) debe quedar visualmente inerte. La activación del modo
+   bodas en el módulo 29 ya cierra el panel y el dialog si estaban abiertos,
+   pero estas reglas CSS son una red de seguridad: aunque algo quedara
+   con clase .open por race condition o pin persistido, el display:none lo
+   deja invisible. Simétrico al patrón del .slb-tab que solo aparece en
+   wedding-mode. */
+body.wedding-mode .sl-tab,
+body.wedding-mode .sl-panel,
+body.wedding-mode .sl-overlay,
+body.wedding-mode .sl-dialog-overlay,
+body.wedding-mode .sl-print-dialog-overlay {
+  display: none !important;
 }
 
 /* ── Modo público (read-only): el panel se abre, pero todos los controles

@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.3.0r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -680,8 +680,12 @@
       isPinned = localStorage.getItem(PIN_KEY) === '1';
     } catch (e) { isPinned = false; }
     updatePinUI();
-    /* Si estaba pineado y el modo Coro está activo, abre el panel automáticamente */
-    if (isPinned && document.body.classList.contains('rehearsal-mode')) {
+    /* Si estaba pineado y el modo Coro está activo, abre el panel automáticamente.
+       Excepción: en wedding-mode NO abrimos aunque pdSetlistPinned esté seteado,
+       porque el setlist dominical no debe coexistir con el modo bodas (r7+). */
+    if (isPinned &&
+        document.body.classList.contains('rehearsal-mode') &&
+        !document.body.classList.contains('wedding-mode')) {
       openPanel();
     }
   }

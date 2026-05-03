@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0
+ *   @version    v3.3.0r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -178,24 +178,34 @@
     },
 
     // ══ SetList (panel del próximo domingo) ═════════════════════════════
+    //
+    // GUARDIA DE MODO (r7+): Los handlers del setlist dominical NUNCA deben
+    // ejecutarse en wedding-mode. Aunque la activación de bodas en módulo 29
+    // cierra el panel SL, listeners residuales (event-delegation por click,
+    // o cualquier path no previsto) podrían reabrirlo. La guardia aquí es
+    // defensa en profundidad: el modo activo es la fuente de verdad.
 
     /** Toggle del panel SetList. */
     'sl-toggle': () => {
+      if (document.body.classList.contains('wedding-mode')) return;
       if (window.SL && typeof window.SL.toggle === 'function') window.SL.toggle();
     },
 
     /** Pin/unpin del panel para mantenerlo abierto. */
     'sl-toggle-pin': () => {
+      if (document.body.classList.contains('wedding-mode')) return;
       if (window.SL && typeof window.SL.togglePin === 'function') window.SL.togglePin();
     },
 
     /** Limpia todos los slots del setlist. */
     'sl-clear-all': () => {
+      if (document.body.classList.contains('wedding-mode')) return;
       if (window.SL && typeof window.SL.clearAll === 'function') window.SL.clearAll();
     },
 
     /** Abre el diálogo "Imprimir SetList" con opciones Con/Sin Acordes. */
     'sl-print': () => {
+      if (document.body.classList.contains('wedding-mode')) return;
       if (window.PdSetlistPrint && typeof window.PdSetlistPrint.open === 'function') {
         window.PdSetlistPrint.open();
       }
@@ -203,6 +213,7 @@
 
     /** Imprime el SetList incluyendo bloques de acordes en cada canto. */
     'sl-print-with-chords': () => {
+      if (document.body.classList.contains('wedding-mode')) return;
       if (window.PdSetlistPrint && typeof window.PdSetlistPrint.printWithChords === 'function') {
         window.PdSetlistPrint.printWithChords();
       }
@@ -210,6 +221,7 @@
 
     /** Imprime el SetList solo con letras (sin acordes). */
     'sl-print-no-chords': () => {
+      if (document.body.classList.contains('wedding-mode')) return;
       if (window.PdSetlistPrint && typeof window.PdSetlistPrint.printNoChords === 'function') {
         window.PdSetlistPrint.printNoChords();
       }

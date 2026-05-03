@@ -6,7 +6,7 @@
      @brief      Panel del setlist de bodas — paralelo al setlist.css pero rosa
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r5
+     @version    v3.3.0r7
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -55,6 +55,18 @@
   transition: width 0.2s, box-shadow 0.2s;
 }
 body.wedding-mode .slb-tab { display: flex; }
+
+/* ── MUTEX SIMÉTRICO: ocultar setlist bodas en rehearsal-mode ──
+   Por defecto .slb-tab y .slb-panel ya están ocultos (display:none) y solo
+   se activan en body.wedding-mode. Esta regla es defensiva: garantiza que
+   incluso si alguna otra regla (futura) los activara, queden inertes en
+   modo coro. Espejo de la regla en setlist.css para sl-* en wedding-mode. */
+body.rehearsal-mode .slb-tab,
+body.rehearsal-mode .slb-panel,
+body.rehearsal-mode .slb-overlay,
+body.rehearsal-mode .slb-dialog-overlay {
+  display: none !important;
+}
 
 .slb-tab svg {
   width: 14px; height: 14px;
@@ -149,6 +161,59 @@ body.wedding-mode .slb-tab { display: flex; }
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  /* position:relative permite anclar el botón pin (absolute) en la esquina */
+  position: relative;
+}
+
+/* ── BOTÓN PIN ──────────────────────────────────────────────────────
+   Mismo patrón visual que el pin del setlist dominical (.sl-pin-btn)
+   adaptado a la paleta rosa perlado del Modo Bodas. Posicionado en la
+   esquina superior izquierda del header (el SL lo tiene a la derecha,
+   pero el SLB tiene el botón "Cambiar fecha" ocupando todo el ancho,
+   así que la izquierda queda más limpia para el pin).
+   El SVG es la chinche estándar que usa el SL — coherencia entre paneles. */
+.slb-pin-btn {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.6rem;
+  background: none;
+  border: 1px solid rgba(201, 125, 135, 0.55);
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  color: rgba(90, 38, 48, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+  z-index: 1;
+}
+.slb-pin-btn svg {
+  width: 13px; height: 13px;
+  /* Rotada 45° en idle (chinche "suelta") y a 0° cuando pineada
+     (chinche "clavada") — convención del setlist dominical. */
+  transform: rotate(45deg);
+  transition: transform 0.25s;
+}
+.slb-pin-btn:hover {
+  border-color: var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+  background: rgba(255, 255, 255, 0.45);
+}
+.slb-pin-btn.pinned {
+  background: var(--wm-rose-deep);
+  color: #fff;
+  border-color: var(--wm-rose-deep);
+}
+.slb-pin-btn.pinned svg { transform: rotate(0deg); }
+
+/* Cuando el panel está pineado, el overlay deja de oscurecer y de
+   capturar clicks, permitiendo interactuar con el cancionero detrás
+   del panel. Mismo patrón que .sl-overlay-pinned del dominical. */
+.slb-overlay.slb-overlay-pinned {
+  background: transparent;
+  pointer-events: none;
 }
 
 .slb-header-title {
