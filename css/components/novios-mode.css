@@ -158,46 +158,46 @@ body.novios-mode .chords-toggle {
 }
 
 /* Cuando body.novios-mode está activo, el badge aparece fijo arriba a la
-   derecha (con safe-area-inset para iPhones con notch). */
+   derecha (con safe-area-inset para iPhones con notch).
+   Solo muestra el ícono del anillo — sin texto. El nombre "Modo Novios"
+   ya se mostró en la animación del sello al activar el modo. El badge
+   permanente es un recordatorio visual minimalista, no informativo. */
 body.novios-mode #novios-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
   position: fixed;
   top: calc(0.75rem + env(safe-area-inset-top, 0px));
   right: calc(0.75rem + env(safe-area-inset-right, 0px));
   z-index: 9999;
 
-  /* Paleta: dorado neutro semi-transparente sobre fondo verde profundo del
-     cancionero. Coherente con la identidad visual del proyecto. */
-  padding: 0.5rem 0.85rem;
-  background: linear-gradient(135deg,
-    rgba(200, 148, 60, 0.95) 0%,
-    rgba(170, 120, 45, 0.95) 100%);
-  color: #fff;
-  border: 1px solid rgba(255, 235, 180, 0.4);
-  border-radius: 999px;        /* pill shape */
-  box-shadow:
-    0 0.25rem 0.75rem rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  /* Tamaño: círculo perfecto del tamaño aprox. de un FAB pequeño */
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
 
-  /* Tipografía */
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  /* Paleta perlada cálida — coherente con el Modo Bodas (mismo carisma
+     visual rosa-cálido), pero a color sólido para distinguirlo del badge
+     de bodas (gris-rosa) y mantener la identidad visual del Modo Novios. */
+  background: linear-gradient(135deg,
+    var(--wm-rose, #E8C4BC) 0%,
+    var(--wm-rose-deep, #B88A82) 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 246, 240, 0.5);
+  border-radius: 50%;            /* círculo perfecto */
+  box-shadow:
+    0 0.25rem 0.75rem rgba(184, 138, 130, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 
   /* No interactivo (es informativo) */
   pointer-events: none;
   user-select: none;
 }
 
-/* Icono SVG del anillo */
+/* Icono SVG del anillo — centrado en el círculo */
 body.novios-mode #novios-badge .novios-badge-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
   flex-shrink: 0;
   /* Asegura que el stroke del SVG use el color blanco del badge */
   color: currentColor;
@@ -206,12 +206,11 @@ body.novios-mode #novios-badge .novios-badge-icon {
 /* En pantallas muy estrechas, el badge se compacta para no estorbar */
 @media (max-width: 30rem) {
   body.novios-mode #novios-badge {
-    padding: 0.4rem 0.7rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
+    width: 2.2rem;
+    height: 2.2rem;
   }
   body.novios-mode #novios-badge .novios-badge-icon {
-    width: 0.85rem;
-    height: 0.85rem;
+    width: 1.1rem;
+    height: 1.1rem;
   }
 }

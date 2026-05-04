@@ -146,16 +146,18 @@
        ?modo=novios&pin=CPD2026 — body recibe la clase 'novios-mode' y el
        CSS muestra este badge.
 
+       Solo ícono (anillo) — sin texto. El usuario ya vio "Modo Novios"
+       en la animación del sello al cargar la página, no necesita repetirlo.
+
        NO es interactivo — los novios salen recargando la URL sin parámetros
        (decisión arquitectónica simple: no requerimos lógica de logout). -->
-  <div id="novios-badge" aria-label="Modo Novios activo">
+  <div id="novios-badge" aria-label="Modo Novios activo" title="Modo Novios">
     <!-- SVG de un anillo: minimalista, distinto del de Modo Bodas (dos
          anillos entrelazados) para distinguir visualmente los dos modos. -->
     <svg class="novios-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="14" r="6"/>
       <path d="M9 8 L12 4 L15 8"/>
     </svg>
-    <span>Modo Novios</span>
   </div>
   <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
     <span></span><span></span><span></span>
@@ -454,7 +456,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.5.0</span>
+    <span class="cancionero-version">v3.5.0r1</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -602,4 +604,4 @@
      que los módulos 05/29 hayan aplicado al body cuando un novio llega con
      su link especial. Mutex implícita: si Modo Novios se activa, los demás
      modos se limpian. Ver comentarios completos en 28-novios-mode.js. -->
-<script src="../js/modules/28-novios-mode.js?v=3.5.0"></script>
+<script src="../js/modules/28-novios-mode.js?v=3.5.0r1"></script>

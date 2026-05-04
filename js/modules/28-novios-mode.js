@@ -6,7 +6,7 @@
  *   @brief      Modo Novios: vista limpia para novios — activación vía URL
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.0
+ *   @version    v3.5.0r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -136,15 +136,51 @@
     classesToRemove.forEach(function(cls) {
       document.body.classList.remove(cls);
     });
+
+    // También desactivar visualmente los badges de los otros modos. Los
+    // módulos 05 y 29 agregan la clase 'active' a sus respectivos badges
+    // al restaurar el modo desde localStorage. Si no removemos esa clase,
+    // los badges seguirían visibles encima de nuestro Modo Novios.
+    var badgeIds = ['rehearsal-badge', 'wedding-badge'];
+    badgeIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('active', 'entrance');
+    });
   }
 
   /**
-   * Activa el modo: agrega la clase al body. Los controles de Renzo se
-   * ocultan vía CSS (regla body.novios-mode en novios-mode.css). El badge
-   * visible también se renderiza vía CSS.
+   * Activa el modo: dispara la misma animación del sello del Modo Bodas
+   * (overlay #wedding-intro con anillos animados, texto rotante "Coro Pacem
+   * Deus", paleta perlada) pero con label central "Modo Novios" en vez de
+   * "Modo Bodas".
+   *
+   * Reutilizamos window.playWeddingIntro que el módulo 29 expone globalmente
+   * — esa función acepta el label como parámetro, así que solo cambiamos el
+   * texto. Cero duplicación de código y cero CSS extra: misma animación
+   * exacta, mismo overlay, misma paleta. Lo único que difiere es el label.
+   *
+   * Tras la animación, body recibe la clase 'novios-mode' y el badge se
+   * muestra (CSS lo controla).
    */
   function activate() {
-    document.body.classList.add('novios-mode');
+    // Si por alguna razón la función global de animación no existe (módulo
+    // 29 no cargó por algún error de red), aplicamos el modo igual sin
+    // animación — fail-safe: prefiero que el novio vea el cancionero
+    // limpio sin animación, antes que ver una página rota.
+    if (typeof window.playWeddingIntro !== 'function') {
+      document.body.classList.add('novios-mode');
+      return;
+    }
+
+    // Disparar animación con label "Modo Novios" (mismo formato HTML que
+    // usa el módulo 29 con "Modo<br>Bodas" — el <br> separa las dos líneas
+    // del sello central).
+    window.playWeddingIntro('Modo<br>Novios', function onAnimationDone() {
+      // Al terminar la animación, activamos visualmente el modo. Hacerlo
+      // DESPUÉS del fade-out del overlay produce una transición suave: el
+      // sello desaparece y debajo aparece el cancionero ya en modo novios.
+      document.body.classList.add('novios-mode');
+    });
   }
 
   // ── ACTIVACIÓN AL CARGAR ──────────────────────────────────────────────
