@@ -1,0 +1,217 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       css/components/novios-mode.css
+ *   @brief      Modo Novios — vista limpia para que los novios revisen el
+ *               cancionero (referencias YouTube + letras + acordes), sin los
+ *               controles de Renzo (setlists, edición, AI, modos especiales).
+ *   @version    v3.5.0
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *  Activado por el módulo 28-novios-mode.js cuando la URL contiene los
+ *  parámetros ?modo=novios&pin=CPD2026. Body recibe la clase 'novios-mode'.
+ *
+ *  Estrategia de visibilidad:
+ *    - Ocultamos con display:none !important todos los controles destinados
+ *      al director del coro.
+ *    - Mantenemos visible: el contenido del cancionero (cantos, letras,
+ *      acordes), búsqueda, botones de YouTube, toggle de contexto.
+ *    - El badge "Modo Novios" se renderiza en esquina superior derecha
+ *      mediante el elemento #novios-badge que está siempre en el HTML
+ *      pero solo se muestra con body.novios-mode.
+ *
+ *  Filosofía de seguridad:
+ *    - Los controles ocultos NO se desactivan funcionalmente — solo se
+ *      ocultan visualmente. Esto es deliberado: el novio no debería poder
+ *      llegar a ellos vía la UI, y no es necesario reescribir lógica.
+ *      No es seguridad criptográfica (un usuario avanzado podría inspeccionar
+ *      el DOM y removerlos), pero es suficiente para el caso de uso real:
+ *      novios viendo el cancionero en su celular.
+ *
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   1. OCULTAR CONTROLES DE RENZO EN MODO NOVIOS
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1.1 Setlists (Coro y Bodas) ──────────────────────────────────────── */
+/* Ocultamos los FABs (botones flotantes), los paneles, los pins y todo el
+   ecosistema de los dos setlists. */
+body.novios-mode .sl-fab,                 /* FAB Setlist Coro */
+body.novios-mode .sl-panel,
+body.novios-mode .sl-tab,
+body.novios-mode .sl-pin-btn,
+body.novios-mode .sl-toggle-pin,
+body.novios-mode .sl-clear-all,
+body.novios-mode .sl-print,
+body.novios-mode .sl-print-btn,
+body.novios-mode .slb-fab,                /* FAB Setlist Bodas */
+body.novios-mode .slb-panel,
+body.novios-mode .slb-tab,
+body.novios-mode .slb-pin-btn,
+body.novios-mode .slb-header-action,
+body.novios-mode .slb-save,
+body.novios-mode .slb-picker,
+body.novios-mode .slb-picker-cell {
+  display: none !important;
+}
+
+/* ── 1.2 Triggers ocultos de modos especiales ─────────────────────────── */
+/* Los novios no deben poder activar Modo Coro, Modo Bodas ni Modo Dev.
+   Ocultamos los triggers (el ícono de iglesia y el contador de cantos
+   que sirven como triggers ocultos). El contador se mantiene NO oculto
+   porque es información válida ("129 cantos"), pero su click no debe hacer
+   nada — eso lo manejamos a nivel JS si fuera necesario. Por ahora basta
+   con que el cancionero se vea sin sus modos.
+
+   Nota: NO ocultamos #pd-coro-trigger porque es el ícono de iglesia que
+   está en el header y es parte del logotipo visual. Pero los clicks
+   no producirán efecto si rehearsal-mode no se activa (el módulo 05 no
+   ejecutará playModeIntro porque ya estamos en novios-mode). */
+body.novios-mode #rehearsal-badge,
+body.novios-mode #wedding-badge,
+body.novios-mode #rehearsal-intro,
+body.novios-mode #wedding-intro {
+  display: none !important;
+}
+
+/* ── 1.3 Edición de acordes y letras ──────────────────────────────────── */
+/* Los novios pueden ver los acordes (toggle "Ver acordes ▾") pero no
+   pueden editarlos. La barra de transposición sí se mantiene porque es
+   útil para que ellos transporten al tono que quieran cantar — pero los
+   botones de edición y de modo dev se ocultan. */
+body.novios-mode .editor-open-btn,        /* botón "Editar" en barra transp. */
+body.novios-mode .lyrics-editor-open-btn, /* botón "Editar letra" */
+body.novios-mode .restore-html-btn,       /* botón "Restaurar Original (HTML)" */
+body.novios-mode .diag-btn {              /* botón "Diagnosticar" */
+  display: none !important;
+}
+
+/* ── 1.4 AI Agent (Gemini) ────────────────────────────────────────────── */
+/* El AI Agent está pensado para Renzo. Los novios no deben verlo. */
+body.novios-mode .ai-agent-fab,
+body.novios-mode .ai-agent-panel,
+body.novios-mode #ai-agent-fab,
+body.novios-mode #ai-agent-panel {
+  display: none !important;
+}
+
+/* ── 1.5 Hamburger menu ───────────────────────────────────────────────── */
+/* El menú hamburguesa lleva a páginas administrativas o de configuración.
+   Lo ocultamos para mantener la vista limpia. */
+body.novios-mode .pd-hamburger,
+body.novios-mode #pd-hamburger,
+body.novios-mode .pd-nav-overlay,
+body.novios-mode #pd-nav-overlay {
+  display: none !important;
+}
+
+/* ── 1.6 Otros controles administrativos ──────────────────────────────── */
+/* Botones de impresión PDF, share buttons, expandir todo, etc. */
+body.novios-mode .print-pdf-btn,
+body.novios-mode .share-btn,
+body.novios-mode .share-buttons,
+body.novios-mode .expand-all-chords,
+body.novios-mode #expand-all-chords {
+  display: none !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   2. ASEGURAR QUE LO QUE SÍ VEN ESTÉ VISIBLE
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* En modo normal (sin coro/bodas), el botón ▶ YouTube está oculto y solo
+   se muestra al activar el Modo Coro. Para los novios queremos que SIEMPRE
+   esté visible — son justamente las referencias que les sirven para
+   familiarizarse con los cantos antes de la boda. */
+body.novios-mode .yt-play-btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+}
+
+/* También aseguramos que el toggle de acordes esté visible — los novios
+   pueden querer ver los acordes para guitarra, no solo la letra. */
+body.novios-mode .chords-toggle {
+  display: inline-block !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   3. BADGE VISIBLE "MODO NOVIOS"
+   ════════════════════════════════════════════════════════════════════════
+   Pequeño badge en esquina superior derecha. Coherente visualmente con
+   los otros badges del proyecto pero en paleta dorada neutra (no rosa
+   bodas ni dorado coro), para distinguirlo de los modos de Renzo.
+
+   El elemento #novios-badge debe estar en el HTML siempre (oculto por
+   defecto). Solo se muestra cuando body.novios-mode está activo.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Estado por defecto: oculto. El elemento existe en el DOM pero no se ve
+   si el modo no está activo. */
+#novios-badge {
+  display: none;
+}
+
+/* Cuando body.novios-mode está activo, el badge aparece fijo arriba a la
+   derecha (con safe-area-inset para iPhones con notch). */
+body.novios-mode #novios-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: fixed;
+  top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  right: calc(0.75rem + env(safe-area-inset-right, 0px));
+  z-index: 9999;
+
+  /* Paleta: dorado neutro semi-transparente sobre fondo verde profundo del
+     cancionero. Coherente con la identidad visual del proyecto. */
+  padding: 0.5rem 0.85rem;
+  background: linear-gradient(135deg,
+    rgba(200, 148, 60, 0.95) 0%,
+    rgba(170, 120, 45, 0.95) 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 235, 180, 0.4);
+  border-radius: 999px;        /* pill shape */
+  box-shadow:
+    0 0.25rem 0.75rem rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  /* Tipografía */
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  /* No interactivo (es informativo) */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Icono SVG del anillo */
+body.novios-mode #novios-badge .novios-badge-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  /* Asegura que el stroke del SVG use el color blanco del badge */
+  color: currentColor;
+}
+
+/* En pantallas muy estrechas, el badge se compacta para no estorbar */
+@media (max-width: 30rem) {
+  body.novios-mode #novios-badge {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+  }
+  body.novios-mode #novios-badge .novios-badge-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+}

@@ -136,6 +136,27 @@
       <polyline points="8 6 2 12 8 18"/>
     </svg>
   </button>
+
+  <!-- ══ Badge Modo Novios ══════════════════════════════════════════════
+       Vista limpia para que los novios revisen el cancionero antes de
+       la boda (referencias YouTube + letras + acordes), sin los controles
+       de Renzo (setlists, edición, AI agent, modos especiales).
+
+       Activado por el módulo 28-novios-mode.js cuando la URL trae
+       ?modo=novios&pin=CPD2026 — body recibe la clase 'novios-mode' y el
+       CSS muestra este badge.
+
+       NO es interactivo — los novios salen recargando la URL sin parámetros
+       (decisión arquitectónica simple: no requerimos lógica de logout). -->
+  <div id="novios-badge" aria-label="Modo Novios activo">
+    <!-- SVG de un anillo: minimalista, distinto del de Modo Bodas (dos
+         anillos entrelazados) para distinguir visualmente los dos modos. -->
+    <svg class="novios-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="14" r="6"/>
+      <path d="M9 8 L12 4 L15 8"/>
+    </svg>
+    <span>Modo Novios</span>
+  </div>
   <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
     <span></span><span></span><span></span>
   </button>
@@ -433,7 +454,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.4.1</span>
+    <span class="cancionero-version">v3.5.0</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -472,7 +493,7 @@
 
 </div>
 
-<script src="../js/modules/00-songs-renderer.js?v=3.4.1"></script>
+<script src="../js/modules/00-songs-renderer.js?v=3.5.0"></script>
 <script src="../js/modules/02-fix-all.js?v=3.2.44r5"></script>
 
 <script src="../js/modules/03-share-buttons.js?v=3.2.44r5"></script>
@@ -574,3 +595,11 @@
      mutex y la restoración de estado funcionen correctamente. -->
 <script src="../js/modules/29-wedding-mode.js?v=3.3.0r7"></script>
 <script src="../js/modules/30-setlist-bodas.js?v=3.3.0r7"></script>
+
+<!-- ══ MODO NOVIOS (v3.5.0) ══
+     Activación vía URL params (?modo=novios&pin=CPD2026), SIN localStorage.
+     Carga AL FINAL para poder revertir activamente cualquier modo persistido
+     que los módulos 05/29 hayan aplicado al body cuando un novio llega con
+     su link especial. Mutex implícita: si Modo Novios se activa, los demás
+     modos se limpian. Ver comentarios completos en 28-novios-mode.js. -->
+<script src="../js/modules/28-novios-mode.js?v=3.5.0"></script>
