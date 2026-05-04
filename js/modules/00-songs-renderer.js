@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.4.0
+ *   @version    v3.4.1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -246,8 +246,28 @@
       (chordsBlock ? '\n        ' + chordsBlock : '') +
       '\n      </div>\n' +
       '    </div>\n' +
-      '    <button class="context-toggle" id="context-toggle-' + did + '"' +
-      ' data-action="toggle-context" data-target="' + did + '">Ver contexto lit&uacute;rgico &#9662;</button>\n' +
+      // Label del botón de toggle del contexto.
+      // Para cantos LITÚRGICOS: "Ver contexto litúrgico" (etiqueta histórica
+      // del proyecto, mantenida para que la UI siga siendo coherente con la
+      // mayor parte del cancionero).
+      // Para cantos del moment "Bodas": "Ver sobre este canto" — porque
+      // los cantos nupciales no son litúrgicos en sentido estricto (no son
+      // textos del ordinario ni cantos para momentos rituales fijos), sino
+      // música pastoral asociada al sacramento del matrimonio. Cambiar el
+      // label evita que el feligrés espere un análisis litúrgico que no
+      // encajaría con el carácter del canto. Esta lógica está centralizada
+      // aquí en el renderer; el módulo 18 (toggle) consulta este mismo flag
+      // al alternar el texto entre "Ver" y "Ocultar".
+      ((function() {
+        var isNonLiturgical = (song.moment === 'Bodas');
+        var openLabel  = isNonLiturgical ? 'Ver sobre este canto'    : 'Ver contexto lit&uacute;rgico';
+        var closeLabel = isNonLiturgical ? 'Ocultar'                 : 'Ocultar contexto lit&uacute;rgico';
+        return '    <button class="context-toggle" id="context-toggle-' + did + '"' +
+               ' data-action="toggle-context" data-target="' + did + '"' +
+               ' data-open-label="'  + openLabel  + '"' +
+               ' data-close-label="' + closeLabel + '">' +
+               openLabel + ' &#9662;</button>\n';
+      })()) +
       '    <div class="context-block" id="context-block-' + did + '">\n      ' +
       song.context_html +
       '\n    </div>\n'
