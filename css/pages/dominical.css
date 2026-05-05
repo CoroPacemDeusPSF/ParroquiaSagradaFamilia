@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.5
+     @version    v3.5.6
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -64,7 +64,32 @@
 }
 
 /* ── Índice sobre fondo de portada ── */
-.ceremony.dominical .ceremony-index { background: var(--theme-index-bg); }
+/* ── Índice (panel donde aparece "129 cantos en el repertorio" + lista) ──
+   El fondo no es un solo color plano: es un layering de tres capas para
+   simular pergamino. De abajo hacia arriba (en orden de pintado, last on top):
+
+   1. Color base sólido (--theme-index-bg) — pertenece al sistema de tokens
+      y cambia con el tema (verde profundo en dominical, cremoso en novios).
+
+   2. Textura SVG embebida (--theme-index-texture) — fibras orgánicas de
+      "papel" generadas con feTurbulence. Va en blendMode multiply con muy
+      baja opacidad para añadir grano sin alterar el tono base.
+
+   3. Gradiente vertical (--theme-index-gradient) — degradado de luz/sombra
+      que da profundidad. En modo dominical es transparente (no aplica).
+      En modo novios crea un sutil halo: más claro arriba, más profundo
+      al medio, más claro de nuevo abajo (vista de pergamino enmarcado).
+
+   La inset shadow (--theme-index-inset-shadow) es la última capa y crea
+   la ilusión de que el índice es una "página dentro de la página", con
+   bordes ligeramente hundidos. */
+.ceremony.dominical .ceremony-index {
+  background:
+    var(--theme-index-gradient, none),
+    var(--theme-index-texture, none),
+    var(--theme-index-bg);
+  box-shadow: var(--theme-index-inset-shadow, none);
+}
 .ceremony.dominical .idx-num        { color: var(--theme-icon-cover); }
 .ceremony.dominical .index-list a   { color: var(--theme-link-cover); }
 .ceremony.dominical .index-list a:hover { color: var(--theme-link-cover-hover); }

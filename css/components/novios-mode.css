@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.5
+ *   @version    v3.5.6
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -81,10 +81,15 @@ body.novios-mode .diag-btn {
 }
 
 /* ── 1.4 AI Agent (Gemini) ────────────────────────────────────────────── */
-body.novios-mode .ai-agent-fab,
-body.novios-mode .ai-agent-panel,
-body.novios-mode #ai-agent-fab,
-body.novios-mode #ai-agent-panel {
+/* El AI Agent está pensado para Renzo. Los novios no deben verlo.
+   v3.5.6: corregidos los selectores. Las clases reales en ai-agent.css son
+   .ai-fab y .ai-panel (no .ai-agent-fab/.ai-agent-panel como teníamos
+   antes), y los IDs son #ai-fab y #ai-panel. Por eso el FAB seguía
+   apareciendo en Modo Novios — el CSS apuntaba a clases inexistentes. */
+body.novios-mode .ai-fab,
+body.novios-mode .ai-panel,
+body.novios-mode #ai-fab,
+body.novios-mode #ai-panel {
   display: none !important;
 }
 
@@ -148,10 +153,17 @@ body.novios-mode .yt-play-btn {
   visibility: visible !important;
 }
 
-/* El toggle de acordes también debe estar siempre visible — los novios
-   pueden querer ver los acordes para guitarra, no solo la letra. */
-body.novios-mode .chords-toggle {
-  display: inline-block !important;
+/* El toggle de acordes y el bloque expandido se OCULTAN en Modo Novios.
+   v3.5.6: cambio de criterio — antes los novios podían ver los acordes
+   (un guitarrista invitado podría usarlos), pero el feedback visual es que
+   los acordes ensucian la vista del cancionero para los novios. Ahora el
+   toggle "Ver acordes ▾" desaparece y el bloque expandido también, queden
+   o no abiertos. La transposición y el editor también dejan de ser
+   accesibles porque su botón estaba dentro de la barra de transposición. */
+body.novios-mode .chords-toggle,
+body.novios-mode .chords-block,
+body.novios-mode .transpose-bar {
+  display: none !important;
 }
 
 

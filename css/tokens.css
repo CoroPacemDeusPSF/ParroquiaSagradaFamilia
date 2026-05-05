@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.5
+     @version    v3.5.6
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -147,6 +147,16 @@
 
   /* Índice (panel) — superficie elevada sobre portada */
   --theme-index-bg:          rgba(14, 26, 12, 0.6);
+
+  /* ── ÍNDICE ESTILIZADO (capas adicionales sobre --theme-index-bg) ──
+     En el tema dominical NO se aplican (none) — el índice queda con su
+     fondo verde transparente como siempre. En Modo Novios se redefinen
+     para crear efecto de pergamino: gradiente vertical + textura SVG
+     embebida + sombra interior. Ver components/lit-card.css y los
+     overrides en body.novios-mode más abajo. */
+  --theme-index-gradient:      none;
+  --theme-index-texture:       none;
+  --theme-index-inset-shadow:  none;
 
   /* Bloque de contexto litúrgico */
   --theme-ctx-toggle-bg:       #222F1E;
@@ -428,12 +438,16 @@
    ============================================================================ */
 
 body.novios-mode {
-  /* Fondo de la portada — gradiente cremoso suave (del index) */
-  --theme-bg-cover-stop-1:   #FAF5EC;        /* tope: cream */
-  --theme-bg-cover-stop-2:   #F0E8D4;        /* 40%: cream-dk */
-  --theme-bg-cover-stop-3:   #E8DCBC;        /* 80%: cream más profundo */
-  --theme-bg-cover-stop-4:   #F0E8D4;        /* base: cream-dk */
-  --theme-bg-cover-radial:   rgba(200, 148, 60, 0.08);  /* halo dorado tenue */
+  /* Fondo de la portada — UN solo tono cremoso oscurito (#E5D6BC) idéntico
+     al del índice. La portada y el índice forman así una superficie visual
+     unificada en lugar de dos bandas con tonos distintos. v3.5.6: antes
+     había un gradiente cremoso (FAF5EC → F0E8D4 → E8DCBC) que creaba un
+     escalón visual con el índice; eliminado a pedido del usuario. */
+  --theme-bg-cover-stop-1:   #E5D6BC;
+  --theme-bg-cover-stop-2:   #E5D6BC;
+  --theme-bg-cover-stop-3:   #E5D6BC;
+  --theme-bg-cover-stop-4:   #E5D6BC;
+  --theme-bg-cover-radial:   transparent;        /* sin halo: fondo plano */
 
   /* Texto sobre la portada — tonos marrones cálidos legibles sobre cream */
   --theme-text-on-cover:        #3D3530;
@@ -477,8 +491,12 @@ body.novios-mode {
   --theme-moment-divider-glow:     rgba(200, 148, 60, 0.50);
   --theme-moment-note:             rgba(107, 94, 84, 0.50);
 
-  /* Cards de canción — fondo blanco puro sobre cream con sombra suave dorada */
-  --theme-card-bg:           #FFFFFF;
+  /* Cards de canción — fondo beige muy claro (no blanco puro) para que
+     se integren con la paleta cremoso/sepia y no parezcan parches blancos
+     pegados sobre el cancionero. v3.5.6: antes #FFFFFF, ahora #FAF5EC
+     (mismo cremoso que el body, ligeramente más claro que el índice
+     #EDE0C8 para que las cards aún destaquen como elementos elevados). */
+  --theme-card-bg:           #FAF5EC;
   --theme-card-shadow:       0 4px 24px rgba(200, 148, 60, 0.15);
   --theme-card-border:       rgba(200, 148, 60, 0.18);
   --theme-card-divider:      rgba(200, 148, 60, 0.10);
@@ -494,6 +512,41 @@ body.novios-mode {
      se distingue claramente del fondo y enmarca los cantos con un tono
      "pergamino antiguo" coherente con la paleta cremoso/dorado/sepia. */
   --theme-index-bg:          #E5D6BC;
+
+  /* ── Índice estilizado (efecto pergamino) ──
+     Tres capas adicionales sobre --theme-index-bg para que el índice se
+     sienta como una página antigua, no como un rectángulo de color plano.
+
+     1. Gradiente vertical sutil — más claro arriba (luz que entra por la
+        ventana), más profundo al medio, más claro abajo (reflejo). Crea
+        sensación de profundidad y encuadra el índice como una "página".
+
+     2. Textura SVG inline (feTurbulence) — genera fibras orgánicas de
+        papel con frecuencia baja (0.85) y 2 octavas. Se colorea con un
+        feColorMatrix para que sea sepia muy tenue. La opacidad final del
+        SVG es 0.10 → casi imperceptible pero da grano. Tile 240×240 para
+        que las fibras no formen un patrón visible cuando se repite.
+        Generado al vuelo, sin imágenes externas — todo cabe en el CSS.
+
+     3. Inset shadow ámbar muy tenue — bordes superior e inferior con halo
+        dorado interior. Marca las fronteras de la "página" sin necesidad
+        de bordes duros. */
+
+  --theme-index-gradient:
+    linear-gradient(180deg,
+      rgba(255, 250, 235, 0.35) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(255, 250, 235, 0.30) 100%);
+
+  --theme-index-texture:
+    url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.39  0 0 0 0 0.27  0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+
+  --theme-index-inset-shadow:
+    inset 0 1px 0 rgba(255, 250, 235, 0.55),
+    inset 0 -1px 0 rgba(122, 90, 0, 0.18),
+    inset 0 12px 24px -12px rgba(122, 90, 0, 0.10),
+    inset 0 -12px 24px -12px rgba(122, 90, 0, 0.10);
 
   /* Contexto — toggle y bloque en sepia + dorado para acentos cumbre */
   --theme-ctx-toggle-bg:       var(--color-sepia-tint);
