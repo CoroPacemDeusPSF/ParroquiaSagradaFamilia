@@ -6,7 +6,7 @@
      @brief      Contexto litúrgico (compositor, fundamento bíblico, tags)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.5.1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -15,22 +15,133 @@
    ============================================================================
    Bloque colapsable bajo cada canto que muestra: compositor, fundamento bíblico
    (con cita en .ctx-verse), nota litúrgica, tags de tiempo y momento.
+
+   v3.5.1 — Refactor a tokens semánticos. Todos los matices verdes vienen de
+   --theme-ctx-*, --theme-tag-*, --color-liturgical*. Esto permite que el
+   bloque entero cambie de paleta automáticamente cuando body.novios-mode
+   está activo (paleta cremoso/dorado en lugar de verde).
    ============================================================================ */
 
-/* ── Contexto Litúrgico ── */
-.context-toggle{display:block;width:100%;padding:.65rem .8rem;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.12em;color:#A0B890;background:#222F1E;border:1px solid rgba(107,158,74,.3);border-radius:4px;cursor:pointer;text-align:center;transition:all .2s;text-transform:uppercase;margin:0;position:relative;z-index:5}
-.context-toggle:hover{background:#2A3926;border-color:rgba(107,158,74,.5);color:#C0D8B0}
-.context-block{display:none;padding:1.1rem 2.2rem;background:#FAFAF5;border:1px solid rgba(107,158,74,.2);border-radius:0 0 4px 4px;font-family:'Cormorant Garamond',serif;font-size:.85rem;color:#3D3530;line-height:1.7;position:relative;z-index:5}
-.context-block.open{display:block}
-.ctx-title{text-align:center;font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.1em;color:#4A7A3A;margin:0 0 .8rem 0;font-weight:600}
-.context-block .ctx-section{margin-bottom:.9rem}.context-block .ctx-section:last-child{margin-bottom:0}
-.context-block .ctx-label{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:#6B9E4A;margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem}
-.context-block .ctx-label::before{content:'';display:inline-block;width:3px;height:.7rem;background:#6B9E4A;border-radius:2px;flex-shrink:0}
-.context-block .ctx-text{padding-left:.85rem}.context-block .ctx-text p{margin:.35rem 0}
-.context-block .ctx-ref{font-style:italic;color:#7A6E60}
-.context-block .ctx-verse{display:block;margin:.4rem 0;padding:.45rem .8rem;background:rgba(107,158,74,.06);border-left:2px solid rgba(107,158,74,.3);border-radius:0 3px 3px 0;font-style:italic;color:#5A5040}
-.context-block .ctx-tags{display:flex;flex-wrap:wrap;gap:.35rem;padding-left:.85rem;margin-top:.2rem}
-.context-block .ctx-tag{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.08em;padding:.18rem .55rem;border-radius:10px;border:1px solid}
-.ctx-tag-tiempo{color:#8B6020;background:rgba(200,148,60,.08);border-color:rgba(200,148,60,.3)}
-.ctx-tag-momento{color:#6B9E4A;background:rgba(107,158,74,.08);border-color:rgba(107,158,74,.3)}
+/* ── Toggle del contexto ── */
+.context-toggle {
+  display: block;
+  width: 100%;
+  padding: .65rem .8rem;
+  font-family: 'Cinzel', serif;
+  font-size: .6rem;
+  letter-spacing: .12em;
+  color: var(--theme-ctx-toggle-color);
+  background: var(--theme-ctx-toggle-bg);
+  border: 1px solid var(--color-liturgical-soft);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+  text-transform: uppercase;
+  margin: 0;
+  position: relative;
+  z-index: 5;
+}
+.context-toggle:hover {
+  background: var(--theme-ctx-toggle-bg-hover);
+  border-color: var(--color-liturgical-soft);
+  color: var(--theme-ctx-toggle-color-hover);
+}
+
+/* ── Bloque expandido del contexto ── */
+.context-block {
+  display: none;
+  padding: 1.1rem 2.2rem;
+  background: var(--color-bg-card-soft);
+  border: 1px solid var(--color-liturgical-soft);
+  border-radius: 0 0 4px 4px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .85rem;
+  color: var(--color-text-base);
+  line-height: 1.7;
+  position: relative;
+  z-index: 5;
+}
+.context-block.open { display: block; }
+
+/* ── Título del contexto (nombre del canto) ── */
+.ctx-title {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: .75rem;
+  letter-spacing: .1em;
+  color: var(--theme-ctx-title);
+  margin: 0 0 .8rem 0;
+  font-weight: 600;
+}
+
+/* ── Secciones internas (Compositor, Fundamento, etc.) ── */
+.context-block .ctx-section { margin-bottom: .9rem; }
+.context-block .ctx-section:last-child { margin-bottom: 0; }
+
+/* ── Label de cada sección con barrita lateral verde ── */
+.context-block .ctx-label {
+  font-family: 'Cinzel', serif;
+  font-size: .55rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--color-liturgical);
+  margin-bottom: .3rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.context-block .ctx-label::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: .7rem;
+  background: var(--color-liturgical);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Texto del contexto y referencias ── */
+.context-block .ctx-text { padding-left: .85rem; }
+.context-block .ctx-text p { margin: .35rem 0; }
+.context-block .ctx-ref { font-style: italic; color: var(--color-text-muted); }
+
+/* ── Versículo destacado ── */
+.context-block .ctx-verse {
+  display: block;
+  margin: .4rem 0;
+  padding: .45rem .8rem;
+  background: var(--theme-ctx-verse-bg);
+  border-left: 2px solid var(--theme-ctx-verse-border);
+  border-radius: 0 3px 3px 0;
+  font-style: italic;
+  color: var(--color-text-soft);
+}
+
+/* ── Tags (chips) de tiempo y momento ── */
+.context-block .ctx-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  padding-left: .85rem;
+  margin-top: .2rem;
+}
+.context-block .ctx-tag {
+  font-family: 'Cinzel', serif;
+  font-size: .5rem;
+  letter-spacing: .08em;
+  padding: .18rem .55rem;
+  border-radius: 10px;
+  border: 1px solid;
+}
+.ctx-tag-tiempo {
+  color: var(--theme-tag-tiempo-color);
+  background: var(--theme-tag-tiempo-bg);
+  border-color: var(--theme-tag-tiempo-border);
+}
+.ctx-tag-momento {
+  color: var(--theme-tag-momento-color);
+  background: var(--theme-tag-momento-bg);
+  border-color: var(--theme-tag-momento-border);
+}
 

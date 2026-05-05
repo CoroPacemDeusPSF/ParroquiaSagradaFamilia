@@ -6,7 +6,7 @@
      @brief      Reproductor de salmo del día (audio MP3 PAX/PPC)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.5.1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -15,19 +15,108 @@
    ============================================================================
    Card del salmo del próximo domingo con audio player custom, controles
    play/pause, barra de progreso. Aparece bajo la lit-card.
+
+   v3.5.1 — Refactor a tokens semánticos --theme-psalm-*. Permite que el
+   reproductor cambie de paleta (verde → dorado) cuando body.novios-mode
+   está activo, sin tocar este archivo.
    ============================================================================ */
 
-/* ── Psalm audio player ── */
-.psalm-player{display:none;width:100%;max-width:calc(100vw - 3rem);margin:0.35rem auto 0;background:rgba(14,26,12,0.85);border:1px solid rgba(107,158,74,0.2);border-radius:4px;padding:0.5rem 0.65rem;font-family:'Cinzel',serif}
-.psalm-player.visible{display:flex;align-items:center;gap:0.5rem}
-.psalm-play-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;padding:0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.psalm-play-btn svg{width:20px;height:20px;fill:#6B9E4A;transition:fill 0.2s}
-.psalm-play-btn:hover svg{fill:#8BC064}
-.psalm-player-mid{flex:1;display:flex;flex-direction:column;gap:0.2rem;min-width:0}
-.psalm-progress-wrap{width:100%;height:6px;background:rgba(107,158,74,0.12);border-radius:3px;cursor:pointer;overflow:hidden}
-.psalm-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#4A7A3A,#6B9E4A);border-radius:3px;transition:width 0.15s linear}
-.psalm-time{font-size:0.45rem;letter-spacing:0.1em;color:rgba(160,170,150,0.6)}
-.psalm-close-btn{width:22px;height:22px;border:none;background:none;cursor:pointer;padding:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:0.4;transition:opacity 0.2s}
-.psalm-close-btn:hover{opacity:0.8}
-.psalm-close-btn svg{width:12px;height:12px;stroke:rgba(160,170,150,0.8);stroke-width:2;fill:none}
-#lit-psalm-btn:hover{background:rgba(107,158,74,0.12)!important;border-color:rgba(107,158,74,0.4)!important;}
+/* ── Contenedor del reproductor ── */
+.psalm-player {
+  display: none;
+  width: 100%;
+  max-width: calc(100vw - 3rem);
+  margin: 0.35rem auto 0;
+  background: var(--theme-psalm-bg);
+  border: 1px solid var(--theme-psalm-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.65rem;
+  font-family: 'Cinzel', serif;
+}
+.psalm-player.visible { display: flex; align-items: center; gap: 0.5rem; }
+
+/* ── Botón play/pause ── */
+.psalm-play-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.psalm-play-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--theme-psalm-icon);
+  transition: fill 0.2s;
+}
+.psalm-play-btn:hover svg { fill: var(--theme-psalm-icon-hover); }
+
+/* ── Mid-section: progreso + tiempo ── */
+.psalm-player-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.psalm-progress-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--theme-psalm-progress-bg);
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+}
+.psalm-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,
+    var(--theme-psalm-progress-from),
+    var(--theme-psalm-progress-to));
+  border-radius: 3px;
+  transition: width 0.15s linear;
+}
+.psalm-time {
+  font-size: 0.45rem;
+  letter-spacing: 0.1em;
+  color: var(--theme-psalm-time);
+}
+
+/* ── Botón cerrar ── */
+.psalm-close-btn {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+.psalm-close-btn:hover { opacity: 0.8; }
+.psalm-close-btn svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--theme-psalm-close);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ── Botón "Salmo responsorial" en lit-card (hover) ──
+   Las reglas !important son necesarias aquí porque el botón está dentro
+   de #lit-psalm-btn que tiene styles inline en el HTML (no CSS). Es deuda
+   técnica de cuando se construyó la lit-card con styles inline. Próximo
+   refactor: extraer esos inline styles a clase y eliminar estos !important. */
+#lit-psalm-btn:hover {
+  background: var(--theme-psalm-btn-hover-bg) !important;
+  border-color: var(--theme-psalm-btn-hover-border) !important;
+}

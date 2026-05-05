@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.5.1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -57,6 +57,86 @@
   --color-liturgical:        #6B9E4A;        /* verde de tags litúrgicos */
   --color-liturgical-soft:   rgba(107, 158, 74, 0.20);
   --color-liturgical-faint:  rgba(107, 158, 74, 0.06);
+
+  /* ── PALETA TEMÁTICA DEL CANCIONERO DOMINICAL ────────────────────────────
+     Matices secundarios del verde litúrgico, usados por la PORTADA, ÍNDICE,
+     MOMENT-HEADERS y CONTEXTO. Definirlos como tokens permite que el tema
+     visual entero del cancionero se pueda intercambiar redefiniendo solo
+     estos valores en un selector como body.novios-mode (paleta cremoso/dorado).
+
+     Naming: --theme-* indica que pertenecen al "tema" actual, no al sistema
+     de marca. El sistema de marca permanece en --color-* (dorado, blanco,
+     texto), y solo cambia el tema cuando un modo lo requiere.
+
+     ──────────────────────────────────────────────────────────────────────── */
+
+  /* Fondo principal de la portada — gradiente de 4 paradas */
+  --theme-bg-cover-stop-1:   #0E1A0C;        /* tope: verde profundo */
+  --theme-bg-cover-stop-2:   #1A2E14;        /* 40%: verde oscuro */
+  --theme-bg-cover-stop-3:   #2A4A20;        /* 80%: verde medio */
+  --theme-bg-cover-stop-4:   #1A2E14;        /* base: verde oscuro */
+  --theme-bg-cover-radial:   rgba(42, 74, 32, 0.5);  /* halo radial superior */
+
+  /* Acentos textuales sobre el fondo de portada */
+  --theme-text-on-cover:        #D4E8B0;            /* títulos sobre portada */
+  --theme-text-on-cover-shadow: rgba(100, 160, 60, 0.25);
+  --theme-text-on-cover-soft:   rgba(160, 200, 120, 0.45);  /* fechas, eyebrows */
+  --theme-text-on-cover-faint:  rgba(160, 200, 120, 0.40);
+
+  /* Iconografía y elementos del índice */
+  --theme-icon-cover:        #7AA858;        /* ícono de iglesia, idx-num */
+  --theme-link-cover:        #C8D8A8;        /* índice → links normales */
+  --theme-link-cover-hover:  #A8E070;        /* índice → links hover */
+  --theme-link-divider:      rgba(122, 168, 88, 0.12);
+
+  /* Headers de momento litúrgico (Entrada, Ofertorio, etc.) */
+  --theme-moment-color:           #8BC060;
+  --theme-moment-rule:             rgba(122, 168, 88, 0.25);
+  --theme-moment-bar-bg:           rgba(42, 74, 32, 0.4);
+  --theme-moment-bar-border:       var(--color-liturgical);
+  --theme-moment-divider-glow:     rgba(139, 192, 96, 0.5);
+  --theme-moment-note:             rgba(122, 168, 88, 0.5);
+
+  /* Cards de canción — fondo y bordes (sobre la portada) */
+  --theme-card-bg:           #F6F9F2;
+  --theme-card-shadow:       0 4px 40px rgba(0, 0, 0, 0.5);
+  --theme-card-border:       rgba(107, 158, 74, 0.15);
+  --theme-card-divider:      rgba(107, 158, 74, 0.08);
+
+  /* Índice (panel) — superficie elevada sobre portada */
+  --theme-index-bg:          rgba(14, 26, 12, 0.6);
+
+  /* Bloque de contexto litúrgico */
+  --theme-ctx-toggle-bg:       #222F1E;
+  --theme-ctx-toggle-bg-hover: #2A3926;
+  --theme-ctx-toggle-color:    #A0B890;
+  --theme-ctx-toggle-color-hover: #C0D8B0;
+  --theme-ctx-title:           #4A7A3A;        /* título del contexto */
+  --theme-ctx-verse-bg:        rgba(107, 158, 74, 0.06);
+  --theme-ctx-verse-border:    rgba(107, 158, 74, 0.30);
+
+  /* Tags de momento (chips dentro del contexto) */
+  --theme-tag-momento-color:   var(--color-liturgical);
+  --theme-tag-momento-bg:      rgba(107, 158, 74, 0.08);
+  --theme-tag-momento-border:  rgba(107, 158, 74, 0.30);
+
+  /* Tag de tiempo litúrgico (usa dorado en ambos temas) */
+  --theme-tag-tiempo-color:    var(--color-accent-deep);  /* #B08030 */
+  --theme-tag-tiempo-bg:       rgba(200, 148, 60, 0.08);
+  --theme-tag-tiempo-border:   rgba(200, 148, 60, 0.30);
+
+  /* Reproductor de salmos */
+  --theme-psalm-bg:            rgba(14, 26, 12, 0.85);
+  --theme-psalm-border:        rgba(107, 158, 74, 0.20);
+  --theme-psalm-icon:          var(--color-liturgical);    /* #6B9E4A */
+  --theme-psalm-icon-hover:    #8BC064;
+  --theme-psalm-progress-bg:   rgba(107, 158, 74, 0.12);
+  --theme-psalm-progress-from: #4A7A3A;        /* gradiente: oscuro → claro */
+  --theme-psalm-progress-to:   var(--color-liturgical);
+  --theme-psalm-time:          rgba(160, 170, 150, 0.6);
+  --theme-psalm-close:         rgba(160, 170, 150, 0.8);
+  --theme-psalm-btn-hover-bg:  rgba(107, 158, 74, 0.12);
+  --theme-psalm-btn-hover-border: rgba(107, 158, 74, 0.40);
 
   /* Texto — escala del más oscuro al más claro */
   --color-text-strong:       #2A2620;        /* títulos sobre fondo claro */
@@ -236,4 +316,98 @@
     --duration-slower:  0.01ms;
     --duration-glacial: 0.01ms;
   }
+}
+
+/* ============================================================================
+   TEMA — MODO NOVIOS (paleta cremoso/dorado/marrón inspirada en index.html)
+   ============================================================================
+   Cuando body.novios-mode está activo (módulo 28-novios-mode.js), redefinimos
+   los tokens --theme-* para que el cancionero se renderice en la paleta cálida
+   del index, más apropiada al carisma nupcial. El sistema de marca (--color-*)
+   permanece igual: el dorado #C8943C es identitario y se conserva.
+
+   PALETA DE REFERENCIA (style.css del index):
+     #FAF5EC  cream         ← fondo principal claro
+     #F0E8D4  cream-dk      ← fondo elevado
+     #C8943C  gold          ← acento principal (idéntico al --color-accent)
+     #E8C070  gold-lt       ← resaltes claros
+     #8B6020  gold-dk       ← acentos profundos
+     #3D3530  brown         ← texto principal sobre fondo claro
+     #6B5E54  brown-lt      ← texto secundario
+
+   PRINCIPIO: solo redefinir tokens existentes. No crear tokens propios del
+   modo. Esto garantiza que cualquier componente con consumo correcto de
+   var(--theme-*) cambie automáticamente sin necesidad de selectores
+   específicos body.novios-mode .X.
+   ============================================================================ */
+
+body.novios-mode {
+  /* Fondo de la portada — gradiente cremoso suave (del index) */
+  --theme-bg-cover-stop-1:   #FAF5EC;        /* tope: cream */
+  --theme-bg-cover-stop-2:   #F0E8D4;        /* 40%: cream-dk */
+  --theme-bg-cover-stop-3:   #E8DCBC;        /* 80%: cream más profundo */
+  --theme-bg-cover-stop-4:   #F0E8D4;        /* base: cream-dk */
+  --theme-bg-cover-radial:   rgba(200, 148, 60, 0.08);  /* halo dorado tenue */
+
+  /* Texto sobre la portada — tonos marrones cálidos legibles sobre cream */
+  --theme-text-on-cover:        #3D3530;
+  --theme-text-on-cover-shadow: rgba(200, 148, 60, 0.20);
+  --theme-text-on-cover-soft:   rgba(107, 94, 84, 0.65);
+  --theme-text-on-cover-faint:  rgba(107, 94, 84, 0.50);
+
+  /* Iconografía y links del índice — paleta dorada */
+  --theme-icon-cover:        var(--color-accent);          /* #C8943C */
+  --theme-link-cover:        #6B5E54;                       /* brown-lt */
+  --theme-link-cover-hover:  var(--color-accent-deep);     /* #B08030 */
+  --theme-link-divider:      rgba(200, 148, 60, 0.18);
+
+  /* Headers de momento — dorado consistente */
+  --theme-moment-color:           var(--color-accent-deep);    /* #B08030 */
+  --theme-moment-rule:             rgba(200, 148, 60, 0.30);
+  --theme-moment-bar-bg:           rgba(200, 148, 60, 0.10);
+  --theme-moment-bar-border:       var(--color-accent);
+  --theme-moment-divider-glow:     rgba(200, 148, 60, 0.50);
+  --theme-moment-note:             rgba(107, 94, 84, 0.50);
+
+  /* Cards de canción — fondo blanco puro sobre cream con sombra suave dorada */
+  --theme-card-bg:           #FFFFFF;
+  --theme-card-shadow:       0 4px 24px rgba(200, 148, 60, 0.15);
+  --theme-card-border:       rgba(200, 148, 60, 0.18);
+  --theme-card-divider:      rgba(200, 148, 60, 0.10);
+
+  /* Índice (panel) — fondo crema elevado */
+  --theme-index-bg:          rgba(255, 250, 235, 0.85);
+
+  /* Contexto — toggle y bloque en tonos cremoso/dorados */
+  --theme-ctx-toggle-bg:       #F5EDD8;
+  --theme-ctx-toggle-bg-hover: #EDE0C0;
+  --theme-ctx-toggle-color:    #6B5E54;
+  --theme-ctx-toggle-color-hover: #3D3530;
+  --theme-ctx-title:           var(--color-accent-deep);    /* #B08030 */
+  --theme-ctx-verse-bg:        rgba(200, 148, 60, 0.06);
+  --theme-ctx-verse-border:    rgba(200, 148, 60, 0.30);
+
+  /* Tags de momento — dorado en lugar de verde */
+  --theme-tag-momento-color:   var(--color-accent-deep);    /* #B08030 */
+  --theme-tag-momento-bg:      rgba(200, 148, 60, 0.10);
+  --theme-tag-momento-border:  rgba(200, 148, 60, 0.30);
+
+  /* (Tag de tiempo: ya usa dorado en ambos temas → no requiere override) */
+
+  /* Reproductor de salmos en tonos dorados */
+  --theme-psalm-bg:            rgba(255, 250, 235, 0.92);
+  --theme-psalm-border:        rgba(200, 148, 60, 0.25);
+  --theme-psalm-icon:          var(--color-accent-deep);    /* #B08030 */
+  --theme-psalm-icon-hover:    var(--color-accent);          /* #C8943C */
+  --theme-psalm-progress-bg:   rgba(200, 148, 60, 0.15);
+  --theme-psalm-progress-from: #8B6020;
+  --theme-psalm-progress-to:   var(--color-accent);
+  --theme-psalm-time:          rgba(107, 94, 84, 0.6);
+  --theme-psalm-close:         rgba(107, 94, 84, 0.8);
+  --theme-psalm-btn-hover-bg:  rgba(200, 148, 60, 0.10);
+  --theme-psalm-btn-hover-border: rgba(200, 148, 60, 0.40);
+
+  /* Sistema de marca: el fondo y modal del cancionero también cambian */
+  --color-bg-deep:           #FAF5EC;        /* fondo del body */
+  --color-bg-deep-mid:       #F0E8D4;        /* superficies elevadas */
 }

@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.5.1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -23,48 +23,62 @@
   background: transparent;
 }
 
-/* ── Portada ── */
+/* ── Portada ──
+   Todos los matices vienen de tokens --theme-* en tokens.css. Cuando
+   body.novios-mode está activo, esos tokens se redefinen y la portada
+   cambia automáticamente de paleta sin tocar este archivo. */
 .ceremony.dominical .ceremony-cover {
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(42,74,32,0.5) 0%, transparent 60%),
-    linear-gradient(180deg, #0E1A0C 0%, #1A2E14 40%, #2A4A20 80%, #1A2E14 100%);
+    radial-gradient(ellipse at 50% 100%, var(--theme-bg-cover-radial) 0%, transparent 60%),
+    linear-gradient(180deg,
+      var(--theme-bg-cover-stop-1) 0%,
+      var(--theme-bg-cover-stop-2) 40%,
+      var(--theme-bg-cover-stop-3) 80%,
+      var(--theme-bg-cover-stop-4) 100%);
 }
-.ceremony.dominical .ceremony-icon { color: #7AA858; }
+.ceremony.dominical .ceremony-icon { color: var(--theme-icon-cover); }
 .ceremony.dominical .ceremony-title {
-  color: #D4E8B0;
-  text-shadow: 0 2px 30px rgba(100,160,60,0.25);
+  color: var(--theme-text-on-cover);
+  text-shadow: 0 2px 30px var(--theme-text-on-cover-shadow);
 }
-.ceremony.dominical .ceremony-date { color: rgba(160,200,120,0.45); }
-.ceremony.dominical .ceremony-eyebrow { color: rgba(160,200,120,0.4); }
+.ceremony.dominical .ceremony-date    { color: var(--theme-text-on-cover-soft); }
+.ceremony.dominical .ceremony-eyebrow { color: var(--theme-text-on-cover-faint); }
 
-/* ── Índice sobre fondo oscuro ── */
-.ceremony.dominical .ceremony-index { background: rgba(14,26,12,0.6); }
-.ceremony.dominical .idx-num { color: #7AA858; }
-.ceremony.dominical .index-list a { color: #C8D8A8; }
-.ceremony.dominical .index-list a:hover { color: #A8E070; }
-.ceremony.dominical .index-list li { border-bottom-color: rgba(122,168,88,0.12); }
-.ceremony.dominical .index-moment-header span { color: #8BC060; border-bottom-color: rgba(122,168,88,0.25); }
-.ceremony.dominical .index-title { color: #8BC060; }
-.ceremony.dominical .index-heading { color: #8BC060; }
-.ceremony.dominical .index-rule { background: linear-gradient(90deg, transparent, rgba(122,168,88,0.25), transparent); }
-.ceremony.dominical .index-note { color: rgba(122,168,88,0.5); }
+/* ── Índice sobre fondo de portada ── */
+.ceremony.dominical .ceremony-index { background: var(--theme-index-bg); }
+.ceremony.dominical .idx-num        { color: var(--theme-icon-cover); }
+.ceremony.dominical .index-list a   { color: var(--theme-link-cover); }
+.ceremony.dominical .index-list a:hover { color: var(--theme-link-cover-hover); }
+.ceremony.dominical .index-list li  { border-bottom-color: var(--theme-link-divider); }
+.ceremony.dominical .index-moment-header span {
+  color: var(--theme-moment-color);
+  border-bottom-color: var(--theme-moment-rule);
+}
+.ceremony.dominical .index-title    { color: var(--theme-moment-color); }
+.ceremony.dominical .index-heading  { color: var(--theme-moment-color); }
+.ceremony.dominical .index-rule {
+  background: linear-gradient(90deg, transparent, var(--theme-moment-rule), transparent);
+}
+.ceremony.dominical .index-note     { color: var(--theme-moment-note); }
 
-/* ── Encabezados de momento ── */
+/* ── Encabezados de momento (Entrada, Ofertorio, etc.) ── */
 .ceremony.dominical .moment-header {
-  background: linear-gradient(90deg, rgba(42,74,32,0.4), transparent);
-  border-left-color: #6B9E4A;
+  background: linear-gradient(90deg, var(--theme-moment-bar-bg), transparent);
+  border-left-color: var(--theme-moment-bar-border);
 }
 .ceremony.dominical .moment-header::before,
-.ceremony.dominical .moment-header::after { background: linear-gradient(90deg, transparent, rgba(139,192,96,0.5), transparent); }
-.ceremony.dominical .moment-label { color: #8BC060; }
+.ceremony.dominical .moment-header::after {
+  background: linear-gradient(90deg, transparent, var(--theme-moment-divider-glow), transparent);
+}
+.ceremony.dominical .moment-label   { color: var(--theme-moment-color); }
 
 /* ── Song cards ── */
 .ceremony.dominical .song-card {
-  background: #F6F9F2;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.5);
-  border: 1px solid rgba(107,158,74,0.15);
+  background: var(--theme-card-bg);
+  box-shadow: var(--theme-card-shadow);
+  border: 1px solid var(--theme-card-border);
 }
-.ceremony.dominical .song-card::after { border-bottom-color: rgba(107,158,74,0.08); }
+.ceremony.dominical .song-card::after { border-bottom-color: var(--theme-card-divider); }
 .ceremony.dominical .song-header {
   background: linear-gradient(105deg, #14220E 0%, #1E3416 50%, #2A4A20 100%);
 }
@@ -82,10 +96,16 @@
 .ceremony.dominical .song-ornament { color: rgba(107,158,74,0.25); }
 
 /* ── Back links, footer ── */
-.ceremony.dominical .back-link { color: #6B9E4A; }
-.ceremony.dominical .info-pill { background: rgba(107,158,74,0.12); color: #8BC060; }
-.ceremony.dominical .ceremony-footer { color: rgba(107,158,74,0.5); border-top-color: rgba(107,158,74,0.12); }
-.ceremony.dominical .ceremony-footer .footer-icon { color: #6B9E4A; }
+.ceremony.dominical .back-link { color: var(--color-liturgical); }
+.ceremony.dominical .info-pill {
+  background: var(--color-liturgical-faint);
+  color: var(--theme-moment-color);
+}
+.ceremony.dominical .ceremony-footer {
+  color: rgba(107,158,74,0.5);
+  border-top-color: rgba(107,158,74,0.12);
+}
+.ceremony.dominical .ceremony-footer .footer-icon { color: var(--color-liturgical); }
 .ceremony.dominical .ceremony-footer p { color: rgba(107,158,74,0.4); }
 
 
