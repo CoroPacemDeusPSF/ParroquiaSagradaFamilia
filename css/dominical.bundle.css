@@ -91,7 +91,7 @@
    AL FINAL de los componentes para que sus reglas !important tengan máxima
    especificidad y puedan ocultar correctamente los controles de los modos
    anteriores (rehearsal-mode, wedding-mode, etc.). */
-@import url('components/novios-mode.css?v=3.6.0r1');
+@import url('components/novios-mode.css?v=3.6.0r2');
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.5.8');

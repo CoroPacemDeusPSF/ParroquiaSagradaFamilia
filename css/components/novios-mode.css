@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r1
+ *   @version    v3.6.0r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -376,4 +376,443 @@ body.novios-mode #novios-badge .novios-badge-icon {
     width: 0.85rem;
     height: 0.85rem;
   }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   6. FAB SETLIST NOVIOS (#sln-fab)
+   ════════════════════════════════════════════════════════════════════════
+   Floating Action Button rosa perla que abre el panel SLB de los novios.
+   Visible solo cuando body.novios-mode está activo. Posicionado en la
+   esquina inferior derecha (zona habitual del AI Agent en otros modos,
+   que en Modo Novios está oculto — ver sección 1.4).
+
+   Paleta: gradiente diagonal de --wm-rose-pearl a --wm-rose, mismo lenguaje
+   visual que el badge "Modo Novios" y el sello de la animación de entrada.
+
+   Icono: checklist de 3 líneas con checks verificados (SVG inline en JS).
+   Trazos limpios sin fill — refleja la función "marca tu setlist".
+
+   El FAB NO se inyecta en HTML público — lo crea el módulo 31 al detectar
+   Modo Novios. La regla CSS solo aplica cuando body.novios-mode está activo
+   (defensa en profundidad: si por algún bug el FAB queda en el DOM en
+   otro modo, no se mostraría).
+   ════════════════════════════════════════════════════════════════════════ */
+
+.sln-fab {
+  /* Visibilidad gobernada por la clase del body — fuera de Modo Novios,
+     ocultar como medida defensiva. */
+  display: none;
+}
+
+body.novios-mode .sln-fab {
+  /* Posicionamiento — esquina inferior derecha, encima del contenido pero
+     sin tocar el borde de la pantalla. z-index alto para no quedar tapado
+     por elementos del cancionero (cards, índice). */
+  display: flex;
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 950;          /* debajo de modales (1000+) pero encima de cards */
+
+  /* Forma y tamaño — círculo de 3.5rem, suficiente para un objetivo táctil
+     cómodo (>44px en móvil, recomendación de Apple HIG / Material Design). */
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+
+  /* Paleta rosa perla con gradiente diagonal — mismo lenguaje visual que
+     el badge "Modo Novios" y la animación de sello. La luminosidad
+     superior izquierda crea la sensación de perla iluminada por arriba. */
+  background:
+    linear-gradient(135deg,
+      var(--wm-pearl-shimmer) 0%,
+      var(--wm-rose-pearl) 35%,
+      var(--wm-rose) 70%,
+      var(--wm-rose-deep) 100%);
+
+  /* Borde sutil dorado oscuro (sepia) para definir la silueta sin
+     romper la paleta perlada. */
+  border: 1px solid rgba(184, 138, 130, 0.35);
+
+  /* Sombra exterior cálida — eleva el FAB del fondo. La sombra interior
+     blanca por arriba refuerza la sensación de perla iluminada. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 4px 16px rgba(184, 138, 130, 0.30),
+    0 8px 32px rgba(184, 138, 130, 0.20);
+
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  color: var(--sepia-deep, #4A3F2C);  /* color del icono (currentColor del SVG) */
+}
+
+body.novios-mode .sln-fab:hover {
+  /* Hover: pequeño levantamiento + sombra más profunda */
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 6px 20px rgba(184, 138, 130, 0.40),
+    0 12px 40px rgba(184, 138, 130, 0.25);
+}
+
+body.novios-mode .sln-fab:active {
+  /* Click: presión hacia abajo */
+  transform: translateY(0) scale(0.96);
+}
+
+body.novios-mode .sln-fab svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+@media (max-width: 30rem) {
+  /* Móvil: FAB un poco más pequeño y más cerca del borde */
+  body.novios-mode .sln-fab {
+    width: 3rem;
+    height: 3rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+  body.novios-mode .sln-fab svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   7. DATE PICKER RODILLO (.sln-picker-overlay + .sln-picker-modal)
+   ════════════════════════════════════════════════════════════════════════
+   Picker de fecha tipo "rodillo de máquina de casino" tematizado con la
+   paleta rosa perla del Modo Bodas. El usuario hace scroll vertical en
+   3 columnas (día, mes, año); cada columna usa scroll-snap CSS para que
+   los valores caigan centrados al soltar.
+
+   Estructura visual:
+     ┌─────────────────────────────┐
+     │  ¿Cuándo es su boda?        │  ← header
+     │  ─────────────────────       │
+     │   29   |  Sept   |  2026    │  ← rodillo (5 items visibles)
+     │   30   |  Oct    |  2027    │
+     │ ▶ 15 ◀ |▶ Nov   ◀|▶ 2026 ◀ │  ← seleccionado (banda dorada)
+     │   16   |  Dic    |  2027    │
+     │   17   |  Ene    |          │
+     │  [Cancelar]    [Confirmar]  │  ← footer
+     └─────────────────────────────┘
+
+   Paleta:
+     · Overlay: backdrop perlado con blur (efecto de bruma elegante)
+     · Modal: gradient rosa perla con borde dorado tenue
+     · Banda de selección: línea dorada arriba y abajo del item central
+
+   Scroll snap:
+     - Cada .sln-wheel-list es un <ul> con overflow-y: scroll
+     - Cada .sln-wheel-item tiene scroll-snap-align: center
+     - El item visible al centro es el "seleccionado"
+     - Items fantasma (.sln-wheel-pad) al inicio/final permiten que el
+       primer/último valor real puedan caer centrados
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay (fondo del modal con blur) ─────────────────────────────── */
+.sln-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(60, 40, 35, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
+  /* Animación de entrada — fade in al añadir clase .sln-picker-visible */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.sln-picker-overlay.sln-picker-visible {
+  opacity: 1;
+}
+
+/* ── Modal (caja del picker) ───────────────────────────────────────── */
+.sln-picker-modal {
+  background:
+    linear-gradient(135deg,
+      var(--wm-pearl-shimmer) 0%,
+      var(--wm-rose-pearl) 50%,
+      var(--wm-rose-blush) 100%);
+  border: 1px solid var(--wm-rose-deep);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 26rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 32px rgba(60, 40, 35, 0.35),
+    0 24px 64px rgba(60, 40, 35, 0.20);
+  overflow: hidden;
+  font-family: 'EB Garamond', serif;
+
+  /* Animación de entrada — slide up + scale */
+  transform: translateY(1rem) scale(0.96);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sln-picker-overlay.sln-picker-visible .sln-picker-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* ── Header (título y subtítulo) ────────────────────────────────────── */
+.sln-picker-header {
+  text-align: center;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(184, 138, 130, 0.20);
+}
+
+.sln-picker-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--sepia-deep);
+  margin-bottom: 0.3rem;
+}
+
+.sln-picker-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wm-rose-deep);
+}
+
+/* ── Body (3 columnas de rodillo) ───────────────────────────────────── */
+.sln-picker-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.2rem 1rem;
+  position: relative;
+}
+
+/* ── Cada rueda (columna) ───────────────────────────────────────────── */
+.sln-picker-wheel {
+  position: relative;
+  flex: 1;
+  height: 240px;          /* 5 items × 48px = 240px exacto */
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+/* Variante: la columna del mes es más ancha (los nombres "Septiembre" no
+   caben en una columna estrecha) */
+.sln-picker-wheel[data-col="month"] {
+  flex: 1.6;
+}
+
+/* ── Lista de items dentro de la rueda (scroll vertical) ─────────────── */
+.sln-wheel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+
+  /* Ocultar la barra de scroll preservando funcionalidad */
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* IE/Edge */
+}
+
+.sln-wheel-list::-webkit-scrollbar {
+  display: none;                    /* WebKit (Chrome, Safari) */
+}
+
+/* ── Cada item de la rueda ──────────────────────────────────────────── */
+.sln-wheel-item {
+  height: 48px;                     /* coincide con itemHeight en JS */
+  line-height: 48px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--sepia-mid);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  cursor: pointer;
+  font-feature-settings: "tnum";    /* tabular numerals para alinear dígitos */
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+/* Items fantasma (padding al inicio y final de la lista para permitir
+   que el primer y último valor real puedan caer centrados) */
+.sln-wheel-item.sln-wheel-pad {
+  pointer-events: none;
+}
+
+/* ── Banda de selección central (resalte dorado) ────────────────────── */
+.sln-wheel-selection {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 48px;
+  margin-top: -24px;
+  pointer-events: none;
+  border-top:    1px solid rgba(200, 148, 60, 0.40);
+  border-bottom: 1px solid rgba(200, 148, 60, 0.40);
+  background:
+    linear-gradient(180deg,
+      transparent 0%,
+      rgba(255, 246, 240, 0.30) 50%,
+      transparent 100%);
+}
+
+/* ── Overlay arriba/abajo (fade gradient para suavizar bordes) ──────── */
+.sln-wheel-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 96px;            /* 2 items de altura para fade suave */
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sln-wheel-top {
+  top: 0;
+  background: linear-gradient(180deg,
+    var(--wm-pearl-shimmer) 0%,
+    rgba(240, 220, 211, 0.85) 30%,
+    transparent 100%);
+}
+
+.sln-wheel-bottom {
+  bottom: 0;
+  background: linear-gradient(0deg,
+    var(--wm-rose-blush) 0%,
+    rgba(232, 213, 205, 0.85) 30%,
+    transparent 100%);
+}
+
+/* ── Footer (botones de acción) ─────────────────────────────────────── */
+.sln-picker-footer {
+  display: flex;
+  gap: 0.6rem;
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid rgba(184, 138, 130, 0.20);
+  background: rgba(255, 246, 240, 0.30);
+}
+
+.sln-picker-btn {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.sln-picker-cancel {
+  background: transparent;
+  border: 1px solid var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+}
+
+.sln-picker-cancel:hover {
+  background: rgba(184, 138, 130, 0.10);
+}
+
+.sln-picker-confirm {
+  background: var(--sepia-deep);
+  border: 1px solid var(--sepia-deep);
+  color: var(--wm-pearl-shimmer);
+}
+
+.sln-picker-confirm:hover {
+  background: #5A4A2E;
+}
+
+.sln-picker-confirm:active {
+  transform: scale(0.97);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 30rem) {
+  .sln-picker-modal {
+    max-width: 100%;
+  }
+
+  .sln-picker-wheel {
+    height: 192px;          /* 4 items × 48px en pantallas pequeñas */
+  }
+
+  .sln-wheel-overlay {
+    height: 72px;
+  }
+
+  .sln-picker-title {
+    font-size: 1.2rem;
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   8. BOTONES EXPORT/IMPORT BORRADOR EN FOOTER DEL SLB (Modo Novios)
+   ════════════════════════════════════════════════════════════════════════
+   En Modo Novios, el panel SLB existente muestra dos botones extra en su
+   footer: "Exportar borrador (.json)" y "Importar borrador". Estos botones
+   son inyectados por el módulo 31 al abrir el panel — no existen en el
+   panel del Modo Bodas (donde el botón "Grabar" original es suficiente).
+
+   En Modo Novios, ocultamos el botón "Grabar" del SLB porque la
+   sincronización a localStorage es automática en cada cambio (no hay
+   necesidad de "grabar manualmente").
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Ocultar el botón "Grabar" del SLB en Modo Novios (no aplica con
+   localStorage que graba automáticamente). */
+body.novios-mode .slb-save-btn,
+body.novios-mode .slb-grabar,
+body.novios-mode #slb-save-btn {
+  display: none !important;
+}
+
+/* Estilos de los botones export/import (inyectados por JS) */
+body.novios-mode .sln-draft-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+body.novios-mode .sln-draft-btn {
+  flex: 1;
+  padding: 0.55rem 0.7rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.50);
+  border: 1px solid var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+body.novios-mode .sln-draft-btn:hover {
+  background: var(--wm-rose-deep);
+  color: var(--wm-pearl-shimmer);
+}
+
+body.novios-mode .sln-draft-btn svg {
+  width: 0.85rem;
+  height: 0.85rem;
 }

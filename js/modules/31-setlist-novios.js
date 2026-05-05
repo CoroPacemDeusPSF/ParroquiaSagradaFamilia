@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0
+ *   @version    v3.6.0r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -495,6 +495,72 @@
     if (typeof window.SLB.open === 'function') {
       window.SLB.open();
     }
+    // Inyectar botones export/import (después de un breve delay para que
+    // el panel haya terminado de renderizarse)
+    setTimeout(injectDraftActions, 100);
+  }
+
+  /**
+   * Inyecta los botones "Exportar borrador" e "Importar borrador" en el
+   * footer del panel SLB. Idempotente — si ya existen, no se duplican.
+   *
+   * Se busca el footer del panel SLB (donde estaba el botón "Grabar" en
+   * Modo Bodas). El CSS de novios-mode.css oculta el botón "Grabar" en
+   * Modo Novios, así que estos botones lo reemplazan visualmente.
+   */
+  function injectDraftActions() {
+    // Idempotencia: si ya existen, no duplicar
+    if (document.querySelector('.sln-draft-actions')) return;
+
+    // Buscar el footer del panel SLB. Probamos varios selectores
+    // posibles (la clase exacta puede variar según versión del SLB).
+    var slbPanel = document.querySelector('.slb-panel') ||
+                   document.querySelector('#slb-panel') ||
+                   document.querySelector('.setlist-panel');
+    if (!slbPanel) {
+      console.warn('[SLN] No se encontró el panel SLB para inyectar botones export/import');
+      return;
+    }
+
+    var footer = slbPanel.querySelector('.slb-footer') ||
+                 slbPanel.querySelector('.slb-actions') ||
+                 slbPanel.querySelector('footer');
+    if (!footer) {
+      // Fallback: agregar al final del panel
+      footer = slbPanel;
+    }
+
+    // Crear contenedor con los 2 botones
+    var actions = document.createElement('div');
+    actions.className = 'sln-draft-actions';
+
+    var exportBtn = document.createElement('button');
+    exportBtn.type = 'button';
+    exportBtn.className = 'sln-draft-btn sln-draft-export';
+    exportBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
+        '<polyline points="7 10 12 15 17 10"></polyline>' +
+        '<line x1="12" y1="15" x2="12" y2="3"></line>' +
+      '</svg>' +
+      '<span>Exportar borrador</span>';
+    exportBtn.addEventListener('click', exportDraft);
+
+    var importBtn = document.createElement('button');
+    importBtn.type = 'button';
+    importBtn.className = 'sln-draft-btn sln-draft-import';
+    importBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
+        '<polyline points="17 8 12 3 7 8"></polyline>' +
+        '<line x1="12" y1="3" x2="12" y2="15"></line>' +
+      '</svg>' +
+      '<span>Importar borrador</span>';
+    importBtn.addEventListener('click', importDraft);
+
+    actions.appendChild(exportBtn);
+    actions.appendChild(importBtn);
+    footer.appendChild(actions);
   }
 
   // ── EXPORT/IMPORT BORRADOR ────────────────────────────────────────────
