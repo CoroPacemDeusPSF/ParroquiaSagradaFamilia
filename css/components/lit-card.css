@@ -6,7 +6,7 @@
      @brief      Lit-card del Evangelio del domingo (cita bíblica, tema)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46
+     @version    v3.5.3
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -194,4 +194,62 @@
   #pd-back-bar { padding-left: 0.8rem !important; padding-right: 0.8rem !important; gap: 0.5rem !important; }
   .pd-share-btn span, .pd-share-btn { font-size: 0 !important; width: 28px; padding: 0.3rem !important; justify-content: center; }
   .pd-share-btn svg { font-size: initial; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   BOTÓN "SALMO RESPONSORIAL" (lit-psalm-btn)
+   ════════════════════════════════════════════════════════════════════════
+   Aparece bajo la lit-card cuando el domingo tiene un salmo responsorial
+   con audio. v3.5.3 — Refactor desde inline styles a clases con tokens.
+
+   Antes: el botón vivía como style="..." dentro del HTML, con verdes
+   hardcoded (#6B9E4A) que no respondían al cambio de tema. En Modo Novios
+   se veía como un parche verde sobre fondo cremoso.
+
+   Ahora: consume var(--theme-psalm-*) que se redefinen automáticamente en
+   tokens.css cuando body.novios-mode está activo (sepia en lugar de verde).
+   El SVG usa stroke="currentColor" para heredar el color del padre.
+
+   El estado visible (display: flex) lo activa el JS del calendario
+   litúrgico cuando detecta que el domingo tiene un salmo disponible.
+   ════════════════════════════════════════════════════════════════════════ */
+
+#lit-psalm-btn,
+.lit-psalm-btn {
+  /* Estado por defecto oculto. El JS pone display:flex cuando hay salmo. */
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Layout: centrado bajo la lit-card, con margen estrecho. */
+  margin: 0.4rem auto 0;
+  max-width: calc(100vw - 3rem);
+  padding: 0.5rem 0.8rem;
+
+  /* Paleta del tema: en dominical es verde, en novios es sepia. */
+  border: 1px solid var(--theme-psalm-border);
+  background: var(--theme-psalm-bg);
+  color: var(--theme-psalm-icon);
+
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  overflow: hidden;
+}
+
+.lit-psalm-btn-icon {
+  flex-shrink: 0;
+  /* El SVG usa stroke="currentColor", hereda del color del padre. */
+}
+
+.lit-psalm-btn-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }

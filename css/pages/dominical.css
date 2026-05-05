@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.2
+     @version    v3.5.3
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -100,7 +100,10 @@
   text-shadow: var(--theme-song-header-shadow);
 }
 .ceremony.dominical .strophe p { color: #1E1E18; }
-.ceremony.dominical .chorus { background: rgba(107,158,74,0.06); border-color: #6B9E4A; }
+.ceremony.dominical .chorus {
+  background: var(--theme-chorus-bg);
+  border-color: var(--theme-chorus-border);
+}
 .ceremony.dominical .chorus p { color: #1E1E18; }
 .ceremony.dominical .song-note { color: #5A7A40; border-color: rgba(107,158,74,0.2); }
 .ceremony.dominical .song-ornament { color: rgba(107,158,74,0.25); }

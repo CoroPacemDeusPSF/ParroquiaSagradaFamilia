@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.2
+     @version    v3.5.3
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -58,6 +58,27 @@
   --color-liturgical-soft:   rgba(107, 158, 74, 0.20);
   --color-liturgical-faint:  rgba(107, 158, 74, 0.06);
 
+  /* ── PALETA SEPIA — TINTA ANTIGUA ─────────────────────────────────────
+     Segunda tinta cálida (además del dorado) para acentos en temas claros.
+     En el tema dominical (verde) NO se usa por defecto — está aquí para que
+     el tema Modo Novios tenga una segunda tinta con buen contraste sobre
+     cremoso, evitando depender solo del dorado (que sobre cremoso pierde).
+
+     Inspirada en manuscritos litúrgicos: pergamino + tinta sepia + oro
+     iluminado es la tríada clásica. Usar para: bordes secundarios, divisores,
+     iconos de contenido (partitura, salmo), decoraciones medias.
+
+     Contrastes WCAG sobre #FAF5EC (cremoso del Modo Novios):
+       sepia-deep #4A3F2C → 9.84:1  (AAA)
+       sepia-mid  #7A6E50 → 4.93:1  (AA)
+       sepia-soft #A89876 → 2.95:1  (solo decorativo, NO texto)
+     ──────────────────────────────────────────────────────────────────── */
+  --color-sepia-deep:        #4A3F2C;
+  --color-sepia-mid:         #7A6E50;
+  --color-sepia-soft:        #A89876;
+  --color-sepia-tint:        rgba(74, 63, 44, 0.08);   /* fondos suaves */
+  --color-sepia-faint:       rgba(74, 63, 44, 0.20);   /* bordes sutiles */
+
   /* ── PALETA TEMÁTICA DEL CANCIONERO DOMINICAL ────────────────────────────
      Matices secundarios del verde litúrgico, usados por la PORTADA, ÍNDICE,
      MOMENT-HEADERS y CONTEXTO. Definirlos como tokens permite que el tema
@@ -102,6 +123,10 @@
   --theme-card-shadow:       0 4px 40px rgba(0, 0, 0, 0.5);
   --theme-card-border:       rgba(107, 158, 74, 0.15);
   --theme-card-divider:      rgba(107, 158, 74, 0.08);
+
+  /* Coro (chorus) — bloque destacado dentro de cada canción */
+  --theme-chorus-bg:         rgba(107, 158, 74, 0.06);    /* default verde tenue */
+  --theme-chorus-border:     var(--color-liturgical);      /* default verde oliva */
 
   /* Índice (panel) — superficie elevada sobre portada */
   --theme-index-bg:          rgba(14, 26, 12, 0.6);
@@ -399,14 +424,16 @@ body.novios-mode {
   --theme-text-on-cover-soft:   rgba(107, 94, 84, 0.65);
   --theme-text-on-cover-faint:  rgba(107, 94, 84, 0.50);
 
-  /* Iconografía y links del índice — paleta dorada
+  /* ── Iconografía y links del índice ────────────────────────────────────
      icon-cover usa #7A5A00 (dorado oscuro) para que la numeración 01/02/03
-     tenga contraste WCAG AA (5.88:1) sobre el fondo crema. El #C8943C tiene
-     solo 2.49:1 — falla AA y resulta ilegible. */
+     tenga contraste WCAG AA (5.88:1) sobre el fondo crema.
+     link-cover y link-divider usan sepia para mejor jerarquía visual sobre
+     fondo cremoso (los links aparecen como tinta antigua, los acentos
+     importantes en dorado). */
   --theme-icon-cover:        #7A5A00;                       /* dorado oscuro AA */
-  --theme-link-cover:        #6B5E54;                       /* brown-lt */
-  --theme-link-cover-hover:  var(--color-accent-deep);     /* #B08030 */
-  --theme-link-divider:      rgba(200, 148, 60, 0.18);
+  --theme-link-cover:        var(--color-sepia-deep);      /* tinta sepia AAA */
+  --theme-link-cover-hover:  var(--color-accent-deep);     /* hover dorado */
+  --theme-link-divider:      var(--color-sepia-faint);     /* sepia tenue */
 
   /* Headers de momento — dorado consistente */
   --theme-moment-color:           var(--color-accent-deep);    /* #B08030 */
@@ -422,47 +449,59 @@ body.novios-mode {
   --theme-card-border:       rgba(200, 148, 60, 0.18);
   --theme-card-divider:      rgba(200, 148, 60, 0.10);
 
+  /* Coro (chorus) en sepia — el borde verde residual era el más visible
+     "verde fuera de paleta" en la captura del usuario. */
+  --theme-chorus-bg:         var(--color-sepia-tint);
+  --theme-chorus-border:     var(--color-sepia-mid);
+
   /* Índice (panel) — fondo crema elevado */
   --theme-index-bg:          rgba(255, 250, 235, 0.85);
 
-  /* Contexto — toggle y bloque en tonos cremoso/dorados */
-  --theme-ctx-toggle-bg:       #F5EDD8;
-  --theme-ctx-toggle-bg-hover: #EDE0C0;
-  --theme-ctx-toggle-color:    #6B5E54;
-  --theme-ctx-toggle-color-hover: #3D3530;
-  --theme-ctx-title:           var(--color-accent-deep);    /* #B08030 */
-  --theme-ctx-verse-bg:        rgba(200, 148, 60, 0.06);
-  --theme-ctx-verse-border:    rgba(200, 148, 60, 0.30);
+  /* Contexto — toggle y bloque en sepia + dorado para acentos cumbre */
+  --theme-ctx-toggle-bg:       var(--color-sepia-tint);
+  --theme-ctx-toggle-bg-hover: rgba(74, 63, 44, 0.12);
+  --theme-ctx-toggle-color:    var(--color-sepia-deep);
+  --theme-ctx-toggle-color-hover: var(--color-text-strong);
+  --theme-ctx-title:           var(--color-accent-deep);    /* acento dorado */
+  --theme-ctx-verse-bg:        var(--color-sepia-tint);
+  --theme-ctx-verse-border:    var(--color-sepia-mid);
 
-  /* Tags de momento — dorado en lugar de verde */
-  --theme-tag-momento-color:   var(--color-accent-deep);    /* #B08030 */
-  --theme-tag-momento-bg:      rgba(200, 148, 60, 0.10);
-  --theme-tag-momento-border:  rgba(200, 148, 60, 0.30);
+  /* Tags de momento — sepia (la que ya está en pages/dominical.css usa
+     --color-liturgical pero ese sigue siendo verde y se ve mal en novios) */
+  --theme-tag-momento-color:   var(--color-sepia-deep);
+  --theme-tag-momento-bg:      var(--color-sepia-tint);
+  --theme-tag-momento-border:  var(--color-sepia-faint);
 
   /* (Tag de tiempo: ya usa dorado en ambos temas → no requiere override) */
 
-  /* Reproductor de salmos en tonos dorados */
-  --theme-psalm-bg:            rgba(255, 250, 235, 0.92);
-  --theme-psalm-border:        rgba(200, 148, 60, 0.25);
-  --theme-psalm-icon:          var(--color-accent-deep);    /* #B08030 */
-  --theme-psalm-icon-hover:    var(--color-accent);          /* #C8943C */
-  --theme-psalm-progress-bg:   rgba(200, 148, 60, 0.15);
-  --theme-psalm-progress-from: #8B6020;
-  --theme-psalm-progress-to:   var(--color-accent);
-  --theme-psalm-time:          rgba(107, 94, 84, 0.6);
-  --theme-psalm-close:         rgba(107, 94, 84, 0.8);
-  --theme-psalm-btn-hover-bg:  rgba(200, 148, 60, 0.10);
-  --theme-psalm-btn-hover-border: rgba(200, 148, 60, 0.40);
+  /* Reproductor de salmos en sepia (segunda tinta cálida) — los iconos
+     tienen mejor contraste así, y dejan los acentos dorados libres para
+     elementos cumbre (numeración, headers de momento). */
+  --theme-psalm-bg:            rgba(74, 63, 44, 0.06);     /* sepia tint */
+  --theme-psalm-border:        var(--color-sepia-faint);
+  --theme-psalm-icon:          var(--color-sepia-deep);    /* #4A3F2C — AAA */
+  --theme-psalm-icon-hover:    var(--color-accent-deep);   /* hover dorado */
+  --theme-psalm-progress-bg:   var(--color-sepia-tint);
+  --theme-psalm-progress-from: var(--color-sepia-deep);
+  --theme-psalm-progress-to:   var(--color-sepia-mid);
+  --theme-psalm-time:          var(--color-sepia-mid);
+  --theme-psalm-close:         var(--color-sepia-mid);
+  --theme-psalm-btn-hover-bg:  rgba(74, 63, 44, 0.10);
+  --theme-psalm-btn-hover-border: var(--color-sepia-faint);
 
-  /* ── Iconos de contenido — paleta dorada con AA ────────────────────────
-     icon-score: dorado oscuro (#7A5A00), contraste 5.88 sobre crema.
-     icon-youtube: ladrillo desaturado (#B85A3C) — preserva guiño a marca
-                   YouTube pero entra en la paleta cálida.
+  /* ── Iconos de contenido — paleta SEPIA con AA ─────────────────────────
+     icon-score: sepia profunda (#4A3F2C), contraste 9.84 sobre cremoso.
+     icon-youtube: ladrillo desaturado (#B85A3C) — preserva guiño a marca.
      number: dorado oscuro (#7A5A00), legible para numeración del índice.
-     ────────────────────────────────────────────────────────────────────── */
-  --theme-icon-score:        #7A5A00;                       /* dorado oscuro AA */
-  --theme-icon-youtube:      #B85A3C;                       /* ladrillo desaturado */
-  --theme-number:            #7A5A00;                       /* dorado oscuro AA */
+
+     Razón de la sepia: usar dorado para iconos sobre fondo cremoso da poco
+     contraste y se ve débil (ratio 2.49). La sepia da AAA sin saturar el
+     uso del dorado, que se reserva para acentos importantes (numeración
+     del índice, headers de momento, ornamentos cumbre).
+     ──────────────────────────────────────────────────────────────────── */
+  --theme-icon-score:        var(--color-sepia-deep);    /* #4A3F2C — AAA */
+  --theme-icon-youtube:      #B85A3C;                     /* ladrillo desaturado */
+  --theme-number:            #7A5A00;                     /* dorado oscuro AA */
 
   /* ── Back-bar en paleta cremosa ──
      El header sticky superior pasa a fondo cream con borde inferior dorado. */

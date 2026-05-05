@@ -6,7 +6,7 @@
  *   @brief      Construye el índice dinámicamente desde el DOM (agrupa por sección)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r3
+ *   @version    v3.5.3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -138,13 +138,19 @@
           }
         }
 
-        // Botón de acordes — solo si la card tiene acordes reales
+        // Botón de acordes — solo si la card tiene acordes reales.
+        //
+        // v3.5.3: eliminado el `style="color:#43A047"` inline que ignoraba
+        // el sistema de tokens del tema. Ahora usa la clase CSS
+        // `yt-play-btn--chords` que consume `var(--theme-icon-score)`,
+        // permitiendo que el color cambie automáticamente cuando se activa
+        // el Modo Novios (sepia en lugar de verde Material).
         var hasChords = !!card.querySelector('.chords-block pre .chord');
         var chordBtn = (d && hasChords)
-          ? '<a class="yt-play-btn" href="#chords-block-' + d + '"' +
+          ? '<a class="yt-play-btn yt-play-btn--chords" href="#chords-block-' + d + '"' +
             ' onclick="toggleChords(\'' + d + '\',true);' +
             'setTimeout(function(){document.getElementById(\'chords-block-' + d + '\').scrollIntoView({behavior:\'smooth\',block:\'nearest\'});},100);return false;"' +
-            ' title="Ver acordes" style="color:#43A047;">' + SVG_SCORES + '<\/a>'
+            ' title="Ver acordes">' + SVG_SCORES + '<\/a>'
           : '';
 
         // Botón YouTube (si la card tiene link de YouTube)

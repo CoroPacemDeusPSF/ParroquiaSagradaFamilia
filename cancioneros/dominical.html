@@ -437,7 +437,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.5.2</span>
+    <span class="cancionero-version">v3.5.3</span>
     <p class="ceremony-eyebrow" style="font-family:'Edwardian Script ITC','Pinyon Script',cursive; font-size:clamp(1.8rem, 5vw, 3rem); letter-spacing:0.05em; text-transform:none; opacity:0.85;">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -446,7 +446,17 @@
     
 
     </div>
-    <div id="lit-psalm-btn" style="display:none;align-items:center;gap:0.5rem;margin:0.4rem auto 0;max-width:calc(100vw - 3rem);padding:0.5rem 0.8rem;border:1px solid rgba(107,158,74,0.25);border-radius:3px;background:rgba(107,158,74,0.06);cursor:pointer;transition:background 0.2s,border-color 0.2s;overflow:hidden;"><svg class="is-flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B9E4A" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span style="font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:#6B9E4A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;" id="lit-psalm-label">Salmo responsorial</span></div>
+    <!-- Botón "Salmo responsorial" — display:none inicial controlado por JS
+         (módulo del calendario litúrgico). Estilos en components/lit-card.css
+         para poder cambiar de paleta con el tema. -->
+    <div id="lit-psalm-btn" class="lit-psalm-btn">
+      <svg class="lit-psalm-btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18V5l12-2v13"/>
+        <circle cx="6" cy="18" r="3"/>
+        <circle cx="18" cy="16" r="3"/>
+      </svg>
+      <span class="lit-psalm-btn-label" id="lit-psalm-label">Salmo responsorial</span>
+    </div>
   </div>
 
   <!-- INDEX -->
@@ -512,7 +522,7 @@
 <script src="../js/modules/13-cpd-history.js?v=3.2.44r5"></script>
 
 <script src="../js/modules/14-lyrics-editor.js?v=3.2.44r5"></script>
-<script src="../js/modules/15-build-index.js?v=3.3.0r3"></script>
+<script src="../js/modules/15-build-index.js?v=3.5.3"></script>
 
 <script src="../js/modules/16-decorate-chord-block.js?v=3.2.44r5"></script>
 <script src="../js/modules/17-expand-all-chords.js?v=3.2.44r5"></script>
@@ -585,4 +595,4 @@
      que los módulos 05/29 hayan aplicado al body cuando un novio llega con
      su link especial. Mutex implícita: si Modo Novios se activa, los demás
      modos se limpian. Ver comentarios completos en 28-novios-mode.js. -->
-<script src="../js/modules/28-novios-mode.js?v=3.5.2"></script>
+<script src="../js/modules/28-novios-mode.js?v=3.5.3"></script>

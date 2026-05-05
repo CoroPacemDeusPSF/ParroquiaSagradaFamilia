@@ -6,7 +6,7 @@
  *   @brief      Modo Novios: vista limpia para novios — activación vía URL
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.2
+ *   @version    v3.5.3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
