@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r2
+ *   @version    v3.6.0r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -85,10 +85,6 @@
   //   - Fecha máxima: hoy + 18 meses (límite razonable para planificación)
   var MAX_MONTHS_AHEAD = 18;
   var DATE_KEY_FOR_NOVIOS = 'pdNoviosWeddingDate';  // localStorage key para la fecha activa
-  var MES_NOMBRES = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
 
   // ── HELPERS DE FECHA ──────────────────────────────────────────────────
 
@@ -133,295 +129,151 @@
     return y + '-' + m + '-' + d;
   }
 
-  /**
-   * Cuántos días tiene un mes específico (1-12).
-   * Maneja años bisiestos correctamente.
-   */
-  function daysInMonth(year, month1based) {
-    return new Date(year, month1based, 0).getDate();
-  }
+  // ── DATE PICKER (flatpickr) ───────────────────────────────────────────
+  // v3.6.0r3: el rodillo custom anterior tenía bugs de comportamiento
+  // (scroll impreciso, race conditions con scrollend, click-fuera dejaba
+  // estado inconsistente). Reemplazado por flatpickr — librería madura
+  // (~30KB), MIT, sin dependencias, usada en producción por GitHub,
+  // Shopify, Adobe.
+  //
+  // En desktop muestra calendario en grid 7×6 (estándar UX, lo que la
+  // gente espera). En móvil usa el `<input type="date">` nativo del
+  // sistema operativo, que sí muestra el rodillo de iOS/Android.
+  // flatpickr hace esa detección automáticamente con `disableMobile: false`.
+  //
+  // Restricciones aplicadas:
+  //   minDate: 'today + 1 day'           (mañana)
+  //   maxDate: 'today + 18 months'        (límite del rango planificable)
+  //   locale:  Spanish (cargado desde CDN)
+  //
+  // El input está oculto visualmente — solo abrimos el calendario en
+  // modo modal sobre toda la pantalla.
+
+  var pickerInstance = null;     // referencia a la instancia activa de flatpickr
+  var pickerCallback = null;     // callback a invocar tras confirmar fecha
+  var pickerInputEl  = null;     // input oculto que usa flatpickr internamente
 
   /**
-   * Genera array de años permitidos según las restricciones.
-   * Típicamente serán 1 o 2 años.
-   */
-  function allowedYears() {
-    var minDate = tomorrowMidnight();
-    var maxDate = maxAllowedDate();
-    var years = [];
-    for (var y = minDate.getFullYear(); y <= maxDate.getFullYear(); y++) {
-      years.push(y);
-    }
-    return years;
-  }
-
-  /**
-   * Genera array de meses permitidos para un año dado.
-   * Filtra por las restricciones de fecha mínima/máxima.
-   */
-  function allowedMonths(year) {
-    var minDate = tomorrowMidnight();
-    var maxDate = maxAllowedDate();
-    var months = [];
-    var startMonth = (year === minDate.getFullYear()) ? minDate.getMonth() + 1 : 1;
-    var endMonth   = (year === maxDate.getFullYear()) ? maxDate.getMonth() + 1 : 12;
-    for (var m = startMonth; m <= endMonth; m++) {
-      months.push(m);
-    }
-    return months;
-  }
-
-  /**
-   * Genera array de días permitidos para un año/mes dado.
-   * Filtra por las restricciones de fecha mínima/máxima.
-   */
-  function allowedDays(year, month1based) {
-    var minDate = tomorrowMidnight();
-    var maxDate = maxAllowedDate();
-    var days = [];
-    var startDay = 1;
-    var endDay   = daysInMonth(year, month1based);
-    if (year === minDate.getFullYear() && month1based === minDate.getMonth() + 1) {
-      startDay = minDate.getDate();
-    }
-    if (year === maxDate.getFullYear() && month1based === maxDate.getMonth() + 1) {
-      endDay = Math.min(endDay, maxDate.getDate());
-    }
-    for (var d = startDay; d <= endDay; d++) {
-      days.push(d);
-    }
-    return days;
-  }
-
-  // ── ESTADO INTERNO ────────────────────────────────────────────────────
-  var pickerOverlay = null;  // referencia al overlay del picker (para cerrarlo)
-  var pickerState = null;    // estado interno del rodillo activo
-
-  // ── DATE PICKER RODILLO ───────────────────────────────────────────────
-
-  /**
-   * Abre el date picker rodillo. Si callback se proporciona, se llama
+   * Abre el date picker (flatpickr). Si callback se proporciona, se llama
    * con la fecha seleccionada en formato YYYY-MM-DD al confirmar.
+   *
+   * Internamente:
+   *   1. Crea (si no existe) un input hidden adjunto al body.
+   *   2. Inicializa flatpickr sobre ese input con las restricciones.
+   *   3. Abre el calendario inmediatamente.
+   *   4. Al elegir fecha (onChange), guardamos en localStorage y llamamos
+   *      al callback. Cerramos la instancia limpiamente.
    */
   function openDatePicker(callback) {
-    // Si ya hay un picker abierto, cerrarlo primero
-    if (pickerOverlay) closeDatePicker();
-
-    // Estado inicial: si los novios ya eligieron una fecha antes,
-    // arrancar con esa. Si no, arrancar con una fecha 6 meses al futuro
-    // (un valor razonable para el medio del rango permitido).
-    var initialDate;
-    var savedKey = localStorage.getItem(DATE_KEY_FOR_NOVIOS);
-    if (savedKey && /^\d{4}-\d{2}-\d{2}$/.test(savedKey)) {
-      var parts = savedKey.split('-');
-      initialDate = new Date(+parts[0], +parts[1] - 1, +parts[2]);
-    } else {
-      initialDate = todayMidnight();
-      initialDate.setMonth(initialDate.getMonth() + 6);
-    }
-
-    // Asegurar que la fecha inicial esté en rango válido
-    var minDate = tomorrowMidnight();
-    var maxDate = maxAllowedDate();
-    if (initialDate < minDate) initialDate = minDate;
-    if (initialDate > maxDate) initialDate = maxDate;
-
-    pickerState = {
-      year:  initialDate.getFullYear(),
-      month: initialDate.getMonth() + 1,
-      day:   initialDate.getDate(),
-      callback: callback || null
-    };
-
-    buildPickerUI();
-  }
-
-  /**
-   * Construye la UI del picker rodillo. 3 columnas (día, mes, año) con
-   * scroll snap CSS. La columna del medio (mes) lleva el nombre del mes
-   * en lugar del número para mejor legibilidad.
-   */
-  function buildPickerUI() {
-    pickerOverlay = document.createElement('div');
-    pickerOverlay.className = 'sln-picker-overlay';
-    pickerOverlay.innerHTML =
-      '<div class="sln-picker-modal" role="dialog" aria-modal="true" aria-label="Elegir fecha de la boda">' +
-        '<div class="sln-picker-header">' +
-          '<div class="sln-picker-title">¿Cuándo es su boda?</div>' +
-          '<div class="sln-picker-subtitle">Seleccione la fecha del enlace nupcial</div>' +
-        '</div>' +
-        '<div class="sln-picker-body">' +
-          '<div class="sln-picker-wheel" data-col="day">' +
-            '<div class="sln-wheel-overlay sln-wheel-top"></div>' +
-            '<div class="sln-wheel-overlay sln-wheel-bottom"></div>' +
-            '<div class="sln-wheel-selection"></div>' +
-            '<ul class="sln-wheel-list" id="sln-wheel-day"></ul>' +
-          '</div>' +
-          '<div class="sln-picker-wheel" data-col="month">' +
-            '<div class="sln-wheel-overlay sln-wheel-top"></div>' +
-            '<div class="sln-wheel-overlay sln-wheel-bottom"></div>' +
-            '<div class="sln-wheel-selection"></div>' +
-            '<ul class="sln-wheel-list" id="sln-wheel-month"></ul>' +
-          '</div>' +
-          '<div class="sln-picker-wheel" data-col="year">' +
-            '<div class="sln-wheel-overlay sln-wheel-top"></div>' +
-            '<div class="sln-wheel-overlay sln-wheel-bottom"></div>' +
-            '<div class="sln-wheel-selection"></div>' +
-            '<ul class="sln-wheel-list" id="sln-wheel-year"></ul>' +
-          '</div>' +
-        '</div>' +
-        '<div class="sln-picker-footer">' +
-          '<button class="sln-picker-btn sln-picker-cancel" type="button">Cancelar</button>' +
-          '<button class="sln-picker-btn sln-picker-confirm" type="button">Confirmar</button>' +
-        '</div>' +
-      '</div>';
-
-    document.body.appendChild(pickerOverlay);
-
-    // Cancelar al hacer click en el fondo del overlay (fuera del modal)
-    pickerOverlay.addEventListener('click', function(e) {
-      if (e.target === pickerOverlay) closeDatePicker();
-    });
-
-    // Botones de acción
-    var cancelBtn  = pickerOverlay.querySelector('.sln-picker-cancel');
-    var confirmBtn = pickerOverlay.querySelector('.sln-picker-confirm');
-    cancelBtn.addEventListener('click', closeDatePicker);
-    confirmBtn.addEventListener('click', confirmDatePicker);
-
-    // Renderizar las 3 ruedas con valores iniciales
-    renderWheel('year',  allowedYears(),                         pickerState.year,  function(v) { return v; });
-    renderWheel('month', allowedMonths(pickerState.year),        pickerState.month, function(v) { return MES_NOMBRES[v - 1]; });
-    renderWheel('day',   allowedDays(pickerState.year, pickerState.month), pickerState.day, function(v) { return v; });
-
-    // Activar fade-in
-    requestAnimationFrame(function() {
-      pickerOverlay.classList.add('sln-picker-visible');
-    });
-  }
-
-  /**
-   * Renderiza una rueda (columna). Genera los <li> con los valores y
-   * configura el scroll para que el valor seleccionado quede centrado.
-   * El scroll-snap CSS asegura que al soltar el dedo, un valor concreto
-   * quede al medio. Un listener 'scrollend' actualiza pickerState.
-   */
-  function renderWheel(colName, values, currentValue, formatFn) {
-    var ul = document.getElementById('sln-wheel-' + colName);
-    if (!ul) return;
-
-    // Items "fantasma" arriba y abajo para que el primer y último valor
-    // real puedan posicionarse en el centro (no quedan pegados a los bordes).
-    // 2 items fantasma por lado son suficientes para la altura típica de la
-    // ventana del rodillo (5 items visibles, valor central + 2 arriba + 2 abajo).
-    var html = '<li class="sln-wheel-item sln-wheel-pad"></li>';
-    html    += '<li class="sln-wheel-item sln-wheel-pad"></li>';
-    values.forEach(function(v) {
-      html += '<li class="sln-wheel-item" data-value="' + v + '">' + formatFn(v) + '</li>';
-    });
-    html += '<li class="sln-wheel-item sln-wheel-pad"></li>';
-    html += '<li class="sln-wheel-item sln-wheel-pad"></li>';
-    ul.innerHTML = html;
-
-    // Posicionar la rueda con el valor actual centrado
-    var idx = values.indexOf(currentValue);
-    if (idx < 0) idx = 0;
-    centerWheelOnIndex(ul, idx);
-
-    // Listener de scroll para actualizar pickerState al hacer scroll
-    var scrollTimer = null;
-    ul.addEventListener('scroll', function() {
-      // Debounce: esperar a que el scroll termine para detectar el valor centrado
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(function() {
-        var newIdx = getCenteredIndex(ul);
-        var newVal = values[newIdx];
-        if (newVal !== undefined && newVal !== pickerState[colName]) {
-          pickerState[colName] = newVal;
-          // Si cambió el año o el mes, las opciones del mes/día cambian → re-renderizar
-          if (colName === 'year') {
-            var newMonths = allowedMonths(newVal);
-            // Asegurar que el mes actual esté en el nuevo rango
-            if (newMonths.indexOf(pickerState.month) < 0) {
-              pickerState.month = newMonths[0];
-            }
-            renderWheel('month', newMonths, pickerState.month, function(v) { return MES_NOMBRES[v - 1]; });
-            // Y los días
-            var newDaysY = allowedDays(newVal, pickerState.month);
-            if (newDaysY.indexOf(pickerState.day) < 0) {
-              pickerState.day = newDaysY[0];
-            }
-            renderWheel('day', newDaysY, pickerState.day, function(v) { return v; });
-          } else if (colName === 'month') {
-            var newDaysM = allowedDays(pickerState.year, newVal);
-            if (newDaysM.indexOf(pickerState.day) < 0) {
-              pickerState.day = newDaysM[0];
-            }
-            renderWheel('day', newDaysM, pickerState.day, function(v) { return v; });
-          }
-        }
-      }, 100);
-    });
-  }
-
-  /**
-   * Centra la rueda en un índice específico. Cada item tiene altura fija
-   * (definida en CSS — 3rem). El primer ítem real está en posición 2
-   * (después de los 2 fantasma de padding).
-   */
-  function centerWheelOnIndex(ul, realIdx) {
-    var itemHeight = 48; // px — debe coincidir con .sln-wheel-item height en CSS
-    ul.scrollTop = realIdx * itemHeight;
-  }
-
-  /**
-   * Devuelve el índice del ítem REAL (sin contar fantasmas) que está
-   * actualmente centrado en la rueda.
-   */
-  function getCenteredIndex(ul) {
-    var itemHeight = 48;
-    return Math.round(ul.scrollTop / itemHeight);
-  }
-
-  /**
-   * Confirma la selección actual. Valida que la fecha esté en rango
-   * (defensa en profundidad — el rodillo ya solo permite fechas válidas)
-   * y guarda en localStorage. Llama al callback pasado a openDatePicker.
-   */
-  function confirmDatePicker() {
-    if (!pickerState) return;
-
-    var selected = new Date(pickerState.year, pickerState.month - 1, pickerState.day);
-    var minDate  = tomorrowMidnight();
-    var maxDate  = maxAllowedDate();
-
-    if (selected < minDate || selected > maxDate) {
-      window.alert('La fecha seleccionada está fuera del rango permitido.');
+    if (typeof window.flatpickr !== 'function') {
+      console.error('[SLN] flatpickr no está cargado. Verificar el <script> en HTML.');
+      window.alert('Error al cargar el selector de fecha. Intenta refrescar la página.');
       return;
     }
 
-    var dateKey = toDateKey(selected);
-    localStorage.setItem(DATE_KEY_FOR_NOVIOS, dateKey);
-    console.log('[SLN] Fecha confirmada:', dateKey);
+    // Si ya hay un picker abierto, cerrarlo limpiamente primero
+    if (pickerInstance) closeDatePicker();
 
-    var cb = pickerState.callback;
-    closeDatePicker();
-    if (typeof cb === 'function') cb(dateKey);
+    pickerCallback = callback || null;
+
+    // Crear (o reutilizar) input hidden — flatpickr necesita un input
+    // como ancla. No lo mostramos al usuario; solo abrimos el calendar.
+    if (!pickerInputEl) {
+      pickerInputEl = document.createElement('input');
+      pickerInputEl.type = 'text';
+      pickerInputEl.id = 'sln-date-input';
+      pickerInputEl.className = 'sln-date-input';
+      pickerInputEl.setAttribute('aria-hidden', 'true');
+      pickerInputEl.style.position = 'fixed';
+      pickerInputEl.style.opacity = '0';
+      pickerInputEl.style.pointerEvents = 'none';
+      pickerInputEl.style.left = '50%';
+      pickerInputEl.style.top  = '50%';
+      pickerInputEl.style.width = '1px';
+      pickerInputEl.style.height = '1px';
+      document.body.appendChild(pickerInputEl);
+    }
+
+    // Fecha inicial: si ya eligieron antes, esa. Si no, 6 meses al futuro.
+    var initialDateStr;
+    var savedKey = localStorage.getItem(DATE_KEY_FOR_NOVIOS);
+    if (savedKey && /^\d{4}-\d{2}-\d{2}$/.test(savedKey)) {
+      initialDateStr = savedKey;
+    } else {
+      var d = todayMidnight();
+      d.setMonth(d.getMonth() + 6);
+      initialDateStr = toDateKey(d);
+    }
+
+    // Inicializar flatpickr con las restricciones
+    pickerInstance = window.flatpickr(pickerInputEl, {
+      // Localización español (debe estar cargada antes vía CDN)
+      locale: (window.flatpickr.l10ns && window.flatpickr.l10ns.es) ? 'es' : 'default',
+
+      // Formato interno (lo que recibimos en onChange)
+      dateFormat: 'Y-m-d',
+
+      // Restricciones: mañana → hoy + 18 meses
+      minDate: tomorrowMidnight(),
+      maxDate: maxAllowedDate(),
+
+      // Fecha inicial
+      defaultDate: initialDateStr,
+
+      // Modo inline en desktop, picker móvil nativo en mobile.
+      // disableMobile: false → en mobile usa <input type="date"> nativo
+      //   que muestra el rodillo del SO (iOS/Android).
+      disableMobile: false,
+
+      // Estética: sin tiempo, mes y año navegables, semana inicia lunes
+      enableTime: false,
+      time_24hr: false,
+
+      // Posicionamiento del calendario: centrado en pantalla como modal
+      static: false,
+      position: 'auto center',
+
+      // Eventos
+      onChange: function(selectedDates, dateStr) {
+        if (!dateStr) return;
+        localStorage.setItem(DATE_KEY_FOR_NOVIOS, dateStr);
+        console.log('[SLN] Fecha confirmada:', dateStr);
+        var cb = pickerCallback;
+        closeDatePicker();
+        if (typeof cb === 'function') cb(dateStr);
+      },
+
+      onOpen: function() {
+        // Agregar clase al body para tematizar (CSS detecta esta clase
+        // y aplica paleta rosa perla al calendar de flatpickr).
+        document.body.classList.add('sln-picker-active');
+      },
+
+      onClose: function() {
+        document.body.classList.remove('sln-picker-active');
+      }
+    });
+
+    // Abrir el calendario
+    pickerInstance.open();
   }
 
   /**
-   * Cierra el picker con animación de salida.
+   * Cierra el picker limpiamente. Destruye la instancia para evitar
+   * múltiples calendarios huérfanos en el DOM.
    */
   function closeDatePicker() {
-    if (!pickerOverlay) return;
-    pickerOverlay.classList.remove('sln-picker-visible');
-    setTimeout(function() {
-      if (pickerOverlay && pickerOverlay.parentNode) {
-        pickerOverlay.parentNode.removeChild(pickerOverlay);
+    if (pickerInstance) {
+      try {
+        pickerInstance.close();
+        pickerInstance.destroy();
+      } catch (e) {
+        console.warn('[SLN] Error cerrando picker:', e.message);
       }
-      pickerOverlay = null;
-      pickerState = null;
-    }, 250);
+      pickerInstance = null;
+    }
+    pickerCallback = null;
+    document.body.classList.remove('sln-picker-active');
   }
 
   // ── FAB (Floating Action Button) ──────────────────────────────────────
