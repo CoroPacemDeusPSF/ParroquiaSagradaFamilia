@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.3
+     @version    v3.5.5
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -103,6 +103,23 @@
   --theme-text-on-cover-shadow: rgba(100, 160, 60, 0.25);
   --theme-text-on-cover-soft:   rgba(160, 200, 120, 0.45);  /* fechas, eyebrows */
   --theme-text-on-cover-faint:  rgba(160, 200, 120, 0.40);
+
+  /* ── PORTADA: Coro Pacem Deus / Título / Subtítulo ──
+     Tokens específicos para los tres elementos textuales de la portada
+     (.ceremony-eyebrow, .ceremony-title, .ceremony-date). Permite ajustar
+     tamaño y opacidad por tema sin tocar pages/dominical.css. */
+
+  /* Eyebrow "Coro Pacem Deus" en script (Edwardian Script ITC) */
+  --theme-cover-eyebrow-color:   var(--theme-text-on-cover-faint);  /* tono verde tenue por defecto */
+  --theme-cover-eyebrow-opacity: 0.85;
+
+  /* Título grande (h2 .ceremony-title) — "Cancionero Dominical" o personalizado */
+  --theme-cover-title-color:     var(--theme-text-on-cover);
+  --theme-cover-title-shadow:    0 2px 30px var(--theme-text-on-cover-shadow);
+  --theme-cover-title-scale:     1;                  /* 1 = tamaño original */
+
+  /* Subtítulo (.ceremony-date) — "Parroquia de la Sagrada Familia" o personalizado */
+  --theme-cover-date-color:      var(--theme-text-on-cover-soft);
 
   /* Iconografía y elementos del índice */
   --theme-icon-cover:        #7AA858;        /* ícono de iglesia, idx-num */
@@ -424,6 +441,23 @@ body.novios-mode {
   --theme-text-on-cover-soft:   rgba(107, 94, 84, 0.65);
   --theme-text-on-cover-faint:  rgba(107, 94, 84, 0.50);
 
+  /* ── Portada Modo Novios: textos personalizados para los novios ──
+     Eyebrow "Coro Pacem Deus" → más oscuro (sepia profunda) y opaco
+       para darle protagonismo como marca principal del coro.
+     Título → reducido al 50% del tamaño original, color sepia medio
+       (menos oscuro que el original) — pasa a ser subtítulo, no protagonista.
+     Date → sepia profunda con buen contraste para "Cantamos al Amor de
+       los Amores" (texto reemplazado por JS desde 28-novios-mode.js). */
+
+  --theme-cover-eyebrow-color:   var(--color-sepia-deep);   /* #4A3F2C — AAA */
+  --theme-cover-eyebrow-opacity: 1;                          /* sin opacidad: protagonismo */
+
+  --theme-cover-title-color:     var(--color-sepia-mid);    /* #7A6E50 — AA, menos peso visual */
+  --theme-cover-title-shadow:    none;                       /* sin halo verde residual */
+  --theme-cover-title-scale:     0.5;                        /* mitad del tamaño original */
+
+  --theme-cover-date-color:      var(--color-sepia-deep);   /* #4A3F2C — AAA */
+
   /* ── Iconografía y links del índice ────────────────────────────────────
      icon-cover usa #7A5A00 (dorado oscuro) para que la numeración 01/02/03
      tenga contraste WCAG AA (5.88:1) sobre el fondo crema.
@@ -454,8 +488,12 @@ body.novios-mode {
   --theme-chorus-bg:         var(--color-sepia-tint);
   --theme-chorus-border:     var(--color-sepia-mid);
 
-  /* Índice (panel) — fondo crema elevado */
-  --theme-index-bg:          rgba(255, 250, 235, 0.85);
+  /* Índice (panel) — fondo cremoso oscurecido para crear separación visual
+     respecto al fondo principal del body (#FAF5EC). v3.5.4: tono más
+     profundo (#E5D6BC) que el v3.5.3 inicial (#EDE0C8) — el índice ahora
+     se distingue claramente del fondo y enmarca los cantos con un tono
+     "pergamino antiguo" coherente con la paleta cremoso/dorado/sepia. */
+  --theme-index-bg:          #E5D6BC;
 
   /* Contexto — toggle y bloque en sepia + dorado para acentos cumbre */
   --theme-ctx-toggle-bg:       var(--color-sepia-tint);

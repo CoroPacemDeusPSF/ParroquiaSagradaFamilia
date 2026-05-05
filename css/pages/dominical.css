@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.3
+     @version    v3.5.5
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -37,12 +37,31 @@
       var(--theme-bg-cover-stop-4) 100%);
 }
 .ceremony.dominical .ceremony-icon { color: var(--theme-icon-cover); }
+
+/* Título grande "Cancionero Dominical" (o personalizado en Modo Novios).
+   Consume tokens --theme-cover-title-* que permiten cambiar color, sombra
+   y tamaño por tema. El font-size: calc(1em * scale) escala el tamaño
+   relativo al base del componente (definido en components/ceremony.css). */
 .ceremony.dominical .ceremony-title {
-  color: var(--theme-text-on-cover);
-  text-shadow: 0 2px 30px var(--theme-text-on-cover-shadow);
+  color: var(--theme-cover-title-color);
+  text-shadow: var(--theme-cover-title-shadow);
+  font-size: calc(1em * var(--theme-cover-title-scale));
 }
-.ceremony.dominical .ceremony-date    { color: var(--theme-text-on-cover-soft); }
-.ceremony.dominical .ceremony-eyebrow { color: var(--theme-text-on-cover-faint); }
+
+/* Subtítulo bajo el título — "Parroquia de la Sagrada Familia" o personalizado */
+.ceremony.dominical .ceremony-date {
+  color: var(--theme-cover-date-color);
+}
+
+/* Eyebrow "Coro Pacem Deus" en script (Edwardian Script ITC).
+   El font-size base lo define el style="..." inline del HTML (deuda
+   preexistente). Aquí solo controlamos color y opacidad — para overridear
+   el tamaño en Modo Novios usamos !important en novios-mode.css (necesario
+   para ganar al inline style). */
+.ceremony.dominical .ceremony-eyebrow {
+  color: var(--theme-cover-eyebrow-color);
+  opacity: var(--theme-cover-eyebrow-opacity);
+}
 
 /* ── Índice sobre fondo de portada ── */
 .ceremony.dominical .ceremony-index { background: var(--theme-index-bg); }

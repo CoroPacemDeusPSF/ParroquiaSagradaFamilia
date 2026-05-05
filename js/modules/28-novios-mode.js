@@ -6,7 +6,7 @@
  *   @brief      Modo Novios: vista limpia para novios — activación vía URL
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.3
+ *   @version    v3.5.5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -149,6 +149,37 @@
   }
 
   /**
+   * Personaliza los textos de la portada para Modo Novios.
+   *
+   * Reemplaza tres elementos del .ceremony-cover con textos pertinentes al
+   * carisma nupcial:
+   *
+   *   .ceremony-eyebrow ("Coro Pacem Deus")     — se mantiene el texto pero
+   *                                                el CSS lo oscurece y le
+   *                                                da más protagonismo.
+   *   .ceremony-title  ("Cancionero Dominical") → "Cancionero Litúrgico & Bodas"
+   *   .ceremony-date   ("Parroquia de la …")     → "Cantamos al Amor de los Amores"
+   *
+   * Solo cambia los textos visibles (cover de portada). Los metadatos SEO
+   * (<title>, og:title, etc.) NO se tocan — el sitio sigue siendo el
+   * Cancionero Dominical de cara a buscadores y redes sociales. Modo Novios
+   * es una vista de cara al usuario, no un sitio diferente.
+   *
+   * Defensivo: si por algún motivo los elementos no existen en el DOM
+   * (rediseño futuro, error de parseo), no falla — solo no aplica el cambio
+   * en ese elemento concreto.
+   */
+  function customizeCover() {
+    var titleEl = document.querySelector('.ceremony.dominical .ceremony-title');
+    var dateEl  = document.querySelector('.ceremony.dominical .ceremony-date');
+
+    if (titleEl) titleEl.textContent = 'Cancionero Litúrgico & Bodas';
+    if (dateEl)  dateEl.textContent  = 'Cantamos al Amor de los Amores';
+    // .ceremony-eyebrow ("Coro Pacem Deus") no se modifica en texto, solo
+    // visualmente vía CSS — su contenido permanece igual.
+  }
+
+  /**
    * Activa el modo: dispara la misma animación del sello del Modo Bodas
    * (overlay #wedding-intro con anillos animados, texto rotante "Coro Pacem
    * Deus", paleta perlada) pero con label central "Modo Novios" en vez de
@@ -163,6 +194,11 @@
    * muestra (CSS lo controla).
    */
   function activate() {
+    // Personalizar textos de portada ANTES de activar el modo. Se hace
+    // antes para que cuando termine la animación y el cancionero aparezca,
+    // ya muestre los textos correctos sin un flash del texto original.
+    customizeCover();
+
     // Si por alguna razón la función global de animación no existe (módulo
     // 29 no cargó por algún error de red), aplicamos el modo igual sin
     // animación — fail-safe: prefiero que el novio vea el cancionero
