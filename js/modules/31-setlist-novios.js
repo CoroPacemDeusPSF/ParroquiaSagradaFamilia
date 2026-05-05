@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r3
+ *   @version    v3.6.0r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -129,40 +129,45 @@
     return y + '-' + m + '-' + d;
   }
 
-  // ── DATE PICKER (flatpickr) ───────────────────────────────────────────
-  // v3.6.0r3: el rodillo custom anterior tenía bugs de comportamiento
-  // (scroll impreciso, race conditions con scrollend, click-fuera dejaba
-  // estado inconsistente). Reemplazado por flatpickr — librería madura
-  // (~30KB), MIT, sin dependencias, usada en producción por GitHub,
-  // Shopify, Adobe.
+  // ── DATE PICKER (flatpickr en modo inline + overlay modal propio) ─────
+  // v3.6.0r4: refactor completo del picker para resolver dos bugs:
   //
-  // En desktop muestra calendario en grid 7×6 (estándar UX, lo que la
-  // gente espera). En móvil usa el `<input type="date">` nativo del
-  // sistema operativo, que sí muestra el rodillo de iOS/Android.
-  // flatpickr hace esa detección automáticamente con `disableMobile: false`.
+  //   1. La versión anterior usaba flatpickr en "modo dropdown" sobre un
+  //      input oculto — flatpickr posiciona el calendar relativo al input,
+  //      con un input invisible el posicionamiento era errático.
   //
-  // Restricciones aplicadas:
-  //   minDate: 'today + 1 day'           (mañana)
-  //   maxDate: 'today + 18 months'        (límite del rango planificable)
-  //   locale:  Spanish (cargado desde CDN)
+  //   2. Tras destroy(), el input quedaba en estado inconsistente y la
+  //      siguiente apertura fallaba silenciosamente.
   //
-  // El input está oculto visualmente — solo abrimos el calendario en
-  // modo modal sobre toda la pantalla.
+  // La solución es usar flatpickr en MODO INLINE: en lugar de ser un
+  // dropdown que aparece junto a un input, flatpickr se renderiza
+  // directamente dentro de un container que yo controlo. Yo creo el
+  // overlay/modal completo, meto un div container adentro, y le digo
+  // a flatpickr "renderiza el calendar acá dentro como componente
+  // estático". El calendar es entonces parte natural del DOM, no un
+  // popup flotante.
+  //
+  // Beneficios:
+  //   · Posicionamiento 100% controlado por mí (overlay full-screen
+  //     centrado con backdrop blur).
+  //   · Cierre limpio: yo elimino el overlay → todo el calendar se va
+  //     con él. Sin DOM huérfano ni instancias zombies.
+  //   · Cada apertura es completamente fresca: nuevo overlay, nueva
+  //     instancia de flatpickr, sin estado residual entre aperturas.
+  //   · Mis botones "Cancelar" y "Confirmar" tienen control total del
+  //     flujo (cancelar = no llamar callback; confirmar = llamar callback
+  //     con la fecha seleccionada actual).
 
-  var pickerInstance = null;     // referencia a la instancia activa de flatpickr
-  var pickerCallback = null;     // callback a invocar tras confirmar fecha
-  var pickerInputEl  = null;     // input oculto que usa flatpickr internamente
+  // Estado interno del picker activo. SOLO existe mientras el picker está
+  // abierto. Al cerrar, ambas referencias se ponen a null.
+  var pickerOverlay  = null;  // el div overlay full-screen
+  var pickerInstance = null;  // la instancia flatpickr
+  var pickerSelectedDate = null;  // fecha actualmente seleccionada (Date object)
 
   /**
-   * Abre el date picker (flatpickr). Si callback se proporciona, se llama
-   * con la fecha seleccionada en formato YYYY-MM-DD al confirmar.
-   *
-   * Internamente:
-   *   1. Crea (si no existe) un input hidden adjunto al body.
-   *   2. Inicializa flatpickr sobre ese input con las restricciones.
-   *   3. Abre el calendario inmediatamente.
-   *   4. Al elegir fecha (onChange), guardamos en localStorage y llamamos
-   *      al callback. Cerramos la instancia limpiamente.
+   * Abre el date picker. Crea un overlay modal completo con flatpickr
+   * embedido en modo inline. Si callback se proporciona, se llama con la
+   * fecha seleccionada en formato YYYY-MM-DD al confirmar (no al cancelar).
    */
   function openDatePicker(callback) {
     if (typeof window.flatpickr !== 'function') {
@@ -171,30 +176,11 @@
       return;
     }
 
-    // Si ya hay un picker abierto, cerrarlo limpiamente primero
-    if (pickerInstance) closeDatePicker();
+    // Si ya hay un picker abierto (por algún motivo), cerrarlo primero
+    if (pickerOverlay) closeDatePicker();
 
-    pickerCallback = callback || null;
-
-    // Crear (o reutilizar) input hidden — flatpickr necesita un input
-    // como ancla. No lo mostramos al usuario; solo abrimos el calendar.
-    if (!pickerInputEl) {
-      pickerInputEl = document.createElement('input');
-      pickerInputEl.type = 'text';
-      pickerInputEl.id = 'sln-date-input';
-      pickerInputEl.className = 'sln-date-input';
-      pickerInputEl.setAttribute('aria-hidden', 'true');
-      pickerInputEl.style.position = 'fixed';
-      pickerInputEl.style.opacity = '0';
-      pickerInputEl.style.pointerEvents = 'none';
-      pickerInputEl.style.left = '50%';
-      pickerInputEl.style.top  = '50%';
-      pickerInputEl.style.width = '1px';
-      pickerInputEl.style.height = '1px';
-      document.body.appendChild(pickerInputEl);
-    }
-
-    // Fecha inicial: si ya eligieron antes, esa. Si no, 6 meses al futuro.
+    // Fecha inicial: si los novios ya eligieron antes, esa. Si no, 6 meses
+    // al futuro como punto de partida razonable dentro del rango permitido.
     var initialDateStr;
     var savedKey = localStorage.getItem(DATE_KEY_FOR_NOVIOS);
     if (savedKey && /^\d{4}-\d{2}-\d{2}$/.test(savedKey)) {
@@ -205,76 +191,194 @@
       initialDateStr = toDateKey(d);
     }
 
-    // Inicializar flatpickr con las restricciones
-    pickerInstance = window.flatpickr(pickerInputEl, {
-      // Localización español (debe estar cargada antes vía CDN)
+    // Construir overlay + modal usando DOM API (no innerHTML con strings
+    // largos para evitar problemas de escaping).
+    pickerOverlay = document.createElement('div');
+    pickerOverlay.className = 'sln-picker-overlay';
+    pickerOverlay.setAttribute('role', 'dialog');
+    pickerOverlay.setAttribute('aria-modal', 'true');
+    pickerOverlay.setAttribute('aria-label', 'Seleccionar fecha de la boda');
+
+    var modal = document.createElement('div');
+    modal.className = 'sln-picker-modal';
+
+    // Header: título y subtítulo
+    var header = document.createElement('div');
+    header.className = 'sln-picker-header';
+
+    var title = document.createElement('div');
+    title.className = 'sln-picker-title';
+    title.textContent = '¿Cuándo es su boda?';
+
+    var subtitle = document.createElement('div');
+    subtitle.className = 'sln-picker-subtitle';
+    subtitle.textContent = 'Seleccione la fecha del enlace nupcial';
+
+    header.appendChild(title);
+    header.appendChild(subtitle);
+
+    // Container para el calendar inline de flatpickr
+    var calendarContainer = document.createElement('div');
+    calendarContainer.className = 'sln-picker-calendar-container';
+
+    // Footer: botones Cancelar y Confirmar
+    var footer = document.createElement('div');
+    footer.className = 'sln-picker-footer';
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'sln-picker-btn sln-picker-cancel';
+    cancelBtn.textContent = 'Cancelar';
+
+    var confirmBtn = document.createElement('button');
+    confirmBtn.type = 'button';
+    confirmBtn.className = 'sln-picker-btn sln-picker-confirm';
+    confirmBtn.textContent = 'Confirmar';
+
+    footer.appendChild(cancelBtn);
+    footer.appendChild(confirmBtn);
+
+    modal.appendChild(header);
+    modal.appendChild(calendarContainer);
+    modal.appendChild(footer);
+    pickerOverlay.appendChild(modal);
+    document.body.appendChild(pickerOverlay);
+
+    // Inicializar flatpickr en MODO INLINE dentro del container.
+    // En modo inline, flatpickr renderiza el calendar como componente
+    // embedido dentro del div pasado, no como popup flotante.
+    pickerInstance = window.flatpickr(calendarContainer, {
+      // Modo inline: el calendar es parte del DOM permanente del modal,
+      // no un dropdown flotante que aparece/desaparece.
+      inline: true,
+
+      // Localización español si está disponible (cargada desde CDN)
       locale: (window.flatpickr.l10ns && window.flatpickr.l10ns.es) ? 'es' : 'default',
 
       // Formato interno (lo que recibimos en onChange)
       dateFormat: 'Y-m-d',
 
-      // Restricciones: mañana → hoy + 18 meses
+      // Restricciones temporales: mañana → hoy + 18 meses
       minDate: tomorrowMidnight(),
       maxDate: maxAllowedDate(),
 
-      // Fecha inicial
+      // Fecha inicial mostrada/preseleccionada al abrir
       defaultDate: initialDateStr,
 
-      // Modo inline en desktop, picker móvil nativo en mobile.
-      // disableMobile: false → en mobile usa <input type="date"> nativo
-      //   que muestra el rodillo del SO (iOS/Android).
-      disableMobile: false,
+      // En modo inline, disableMobile NO aplica (no hay popup que
+      // reemplazar). El calendar se ve igual en desktop y móvil.
+      // Esto es OK porque el calendar de flatpickr es responsive.
+      disableMobile: true,
 
-      // Estética: sin tiempo, mes y año navegables, semana inicia lunes
+      // No queremos hora, solo fecha
       enableTime: false,
-      time_24hr: false,
 
-      // Posicionamiento del calendario: centrado en pantalla como modal
-      static: false,
-      position: 'auto center',
-
-      // Eventos
-      onChange: function(selectedDates, dateStr) {
-        if (!dateStr) return;
-        localStorage.setItem(DATE_KEY_FOR_NOVIOS, dateStr);
-        console.log('[SLN] Fecha confirmada:', dateStr);
-        var cb = pickerCallback;
-        closeDatePicker();
-        if (typeof cb === 'function') cb(dateStr);
+      // Callback al cambiar selección. NO cerramos automáticamente —
+      // el usuario debe confirmar con el botón "Confirmar".
+      onChange: function(selectedDates) {
+        pickerSelectedDate = selectedDates && selectedDates[0] ? selectedDates[0] : null;
       },
 
-      onOpen: function() {
-        // Agregar clase al body para tematizar (CSS detecta esta clase
-        // y aplica paleta rosa perla al calendar de flatpickr).
-        document.body.classList.add('sln-picker-active');
-      },
-
-      onClose: function() {
-        document.body.classList.remove('sln-picker-active');
+      // Callback al inicializarse: capturar la fecha por defecto
+      onReady: function(selectedDates) {
+        pickerSelectedDate = selectedDates && selectedDates[0] ? selectedDates[0] : null;
       }
     });
 
-    // Abrir el calendario
-    pickerInstance.open();
+    // Botones — al confirmar, validamos y llamamos callback. Al cancelar,
+    // simplemente cerramos sin llamar callback.
+    confirmBtn.addEventListener('click', function() {
+      if (!pickerSelectedDate) {
+        // Si por algún motivo no hay fecha seleccionada (no debería pasar
+        // porque defaultDate la pone), no hacer nada.
+        return;
+      }
+      var dateKey = toDateKey(pickerSelectedDate);
+
+      // Defensa en profundidad: validar que la fecha esté en rango aunque
+      // las restricciones de flatpickr ya lo prevengan.
+      var d = new Date(pickerSelectedDate.getTime());
+      d.setHours(0, 0, 0, 0);
+      if (d < tomorrowMidnight() || d > maxAllowedDate()) {
+        window.alert('La fecha seleccionada está fuera del rango permitido.');
+        return;
+      }
+
+      localStorage.setItem(DATE_KEY_FOR_NOVIOS, dateKey);
+      console.log('[SLN] Fecha confirmada:', dateKey);
+
+      // Capturar callback antes de cerrar (closeDatePicker pone null)
+      var cb = pickerCallback;
+      closeDatePicker();
+      if (typeof cb === 'function') cb(dateKey);
+    });
+
+    cancelBtn.addEventListener('click', function() {
+      closeDatePicker();
+      // No llamamos callback al cancelar
+    });
+
+    // Click en el fondo del overlay (fuera del modal) = cancelar
+    pickerOverlay.addEventListener('click', function(e) {
+      if (e.target === pickerOverlay) {
+        closeDatePicker();
+      }
+    });
+
+    // Tecla Escape = cancelar (accesibilidad)
+    function onEscape(e) {
+      if (e.key === 'Escape') {
+        closeDatePicker();
+        document.removeEventListener('keydown', onEscape);
+      }
+    }
+    document.addEventListener('keydown', onEscape);
+
+    // Guardar callback para confirmDatePicker
+    pickerCallback = callback || null;
+
+    // Activar fade-in animado en el siguiente frame (CSS detecta esta clase)
+    requestAnimationFrame(function() {
+      if (pickerOverlay) pickerOverlay.classList.add('sln-picker-visible');
+    });
   }
 
   /**
-   * Cierra el picker limpiamente. Destruye la instancia para evitar
-   * múltiples calendarios huérfanos en el DOM.
+   * Cierra el picker. Destruye flatpickr, remueve el overlay del DOM y
+   * resetea todo el estado interno. Después de llamar a esta función, no
+   * queda DOM ni JavaScript residual del picker — la siguiente apertura
+   * empieza desde cero limpiamente.
    */
   function closeDatePicker() {
+    // Destruir instancia flatpickr (libera sus event listeners y referencias)
     if (pickerInstance) {
       try {
-        pickerInstance.close();
         pickerInstance.destroy();
       } catch (e) {
-        console.warn('[SLN] Error cerrando picker:', e.message);
+        console.warn('[SLN] Error destruyendo flatpickr:', e.message);
       }
       pickerInstance = null;
     }
+
+    // Animación de salida + remoción del DOM
+    if (pickerOverlay) {
+      var overlayToRemove = pickerOverlay;
+      pickerOverlay.classList.remove('sln-picker-visible');
+      pickerOverlay = null;  // permitir nueva apertura inmediata
+
+      setTimeout(function() {
+        if (overlayToRemove && overlayToRemove.parentNode) {
+          overlayToRemove.parentNode.removeChild(overlayToRemove);
+        }
+      }, 250);
+    }
+
+    pickerSelectedDate = null;
     pickerCallback = null;
-    document.body.classList.remove('sln-picker-active');
   }
+
+  // Variable global para el callback (usada por confirmBtn dentro del modal)
+  var pickerCallback = null;
 
   // ── FAB (Floating Action Button) ──────────────────────────────────────
 

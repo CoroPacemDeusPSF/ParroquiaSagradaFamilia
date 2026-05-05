@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r3
+ *   @version    v3.6.0r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -484,36 +484,56 @@ body.novios-mode .sln-fab svg {
 
 
 /* ════════════════════════════════════════════════════════════════════════
-   7. DATE PICKER (flatpickr tematizado con paleta rosa perla)
+   7. DATE PICKER (flatpickr inline dentro de overlay modal propio)
    ════════════════════════════════════════════════════════════════════════
-   v3.6.0r3: el rodillo custom anterior fue reemplazado por flatpickr
-   (librería madura). En desktop muestra calendario en grid 7×6 estándar;
-   en móvil usa el `<input type="date">` nativo del SO (rodillos iOS/Android).
+   v3.6.0r4: el picker ahora es un overlay full-screen con un modal
+   centrado que CONTIENE un calendar flatpickr en modo inline.
 
-   Aquí solo agregamos overrides estéticos cuando el calendar está abierto
-   (body.sln-picker-active). flatpickr aporta el comportamiento; nosotros
-   solo cambiamos los colores para que combine con la paleta rosa perla.
+   Estructura DOM (creada por openDatePicker en JS):
+     .sln-picker-overlay         ← overlay full-screen con backdrop blur
+       └ .sln-picker-modal        ← caja del modal (rosa perla)
+           ├ .sln-picker-header   ← título + subtítulo
+           ├ .sln-picker-calendar-container
+           │   └ .flatpickr-calendar.inline  ← calendar embedido aquí
+           └ .sln-picker-footer   ← botones Cancelar/Confirmar
 
-   Selectores específicos (no toca el cancionero público):
-     body.sln-picker-active .flatpickr-calendar { ... }
+   Por qué inline:
+     · El calendar es parte del DOM permanente del modal mientras está
+       abierto, no un dropdown flotante.
+     · Posicionamiento 100% controlado por mí (overlay centrado).
+     · Cierre limpio: yo elimino el overlay → el calendar va con él.
 
-   Variables consumidas: --wm-rose-*, --sepia-*, --color-accent-*.
+   Selectores:
+     Cualquier regla que toca el calendar va bajo .sln-picker-modal —
+     así NO afectamos a otros usos potenciales de flatpickr en el
+     proyecto y el theming queda aislado al picker de novios.
    ════════════════════════════════════════════════════════════════════════ */
 
-/* Overlay/backdrop cuando el picker está activo */
-body.sln-picker-active::before {
-  content: '';
+/* ── Overlay full-screen (backdrop con blur) ────────────────────────── */
+.sln-picker-overlay {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
   background: rgba(60, 40, 35, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  pointer-events: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Animación de entrada — fade-in al añadir clase .sln-picker-visible */
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
-/* Calendario flatpickr — caja principal */
-body.sln-picker-active .flatpickr-calendar {
+.sln-picker-overlay.sln-picker-visible {
+  opacity: 1;
+}
+
+/* ── Modal (caja con header, calendar, footer) ──────────────────────── */
+.sln-picker-modal {
   background:
     linear-gradient(135deg,
       var(--wm-pearl-shimmer) 0%,
@@ -521,78 +541,132 @@ body.sln-picker-active .flatpickr-calendar {
       var(--wm-rose-blush) 100%);
   border: 1px solid var(--wm-rose-deep);
   border-radius: 12px;
+  width: 100%;
+  max-width: 22rem;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
     0 8px 32px rgba(60, 40, 35, 0.35),
     0 24px 64px rgba(60, 40, 35, 0.20);
+  overflow: hidden;
   font-family: 'EB Garamond', serif;
-  z-index: 1000;
+
+  /* Animación de entrada — slide up + scale (resorte) */
+  transform: translateY(1rem) scale(0.96);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Header (mes y año) */
-body.sln-picker-active .flatpickr-months {
-  padding: 0.5rem 0;
-  background: transparent;
+.sln-picker-overlay.sln-picker-visible .sln-picker-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* ── Header (título y subtítulo) ────────────────────────────────────── */
+.sln-picker-header {
+  text-align: center;
+  padding: 1.4rem 1.5rem 0.6rem;
+}
+
+.sln-picker-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.4rem;
   color: var(--sepia-deep);
+  margin-bottom: 0.3rem;
 }
 
-body.sln-picker-active .flatpickr-month {
+.sln-picker-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wm-rose-deep);
+}
+
+/* ── Container del calendar inline ──────────────────────────────────── */
+.sln-picker-calendar-container {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+/* ── flatpickr inline tematizado (todos los selectores bajo el modal
+       para aislamiento del theming) ───────────────────────────────── */
+
+.sln-picker-modal .flatpickr-calendar {
+  background: transparent;        /* hereda el gradient del modal */
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: 'EB Garamond', serif;
+  width: auto;
+  margin: 0;
+}
+
+.sln-picker-modal .flatpickr-calendar.inline {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Header del calendar (mes y año) */
+.sln-picker-modal .flatpickr-months {
+  background: transparent;
+  padding: 0.2rem 0;
+}
+
+.sln-picker-modal .flatpickr-month {
   background: transparent;
   color: var(--sepia-deep);
   height: auto;
+}
+
+.sln-picker-modal .flatpickr-current-month {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--sepia-deep);
   padding-top: 0.3rem;
 }
 
-body.sln-picker-active .flatpickr-current-month {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: var(--sepia-deep);
-  padding-top: 0.4rem;
-}
-
-body.sln-picker-active .flatpickr-current-month .cur-month {
+.sln-picker-modal .flatpickr-current-month .cur-month {
   font-weight: 500;
   color: var(--sepia-deep);
 }
 
-body.sln-picker-active .flatpickr-current-month input.cur-year {
+.sln-picker-modal .flatpickr-current-month input.cur-year {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 1.2rem;
-  color: var(--sepia-deep);
+  font-size: 1.05rem;
   font-weight: 500;
+  color: var(--sepia-deep);
 }
 
 /* Flechas de navegación entre meses */
-body.sln-picker-active .flatpickr-prev-month,
-body.sln-picker-active .flatpickr-next-month {
+.sln-picker-modal .flatpickr-prev-month,
+.sln-picker-modal .flatpickr-next-month {
   color: var(--wm-rose-deep);
   fill: var(--wm-rose-deep);
-  padding: 0.6rem;
-  transition: color 0.2s ease;
+  padding: 0.4rem 0.6rem;
 }
 
-body.sln-picker-active .flatpickr-prev-month:hover svg,
-body.sln-picker-active .flatpickr-next-month:hover svg {
+.sln-picker-modal .flatpickr-prev-month svg,
+.sln-picker-modal .flatpickr-next-month svg {
+  fill: var(--wm-rose-deep);
+}
+
+.sln-picker-modal .flatpickr-prev-month:hover svg,
+.sln-picker-modal .flatpickr-next-month:hover svg {
   fill: var(--sepia-deep);
 }
 
-body.sln-picker-active .flatpickr-prev-month svg,
-body.sln-picker-active .flatpickr-next-month svg {
-  fill: var(--wm-rose-deep);
-}
-
-/* Días de la semana (header de columnas: L M M J V S D) */
-body.sln-picker-active .flatpickr-weekdays {
+/* Días de la semana (L M M J V S D) */
+.sln-picker-modal .flatpickr-weekdays {
   background: transparent;
 }
 
-body.sln-picker-active .flatpickr-weekday {
+.sln-picker-modal span.flatpickr-weekday {
   background: transparent;
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--wm-rose-deep);
@@ -600,77 +674,147 @@ body.sln-picker-active .flatpickr-weekday {
 }
 
 /* Grid de días */
-body.sln-picker-active .flatpickr-days {
+.sln-picker-modal .flatpickr-days {
   background: transparent;
+  width: 100%;
 }
 
-body.sln-picker-active .dayContainer {
+.sln-picker-modal .dayContainer {
   background: transparent;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Cada día (botón seleccionable) */
-body.sln-picker-active .flatpickr-day {
+.sln-picker-modal .flatpickr-day {
   color: var(--sepia-deep);
   font-family: 'EB Garamond', serif;
   font-size: 0.95rem;
   border-radius: 50%;
   border: 1px solid transparent;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  max-width: 38px;
-  height: 38px;
-  line-height: 38px;
+  max-width: 36px;
+  height: 36px;
+  line-height: 36px;
   margin: 1px;
 }
 
-/* Hover: rosa perla suave */
-body.sln-picker-active .flatpickr-day:hover {
+/* Hover */
+.sln-picker-modal .flatpickr-day:hover {
   background: rgba(232, 196, 188, 0.40);
   border-color: var(--wm-rose-deep);
   color: var(--sepia-deep);
 }
 
-/* Día seleccionado: fondo rosa profundo */
-body.sln-picker-active .flatpickr-day.selected,
-body.sln-picker-active .flatpickr-day.selected:hover {
+/* Día seleccionado */
+.sln-picker-modal .flatpickr-day.selected,
+.sln-picker-modal .flatpickr-day.selected:hover {
   background: var(--wm-rose-deep);
   color: var(--wm-pearl-shimmer);
   border-color: var(--wm-rose-deep);
   font-weight: 600;
 }
 
-/* Hoy (sin seleccionar) — borde rosa tenue */
-body.sln-picker-active .flatpickr-day.today {
+/* Hoy */
+.sln-picker-modal .flatpickr-day.today {
   border-color: var(--wm-rose);
   color: var(--wm-rose-deep);
 }
 
-body.sln-picker-active .flatpickr-day.today:hover {
+.sln-picker-modal .flatpickr-day.today:hover {
   background: var(--wm-rose);
   color: var(--sepia-deep);
 }
 
+.sln-picker-modal .flatpickr-day.today.selected {
+  /* Si hoy está seleccionado, prevalece el estilo selected */
+  background: var(--wm-rose-deep);
+  color: var(--wm-pearl-shimmer);
+}
+
 /* Días deshabilitados (fuera del rango permitido) */
-body.sln-picker-active .flatpickr-day.flatpickr-disabled,
-body.sln-picker-active .flatpickr-day.flatpickr-disabled:hover {
+.sln-picker-modal .flatpickr-day.flatpickr-disabled,
+.sln-picker-modal .flatpickr-day.flatpickr-disabled:hover {
   color: rgba(184, 138, 130, 0.35);
   background: transparent;
   border-color: transparent;
   cursor: not-allowed;
 }
 
-/* Días de meses anteriores/siguientes (visibles pero atenuados) */
-body.sln-picker-active .flatpickr-day.prevMonthDay,
-body.sln-picker-active .flatpickr-day.nextMonthDay {
+/* Días de meses anteriores/siguientes (atenuados) */
+.sln-picker-modal .flatpickr-day.prevMonthDay,
+.sln-picker-modal .flatpickr-day.nextMonthDay {
   color: rgba(184, 138, 130, 0.40);
 }
 
-body.sln-picker-active .flatpickr-day.prevMonthDay:hover,
-body.sln-picker-active .flatpickr-day.nextMonthDay:hover {
+.sln-picker-modal .flatpickr-day.prevMonthDay:hover,
+.sln-picker-modal .flatpickr-day.nextMonthDay:hover {
   color: var(--sepia-deep);
 }
 
-/* Responsive: en móvil flatpickr usa el picker nativo del SO,
-   no necesitamos tematizar nada porque será el rodillo iOS/Android. */
+/* ── Footer (botones Cancelar / Confirmar) ──────────────────────────── */
+.sln-picker-footer {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.8rem 1.5rem 1.4rem;
+  border-top: 1px solid rgba(184, 138, 130, 0.15);
+  margin-top: 0.4rem;
+}
+
+.sln-picker-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.sln-picker-cancel {
+  background: transparent;
+  border: 1px solid var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+}
+
+.sln-picker-cancel:hover {
+  background: rgba(184, 138, 130, 0.10);
+}
+
+.sln-picker-confirm {
+  background: var(--sepia-deep);
+  border: 1px solid var(--sepia-deep);
+  color: var(--wm-pearl-shimmer);
+}
+
+.sln-picker-confirm:hover {
+  background: #5A4A2E;
+}
+
+.sln-picker-confirm:active {
+  transform: scale(0.97);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 26rem) {
+  .sln-picker-modal {
+    max-width: 100%;
+  }
+
+  .sln-picker-modal .flatpickr-day {
+    max-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .sln-picker-title {
+    font-size: 1.25rem;
+  }
+}
 
 /* ════════════════════════════════════════════════════════════════════════
    8. BOTONES EXPORT/IMPORT BORRADOR EN FOOTER DEL SLB (Modo Novios)
