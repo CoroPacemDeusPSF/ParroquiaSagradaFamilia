@@ -61,6 +61,184 @@
   var FB_BASE      = '/setlist-bodas';
   var PIN_KEY      = 'pdSlbPinned'; // localStorage del estado pinned del panel
 
+  // ── CAPA DE ABSTRACCIÓN DE STORAGE (v3.6.0) ───────────────────────────
+  // El módulo SLB soporta dos backends de almacenamiento, transparentes
+  // para el resto del código:
+  //
+  //   · Modo Bodas (default): Firebase Realtime DB → /setlist-bodas/{fecha}
+  //     Comportamiento histórico, sin cambios funcionales.
+  //
+  //   · Modo Novios: localStorage → 'pdNoviosSetlistDraft'
+  //     Activado cuando window.PD_NOVIOS_MODE === true al inicializar.
+  //     El flag lo setea el módulo 31-setlist-novios.js antes de que
+  //     este módulo (30) se ejecute.
+  //
+  // API uniforme (todas retornan Promise):
+  //   storage.loadAll(dateKey) → Promise<{ _meta?, slot1?, slot2?, ... }>
+  //   storage.saveSlot(dateKey, slotId, data) → Promise<void>
+  //   storage.removeSlot(dateKey, slotId) → Promise<void>
+  //   storage.saveMeta(dateKey, key, value) → Promise<void>  ('novios'|'optionals')
+  //   storage.saveAll(dateKey, fullObject) → Promise<void>
+  //   storage.listDates() → Promise<string[]>
+  //
+  // En el backend localStorage, `dateKey` se ignora — solo existe UN
+  // borrador por dispositivo (los novios planean SU boda, no varias).
+
+  function isNoviosMode() {
+    // Lee el flag global que el módulo 31 setea antes de cargar este 30.
+    // Defensivo: si por algún motivo no existe, asume Modo Bodas (default).
+    return window.PD_NOVIOS_MODE === true;
+  }
+
+  /**
+   * Backend Firebase — comportamiento histórico de SLB.
+   * Cada método retorna una Promise con el resultado de la operación
+   * Firebase Realtime DB vía fetch + REST API.
+   */
+  function createFirebaseStorage() {
+    return {
+      mode: 'firebase',
+
+      loadAll: function(dateKey) {
+        return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '.json')
+          .then(function(r) { return r.json(); });
+      },
+
+      saveSlot: function(dateKey, slotId, data) {
+        return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '/' + slotId + '.json', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      },
+
+      removeSlot: function(dateKey, slotId) {
+        return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '/' + slotId + '.json', {
+          method: 'DELETE'
+        });
+      },
+
+      saveMeta: function(dateKey, key, value) {
+        return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '/_meta/' + key + '.json', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(value)
+        });
+      },
+
+      saveAll: function(dateKey, fullObject) {
+        return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '.json', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fullObject)
+        });
+      },
+
+      listDates: function() {
+        return fetch(FIREBASE_URL + FB_BASE + '.json?shallow=true')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            return data ? Object.keys(data) : [];
+          });
+      }
+    };
+  }
+
+  /**
+   * Backend localStorage — para Modo Novios.
+   * Solo existe UN setlist (no múltiples fechas). Estructura:
+   *   {
+   *     fecha: 'YYYY-MM-DD',
+   *     _meta: { novios: '...', optionals: [...] },
+   *     [slotId]: { cpd?, instrumental?, title }
+   *   }
+   * El `dateKey` se ignora — siempre lee/escribe el mismo borrador.
+   * Las Promises son síncronas internamente (Promise.resolve) para
+   * mantener la firma compatible con el backend Firebase.
+   */
+  function createLocalStorage() {
+    var KEY = 'pdNoviosSetlistDraft';
+
+    function read() {
+      try {
+        var raw = localStorage.getItem(KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.warn('[SLB/local] read error:', e.message);
+        return {};
+      }
+    }
+
+    function write(obj) {
+      try {
+        obj._actualizado = new Date().toISOString();
+        localStorage.setItem(KEY, JSON.stringify(obj));
+      } catch (e) {
+        console.warn('[SLB/local] write error:', e.message);
+      }
+    }
+
+    return {
+      mode: 'localStorage',
+
+      loadAll: function(/* dateKey */) {
+        // Devolver objeto sin la marca interna _actualizado
+        var data = read();
+        var copy = {};
+        Object.keys(data).forEach(function(k) {
+          if (k !== '_actualizado') copy[k] = data[k];
+        });
+        return Promise.resolve(copy);
+      },
+
+      saveSlot: function(dateKey, slotId, data) {
+        var current = read();
+        current[slotId] = data;
+        // Guardar también la fecha activa (para reconstruir el panel)
+        if (dateKey) current.fecha = dateKey;
+        write(current);
+        return Promise.resolve();
+      },
+
+      removeSlot: function(dateKey, slotId) {
+        var current = read();
+        delete current[slotId];
+        write(current);
+        return Promise.resolve();
+      },
+
+      saveMeta: function(dateKey, key, value) {
+        var current = read();
+        if (!current._meta) current._meta = {};
+        current._meta[key] = value;
+        if (dateKey) current.fecha = dateKey;
+        write(current);
+        return Promise.resolve();
+      },
+
+      saveAll: function(dateKey, fullObject) {
+        var copy = {};
+        Object.keys(fullObject).forEach(function(k) { copy[k] = fullObject[k]; });
+        if (dateKey) copy.fecha = dateKey;
+        write(copy);
+        return Promise.resolve();
+      },
+
+      listDates: function() {
+        // Solo hay una fecha activa: la del borrador (si existe).
+        var data = read();
+        return Promise.resolve(data.fecha ? [data.fecha] : []);
+      }
+    };
+  }
+
+  /**
+   * Selección del backend al iniciar el módulo. Se hace UNA sola vez
+   * y se usa durante toda la vida del módulo. No cambia en runtime.
+   */
+  var storage = isNoviosMode() ? createLocalStorage() : createFirebaseStorage();
+  console.log('[SLB] storage backend:', storage.mode);
+
   // ── DEFINICIÓN DE SLOTS ───────────────────────────────────────────────
   // SLOTS_FIJOS: siempre visibles en el panel (defaultEmpty implícito).
   // SLOTS_OPCIONALES: solo visibles si están en el array `enabledOptionals`
@@ -498,7 +676,10 @@
     renderSlots();
   }
 
-  // ── FIREBASE: LOAD ────────────────────────────────────────────────────
+  // ── LOAD (vía capa storage) ───────────────────────────────────────────
+  // El nombre 'loadFromFirebase' se mantiene por compatibilidad histórica,
+  // pero ahora delega en la capa storage que puede ser Firebase o
+  // localStorage según el modo de operación.
   function loadFromFirebase(dateKey) {
     if (!dateKey) {
       setlistData = {};
@@ -508,8 +689,7 @@
       renderSlots();
       return;
     }
-    fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '.json')
-      .then(function(r) { return r.json(); })
+    storage.loadAll(dateKey)
       .then(function(data) {
         setlistData = {};
         enabledOptionals = [];
@@ -548,16 +728,13 @@
       });
   }
 
-  // ── FIREBASE: SAVE/REMOVE ─────────────────────────────────────────────
+  // ── SAVE/REMOVE (vía capa storage) ────────────────────────────────────
   function saveSlot(slotId, cpd, title) {
     if (!currentDate) return;
-    setlistData[slotId] = { cpd: cpd, title: title };
+    var data = { cpd: cpd, title: title };
+    setlistData[slotId] = data;
     renderSlots();
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '/' + slotId + '.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cpd: cpd, title: title })
-    }).then(function() {
+    storage.saveSlot(currentDate, slotId, data).then(function() {
       console.log('[SLB] Guardado:', slotId, '→', title);
       // Asegurar que la fecha entró a availableDates
       if (availableDates.indexOf(currentDate) === -1) {
@@ -603,11 +780,7 @@
     var data = { instrumental: true, title: title };
     setlistData[slotId] = data;
     renderSlots();
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '/' + slotId + '.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(function() {
+    storage.saveSlot(currentDate, slotId, data).then(function() {
       console.log('[SLB] Instrumental guardado:', slotId, '→', title);
       if (availableDates.indexOf(currentDate) === -1) {
         availableDates.push(currentDate);
@@ -622,31 +795,21 @@
     if (!currentDate) return;
     delete setlistData[slotId];
     if (!skipRerender) renderSlots();
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '/' + slotId + '.json', {
-      method: 'DELETE'
-    }).catch(function(err) {
+    storage.removeSlot(currentDate, slotId).catch(function(err) {
       console.warn('[SLB] Delete error:', err.message);
     });
   }
 
   function saveNovios(value) {
     if (!currentDate) return;
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '/_meta/novios.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(value)
-    }).catch(function(err) {
+    storage.saveMeta(currentDate, 'novios', value).catch(function(err) {
       console.warn('[SLB] Novios save error:', err.message);
     });
   }
 
   function saveOptionals() {
     if (!currentDate) return;
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '/_meta/optionals.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(enabledOptionals)
-    }).catch(function(err) {
+    storage.saveMeta(currentDate, 'optionals', enabledOptionals).catch(function(err) {
       console.warn('[SLB] Optionals save error:', err.message);
     });
   }
@@ -687,14 +850,7 @@
       optionals: enabledOptionals
     };
 
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    }).then(function() {
+    storage.saveAll(currentDate, payload).then(function() {
       // Asegurar que la fecha está en availableDates
       if (availableDates.indexOf(currentDate) === -1) {
         availableDates.push(currentDate);
@@ -733,29 +889,22 @@
     enabledOptionals = [];
     renderSlots();
     // Borramos solo los slots, dejando _meta.novios intacto
-    fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '.json')
-      .then(function(r) { return r.json(); })
+    storage.loadAll(currentDate)
       .then(function(data) {
         var meta = data && data._meta ? data._meta : null;
         var newData = meta ? { _meta: { novios: meta.novios || '', optionals: [] } } : null;
-        return fetch(FIREBASE_URL + FB_BASE + '/' + currentDate + '.json', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newData)
-        });
+        return storage.saveAll(currentDate, newData);
       })
       .catch(function(err) {
         console.warn('[SLB] Clear error:', err.message);
       });
   }
 
-  // ── CARGAR LISTA DE FECHAS DISPONIBLES ────────────────────────────────
+  // ── CARGAR LISTA DE FECHAS DISPONIBLES (vía capa storage) ─────────────
   function loadAvailableDates() {
-    return fetch(FIREBASE_URL + FB_BASE + '.json?shallow=true')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!data) { availableDates = []; return; }
-        availableDates = Object.keys(data).filter(function(k) {
+    return storage.listDates()
+      .then(function(dates) {
+        availableDates = dates.filter(function(k) {
           // Validar formato YYYY-MM-DD para defenderse de claves corruptas
           return /^\d{4}-\d{2}-\d{2}$/.test(k);
         }).sort();
@@ -996,11 +1145,16 @@
       isPinned = localStorage.getItem(PIN_KEY) === '1';
     } catch (e) { isPinned = false; }
     updatePinUI();
-    // Si el panel estaba pineado Y wedding-mode está activo, abre auto.
+    // Si el panel estaba pineado Y un modo compatible está activo, abre auto.
+    // Modos compatibles: wedding-mode (Modo Bodas, uso original) y
+    // novios-mode (Modo Novios, agregado en v3.6.0).
     // La doble guardia (rehearsal-mode no debe estar) evita que se abra
     // si el modo coro está activo simultáneamente por race condition.
+    var isCompatibleMode =
+      document.body.classList.contains('wedding-mode') ||
+      document.body.classList.contains('novios-mode');
     if (isPinned &&
-        document.body.classList.contains('wedding-mode') &&
+        isCompatibleMode &&
         !document.body.classList.contains('rehearsal-mode')) {
       openPanel();
     }
@@ -1201,7 +1355,12 @@
 
     // Estado (para módulos consumidores ej. event delegation)
     isActive: function() {
-      return document.body.classList.contains('wedding-mode');
+      // v3.6.0: el panel SLB se considera activo en Modo Bodas (wedding-mode)
+      // o Modo Novios (novios-mode). Cualquiera de las dos clases en el body
+      // habilita el panel. Esto es necesario porque el módulo 31 (SetList
+      // Novios) reutiliza el panel SLB en Modo Novios.
+      return document.body.classList.contains('wedding-mode') ||
+             document.body.classList.contains('novios-mode');
     }
   };
 
