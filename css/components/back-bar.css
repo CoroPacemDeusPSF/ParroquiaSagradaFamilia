@@ -1,0 +1,93 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/back-bar.css
+     @brief      Barra sticky superior del cancionero (back-link, búsqueda, etc.)
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.5.2
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   back-bar.css — Header sticky superior
+
+   Tira sticky en la parte superior del cancionero que contiene:
+     • Link de regreso al index (← Coro Pacem Deus)
+     • Botón de búsqueda
+     • Controles de tamaño de letra (A−, A+)
+     • Botón de compartir
+     • Hamburger menu (móvil)
+
+   v3.5.2 — Refactor desde inline styles a clase + tokens semánticos.
+   Antes vivía como style="..." dentro de #pd-back-bar en el HTML, lo que
+   impedía que respondiera al cambio de tema (Modo Novios). Ahora consume
+   tokens --theme-back-bar-* que se redefinen en tokens.css cuando
+   body.novios-mode está activo.
+   ============================================================================ */
+
+#pd-back-bar {
+  position: sticky;
+  top: 0;
+  z-index: 99999;
+  background: var(--theme-back-bar-bg);
+  backdrop-filter: var(--theme-back-bar-blur);
+  -webkit-backdrop-filter: var(--theme-back-bar-blur);
+  border-bottom: 1px solid var(--theme-back-bar-border);
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1.5rem;
+  gap: 1rem;
+  font-family: 'Cinzel', serif;
+}
+
+/* ── Link de regreso al index del sitio ────────────────────────────────── */
+.pd-back-bar-home {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--theme-back-bar-text);
+  text-decoration: none;
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex-shrink: 1;
+  transition: color var(--duration-fast) var(--easing-default);
+}
+.pd-back-bar-home:hover { color: var(--theme-back-bar-text-hover); }
+
+/* ── Botón de búsqueda (lupa) ──────────────────────────────────────────── */
+.pd-search-btn {
+  background: none;
+  border: 1px solid var(--theme-back-bar-icon-border);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--theme-back-bar-text);
+  transition: all var(--duration-fast) var(--easing-default);
+  flex-shrink: 0;
+}
+.pd-search-btn:hover {
+  border-color: var(--theme-back-bar-icon-hover-border);
+  color: var(--theme-back-bar-text-hover);
+}
+
+/* ── Botón cerrar de la barra de búsqueda ──────────────────────────────── */
+.pd-search-close {
+  background: none;
+  border: none;
+  color: var(--theme-back-bar-text);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0 var(--space-xs);
+  line-height: 1;
+}

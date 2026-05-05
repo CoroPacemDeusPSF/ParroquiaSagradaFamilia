@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.1
+     @version    v3.5.2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -137,6 +137,50 @@
   --theme-psalm-close:         rgba(160, 170, 150, 0.8);
   --theme-psalm-btn-hover-bg:  rgba(107, 158, 74, 0.12);
   --theme-psalm-btn-hover-border: rgba(107, 158, 74, 0.40);
+
+  /* ── ICONOS DE MARCA Y CONTENIDO ──
+     Iconos cuyo color tiene un significado funcional o de marca, no decorativo.
+     Tienen tokens propios para que el Modo Novios pueda redefinir sin que el
+     componente sepa qué tema está activo.
+
+     icon-score:    icono "Ver acordes" (𝄞 partitura). En tema verde es verde
+                    Material como afirmación. En tema novios pasa a dorado.
+     icon-youtube:  enlace "Ver en YouTube". En tema verde es rojo de marca.
+                    En tema novios baja la saturación a ladrillo cremoso.
+     number:        numeración 01/02/03 del índice. Debe tener AA con su fondo.
+
+     ────────────────────────────────────────────────────────────────────── */
+
+  --theme-icon-score:        var(--color-success);     /* default: #43A047 */
+  --theme-icon-youtube:      #FF0000;                  /* default: rojo YouTube */
+  --theme-number:            var(--color-accent);      /* default: #C8943C */
+
+  /* ── BACK-BAR (header sticky superior) ──
+     Tira sticky con back-link, búsqueda, font-size, compartir, hamburger.
+     Actualmente vive como inline styles en el HTML (deuda técnica). Tokens
+     listos para cuando se refactorice esa zona. */
+
+  --theme-back-bar-bg:           rgba(30, 42, 20, 0.96);     /* verde casi negro */
+  --theme-back-bar-blur:         blur(12px);
+  --theme-back-bar-border:       rgba(120, 160, 70, 0.20);   /* divider verde claro */
+  --theme-back-bar-text:         #A8C878;                     /* texto verde claro */
+  --theme-back-bar-text-hover:   #C8E8A0;                     /* texto verde más claro */
+  --theme-back-bar-icon-border:  rgba(168, 200, 120, 0.30);
+  --theme-back-bar-icon-hover-border: rgba(168, 200, 120, 0.60);
+
+  /* ── SONG HEADER (header interno de cada song-card) ──
+     El gradiente verde oscuro arriba de cada canción, donde aparece el número
+     y el título. Tokenizado para que en Modo Novios sea cremoso/dorado. */
+
+  --theme-song-header-bg-from: #14220E;
+  --theme-song-header-bg-mid:  #1E3416;
+  --theme-song-header-bg-to:   #2A4A20;
+  --theme-song-header-bar-from: #7AA858;        /* gradiente dorado/verde de la línea */
+  --theme-song-header-bar-to:   #5C8A3A;
+  --theme-song-header-number:  #A8D080;         /* número 01, 02… */
+  --theme-song-header-moment:  #B0D888;         /* etiqueta del momento */
+  --theme-song-header-title:   #ECF4DC;         /* título del canto */
+  --theme-song-header-shadow:  0 1px 10px rgba(0, 0, 0, 0.30);
 
   /* Texto — escala del más oscuro al más claro */
   --color-text-strong:       #2A2620;        /* títulos sobre fondo claro */
@@ -355,8 +399,11 @@ body.novios-mode {
   --theme-text-on-cover-soft:   rgba(107, 94, 84, 0.65);
   --theme-text-on-cover-faint:  rgba(107, 94, 84, 0.50);
 
-  /* Iconografía y links del índice — paleta dorada */
-  --theme-icon-cover:        var(--color-accent);          /* #C8943C */
+  /* Iconografía y links del índice — paleta dorada
+     icon-cover usa #7A5A00 (dorado oscuro) para que la numeración 01/02/03
+     tenga contraste WCAG AA (5.88:1) sobre el fondo crema. El #C8943C tiene
+     solo 2.49:1 — falla AA y resulta ilegible. */
+  --theme-icon-cover:        #7A5A00;                       /* dorado oscuro AA */
   --theme-link-cover:        #6B5E54;                       /* brown-lt */
   --theme-link-cover-hover:  var(--color-accent-deep);     /* #B08030 */
   --theme-link-divider:      rgba(200, 148, 60, 0.18);
@@ -406,6 +453,37 @@ body.novios-mode {
   --theme-psalm-close:         rgba(107, 94, 84, 0.8);
   --theme-psalm-btn-hover-bg:  rgba(200, 148, 60, 0.10);
   --theme-psalm-btn-hover-border: rgba(200, 148, 60, 0.40);
+
+  /* ── Iconos de contenido — paleta dorada con AA ────────────────────────
+     icon-score: dorado oscuro (#7A5A00), contraste 5.88 sobre crema.
+     icon-youtube: ladrillo desaturado (#B85A3C) — preserva guiño a marca
+                   YouTube pero entra en la paleta cálida.
+     number: dorado oscuro (#7A5A00), legible para numeración del índice.
+     ────────────────────────────────────────────────────────────────────── */
+  --theme-icon-score:        #7A5A00;                       /* dorado oscuro AA */
+  --theme-icon-youtube:      #B85A3C;                       /* ladrillo desaturado */
+  --theme-number:            #7A5A00;                       /* dorado oscuro AA */
+
+  /* ── Back-bar en paleta cremosa ──
+     El header sticky superior pasa a fondo cream con borde inferior dorado. */
+  --theme-back-bar-bg:           rgba(244, 236, 219, 0.96); /* cream-2 con blur */
+  --theme-back-bar-border:       rgba(200, 148, 60, 0.32);
+  --theme-back-bar-text:         #5A4A2E;                    /* marrón medio */
+  --theme-back-bar-text-hover:   #3D3530;                    /* marrón tinta */
+  --theme-back-bar-icon-border:  rgba(122, 90, 0, 0.30);
+  --theme-back-bar-icon-hover-border: rgba(122, 90, 0, 0.55);
+
+  /* ── Song-header (interior de cards) en cremoso ──
+     Toda la cabecera del card pasa a paleta dorada. */
+  --theme-song-header-bg-from: #F4ECDB;
+  --theme-song-header-bg-mid:  #EDE0C0;
+  --theme-song-header-bg-to:   #E8DCBC;
+  --theme-song-header-bar-from: var(--color-accent-deep);   /* #B08030 */
+  --theme-song-header-bar-to:   var(--color-accent);         /* #C8943C */
+  --theme-song-header-number:  #7A5A00;                      /* dorado oscuro AA */
+  --theme-song-header-moment:  var(--color-accent-deep);    /* #B08030 */
+  --theme-song-header-title:   var(--color-text-strong);    /* #2A2620 */
+  --theme-song-header-shadow:  0 1px 8px rgba(200, 148, 60, 0.20);
 
   /* Sistema de marca: el fondo y modal del cancionero también cambian */
   --color-bg-deep:           #FAF5EC;        /* fondo del body */

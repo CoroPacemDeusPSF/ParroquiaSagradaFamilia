@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.2.46r20
+     @version    v3.5.2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -25,7 +25,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #43A047;
+  color: var(--theme-icon-score);
   background: none;
   border: 1px solid rgba(67,160,71,0.4);
   border-radius: 2px;
@@ -43,7 +43,7 @@
   line-height: 1.7;
   color: #2A2A2A;
   background: rgba(67,160,71,0.05);
-  border-left: 3px solid #43A047;
+  border-left: 3px solid var(--theme-icon-score);
   padding: 0.8rem 1rem;
   border-radius: 0 2px 2px 0;
   white-space: pre;
@@ -72,13 +72,13 @@
   font-family: 'Cinzel', serif;
   font-size: 0.68rem;
   font-weight: 600;
-  color: #43A047;
+  color: var(--theme-icon-score);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin: 0 0 -1.394rem;
   padding: 0.1rem 0.5rem;
   background: rgba(67, 160, 71, 0.07);
-  border-left: 2px solid #43A047;
+  border-left: 2px solid var(--theme-icon-score);
   border-radius: 0 2px 2px 0;
   white-space: normal;
 }

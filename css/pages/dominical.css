@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.1
+     @version    v3.5.2
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -79,15 +79,25 @@
   border: 1px solid var(--theme-card-border);
 }
 .ceremony.dominical .song-card::after { border-bottom-color: var(--theme-card-divider); }
+
+/* Song-header (interior de cada card): número + título + label de momento.
+   Tokenizado para que en Modo Novios pase de gradiente verde a cremoso. */
 .ceremony.dominical .song-header {
-  background: linear-gradient(105deg, #14220E 0%, #1E3416 50%, #2A4A20 100%);
+  background: linear-gradient(105deg,
+    var(--theme-song-header-bg-from) 0%,
+    var(--theme-song-header-bg-mid) 50%,
+    var(--theme-song-header-bg-to) 100%);
 }
-.ceremony.dominical .song-header-bar { background: linear-gradient(90deg, #7AA858, #5C8A3A); }
-.ceremony.dominical .song-number { color: #A8D080; }
-.ceremony.dominical .song-moment-label { color: #B0D888; }
+.ceremony.dominical .song-header-bar {
+  background: linear-gradient(90deg,
+    var(--theme-song-header-bar-from),
+    var(--theme-song-header-bar-to));
+}
+.ceremony.dominical .song-number       { color: var(--theme-song-header-number); }
+.ceremony.dominical .song-moment-label { color: var(--theme-song-header-moment); }
 .ceremony.dominical .song-title {
-  color: #ECF4DC;
-  text-shadow: 0 1px 10px rgba(0,0,0,0.3);
+  color: var(--theme-song-header-title);
+  text-shadow: var(--theme-song-header-shadow);
 }
 .ceremony.dominical .strophe p { color: #1E1E18; }
 .ceremony.dominical .chorus { background: rgba(107,158,74,0.06); border-color: #6B9E4A; }
@@ -121,18 +131,26 @@
    a lo largo del HTML. Permiten cambio centralizado y CSP-friendly.
    ============================================================================ */
 
-/* Iconos en el botón yt-play-btn — diferenciados por tipo de enlace */
-.yt-play-btn--chords  { color: var(--color-success); }
-.yt-play-btn--youtube { color: #FF0000; }  /* rojo de marca de YouTube (default) */
+/* Iconos en el botón yt-play-btn — diferenciados por tipo de enlace.
+   Consumen tokens del tema para poder cambiar de paleta en Modo Novios. */
+.yt-play-btn--chords  { color: var(--theme-icon-score); }
+.yt-play-btn--youtube { color: var(--theme-icon-youtube); }
 
 /* ── Colores por posición cuando hay múltiples referencias de YouTube ──
    El convenio del cancionero asigna un color distinto a cada referencia
    para que el coro pueda identificar visualmente "la grabación 1", "la 2"
    y "la 3" sin tener que abrir cada link. Los colores siguen el mismo
    patrón que existía en el cancionero original antes del refactor a JSON.
-     • Referencia 1 → ROJO    (color de marca YouTube — default)
+     • Referencia 1 → ROJO YouTube (consume token --theme-icon-youtube)
      • Referencia 2 → VERDE   (segunda interpretación)
      • Referencia 3 → MORADO  (tercera interpretación)
+
+   La referencia 1 usa el token de tema porque es la dominante (la mayoría
+   de los cantos solo tienen una referencia y debe cambiar de color en Modo
+   Novios). Las referencias 2 y 3 mantienen sus colores hardcoded por ahora
+   — son raras (pocos cantos tienen múltiples refs) y el cambio masivo no
+   se justifica. Si en el futuro algún canto con 3 refs se ve mal en Modo
+   Novios, se tokenizan también.
 
    ⚠ Cada color se declara dos veces para asegurar que gane en ambos
    contextos donde aparecen los botones:
@@ -144,12 +162,12 @@
         (.ceremony.dominical .index-list a.yt-play-btn--ref-N):
         Aplica en la lista del índice. Especificidad (0,4,1) — necesita ser
         más alta que la regla problemática `.ceremony.dominical .index-list
-        a { color: #C8D8A8 }` (especificidad 0,3,1) que pinta de beige
-        verdoso TODOS los <a> del índice. Sin este selector, los íconos
+        a { color: var(--theme-link-cover) }` (especificidad 0,3,1) que
+        pinta TODOS los <a> del índice. Sin este selector, los íconos
         del índice ganarían el color de los enlaces de texto y se verían
         indistinguibles del título del canto. */
 .yt-play-btn--youtube.yt-play-btn--ref-1,
-.ceremony.dominical .index-list a.yt-play-btn--ref-1 { color: #FF0000; }  /* rojo  */
+.ceremony.dominical .index-list a.yt-play-btn--ref-1 { color: var(--theme-icon-youtube); }
 .yt-play-btn--youtube.yt-play-btn--ref-2,
 .ceremony.dominical .index-list a.yt-play-btn--ref-2 { color: #2E9D3F; }  /* verde */
 .yt-play-btn--youtube.yt-play-btn--ref-3,
@@ -184,49 +202,9 @@
 .is-flex-end { margin-left: auto; }
 .is-flex-shrink-0 { flex-shrink: 0; }
 
-/* Layout específico de back-bar: link al index del sitio */
-.pd-back-bar-home {
-  display:        flex;
-  align-items:    center;
-  gap:            var(--space-xs);
-  color:          #A8C878;
-  text-decoration: none;
-  font-size:      0.68rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  transition:     color var(--duration-fast) var(--easing-default);
-}
-.pd-back-bar-home:hover { color: #C8E8A0; }
-
-/* Botón de búsqueda en back-bar */
-.pd-search-btn {
-  background:    none;
-  border:        1px solid rgba(168, 200, 120, 0.3);
-  border-radius: 50%;
-  width:         28px;
-  height:        28px;
-  display:       flex;
-  align-items:   center;
-  justify-content: center;
-  cursor:        pointer;
-  color:         #A8C878;
-  transition:    all var(--duration-fast) var(--easing-default);
-}
-.pd-search-btn:hover {
-  border-color: rgba(168, 200, 120, 0.6);
-  color:        #C8E8A0;
-}
-
-/* Botón cerrar de la barra de búsqueda (lupa) */
-.pd-search-close {
-  background: none;
-  border:     none;
-  color:      #A8C878;
-  font-size:  1.4rem;
-  cursor:     pointer;
-  padding:    0 var(--space-xs);
-  line-height: 1;
-}
+/* Layout específico de back-bar — MOVIDO a components/back-bar.css en v3.5.2.
+   Allí se definen .pd-back-bar-home, .pd-search-btn, .pd-search-close usando
+   tokens semánticos --theme-back-bar-* que cambian con el modo. */
 
 /* Diálogos del SetList (sl-*) */
 .sl-dialog-btn {
