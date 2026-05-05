@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r4
+ *   @version    v3.6.0r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -45,6 +45,20 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 /* ── 1.1 Setlists (Coro y Bodas) ──────────────────────────────────────── */
+/* IMPORTANTE: NO ocultamos .slb-panel — el panel del SLB es el corazón
+   del SetList Novios. El módulo 31 reutiliza ese panel (vía window.SLB.open())
+   para mostrar los slots de la boda. Si lo ocultamos aquí, se hace invisible
+   incluso al abrirlo. Bug detectado y corregido en v3.6.0r5.
+
+   Lo que sí ocultamos:
+     .slb-fab y .slb-tab → en Modo Novios el acceso es vía nuestro #sln-fab
+     .slb-pin-btn → los novios no necesitan pinear/despinear
+     .slb-header-action → botón "Elegir fecha" del SLB (la fecha la
+       gestionamos nosotros vía flatpickr)
+     .slb-save → autosave en localStorage, no necesita botón manual
+     .slb-picker / .slb-picker-cell → picker de fecha del SLB nativo
+       (reemplazado por flatpickr)
+     .sl-* → controles del Modo Coro (modos exclusivos) */
 body.novios-mode .sl-fab,
 body.novios-mode .sl-panel,
 body.novios-mode .sl-tab,
@@ -54,7 +68,6 @@ body.novios-mode .sl-clear-all,
 body.novios-mode .sl-print,
 body.novios-mode .sl-print-btn,
 body.novios-mode .slb-fab,
-body.novios-mode .slb-panel,
 body.novios-mode .slb-tab,
 body.novios-mode .slb-pin-btn,
 body.novios-mode .slb-header-action,

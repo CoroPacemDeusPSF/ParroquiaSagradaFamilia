@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r4
+ *   @version    v3.6.0r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
