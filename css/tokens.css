@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.7
+     @version    v3.5.8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -445,16 +445,20 @@
    ============================================================================ */
 
 body.novios-mode {
-  /* Fondo de la portada — gradiente cremoso suave, mismo patrón que se
-     replica en el body y en el índice (con tonos más profundos) para crear
-     una superficie unificada de "pergamino" a lo largo de todo el
-     cancionero. v3.5.7: restaurado el gradiente original tras el error de
-     v3.5.6 que lo había aplanado a un solo tono. */
-  --theme-bg-cover-stop-1:   #FAF5EC;        /* tope: cream */
-  --theme-bg-cover-stop-2:   #F0E8D4;        /* 40%: cream-dk */
-  --theme-bg-cover-stop-3:   #E8DCBC;        /* 80%: cream más profundo */
-  --theme-bg-cover-stop-4:   #F0E8D4;        /* base: cream-dk */
-  --theme-bg-cover-radial:   rgba(200, 148, 60, 0.08);  /* halo dorado tenue */
+  /* ── Fondo de la portada — transparente con halo radial central ──
+     v3.5.8: el cover ahora es TRANSPARENTE (deja ver el body completo
+     por debajo) con un halo radial dorado central que lo realza
+     ligeramente. Esto crea una composición integral donde body + cover
+     son la misma superficie continua, no dos rectángulos apilados.
+
+     Los 4 stops del gradiente cover quedan como transparent — la regla
+     de pages/dominical.css que los consume sigue funcional pero el
+     gradiente resultante es 100% transparente. */
+  --theme-bg-cover-stop-1:   transparent;
+  --theme-bg-cover-stop-2:   transparent;
+  --theme-bg-cover-stop-3:   transparent;
+  --theme-bg-cover-stop-4:   transparent;
+  --theme-bg-cover-radial:   rgba(200, 148, 60, 0.08);  /* halo dorado central tenue */
 
   /* Texto sobre la portada — tonos marrones cálidos legibles sobre cream */
   --theme-text-on-cover:        #3D3530;
@@ -498,14 +502,16 @@ body.novios-mode {
   --theme-moment-divider-glow:     rgba(200, 148, 60, 0.50);
   --theme-moment-note:             rgba(107, 94, 84, 0.50);
 
-  /* Cards de canción — fondo beige muy claro (no blanco puro) para que
-     se integren con la paleta cremoso/sepia y no parezcan parches blancos
-     pegados sobre el cancionero. v3.5.6: antes #FFFFFF, ahora #FAF5EC
-     (mismo cremoso que el body, ligeramente más claro que el índice
-     #EDE0C8 para que las cards aún destaquen como elementos elevados). */
-  --theme-card-bg:           #FAF5EC;
-  --theme-card-shadow:       0 4px 24px rgba(200, 148, 60, 0.15);
-  --theme-card-border:       rgba(200, 148, 60, 0.18);
+  /* Cards de canción — tono más claro de toda la paleta (paper-1).
+     v3.5.8: las cards quedan como el "tono de descanso" de la composición.
+     Aunque viven dentro del índice (que es más oscuro/destacado), las
+     cards son MÁS CLARAS que el body. Esto crea jerarquía: zona pesada
+     de listado → recuadros livianos donde se lee la letra cómodamente. */
+  --theme-card-bg:           #FBF6EA;
+  --theme-card-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 16px rgba(122, 90, 0, 0.08);
+  --theme-card-border:       rgba(200, 148, 60, 0.15);
   --theme-card-divider:      rgba(200, 148, 60, 0.10);
 
   /* Coro (chorus) en sepia — el borde verde residual era el más visible
@@ -514,32 +520,17 @@ body.novios-mode {
   --theme-chorus-border:     var(--color-sepia-mid);
 
   /* ── Índice (panel) ──
-     v3.5.7: usa el MISMO patrón del cover (gradiente vertical 4-stops +
-     halo radial dorado) pero con tonos un poco más oscuros que el cover.
-     Esto hace que el índice se sienta como una "página dentro del libro"
-     — coherente con el cover pero diferenciada como una superficie más
-     profunda. NO se usa textura fractal (eliminada del v3.5.6 que no era
-     lo que el usuario quería).
+     v3.5.8: el efecto "caja cremosa con pilastras" se implementa
+     directamente en components/novios-mode.css mediante reglas con
+     pseudo-elementos (::before/::after para pilastras, divs adicionales
+     para vénetas). Aquí solo dejamos los tokens vacíos que el cancionero
+     público necesita (ver pages/dominical.css que los consume con
+     fallbacks 'none'). */
 
-     Los stops son los mismos del cover pero -10% de luminosidad aprox:
-       cover: FAF5EC → F0E8D4 → E8DCBC → F0E8D4
-       index: E8DCBC → DFD0AE → D2BF95 → DFD0AE  (más oscuros)
-
-     Esto crea una progresión natural: body (más claro) → cover (mismo
-     gradiente del body) → índice (mismo patrón, más oscuro). */
-
-  --theme-index-bg:        transparent;     /* el gradient hace de fondo */
-
-  --theme-index-gradient:
-    radial-gradient(ellipse at 50% 100%, rgba(200, 148, 60, 0.10) 0%, transparent 60%),
-    linear-gradient(180deg,
-      #E8DCBC 0%,
-      #DFD0AE 40%,
-      #D2BF95 80%,
-      #DFD0AE 100%);
-
-  --theme-index-texture:       none;        /* sin textura fractal */
-  --theme-index-inset-shadow:  none;        /* sin sombra interior — el gradient ya da profundidad */
+  --theme-index-bg:            transparent;     /* el override de novios-mode.css define el bg */
+  --theme-index-gradient:      none;
+  --theme-index-texture:       none;
+  --theme-index-inset-shadow:  none;
 
   /* Contexto — toggle y bloque en sepia + dorado para acentos cumbre */
   --theme-ctx-toggle-bg:       var(--color-sepia-tint);
@@ -612,22 +603,25 @@ body.novios-mode {
   --color-bg-deep:           #FAF5EC;        /* fondo del body (legacy, ver theme-body-bg) */
   --color-bg-deep-mid:       #F0E8D4;        /* superficies elevadas */
 
-  /* ── Fondo del body en Modo Novios ──
-     Gradiente que replica el patrón del cover (mismos stops y halo radial)
-     para que toda la página tenga la misma superficie de "pergamino" en
-     lugar de una banda cremosa arriba (cover) sobre un cremoso plano abajo
-     (resto del body).
+  /* ── Fondo del body en Modo Novios — composición integral v3.5.8 ──
+     Tres capas apiladas que crean la sensación de "papel pergamino":
 
-     El radial superior se posiciona al 50% horizontal y 0% vertical (no
-     100% como en el cover) porque el body se ve completo desde arriba —
-     el halo dorado debe estar en el tope para imitar el efecto del cover.
-     Eso crea una "luz" sutil en la parte superior y todo el body decae
-     suavemente hacia un cremoso medio. */
+     1. Halo radial dorado en el tope (12% alpha) — luz cálida que entra
+        por arriba, simula iluminación de pergamino bajo lámpara.
+
+     2. Textura SVG inline (feTurbulence) con tinte sepia y opacidad muy
+        baja (0.025) — fibras orgánicas de papel, casi imperceptibles
+        pero unifican visualmente todo el body. Tile 320×320 para que las
+        fibras no formen patrón visible al repetirse.
+
+     3. Gradiente vertical con la paleta unificada (paper-2 → paper-3 →
+        paper-2). El paper-3 al medio simula la luz que decae hacia el
+        fondo y vuelve a aclarar — efecto de papel real, no banda plana.
+
+     background-attachment: fixed para las 3 capas — la textura no se
+     mueve al hacer scroll (sensación de papel, no de banda decorativa). */
   --theme-body-bg:
-    radial-gradient(ellipse at 50% 0%, rgba(200, 148, 60, 0.10) 0%, transparent 50%),
-    linear-gradient(180deg,
-      var(--theme-bg-cover-stop-1) 0%,
-      var(--theme-bg-cover-stop-2) 30%,
-      var(--theme-bg-cover-stop-3) 70%,
-      var(--theme-bg-cover-stop-2) 100%);
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(200, 148, 60, 0.12) 0%, transparent 70%),
+    url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.39  0 0 0 0 0.27  0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #F5EBD3 0%, #EDDFBF 50%, #F5EBD3 100%);
 }

@@ -6,7 +6,7 @@
  *   @brief      Modo Novios: vista limpia para novios — activación vía URL
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.7
+ *   @version    v3.5.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -180,6 +180,39 @@
   }
 
   /**
+   * Inyecta 4 vénetas (puntos dorados decorativos) en las esquinas del
+   * índice del cancionero.
+   *
+   * Por qué en JavaScript y no en CSS pseudo-elementos:
+   * Las pilastras laterales (líneas verticales doradas) sí se hacen con
+   * ::before y ::after en CSS — pero un solo elemento solo tiene 2
+   * pseudo-elementos disponibles. Las 4 vénetas (una en cada esquina)
+   * requieren 4 elementos HTML adicionales que no existen en el HTML
+   * público del cancionero.
+   *
+   * Crear estos 4 elementos en JS solo cuando se activa Modo Novios
+   * mantiene el HTML público limpio (sin decoraciones específicas del
+   * modo) y permite que el efecto se active condicionalmente.
+   *
+   * Idempotente: si ya existen vénetas (re-activación), no se duplican.
+   */
+  function addIndexVinettes() {
+    var indexEl = document.getElementById('dominical-index');
+    if (!indexEl) return;
+
+    // Idempotencia: si ya inyectamos vénetas antes, no las duplicamos
+    if (indexEl.querySelector('.novios-vinette')) return;
+
+    var positions = ['tl', 'tr', 'bl', 'br'];  // top-left, top-right, bottom-left, bottom-right
+    positions.forEach(function(pos) {
+      var v = document.createElement('span');
+      v.className = 'novios-vinette novios-vinette-' + pos;
+      v.setAttribute('aria-hidden', 'true');
+      indexEl.appendChild(v);
+    });
+  }
+
+  /**
    * Activa el modo: dispara la misma animación del sello del Modo Bodas
    * (overlay #wedding-intro con anillos animados, texto rotante "Coro Pacem
    * Deus", paleta perlada) pero con label central "Modo Novios" en vez de
@@ -198,6 +231,11 @@
     // antes para que cuando termine la animación y el cancionero aparezca,
     // ya muestre los textos correctos sin un flash del texto original.
     customizeCover();
+
+    // Inyectar las 4 vénetas decorativas en las esquinas del índice.
+    // Estos puntos dorados son parte del sistema visual "manuscrito
+    // litúrgico contemporáneo" introducido en v3.5.8.
+    addIndexVinettes();
 
     // Si por alguna razón la función global de animación no existe (módulo
     // 29 no cargó por algún error de red), aplicamos el modo igual sin

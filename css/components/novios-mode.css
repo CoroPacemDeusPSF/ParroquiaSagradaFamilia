@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.7
+ *   @version    v3.5.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -197,7 +197,103 @@ body.novios-mode .ceremony.dominical .ceremony-eyebrow {
 
 
 /* ════════════════════════════════════════════════════════════════════════
-   4. BADGE VISIBLE "MODO NOVIOS"
+   4. ÍNDICE HÍBRIDO — CAJA CREMOSA + PILASTRAS LATERALES + VÉNETAS
+   ════════════════════════════════════════════════════════════════════════
+   Composición integral aprobada en v3.5.8 (combinación de las opciones B y
+   C del prototipo de alternativas). El índice del cancionero pasa a ser:
+
+     · Caja cremosa elevada (rgba 255,250,240, alpha 0.85)
+       Borde dorado tenue, radius 4px, sombra suave dorada.
+       Eleva el índice del body como una "ficha de archivo".
+
+     · Pilastras laterales (::before y ::after)
+       Dos líneas verticales doradas dentro de la caja, una a cada lado.
+       Gradient fade arriba/abajo para que no se vean como bordes duros.
+       Evocan el manuscrito iluminado clásico.
+
+     · 4 vénetas en las esquinas (spans inyectados por JS)
+       Puntos dorados de 6px, opacidad 0.6, posicionados en los extremos
+       de las pilastras. Acentos heráldicos.
+
+   Especificidad necesaria: la regla original del cancionero público
+   (`.ceremony.dominical .ceremony-index`) ya tiene 2 clases de
+   especificidad. Mi override agrega `body.novios-mode` para superarla
+   sin necesidad de !important.
+
+   Las pilastras y vénetas se posicionan en absoluto, así que el contenedor
+   necesita position: relative — la regla original ya lo tiene implícito
+   pero lo declaramos explícitamente por seguridad.
+   ════════════════════════════════════════════════════════════════════════ */
+
+body.novios-mode .ceremony.dominical .ceremony-index {
+  /* Colores de la opción B — caja cremosa elevada */
+  background: rgba(255, 250, 240, 0.85);
+  border: 1px solid rgba(122, 90, 0, 0.30);
+  border-radius: 4px;
+  margin: 1rem;
+
+  /* Padding lateral generoso para que las pilastras (que viven a 1.2rem
+     de los bordes) tengan aire entre ellas y el contenido del índice. */
+  padding: 2.5rem 3rem;
+
+  /* Sombra dorada interior (luz superior) + sombra exterior cálida.
+     La sombra interior simula la luz que reflecta la página por arriba.
+     La exterior eleva la caja del body. */
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 24px rgba(122, 90, 0, 0.12);
+
+  /* Necesario para posicionar pilastras (::before/::after) y vénetas
+     (spans hijos) en absoluto dentro de la caja. */
+  position: relative;
+}
+
+/* Pilastras laterales — líneas verticales doradas con gradient fade.
+   El fade en los extremos (transparent → gold-strong → transparent) hace
+   que no se vean como bordes duros, sino como ornamentos que "emergen"
+   y se "disuelven". */
+body.novios-mode .ceremony.dominical .ceremony-index::before,
+body.novios-mode .ceremony.dominical .ceremony-index::after {
+  content: '';
+  position: absolute;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(122, 90, 0, 0.30) 15%,
+    rgba(122, 90, 0, 0.30) 85%,
+    transparent 100%);
+  pointer-events: none;  /* no interfieren con clicks en la lista del índice */
+}
+body.novios-mode .ceremony.dominical .ceremony-index::before { left: 1.2rem; }
+body.novios-mode .ceremony.dominical .ceremony-index::after  { right: 1.2rem; }
+
+/* Vénetas — puntos dorados de 6px en las 4 esquinas internas (donde
+   están los extremos de las pilastras). Son inyectados por JavaScript en
+   28-novios-mode.js cuando se activa el modo (no existen en el HTML
+   público para mantenerlo limpio).
+
+   Las posiciones top/bottom 1.2rem y left/right calc(1.2rem - 2.5px)
+   están alineadas con los extremos de las pilastras (que están en
+   left/right 1.2rem) — el cálculo centra el punto sobre la línea. */
+.novios-vinette {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);          /* #C8943C — dorado */
+  opacity: 0.6;
+  pointer-events: none;
+}
+.novios-vinette-tl { top: 0.9rem;    left: calc(1.2rem - 2.5px); }
+.novios-vinette-tr { top: 0.9rem;    right: calc(1.2rem - 2.5px); }
+.novios-vinette-bl { bottom: 0.9rem; left: calc(1.2rem - 2.5px); }
+.novios-vinette-br { bottom: 0.9rem; right: calc(1.2rem - 2.5px); }
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   5. BADGE VISIBLE "MODO NOVIOS"
    ════════════════════════════════════════════════════════════════════════
    Pequeño badge circular en esquina superior derecha. Solo ícono (un
    anillo), sin texto. La palabra "Modo Novios" ya se mostró en la
