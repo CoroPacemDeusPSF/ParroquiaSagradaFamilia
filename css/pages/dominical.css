@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.6
+     @version    v3.5.7
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -65,24 +65,14 @@
 
 /* ── Índice sobre fondo de portada ── */
 /* ── Índice (panel donde aparece "129 cantos en el repertorio" + lista) ──
-   El fondo no es un solo color plano: es un layering de tres capas para
-   simular pergamino. De abajo hacia arriba (en orden de pintado, last on top):
-
-   1. Color base sólido (--theme-index-bg) — pertenece al sistema de tokens
-      y cambia con el tema (verde profundo en dominical, cremoso en novios).
-
-   2. Textura SVG embebida (--theme-index-texture) — fibras orgánicas de
-      "papel" generadas con feTurbulence. Va en blendMode multiply con muy
-      baja opacidad para añadir grano sin alterar el tono base.
-
-   3. Gradiente vertical (--theme-index-gradient) — degradado de luz/sombra
-      que da profundidad. En modo dominical es transparente (no aplica).
-      En modo novios crea un sutil halo: más claro arriba, más profundo
-      al medio, más claro de nuevo abajo (vista de pergamino enmarcado).
-
-   La inset shadow (--theme-index-inset-shadow) es la última capa y crea
-   la ilusión de que el índice es una "página dentro de la página", con
-   bordes ligeramente hundidos. */
+   Consume tres tokens del tema:
+     --theme-index-gradient: gradiente vertical + halo radial (en Modo Novios
+       replica el patrón del cover con tonos más oscuros; en tema dominical
+       es 'none' y prevalece --theme-index-bg).
+     --theme-index-bg: color sólido base (sin gradient en dominical;
+       transparent en novios para dejar pasar el gradient).
+     --theme-index-inset-shadow / --theme-index-texture: opcionales,
+       'none' por defecto. */
 .ceremony.dominical .ceremony-index {
   background:
     var(--theme-index-gradient, none),

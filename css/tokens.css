@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.6
+     @version    v3.5.7
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -45,6 +45,13 @@
   --color-bg-card-soft:      #FAFAF5;        /* fondo del bloque de contexto litúrgico */
   --color-bg-modal:          #1E1E1C;        /* negro cálido neutro para modales */
   --color-bg-overlay:        rgba(0, 0, 0, 0.78);
+
+  /* ── FONDO DEL BODY ──
+     Token que el body consume vía background. En tema dominical es un color
+     sólido (verde profundo). En Modo Novios se redefine como un gradiente
+     que replica el patrón del cover, así toda la página comparte la misma
+     superficie de pergamino. */
+  --theme-body-bg:           var(--color-bg-deep);
 
   /* Acentos dorados — usados en encabezados, ornamentos, acordes, hover states */
   --color-accent:            #C8943C;        /* dorado principal (acordes, badges) */
@@ -438,16 +445,16 @@
    ============================================================================ */
 
 body.novios-mode {
-  /* Fondo de la portada — UN solo tono cremoso oscurito (#E5D6BC) idéntico
-     al del índice. La portada y el índice forman así una superficie visual
-     unificada en lugar de dos bandas con tonos distintos. v3.5.6: antes
-     había un gradiente cremoso (FAF5EC → F0E8D4 → E8DCBC) que creaba un
-     escalón visual con el índice; eliminado a pedido del usuario. */
-  --theme-bg-cover-stop-1:   #E5D6BC;
-  --theme-bg-cover-stop-2:   #E5D6BC;
-  --theme-bg-cover-stop-3:   #E5D6BC;
-  --theme-bg-cover-stop-4:   #E5D6BC;
-  --theme-bg-cover-radial:   transparent;        /* sin halo: fondo plano */
+  /* Fondo de la portada — gradiente cremoso suave, mismo patrón que se
+     replica en el body y en el índice (con tonos más profundos) para crear
+     una superficie unificada de "pergamino" a lo largo de todo el
+     cancionero. v3.5.7: restaurado el gradiente original tras el error de
+     v3.5.6 que lo había aplanado a un solo tono. */
+  --theme-bg-cover-stop-1:   #FAF5EC;        /* tope: cream */
+  --theme-bg-cover-stop-2:   #F0E8D4;        /* 40%: cream-dk */
+  --theme-bg-cover-stop-3:   #E8DCBC;        /* 80%: cream más profundo */
+  --theme-bg-cover-stop-4:   #F0E8D4;        /* base: cream-dk */
+  --theme-bg-cover-radial:   rgba(200, 148, 60, 0.08);  /* halo dorado tenue */
 
   /* Texto sobre la portada — tonos marrones cálidos legibles sobre cream */
   --theme-text-on-cover:        #3D3530;
@@ -506,47 +513,33 @@ body.novios-mode {
   --theme-chorus-bg:         var(--color-sepia-tint);
   --theme-chorus-border:     var(--color-sepia-mid);
 
-  /* Índice (panel) — fondo cremoso oscurecido para crear separación visual
-     respecto al fondo principal del body (#FAF5EC). v3.5.4: tono más
-     profundo (#E5D6BC) que el v3.5.3 inicial (#EDE0C8) — el índice ahora
-     se distingue claramente del fondo y enmarca los cantos con un tono
-     "pergamino antiguo" coherente con la paleta cremoso/dorado/sepia. */
-  --theme-index-bg:          #E5D6BC;
+  /* ── Índice (panel) ──
+     v3.5.7: usa el MISMO patrón del cover (gradiente vertical 4-stops +
+     halo radial dorado) pero con tonos un poco más oscuros que el cover.
+     Esto hace que el índice se sienta como una "página dentro del libro"
+     — coherente con el cover pero diferenciada como una superficie más
+     profunda. NO se usa textura fractal (eliminada del v3.5.6 que no era
+     lo que el usuario quería).
 
-  /* ── Índice estilizado (efecto pergamino) ──
-     Tres capas adicionales sobre --theme-index-bg para que el índice se
-     sienta como una página antigua, no como un rectángulo de color plano.
+     Los stops son los mismos del cover pero -10% de luminosidad aprox:
+       cover: FAF5EC → F0E8D4 → E8DCBC → F0E8D4
+       index: E8DCBC → DFD0AE → D2BF95 → DFD0AE  (más oscuros)
 
-     1. Gradiente vertical sutil — más claro arriba (luz que entra por la
-        ventana), más profundo al medio, más claro abajo (reflejo). Crea
-        sensación de profundidad y encuadra el índice como una "página".
+     Esto crea una progresión natural: body (más claro) → cover (mismo
+     gradiente del body) → índice (mismo patrón, más oscuro). */
 
-     2. Textura SVG inline (feTurbulence) — genera fibras orgánicas de
-        papel con frecuencia baja (0.85) y 2 octavas. Se colorea con un
-        feColorMatrix para que sea sepia muy tenue. La opacidad final del
-        SVG es 0.10 → casi imperceptible pero da grano. Tile 240×240 para
-        que las fibras no formen un patrón visible cuando se repite.
-        Generado al vuelo, sin imágenes externas — todo cabe en el CSS.
-
-     3. Inset shadow ámbar muy tenue — bordes superior e inferior con halo
-        dorado interior. Marca las fronteras de la "página" sin necesidad
-        de bordes duros. */
+  --theme-index-bg:        transparent;     /* el gradient hace de fondo */
 
   --theme-index-gradient:
+    radial-gradient(ellipse at 50% 100%, rgba(200, 148, 60, 0.10) 0%, transparent 60%),
     linear-gradient(180deg,
-      rgba(255, 250, 235, 0.35) 0%,
-      transparent 30%,
-      transparent 70%,
-      rgba(255, 250, 235, 0.30) 100%);
+      #E8DCBC 0%,
+      #DFD0AE 40%,
+      #D2BF95 80%,
+      #DFD0AE 100%);
 
-  --theme-index-texture:
-    url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.39  0 0 0 0 0.27  0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
-
-  --theme-index-inset-shadow:
-    inset 0 1px 0 rgba(255, 250, 235, 0.55),
-    inset 0 -1px 0 rgba(122, 90, 0, 0.18),
-    inset 0 12px 24px -12px rgba(122, 90, 0, 0.10),
-    inset 0 -12px 24px -12px rgba(122, 90, 0, 0.10);
+  --theme-index-texture:       none;        /* sin textura fractal */
+  --theme-index-inset-shadow:  none;        /* sin sombra interior — el gradient ya da profundidad */
 
   /* Contexto — toggle y bloque en sepia + dorado para acentos cumbre */
   --theme-ctx-toggle-bg:       var(--color-sepia-tint);
@@ -616,6 +609,25 @@ body.novios-mode {
   --theme-song-header-shadow:  0 1px 8px rgba(200, 148, 60, 0.20);
 
   /* Sistema de marca: el fondo y modal del cancionero también cambian */
-  --color-bg-deep:           #FAF5EC;        /* fondo del body */
+  --color-bg-deep:           #FAF5EC;        /* fondo del body (legacy, ver theme-body-bg) */
   --color-bg-deep-mid:       #F0E8D4;        /* superficies elevadas */
+
+  /* ── Fondo del body en Modo Novios ──
+     Gradiente que replica el patrón del cover (mismos stops y halo radial)
+     para que toda la página tenga la misma superficie de "pergamino" en
+     lugar de una banda cremosa arriba (cover) sobre un cremoso plano abajo
+     (resto del body).
+
+     El radial superior se posiciona al 50% horizontal y 0% vertical (no
+     100% como en el cover) porque el body se ve completo desde arriba —
+     el halo dorado debe estar en el tope para imitar el efecto del cover.
+     Eso crea una "luz" sutil en la parte superior y todo el body decae
+     suavemente hacia un cremoso medio. */
+  --theme-body-bg:
+    radial-gradient(ellipse at 50% 0%, rgba(200, 148, 60, 0.10) 0%, transparent 50%),
+    linear-gradient(180deg,
+      var(--theme-bg-cover-stop-1) 0%,
+      var(--theme-bg-cover-stop-2) 30%,
+      var(--theme-bg-cover-stop-3) 70%,
+      var(--theme-bg-cover-stop-2) 100%);
 }

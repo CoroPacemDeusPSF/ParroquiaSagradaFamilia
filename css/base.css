@@ -84,9 +84,11 @@ body {
   font-size: 1rem;
   line-height: 1.8;
   overflow-x: clip;
-  /* Fondo del body — consume token de marca para que cambie de tema con
-     body.novios-mode (ver tokens.css → bloque "TEMA — MODO NOVIOS"). */
-  background: var(--color-bg-deep);
+  /* Fondo del body — consume token --theme-body-bg que puede ser un color
+     sólido (tema dominical) o un gradiente (Modo Novios, mismo patrón que
+     el cover). Permite que el cancionero entero comparta la superficie
+     visual de pergamino sin parchazos. Ver tokens.css. */
+  background: var(--theme-body-bg);
   background-attachment: fixed;
 }
 
