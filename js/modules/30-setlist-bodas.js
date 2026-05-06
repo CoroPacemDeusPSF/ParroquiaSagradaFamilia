@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r3
+ *   @version    v3.6.6r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -1054,13 +1054,15 @@
     if (!slotsEl) return;
     var months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    var dayShort = ['L','M','M','J','V','S','D']; // semana lunes-domingo
+    /* v3.6.6r5: semana domingo-sábado (formato más familiar en Latinoamérica
+       para calendarios impresos). Antes usábamos lunes-domingo (ISO 8601 /
+       europeo) pero los usuarios están acostumbrados al formato D-L-M-M-J-V-S
+       de calendarios impresos y aplicaciones móviles latinoamericanas. */
+    var dayShort = ['D','L','M','M','J','V','S'];
 
     // Primer día del mes y total días
     var firstDay = new Date(pickerYear, pickerMonth, 1);
-    var firstDow = firstDay.getDay(); // 0=Dom, 1=Lun...
-    // Convertir a 0=Lun (formato europeo más natural en Latinoamérica)
-    firstDow = (firstDow + 6) % 7;
+    var firstDow = firstDay.getDay(); // 0=Dom, 1=Lun... ya es lo que necesitamos
     var daysInMonth = new Date(pickerYear, pickerMonth + 1, 0).getDate();
 
     // Header del header (header del panel queda en blanco para más espacio)

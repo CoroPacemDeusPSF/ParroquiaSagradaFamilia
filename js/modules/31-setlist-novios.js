@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6
+ *   @version    v3.6.6r5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -252,9 +252,6 @@
       // no un dropdown flotante que aparece/desaparece.
       inline: true,
 
-      // Localización español si está disponible (cargada desde CDN)
-      locale: (window.flatpickr.l10ns && window.flatpickr.l10ns.es) ? 'es' : 'default',
-
       // Formato interno (lo que recibimos en onChange)
       dateFormat: 'Y-m-d',
 
@@ -272,6 +269,17 @@
 
       // No queremos hora, solo fecha
       enableTime: false,
+
+      /* v3.6.6r5: Forzar domingo como primer día de la semana.
+         flatpickr respeta firstDayOfWeek por encima del locale.firstDayOfWeek.
+         El locale 'es' default usa lunes (norma ISO 8601 / europea), pero
+         los usuarios latinoamericanos están más acostumbrados al formato
+         D-L-M-M-J-V-S de calendarios impresos y apps móviles. Este
+         override no afecta los nombres de los días (que siguen en español),
+         solo el orden. */
+      locale: Object.assign({}, (window.flatpickr.l10ns && window.flatpickr.l10ns.es) || {}, {
+        firstDayOfWeek: 0
+      }),
 
       // Callback al cambiar selección. NO cerramos automáticamente —
       // el usuario debe confirmar con el botón "Confirmar".
