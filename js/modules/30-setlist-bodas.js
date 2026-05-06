@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r7
+ *   @version    v3.6.4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -24,16 +24,26 @@
      Activación visual: body.wedding-mode (vs body.rehearsal-mode).
 
    SLOTS DE BODA
-     17 slots fijos en orden litúrgico de boda católica:
+     14 slots fijos en orden litúrgico de boda católica:
        Ingreso del Novio → Entrada de la Novia → Piedad → Gloria →
-       (Salmo opcional) → Evangelio → Ofertorio → Santo → Cordero →
-       Rito Matrimonial → Comunión → Firma del Pliego →
-       (Canto a María opcional) → Foto 1, 2, 3 → (Foto 4, 5 opcionales) →
+       Evangelio → Ofertorio → Santo → Cordero →
+       Comunión → Firma del Pliego →
+       Foto 1, 2, 3 → (Foto 4, 5 opcionales) →
        Salida de Novios.
 
-     Los slots opcionales (Salmo, Canto a María, Foto 4, Foto 5) NO se
-     muestran por defecto. Se agregan vía botón "+ agregar momento" en
-     el footer del panel. Se quitan vía botón "X" inline.
+     Los slots opcionales (Foto 4, Foto 5) NO se muestran por defecto.
+     Se agregan vía botón "+ agregar momento" en el footer del panel.
+     Se quitan vía botón "X" inline.
+
+     v3.6.4: eliminados de los slots los siguientes momentos por
+     decisión litúrgica/operativa:
+       - Rito Matrimonial: el rito es proclamado por el sacerdote, no
+         requiere canto del coro.
+       - Canto a María: el coro de la parroquia no lo realiza
+         habitualmente; cuando se requiere se puede acomodar en la
+         Firma del Pliego.
+       - Salmo: en bodas el salmo lo maneja el coro fuera del cancionero
+         o lo proclama el lector; no se programa desde aquí.
 
    FECHAS DE BODA
      A diferencia del setlist dominical (próximo domingo automático), las
@@ -260,12 +270,9 @@
     { id: 'piedad',           label: 'Piedad'              },
     { id: 'gloria',           label: 'Gloria'              },
     { id: 'evangelio',        label: 'Evangelio'           },
-    /* Rito Matrimonial entre la Liturgia de la Palabra (Evangelio) y la
-       Liturgia Eucarística (Ofertorio): orden litúrgico correcto del Rito
-       del Matrimonio dentro de la Misa según el Ritual Romano — el
-       sacramento se celebra después de la homilía y antes de las plegarias
-       universales / ofertorio. */
-    { id: 'rito-matrimonial', label: 'Rito Matrimonial'    },
+    /* v3.6.4: 'rito-matrimonial' eliminado. El rito es proclamado por
+       el sacerdote y no requiere canto del coro. Si en alguna ceremonia
+       se necesita acompañamiento, se programa fuera del SetList. */
     { id: 'ofertorio',        label: 'Ofertorio'           },
     { id: 'santo',            label: 'Santo'               },
     { id: 'cordero',          label: 'Cordero de Dios'     },
@@ -278,13 +285,13 @@
   ];
 
   // Slots opcionales y dónde se insertan en el orden visual.
-  // - 'salmo'      va después de 'gloria' (antes del evangelio).
-  // - 'canto-maria' va después de 'firma-pliego' (antes de las fotos).
-  // - 'foto-4'    va después de 'foto-3'.
-  // - 'foto-5'    va después de 'foto-4' (o foto-3 si foto-4 no está).
+  // - 'foto-4' va después de 'foto-3'.
+  // - 'foto-5' va después de 'foto-4' (o foto-3 si foto-4 no está).
+  //
+  // v3.6.4: eliminados 'salmo' y 'canto-maria'. El salmo se maneja
+  // por fuera del cancionero (lector o instrumental). El canto a
+  // María no se realiza habitualmente en este coro.
   var SLOTS_OPCIONALES = [
-    { id: 'salmo',       label: 'Salmo',         insertAfter: 'gloria' },
-    { id: 'canto-maria', label: 'Canto a María', insertAfter: 'firma-pliego' },
     { id: 'foto-4',      label: 'Fotografía', sub: '4', insertAfter: 'foto-3' },
     { id: 'foto-5',      label: 'Fotografía', sub: '5', insertAfter: 'foto-4' }
   ];
@@ -598,7 +605,7 @@
   // ── RENDER DEL FOOTER ─────────────────────────────────────────────────
   // Layout del footer (cuando hay fecha activa):
   //   ┌─ slots opcionales por agregar ──────────────────────────────┐
-  //   │ [+ Salmo] [+ Canto a María] [+ Foto 4]                     │
+  //   │ [+ Foto 4] [+ Foto 5]                                        │
   //   └────────────────────────────────────────────────────────────┘
   //   ┌─ acciones del setlist ────────────────────────────────────┐
   //   │              [Borrar todo]      [💾 Grabar]               │
@@ -706,8 +713,23 @@
               enabledOptionals = data._meta.optionals.slice();
             }
           }
+
+          // v3.6.4: filtramos slot-ids eliminados de versiones previas para
+          // que los datos huérfanos en Firebase no se reescriban al guardar.
+          // Cuando renderSlots() itera sólo sobre SLOTS_FIJOS+opcionales
+          // habilitados, los huérfanos serían invisibles pero seguirían en
+          // Firebase. Al filtrarlos aquí y al guardar (saveAll), eventualmente
+          // desaparecen de Firebase la próxima vez que el usuario edite la fecha.
+          var SLOTS_REMOVED_V364 = ['rito-matrimonial', 'salmo', 'canto-maria'];
+
+          // También filtramos enabledOptionals si tenía 'salmo' o 'canto-maria'.
+          enabledOptionals = enabledOptionals.filter(function(id) {
+            return SLOTS_REMOVED_V364.indexOf(id) === -1;
+          });
+
           Object.keys(data).forEach(function(slotId) {
             if (slotId === '_meta') return;
+            if (SLOTS_REMOVED_V364.indexOf(slotId) !== -1) return; // ignorar huérfanos
             // Aceptar dos formatos válidos:
             //   { cpd: 'cpd-XXX', title: '...' }            → canto del cancionero
             //   { instrumental: true, title: '...' }        → pieza instrumental
