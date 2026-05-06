@@ -168,6 +168,22 @@
 .ceremony.jueves .ceremony-eyebrow { color: #8B4A30; }
 .ceremony.vigilia .ceremony-eyebrow { color: #9B6FCC; }
 
+/* v3.6.3: variante "script handwriting" para el nombre del coro en portada.
+   Antes era un inline style en dominical.html que rompía la cascada estética
+   uniforme — ahora es una clase modificadora que reemplaza completamente la
+   tipografía/case del eyebrow base, manteniendo solo el rol semántico.
+
+   Pinyon Script es fallback porque Edwardian Script ITC NO está en Google
+   Fonts (solo se ve si el usuario tiene la font instalada localmente, ej.
+   Windows). Pinyon Script (cargado por la página) es el sustituto digital. */
+.ceremony-eyebrow--script {
+  font-family: 'Edwardian Script ITC', 'Pinyon Script', cursive;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  letter-spacing: 0.05em;
+  text-transform: none;
+  opacity: 0.85;
+}
+
 .ceremony-title {
   font-family: 'Cinzel', serif;
   font-weight: 900;

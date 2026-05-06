@@ -183,29 +183,18 @@ body.novios-mode .transpose-bar {
 /* ════════════════════════════════════════════════════════════════════════
    3. PORTADA — TAMAÑO DEL EYEBROW "CORO PACEM DEUS"
    ════════════════════════════════════════════════════════════════════════
-   El elemento .ceremony-eyebrow tiene `style="font-size:clamp(1.8rem, 5vw,
-   3rem); ..."` inline en el HTML (deuda preexistente del cancionero).
-   Para darle más protagonismo en Modo Novios necesitamos overridear ese
-   font-size, lo que requiere !important porque los inline styles tienen
-   especificidad mayor que cualquier selector CSS de archivo.
+   v3.6.3: el inline style que tenía .ceremony-eyebrow en el HTML fue
+   extraído a la clase .ceremony-eyebrow--script (ver ceremony.css).
+   Como ya no hay inline style, este override puede usar un selector
+   normal sin !important.
 
-   El !important aquí es legítimo: estamos venciendo al inline style del HTML,
-   no parchando una regla CSS mal escrita. La forma "correcta" sería sacar
-   los inline styles del HTML, pero eso forma parte de una refactorización
-   mayor (limpiar TODOS los inline styles de la portada) que dejamos para
-   más adelante para no comprometer la estabilidad del modo público.
-
-   Tamaño: el clamp original es (1.8rem, 5vw, 3rem). Lo aumentamos un 15%
-   a (2.07rem, 5.75vw, 3.45rem) para mayor protagonismo sin que se vuelva
-   excesivo en pantallas pequeñas.
-
-   Color y opacidad se manejan vía tokens --theme-cover-eyebrow-* en
-   tokens.css (no requieren !important porque la regla original en
-   pages/dominical.css ya consume tokens, no inline styles).
+   En Modo Novios aumentamos el tamaño del nombre del coro un 15% para
+   mayor protagonismo visual: clamp original (1.8rem, 5vw, 3rem) →
+   (2.07rem, 5.75vw, 3.45rem).
    ════════════════════════════════════════════════════════════════════════ */
 
-body.novios-mode .ceremony.dominical .ceremony-eyebrow {
-  font-size: clamp(2.07rem, 5.75vw, 3.45rem) !important;
+body.novios-mode .ceremony.dominical .ceremony-eyebrow--script {
+  font-size: clamp(2.07rem, 5.75vw, 3.45rem);
 }
 
 

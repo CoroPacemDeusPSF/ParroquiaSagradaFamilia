@@ -435,3 +435,41 @@ body.dev-mode .lyrics-edit-btn { display: inline-flex !important; }
 #lyrics-editor-status.success { color: #6BB86B; }
 #lyrics-editor-status.error   { color: #E87070; }
 
+
+/* ════════════════════════════════════════════════════════════════════════
+   Variantes coloreadas de .editor-btn (Modo Dev)
+   ════════════════════════════════════════════════════════════════════════
+   v3.6.3: estos modificadores extraen los inline styles que tenían los
+   botones especiales del editor en dominical.html (líneas 287-290).
+   Cada uno representa una acción de Modo Dev con su semántica de color:
+     - --diag    azul    → diagnóstico (informativo)
+     - --reload  morado  → recarga de datos (proceso)
+     - --danger  rojo    → acción destructiva (restaurar HTML)
+   El display:none default lo mantienen porque solo se muestran cuando
+   body.dev-mode está activo (el JS toggle hace su display:inline-flex).
+   ════════════════════════════════════════════════════════════════════════ */
+
+.editor-btn--diag {
+  border-color: #4A90D9;
+  color:        #4A90D9;
+  display: none;
+}
+
+.editor-btn--reload {
+  border-color: #7B52AB;
+  color:        #7B52AB;
+  display: none;
+}
+
+.editor-btn--danger {
+  border-color: #E74C3C;
+  color:        #E74C3C;
+  display: none;
+}
+
+/* Cuando Modo Dev está activo, los botones aparecen.
+   El JS también hace toggle del display, así que esto refuerza el
+   comportamiento si hay race conditions al activar el modo. */
+body.dev-mode .editor-btn--diag,
+body.dev-mode .editor-btn--reload,
+body.dev-mode .editor-btn--danger { display: inline-flex; }

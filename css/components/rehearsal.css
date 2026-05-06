@@ -108,6 +108,18 @@ body.wedding-mode  .yt-play-btn[href*="youtu"] { display: inline-flex; }
   margin-bottom: 1.5rem;
 }
 .confirm-btns { display: flex; gap: 0.8rem; justify-content: center; }
+
+/* v3.6.3: regla común para botones del modal de confirmación.
+   Aplica a ambos contenedores usados en el proyecto:
+     - .confirm-btns       (semana_santa_2026.html)
+     - .dialog-actions-row (cancioneros/dominical.html)
+
+   Antes el modal de dominical tenía inline styles redundantes con
+   esta regla. Los valores del padding/font/letter-spacing en
+   .dialog-actions-row reproducen exactamente lo que tenía el inline
+   original (padding 0.5rem 1.5rem, font 0.7rem, letter 0.15em,
+   border-radius 3px) — ligeramente distintos a los de semana_santa
+   (.confirm-btns) que mantienen sus propios valores. */
 .confirm-btns button {
   font-family: 'Cinzel', serif;
   font-size: 0.65rem;
@@ -119,6 +131,20 @@ body.wedding-mode  .yt-play-btn[href*="youtu"] { display: inline-flex; }
   border: 1px solid;
   transition: all 0.2s;
 }
+
+.dialog-actions-row #confirm-yes,
+.dialog-actions-row #confirm-no {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+}
+
 #confirm-yes { background: #5C7A3A; color: #fff; border-color: #5C7A3A; }
 #confirm-yes:hover { background: #4A6830; }
 #confirm-no  { background: transparent; color: #3A3A2A; border-color: rgba(60,60,40,0.3); }
