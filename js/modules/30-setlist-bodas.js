@@ -646,10 +646,31 @@
       optionalsHtml = '<div class="slb-footer-optionals">' + optionsHtml + '</div>';
     }
 
-    // Acciones del setlist: Borrar todo (izq) + Grabar (der)
+    // Acciones del setlist: Borrar todo (izq) + Exportar PDF (centro) + Grabar (der)
+    // v3.6.6: el botón "Exportar PDF" se muestra en wedding-mode y novios-mode.
+    // En novios-mode, el módulo 31 inyecta SU PROPIO botón "Exportar PDF" como
+    // reemplazo del "Grabar" (que se oculta en CSS), así que aquí solo lo
+    // mostramos cuando estamos en wedding-mode estricto y NO novios-mode.
+    var isPureBodas = document.body.classList.contains('wedding-mode') &&
+                      !document.body.classList.contains('novios-mode');
+    var exportPdfBtnHtml = '';
+    if (isPureBodas) {
+      exportPdfBtnHtml =
+        '<button class="slb-export-pdf" id="slb-export-pdf-btn" ' +
+                'onclick="window.SLBPdf && window.SLBPdf.generateAndOpen({fecha: \'' + currentDate + '\'})" ' +
+                'title="Generar PDF imprimible con metadata embebida">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true">' +
+            '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
+            '<polyline points="14 2 14 8 20 8"></polyline>' +
+          '</svg>' +
+          '<span>Exportar PDF</span>' +
+        '</button>';
+    }
+
     var actionsHtml =
       '<div class="slb-footer-actions">' +
         '<button class="slb-clear" onclick="window.SLB.clearAll()">Borrar todo</button>' +
+        exportPdfBtnHtml +
         '<button class="slb-save" id="slb-save-btn" onclick="window.SLB.saveAll()" title="Forzar guardado en Firebase">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">' +
             '<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>' +

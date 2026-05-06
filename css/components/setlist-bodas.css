@@ -941,3 +941,39 @@ body.rehearsal-mode .slb-dialog-overlay {
   flex-shrink: 0;
   vertical-align: middle;
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   Botón "Exportar PDF" en footer del SLB (Modo Bodas, no Novios)
+   ════════════════════════════════════════════════════════════════════════
+   v3.6.6: aparece entre "Borrar todo" y "Grabar". Estilo intermedio:
+   no es destructivo (rojo), no es primario (rose deep como Grabar) — es
+   acción secundaria con borde rosa perla. Cuando se hover, se ilumina.
+
+   Nota: en Modo Novios este botón NO aparece (el módulo 31 inyecta SU
+   PROPIO botón "Exportar PDF" con clase .sln-draft-export, ver módulo 31).
+   ════════════════════════════════════════════════════════════════════════ */
+.slb-export-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.85rem;
+  border-radius: 3px;
+  border: 1px solid var(--wm-rose, #E8B4B8);
+  background: transparent;
+  color: var(--wm-rose-deep, #B07A7E);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slb-export-pdf svg {
+  flex-shrink: 0;
+}
+
+.slb-export-pdf:hover {
+  background: rgba(232, 180, 184, 0.12);
+  border-color: var(--wm-rose-deep, #B07A7E);
+}

@@ -392,14 +392,23 @@
     if (!document.body.classList.contains('dev-mode')) return;
     if (!document.body.classList.contains('wedding-mode')) return;
 
-    // Buscar el footer del SLB (donde está "Grabar")
-    var slbPanel = document.querySelector('.slb-panel') || document.getElementById('slb-panel');
-    if (!slbPanel) return;
-
-    var footer = slbPanel.querySelector('.slb-footer') ||
-                 slbPanel.querySelector('.slb-actions') ||
-                 slbPanel.querySelector('footer');
+    // Buscar el footer del SLB (donde está "Grabar"). El módulo 30 usa
+    // id="slb-footer" para este contenedor; los selectores con clase son
+    // fallbacks para versiones más viejas.
+    var footer = document.getElementById('slb-footer') ||
+                 document.querySelector('.slb-footer') ||
+                 document.querySelector('.slb-actions');
     if (!footer) return;
+
+    // El módulo 30 reescribe footerEl.innerHTML cada vez que llama a
+    // renderFooter() (por ej. al cambiar de fecha o al agregar un slot
+    // opcional). Si insertamos como child directo del footer, nuestro
+    // botón sobrevivirá solo si la siguiente render no nos pisa. Para
+    // garantizar persistencia, guardamos referencia al actions container
+    // (.slb-footer-actions) y, si existe, agregamos ahí. Si no existe
+    // todavía, el observer reintenta cuando aparezca.
+    var actionsContainer = footer.querySelector('.slb-footer-actions');
+    var target = actionsContainer || footer;
 
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -414,7 +423,7 @@
       '</svg>' +
       '<span>Importar PDF</span>';
     btn.addEventListener('click', importPdfFromFile);
-    footer.appendChild(btn);
+    target.appendChild(btn);
   }
 
 
