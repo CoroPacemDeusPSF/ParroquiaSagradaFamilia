@@ -38,7 +38,7 @@
 .back-link::before { content: '↑ '; }
 .back-link:hover { opacity: 1; }
 .ceremony.ramos  .back-link { color: #C8A830; }
-.ceremony.jueves .back-link { color: #C8943C; }
+.ceremony.jueves .back-link { color: var(--color-accent); }
 .ceremony.vigilia .back-link { color: #E8C040; }
 
 /* ── MOMENT SUBTITLE ── */
@@ -59,7 +59,7 @@
 .ceremony.ramos  .moment-header::before,
 .ceremony.ramos  .moment-header::after { background: linear-gradient(90deg, transparent, #C8A830, transparent); }
 .ceremony.jueves .moment-header::before,
-.ceremony.jueves .moment-header::after { background: linear-gradient(90deg, transparent, #C8943C, transparent); }
+.ceremony.jueves .moment-header::after { background: linear-gradient(90deg, transparent, var(--color-accent), transparent); }
 .ceremony.vigilia .moment-header::before,
 .ceremony.vigilia .moment-header::after { background: linear-gradient(90deg, transparent, #E8C040, transparent); }
 
@@ -88,7 +88,7 @@
   }
 }
 .ceremony.ramos  .moment-label { color: #C8A830; }
-.ceremony.jueves .moment-label { color: #C8943C; }
+.ceremony.jueves .moment-label { color: var(--color-accent); }
 .ceremony.vigilia .moment-label { color: #E8C040; }
 
 /* Note inside moment header (for vigilia special cases) */
@@ -126,7 +126,7 @@
   height: 3px;
 }
 .ceremony.ramos  .song-card::after { background: linear-gradient(90deg, #5A7A10, #C8A830, #7A9C18); }
-.ceremony.jueves .song-card::after { background: linear-gradient(90deg, #6B1020, #C8943C, #6B1020); }
+.ceremony.jueves .song-card::after { background: linear-gradient(90deg, #6B1020, var(--color-accent), #6B1020); }
 .ceremony.vigilia .song-card::after { background: linear-gradient(90deg, #6A30A8, #E8C040, #6A30A8); }
 
 .song-header {
@@ -379,7 +379,7 @@ body.wedding-mode  .add-setlist-btn { display: inline-flex; }
   margin-top: 1.4rem;
 }
 .ceremony.ramos  .song-ornament { color: #C8A830; }
-.ceremony.jueves .song-ornament { color: #C8943C; }
+.ceremony.jueves .song-ornament { color: var(--color-accent); }
 .ceremony.vigilia .song-ornament { color: #E8C040; }
 
 /* ── New badge sparkle ── */

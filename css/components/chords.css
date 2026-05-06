@@ -50,7 +50,7 @@
   overflow-x: auto;
   tab-size: 4;
 }
-.chord { color: #C8943C; font-weight: bold; }
+.chord { color: var(--color-accent); font-weight: bold; }
 
 /* ── Título de canción en bloque de acordes (línea con ♫) ── */
 .chords-block pre b.chord-title {
@@ -58,7 +58,7 @@
   font-family: 'Cinzel', serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #C8943C;
+  color: var(--color-accent);
   letter-spacing: 0.08em;
   padding-bottom: 0;
   margin: 0 0 -1.394rem;
@@ -332,7 +332,7 @@
   background:      rgba(20, 20, 16, 0.62);
   backdrop-filter:         blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  color:           #C8943C;
+  color:           var(--color-accent);
   cursor:          pointer;
   display:         none; /* hidden por defecto */
   align-items:     center;
@@ -424,7 +424,7 @@
   font-family:    'Cinzel', serif;
   font-size:      0.65rem;
   letter-spacing: 0.12em;
-  color:          #C8943C;
+  color:          var(--color-accent);
 
   pointer-events: none;
   user-select:    none;
@@ -470,7 +470,7 @@
   font-size: 0.65rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #C8943C;
+  color: var(--color-accent);
   opacity: 0.7;
   margin-top: 0.1rem;
   display: block;
@@ -487,9 +487,9 @@
   display: block;
 }
 .lp-intro, .lp-outro  { color: #999; font-style: italic; border-bottom: 1px solid #e0e0e0; }
-.lp-verso, .lp-estrofa { color: #7a5a00; border-bottom: 1px dotted #C8943C44; }
+.lp-verso, .lp-estrofa { color: #7a5a00; border-bottom: 1px dotted var(--color-accent)44; }
 .lp-pre-coro  { color: #5a7a5a; padding-left: 1rem; border-left: 2px solid #5a7a5a88; }
-.lp-coro      { color: #7a5200; font-weight: 700; border-bottom: 2px solid #C8943C; }
+.lp-coro      { color: #7a5200; font-weight: 700; border-bottom: 2px solid var(--color-accent); }
 .lp-puente    { color: #2a6a7a; border-bottom: 1px solid #2a6a7a88; }
 .lp-final { color: #999; border-bottom: 1px solid #ccc; }
 .lp-modulacion { color: #6a3a9a; border-bottom: 1px dashed #9a60ca; }
@@ -523,7 +523,7 @@
 .lyrics-tag-chip{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.1em;padding:.25rem .65rem;border-radius:12px;border:1.5px solid;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;opacity:.85}
 .lyrics-tag-chip:hover{opacity:1;transform:translateY(-1px)}.lyrics-tag-chip:active{transform:translateY(0)}
 .ltc-neutral{color:#C8C8C8;background:rgba(200,200,200,.08);border-color:rgba(200,200,200,.4)}
-.ltc-estrofa{color:#C8943C;background:rgba(200,148,60,.1);border-color:rgba(200,148,60,.55)}
+.ltc-estrofa{color:var(--color-accent);background:rgba(200,148,60,.1);border-color:rgba(200,148,60,.55)}
 .ltc-precoro{color:#8FC878;background:rgba(107,184,107,.1);border-color:rgba(107,184,107,.5)}
 .ltc-coro{color:#F0D060;background:rgba(240,208,60,.12);border-color:rgba(240,208,60,.6);font-weight:700}
 .ltc-puente{color:#70C8D8;background:rgba(70,180,200,.1);border-color:rgba(70,180,200,.5)}
@@ -537,14 +537,14 @@
 #cpd-history-panel{position:absolute;top:0;right:0;bottom:0;width:min(360px,96vw);z-index:10;background:#111;border-left:2px solid rgba(200,148,60,.35);display:none;flex-direction:column;transform:translateX(110%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
 #cpd-history-panel.open{display:flex;transform:translateX(0)}
 #cpd-history-panel-toolbar{display:flex;align-items:center;gap:.6rem;padding:.7rem 1rem;background:#1a1a0f;border-bottom:1px solid rgba(200,148,60,.25);flex-shrink:0}
-#cpd-history-panel-title{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.18em;color:#C8943C;text-transform:uppercase;flex:1}
+#cpd-history-panel-title{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.18em;color:var(--color-accent);text-transform:uppercase;flex:1}
 #cpd-history-close-btn{background:transparent;border:1px solid #555;color:#aaa;font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.1em;padding:.3rem .7rem;border-radius:3px;cursor:pointer}
 #cpd-history-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.5rem}
 .cpd-hist-item{display:flex;align-items:center;gap:.5rem;padding:.6rem .7rem;border-radius:4px;border:1px solid #2a2a1a;margin-bottom:.4rem;background:#161610;transition:all .15s}
-.cpd-hist-item:hover{border-color:rgba(200,148,60,.4);background:#1e1e14}.cpd-hist-item.selected{border-color:#C8943C;background:#221e12}
+.cpd-hist-item:hover{border-color:rgba(200,148,60,.4);background:#1e1e14}.cpd-hist-item.selected{border-color:var(--color-accent);background:#221e12}
 .cpd-hist-date{flex:1;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.06em;color:#C8B080;line-height:1.5}
 .cpd-hist-date span{display:block;color:#888;font-size:.55rem}
-.cpd-hist-load-btn{font-family:'Cinzel',serif;font-size:.5rem;padding:.25rem .6rem;border:1px solid rgba(200,148,60,.5);border-radius:3px;background:transparent;color:#C8943C;cursor:pointer;flex-shrink:0}
+.cpd-hist-load-btn{font-family:'Cinzel',serif;font-size:.5rem;padding:.25rem .6rem;border:1px solid rgba(200,148,60,.5);border-radius:3px;background:transparent;color:var(--color-accent);cursor:pointer;flex-shrink:0}
 .cpd-hist-load-btn:hover{background:rgba(200,148,60,.12)}
 #cpd-history-status{padding:.5rem 1rem;font-family:'Cinzel',serif;font-size:.6rem;color:#888;border-top:1px solid #222;flex-shrink:0;min-height:2rem}
 .cpd-hist-empty{text-align:center;padding:2rem 1rem;font-family:'Cinzel',serif;font-size:.62rem;color:#555}

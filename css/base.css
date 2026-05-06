@@ -61,7 +61,7 @@ html, body {
   --jueves-bg:     #0C0608;
   --jueves-mid:    #1A0A0C;
   --jueves-crimson:#6B1020;
-  --jueves-gold:   #C8943C;
+  --jueves-gold:   var(--color-accent);
   --jueves-gold-lt:#E8C070;
   --jueves-cream:  #F0E8DC;
   --jueves-flame:  #E86020;

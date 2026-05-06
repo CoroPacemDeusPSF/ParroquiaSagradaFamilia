@@ -86,7 +86,7 @@
 .tab-btn.jueves .tab-name { color: #E8A060; }
 .tab-btn.jueves:hover, .tab-btn.jueves.active {
   background: linear-gradient(180deg, rgba(107,16,32,0.3) 0%, transparent 100%);
-  border-bottom-color: #C8943C;
+  border-bottom-color: var(--color-accent);
 }
 .tab-btn.jueves::before { background: linear-gradient(180deg, rgba(107,16,32,0.2) 0%, transparent); }
 

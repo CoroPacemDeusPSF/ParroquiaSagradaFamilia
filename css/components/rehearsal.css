@@ -234,7 +234,7 @@ body.wedding-mode  .yt-play-btn[href*="youtu"] { display: inline-flex; }
 
 /* ── JESUS QUOTE ── */
 .jesus-quote {
-  border-left: 3px solid var(--jueves-gold, #C8943C);
+  border-left: 3px solid var(--jueves-gold, var(--color-accent));
   padding: 0.8rem 1rem 0.8rem 2rem;
   margin: 1rem 0;
   background: rgba(200,148,60,0.05);

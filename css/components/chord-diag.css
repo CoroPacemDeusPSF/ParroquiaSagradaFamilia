@@ -28,7 +28,7 @@
        - Solo en fullscreen + Dev → visible.
 
    ESTILO DEL OVERLAY:
-     Match con la paleta del cancionero: ámbar #C8943C sobre fondo oscuro.
+     Match con la paleta del cancionero: ámbar var(--color-accent) sobre fondo oscuro.
      Tipografía Cinzel para títulos, Courier New (heredado del pre del
      cancionero) para el JSON.
    ============================================================================ */
@@ -55,7 +55,7 @@
   transition:     all 0.2s;
 }
 .chord-diag-btn:hover {
-  color:        #C8943C;
+  color:        var(--color-accent);
   border-color: rgba(200, 148, 60, 0.5);
 }
 .chord-diag-btn svg {
@@ -133,7 +133,7 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
   font-weight:    600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color:          #C8943C;
+  color:          var(--color-accent);
 }
 
 .chord-diag-close {
@@ -142,7 +142,7 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
   border-radius:   50%;
   border:          1px solid rgba(200, 148, 60, 0.4);
   background:      transparent;
-  color:           #C8943C;
+  color:           var(--color-accent);
   font-size:       1rem;
   line-height:     1;
   cursor:          pointer;
@@ -225,8 +225,8 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
 
 .chord-diag-btn-primary {
   color:        #1a1a10;
-  background:   #C8943C;
-  border:       1px solid #C8943C;
+  background:   var(--color-accent);
+  border:       1px solid var(--color-accent);
   font-weight:  600;
 }
 .chord-diag-btn-primary:hover {
@@ -310,7 +310,7 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
 .cdr-count {
   font-size:      0.62rem;
   letter-spacing: 0.08em;
-  color:          #C8943C;
+  color:          var(--color-accent);
   background:     rgba(200, 148, 60, 0.12);
   border:         1px solid rgba(200, 148, 60, 0.4);
   border-radius:  10px;
@@ -332,7 +332,7 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
   font-weight:    600;
 }
 .cdr-snap {
-  color:        #C8943C;
+  color:        var(--color-accent);
   background:   transparent;
   border:       1px solid rgba(200, 148, 60, 0.5);
 }
@@ -396,7 +396,7 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
 .cdr-time {
   font-family:    'Courier New', monospace;
   font-size:      0.7rem;
-  color:          #C8943C;
+  color:          var(--color-accent);
   font-weight:    600;
   min-width:      4.5em;
   flex-shrink:    0;
@@ -424,7 +424,7 @@ body.dev-mode .chords-block.fullscreen.cf-active .chord-diag-btn {
 .cdr-label-viewport { color: #70C8D8; border-color: rgba(112,200,216,.45); background: rgba(112,200,216,.06); }
 .cdr-label-pinch    { color: #E8C040; border-color: rgba(232,192,64,.5);  background: rgba(232,192,64,.08);  }
 .cdr-label-scroll   { color: #888;    border-color: rgba(136,136,136,.4); background: rgba(136,136,136,.05); }
-.cdr-label-manual   { color: #C8943C; border-color: rgba(200,148,60,.5);  background: rgba(200,148,60,.1);   }
+.cdr-label-manual   { color: var(--color-accent); border-color: rgba(200,148,60,.5);  background: rgba(200,148,60,.1);   }
 
 .cdr-summary {
   font-family:    'Courier New', monospace;

@@ -41,7 +41,7 @@
   font-family: 'Cinzel', serif;
   font-size: 0.75rem;
   letter-spacing: 0.15em;
-  color: #C8943C;
+  color: var(--color-accent);
   flex: 1;
   min-width: 0;
   text-transform: uppercase;
@@ -75,8 +75,8 @@
 #editor-cancel-btn:hover { background: #222; }
 #editor-reset-btn {
   background: transparent;
-  color: #C8943C;
-  border-color: #C8943C;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 #editor-reset-btn:hover { background: rgba(200,148,60,0.1); }
 /* ── TEXTAREA WRAPPER (highlight overlay) ── */
@@ -133,7 +133,7 @@
    el wrap entre el highlight overlay y el textarea, produciendo el bug
    "escribo en la línea X y aparece en la línea Y". El color dorado por
    sí solo da suficiente contraste visual sin afectar las métricas. */
-#editor-highlight .hl-chord  { color: #C8943C; }
+#editor-highlight .hl-chord  { color: var(--color-accent); }
 /* Header lines (═══, ♫, ⚠).
    Solo color — sin font-weight bold ni padding/background, porque cualquier
    propiedad que afecte ancho o altura del span descalibra el wrap entre el

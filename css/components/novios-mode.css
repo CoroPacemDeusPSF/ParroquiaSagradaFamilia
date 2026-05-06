@@ -303,7 +303,7 @@ body.novios-mode .ceremony.dominical .ceremony-index::after  { right: 1.2rem; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-accent);          /* #C8943C — dorado */
+  background: var(--color-accent);          /* var(--color-accent) — dorado */
   opacity: 0.6;
   pointer-events: none;
 }

@@ -54,7 +54,7 @@
   opacity: 0.3;
 }
 .ceremony.ramos  .index-rule { color: #C8A830; }
-.ceremony.jueves .index-rule { color: #C8943C; }
+.ceremony.jueves .index-rule { color: var(--color-accent); }
 .ceremony.vigilia .index-rule { color: #E8C040; }
 
 .index-list { list-style: none; }
@@ -150,7 +150,7 @@
 .index-song-counter .counter-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #C8943C;
+  color: var(--color-accent);
   display: block;
   line-height: 1.1;
   letter-spacing: 0.05em;
@@ -159,7 +159,7 @@
   display: inline-block;
   width: 2.5rem;
   height: 1px;
-  background: linear-gradient(to right, transparent, #C8943C, transparent);
+  background: linear-gradient(to right, transparent, var(--color-accent), transparent);
   vertical-align: middle;
   margin: 0 0.5em;
   opacity: 0.6;

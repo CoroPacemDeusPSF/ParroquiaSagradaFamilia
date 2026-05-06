@@ -51,30 +51,30 @@
 
 /* ─── Fundación: tokens primero, luego estilos base ───────────────────────── */
 @import url('tokens.css?v=3.5.8');
-@import url('base.css?v=3.5.8');
+@import url('base.css?v=3.6.2');
 
 /* ─── Componentes compartidos: estructura general ─────────────────────────── */
-@import url('components/cover.css?v=3.2.46r15');
-@import url('components/ceremony.css?v=3.2.46r15');
-@import url('components/nav.css?v=3.2.46r15');
+@import url('components/cover.css?v=3.6.2');
+@import url('components/ceremony.css?v=3.6.2');
+@import url('components/nav.css?v=3.6.2');
 @import url('components/back-bar.css?v=3.5.3');
-@import url('components/share.css?v=3.2.46r15');
+@import url('components/share.css?v=3.6.2');
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
-@import url('components/index.css?v=3.2.46r15');
-@import url('components/song-card.css?v=3.3.0r1');
-@import url('components/chords.css?v=3.5.3');
+@import url('components/index.css?v=3.6.2');
+@import url('components/song-card.css?v=3.6.2');
+@import url('components/chords.css?v=3.6.2');
 @import url('components/context.css?v=3.5.2');
 
 /* ─── Componentes interactivos (modos especiales) ─────────────────────────── */
-@import url('components/rehearsal.css?v=3.3.0r1');
-@import url('components/editor.css?v=3.2.46r15');
-@import url('components/setlist.css?v=3.3.0r7');
-@import url('components/pdf-overlays.css?v=3.2.46r15');
-@import url('components/chord-diag.css?v=3.2.46r15');
+@import url('components/rehearsal.css?v=3.6.2');
+@import url('components/editor.css?v=3.6.2');
+@import url('components/setlist.css?v=3.6.2');
+@import url('components/pdf-overlays.css?v=3.6.2');
+@import url('components/chord-diag.css?v=3.6.2');
 
 /* ─── Componentes especializados (Evangelio, Salmo, AI, Efectos) ──────────── */
-@import url('components/lit-card.css?v=3.5.3');
+@import url('components/lit-card.css?v=3.6.2');
 @import url('components/psalm-player.css?v=3.5.2');
 @import url('components/effects.css?v=3.2.46r15');
 @import url('components/ai-agent.css?v=3.2.46r15');
@@ -91,7 +91,7 @@
    AL FINAL de los componentes para que sus reglas !important tengan máxima
    especificidad y puedan ocultar correctamente los controles de los modos
    anteriores (rehearsal-mode, wedding-mode, etc.). */
-@import url('components/novios-mode.css?v=3.6.0r6');
+@import url('components/novios-mode.css?v=3.6.2');
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.6.1r1');

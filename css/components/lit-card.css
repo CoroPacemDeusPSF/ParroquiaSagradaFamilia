@@ -20,9 +20,9 @@
 
 /* ── Liturgical card (portada) ── */
 .lit-card{margin:1.5rem auto 0;max-width:340px;background:rgba(200,148,60,.08);border:1px solid rgba(200,148,60,.2);border-radius:10px;padding:16px 20px;text-align:center;position:relative;z-index:2}
-.lit-card .lit-season{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.25em;text-transform:uppercase;color:#C8943C;margin-bottom:8px}
+.lit-card .lit-season{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:.25em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px}
 .lit-card .lit-name{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.08em;color:#E8DCC0;margin-bottom:4px}
-.lit-card .lit-special{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#C8943C;margin-bottom:10px}
+.lit-card .lit-special{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent);margin-bottom:10px}
 .lit-card .lit-divider{width:50px;height:1px;background:rgba(200,148,60,.35);margin:0 auto 10px}
 .lit-card .lit-gospel{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.08em;color:#B8A880}
 .lit-card .lit-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;border:1px solid rgba(200,148,60,.4);vertical-align:middle;margin-right:5px}

@@ -35,7 +35,7 @@
   transform: translateY(-50%);
   z-index: 90000;
   width: 26px; height: 64px;
-  background: linear-gradient(135deg, #d4a04a 0%, #b8862e 60%, #d4a04a 100%);
+  background: linear-gradient(135deg, var(--color-accent-bright) 0%, #b8862e 60%, var(--color-accent-bright) 100%);
   border-radius: 0 8px 8px 0;
   cursor: pointer;
   align-items: center;
@@ -130,7 +130,7 @@ body:not(.rehearsal-mode) .sl-tema-nav-spacer {
 /* Panel header — golden, like the tab */
 .sl-header {
   padding: 1.2rem 1rem 0.5rem;
-  background: linear-gradient(180deg, #C8943C 0%, #B08030 100%);
+  background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-accent-deep) 100%);
   flex-shrink: 0;
   border-radius: 0 1rem 0 0;
   position: relative;
@@ -154,7 +154,7 @@ body:not(.rehearsal-mode) .sl-tema-nav-spacer {
   width: 0.42rem;
   height: 0.42rem;
   border-radius: 50%;
-  background: #d4a04a;
+  background: var(--color-accent-bright);
   box-shadow: 0 0 0 0 rgba(212, 160, 74, 0.7);
   vertical-align: 0.05em;
   margin-right: 0.4rem;
@@ -216,7 +216,7 @@ body:not(.rehearsal-mode) .sl-tema-nav-spacer {
   min-width: 0;
   transition: color 0.2s;
 }
-.sl-song:hover { color: #C8943C; }
+.sl-song:hover { color: var(--color-accent); }
 .sl-song.empty {
   color: rgba(120,90,40,0.7);
   cursor: default;
@@ -275,7 +275,7 @@ body.dev-mode .sl-clear { display: block; }
    En modo dev comparte línea con "Borrar Todo" (también flex:1 cada uno).
 
    Estilo dorado SÓLIDO para alto contraste y legibilidad en móvil:
-   fondo dorado #C8943C con texto blanco/cream — emula el botón "Explorar"
+   fondo dorado var(--color-accent) con texto blanco/cream — emula el botón "Explorar"
    del index.html. */
 .sl-print {
   display: flex;
@@ -290,14 +290,14 @@ body.dev-mode .sl-clear { display: block; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #FFFFFF;
-  background: #C8943C;
-  border: 1px solid #B08030;
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent-deep);
   border-radius: 3px;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 .sl-print:hover {
-  background: #B08030;
+  background: var(--color-accent-deep);
   border-color: #8A6020;
 }
 .sl-print:active { transform: translateY(1px); }
@@ -333,7 +333,7 @@ body.dev-mode .sl-clear { display: block; }
   font-size: 0.75rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #C8943C;
+  color: var(--color-accent);
   margin-bottom: 0.4rem;
 }
 .sl-print-dialog-subtitle {
@@ -426,7 +426,7 @@ body.dev-mode .sl-clear { display: block; }
   font-size: 0.6rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #C8943C;
+  color: var(--color-accent);
   margin-bottom: 0.8rem;
 }
 .sl-dialog-song {
@@ -459,8 +459,8 @@ body.dev-mode .sl-clear { display: block; }
   text-transform: uppercase;
   color: #E8D8B8;
 }
-.sl-dialog-slot-btn:hover { background: rgba(200,148,60,0.15); border-color: #C8943C; }
-.sl-dialog-slot-btn.suggested { border-color: #C8943C; background: rgba(200,148,60,0.12); }
+.sl-dialog-slot-btn:hover { background: rgba(200,148,60,0.15); border-color: var(--color-accent); }
+.sl-dialog-slot-btn.suggested { border-color: var(--color-accent); background: rgba(200,148,60,0.12); }
 .sl-dialog-slot-btn .sl-btn-current {
   font-family: 'EB Garamond', serif;
   font-size: 0.7rem;
@@ -491,7 +491,7 @@ body.dev-mode .sl-clear { display: block; }
   border: 1px solid rgba(200,148,60,0.3);
   border-radius: 50%;
   width: 18px; height: 18px;
-  color: #C8943C;
+  color: var(--color-accent);
   font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
@@ -611,7 +611,7 @@ body.dev-mode .idx-add-btn { display: inline-flex; }
   justify-content: center;
   background: rgba(212, 160, 74, 0.18);
   border: 1px solid rgba(212, 160, 74, 0.55);
-  color: #f1c075;
+  color: var(--color-accent-warm);
   font-family: serif;
   font-style: normal;
   font-size: 1.45rem;
@@ -689,7 +689,7 @@ body.dev-mode .idx-add-btn { display: inline-flex; }
 .sl-new-badge {
   display: inline-block;
   margin-left: 0.4em;
-  color: #C8943C;
+  color: var(--color-accent);
   font-size: 0.85em;
   vertical-align: middle;
 }
@@ -729,7 +729,7 @@ body.dev-mode .idx-add-btn { display: inline-flex; }
   border: 1px solid rgba(200,148,60,0.5);
   border-radius: 50%;
   width: 22px; height: 22px;
-  color: #B08030;
+  color: var(--color-accent-deep);
   cursor: pointer;
   font-size: 0.95rem;
   line-height: 1;
@@ -775,7 +775,7 @@ body.wedding-mode  .yt-play-btn { display: inline-flex; }
   border-radius: 50%;
   border: 1px solid rgba(200,148,60,0.5);
   background: rgba(200,148,60,0.1);
-  color: #C8943C;
+  color: var(--color-accent);
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
@@ -788,7 +788,7 @@ body.wedding-mode  .yt-play-btn { display: inline-flex; }
 }
 .transpose-btn:hover { background: rgba(200,148,60,0.25); }
 .transpose-label {
-  color: #C8943C;
+  color: var(--color-accent);
   min-width: 3rem;
   text-align: center;
   font-weight: bold;
@@ -806,14 +806,14 @@ body.wedding-mode  .yt-play-btn { display: inline-flex; }
   margin-left: 0.3rem;
   transition: all 0.2s;
 }
-.transpose-reset:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.transpose-reset:hover { color: var(--color-accent); border-color: rgba(200,148,60,0.5); }
 
 /* Font size controls */
 .font-size-btn {
   font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 0.65rem;
-  color: #C8943C;
+  color: var(--color-accent);
   background: rgba(200,148,60,0.08);
   border: 1px solid rgba(200,148,60,0.35);
   border-radius: 3px;
@@ -841,7 +841,7 @@ body.wedding-mode  .yt-play-btn { display: inline-flex; }
   align-items: center;
   gap: 0.3rem;
 }
-.print-chords-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.print-chords-btn:hover { color: var(--color-accent); border-color: rgba(200,148,60,0.5); }
 .print-chords-btn svg { width: 12px; height: 12px; }
 
 /* Fullscreen chords */
@@ -889,7 +889,7 @@ body.wedding-mode  .yt-play-btn { display: inline-flex; }
   border-radius: 50%;
   border: 1px solid rgba(200,148,60,0.4);
   background: rgba(30,30,30,0.95);
-  color: #C8943C;
+  color: var(--color-accent);
   font-size: 1.2rem;
   cursor: pointer;
   align-items: center;
@@ -915,7 +915,7 @@ body.wedding-mode  .yt-play-btn { display: inline-flex; }
   align-items: center;
   gap: 0.3rem;
 }
-.fullscreen-btn:hover { color: #C8943C; border-color: rgba(200,148,60,0.5); }
+.fullscreen-btn:hover { color: var(--color-accent); border-color: rgba(200,148,60,0.5); }
 .fullscreen-btn svg { width: 12px; height: 12px; }
 
 /* Browser fullscreen pseudo-class */
