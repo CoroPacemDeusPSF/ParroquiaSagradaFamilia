@@ -7,7 +7,7 @@
  *               con metadata JSON embebida para reimportación en Modo Dev.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r1
+ *   @version    v3.6.6r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -354,14 +354,27 @@
       return;
     }
 
-    // Abrir en nueva pestaña
+    /* v3.6.6r2: Nombre descriptivo del archivo PDF.
+       Formato pedido por Renzo: "Coro_Pacem_Deus_SetList_Año_Mes_Día.pdf"
+       Ejemplo: "Coro_Pacem_Deus_SetList_2026_06_13.pdf"
+
+       Implementación:
+       - El nombre real del archivo en disco solo se controla cuando el
+         usuario descarga (atributo `download` de un <a>). En `window.open`
+         el navegador asigna el blob UUID como nombre tentativo.
+       - Estrategia: descargamos directo con nombre descriptivo Y abrimos
+         en nueva pestaña para previsualización. Así el PDF se ve en el
+         visor del navegador (con su título embebido) Y queda guardado
+         con nombre descriptivo en /Descargas. */
+    var datePart = (fecha || '').replace(/-/g, '_'); // 2026-06-13 → 2026_06_13
+    var filename = 'Coro_Pacem_Deus_SetList_' + datePart + '.pdf';
+
+    // Abrir en nueva pestaña para previsualización
     var url = URL.createObjectURL(blob);
     var newWindow = window.open(url, '_blank');
     if (!newWindow) {
-      // Algunos navegadores bloquean window.open si no es respuesta a un
-      // click directo. Fallback: descarga directa.
-      var safeName = novios.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&]/g, '').replace(/\s+/g, '-') || 'sin-novios';
-      var filename = 'CPD-Boda-' + safeName + '-' + fecha + '.pdf';
+      // Si el navegador bloqueó el window.open (popup blocker), forzamos
+      // descarga directa como fallback con el nombre descriptivo.
       var a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -369,6 +382,21 @@
       a.click();
       setTimeout(function () {
         if (a.parentNode) a.parentNode.removeChild(a);
+      }, 100);
+    } else {
+      // Adicionalmente, disparar descarga al disco con el nombre
+      // descriptivo (sin esto, el archivo descargado por el visor PDF
+      // tendría el blob UUID como nombre tentativo).
+      // Usamos un <a> oculto con el mismo blob URL — el navegador
+      // genera UNA descarga aunque haya 2 referencias al blob.
+      var aDl = document.createElement('a');
+      aDl.href = url;
+      aDl.download = filename;
+      aDl.style.display = 'none';
+      document.body.appendChild(aDl);
+      aDl.click();
+      setTimeout(function () {
+        if (aDl.parentNode) aDl.parentNode.removeChild(aDl);
       }, 100);
     }
 

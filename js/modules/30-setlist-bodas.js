@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r1
+ *   @version    v3.6.6r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -677,10 +677,42 @@
         '</button>';
     }
 
+    /* v3.6.6r2: Botón "Importar PDF" en Modo Dev (dentro de Bodas).
+       Antes intentábamos inyectarlo desde el módulo 33 con un
+       MutationObserver, pero como `renderFooter()` reescribe
+       `footerEl.innerHTML` en cada cambio, había una carrera entre
+       nuestro inject y la próxima render. Más confiable: incluirlo
+       directamente aquí, igual que hicimos con "Exportar PDF".
+
+       Solo aparece si:
+       - Modo Bodas activo (wedding-mode)
+       - Modo Dev activo (dev-mode)
+       - NO Modo Novios (no hay Dev en Novios)
+
+       window.PDFImport debe estar disponible (módulo 33 cargado).
+       Si no, el botón no se muestra. */
+    var isDevInBodas = isPureBodas &&
+                       document.body.classList.contains('dev-mode');
+    var importPdfBtnHtml = '';
+    if (isDevInBodas) {
+      importPdfBtnHtml =
+        '<button class="pdfi-import-btn" id="pdfi-import-btn" ' +
+                'onclick="window.PDFImport && window.PDFImport.importPdfFromFile()" ' +
+                'title="Importar SetList desde PDF (Modo Dev)">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true">' +
+            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
+            '<polyline points="17 8 12 3 7 8"></polyline>' +
+            '<line x1="12" y1="3" x2="12" y2="15"></line>' +
+          '</svg>' +
+          '<span>Importar PDF</span>' +
+        '</button>';
+    }
+
     var actionsHtml =
       '<div class="slb-footer-actions">' +
         '<button class="slb-clear" onclick="window.SLB.clearAll()">Borrar todo</button>' +
         exportPdfBtnHtml +
+        importPdfBtnHtml +
         '<button class="slb-save" id="slb-save-btn" onclick="window.SLB.saveAll()" title="Forzar guardado en Firebase">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">' +
             '<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>' +
@@ -1479,5 +1511,35 @@
              document.body.classList.contains('novios-mode');
     }
   };
+
+  /* v3.6.6r2: Observer de dev-mode toggle. Cuando el usuario activa
+     Modo Dev (5 clicks en la cruz del footer ceremonial) mientras el
+     panel SLB está abierto, queremos que renderFooter() se vuelva a
+     ejecutar para que aparezca el botón "Importar PDF" (que solo se
+     muestra en dev-mode + wedding-mode).
+
+     Sin este observer, el botón solo aparecería al cambiar de fecha
+     o al agregar/quitar un canto (eventos que disparan renderFooter
+     internamente). Con el observer, aparece inmediatamente al activar
+     Modo Dev, sin requerir interacciones adicionales. */
+  if (typeof MutationObserver !== 'undefined') {
+    var lastDevMode = document.body.classList.contains('dev-mode');
+    var devModeObserver = new MutationObserver(function() {
+      var isDev = document.body.classList.contains('dev-mode');
+      if (isDev !== lastDevMode) {
+        lastDevMode = isDev;
+        // Solo re-renderizar si el panel SLB está activo
+        if (currentDate &&
+            (document.body.classList.contains('wedding-mode') ||
+             document.body.classList.contains('novios-mode'))) {
+          renderFooter();
+        }
+      }
+    });
+    devModeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
 
 })();

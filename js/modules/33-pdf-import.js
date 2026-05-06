@@ -7,7 +7,7 @@
  *               crea/sobrescribe el evento en Firebase. Solo Modo Dev.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6
+ *   @version    v3.6.6r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -375,114 +375,20 @@
 
 
   // ──────────────────────────────────────────────────────────────────────
-  // INYECCIÓN DEL BOTÓN "IMPORTAR PDF" EN MODO DEV
-  // ──────────────────────────────────────────────────────────────────────
-
-  /**
-   * El botón se agrega/elimina cuando body.dev-mode toggleea. Como el
-   * Modo Dev solo aplica DENTRO de Modo Bodas (no hay Dev sin Bodas),
-   * solo necesitamos preocuparnos del dev-mode.
-   *
-   * Inyectamos el botón en el footer del panel SLB junto al botón
-   * "Grabar". Si no existe el footer todavía, esperamos un poco.
-   */
-  function injectImportButton() {
-    if (document.getElementById('pdfi-import-btn')) return; // idempotente
-
-    if (!document.body.classList.contains('dev-mode')) return;
-    if (!document.body.classList.contains('wedding-mode')) return;
-
-    // Buscar el footer del SLB (donde está "Grabar"). El módulo 30 usa
-    // id="slb-footer" para este contenedor; los selectores con clase son
-    // fallbacks para versiones más viejas.
-    var footer = document.getElementById('slb-footer') ||
-                 document.querySelector('.slb-footer') ||
-                 document.querySelector('.slb-actions');
-    if (!footer) return;
-
-    // El módulo 30 reescribe footerEl.innerHTML cada vez que llama a
-    // renderFooter() (por ej. al cambiar de fecha o al agregar un slot
-    // opcional). Si insertamos como child directo del footer, nuestro
-    // botón sobrevivirá solo si la siguiente render no nos pisa. Para
-    // garantizar persistencia, guardamos referencia al actions container
-    // (.slb-footer-actions) y, si existe, agregamos ahí. Si no existe
-    // todavía, el observer reintenta cuando aparezca.
-    var actionsContainer = footer.querySelector('.slb-footer-actions');
-    var target = actionsContainer || footer;
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'pdfi-import-btn';
-    btn.className = 'pdfi-import-btn';
-    btn.title = 'Importar SetList desde PDF (Modo Dev)';
-    btn.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
-        '<polyline points="17 8 12 3 7 8"></polyline>' +
-        '<line x1="12" y1="3" x2="12" y2="15"></line>' +
-      '</svg>' +
-      '<span>Importar PDF</span>';
-    btn.addEventListener('click', importPdfFromFile);
-    target.appendChild(btn);
-  }
-
-
-  function removeImportButton() {
-    var btn = document.getElementById('pdfi-import-btn');
-    if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
-  }
-
-
-  /**
-   * Observador del body para detectar cambios en las clases dev-mode/
-   * wedding-mode y agregar/quitar el botón en consecuencia. Usamos
-   * MutationObserver porque las clases pueden cambiarse desde varios
-   * módulos (5-rehearsal-mode, 11-dev-mode, 29-wedding-mode).
-   */
-  function setupClassObserver() {
-    var observer = new MutationObserver(function () {
-      if (document.body.classList.contains('dev-mode') &&
-          document.body.classList.contains('wedding-mode')) {
-        injectImportButton();
-      } else {
-        removeImportButton();
-      }
-    });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-
-    // También observar el panel SLB porque puede no estar en el DOM
-    // todavía cuando esto se ejecuta. Reintentamos cuando el panel
-    // aparezca.
-    var bodyObserver = new MutationObserver(function () {
-      if (document.body.classList.contains('dev-mode') &&
-          document.body.classList.contains('wedding-mode')) {
-        injectImportButton();
-      }
-    });
-    bodyObserver.observe(document.body, { childList: true, subtree: true });
-  }
-
-
-  // ──────────────────────────────────────────────────────────────────────
   // API PÚBLICA
   // ──────────────────────────────────────────────────────────────────────
+  //
+  // v3.6.6r2: La inyección del botón "Importar PDF" en el footer del SLB
+  // se hace ahora directamente en renderFooter() del módulo 30 (más
+  // confiable que un MutationObserver con timing variable). El módulo 33
+  // solo expone la lógica de import; el botón llama a
+  // window.PDFImport.importPdfFromFile() vía onclick handler.
 
   window.PDFImport = {
     importPdfFromFile:           importPdfFromFile,
     findMetadataInPdfBytes:      findMetadataInPdfBytes,
     parsePdSetlistMetadata:      parsePdSetlistMetadata
   };
-
-
-  // ──────────────────────────────────────────────────────────────────────
-  // INICIALIZACIÓN
-  // ──────────────────────────────────────────────────────────────────────
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupClassObserver);
-  } else {
-    setupClassObserver();
-  }
 
   console.log('[PDF Import] Módulo cargado');
 })();
