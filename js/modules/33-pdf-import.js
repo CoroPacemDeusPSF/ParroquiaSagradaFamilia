@@ -7,7 +7,7 @@
  *               crea/sobrescribe el evento en Firebase. Solo Modo Dev.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r2
+ *   @version    v3.6.6r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -59,9 +59,14 @@
 
   /**
    * Busca y extrae el subject del PDF que contiene la metadata
-   * de un SetList exportado. Soporta dos formatos:
-   *   - Hex (UTF-16 BE): /Subject<FEFF...XXXX>
-   *   - Literal:        /Subject(...)
+   * de un SetList exportado. Soporta tres formatos que jsPDF puede
+   * usar para el Info Dict:
+   *   1) Hex (UTF-16 BE):       /Subject<FEFF...XXXX>
+   *   2) Literal ASCII:         /Subject(texto en ASCII puro)
+   *   3) Literal UTF-16 BE:     /Subject(\xFE\xFF\x00P\x00D\x00-\x00S...)
+   *      ← este es el que jsPDF 4.2.1 usa por defecto cuando hay
+   *        cualquier carácter Unicode (acentos, etc.). El BOM 0xFE 0xFF
+   *        marca el formato; cada carácter ocupa 2 bytes después del BOM.
    *
    * @param {Uint8Array} bytes — bytes del PDF
    * @returns {string|null}    — el subject crudo, o null si no se encontró
@@ -74,7 +79,7 @@
       str += String.fromCharCode(bytes[i]);
     }
 
-    // ── Formato HEX ──────────────────────────────────────────────────
+    // ── Formato 1: HEX entre <> ──────────────────────────────────────
     // /Subject<FEFF00500044002D...>
     // FEFF es el BOM de UTF-16 BE
     var hexMatch = str.match(/\/Subject\s*<([0-9A-Fa-f\s]+)>/);
@@ -94,10 +99,10 @@
       return decoded;
     }
 
-    // ── Formato LITERAL ──────────────────────────────────────────────
-    // /Subject(PD-SETLIST-V1:{...JSON...})
-    // Los caracteres especiales pueden venir escapados: \( \) \\
+    // ── Formatos 2 y 3: LITERAL entre () ─────────────────────────────
     // Buscamos hasta el ) que cierra, manejando paréntesis escapados.
+    // Después de extraer el contenido entre (), detectamos si tiene
+    // BOM UTF-16 BE para decodificar como tal.
     var litStart = str.search(/\/Subject\s*\(/);
     if (litStart !== -1) {
       var openParen = str.indexOf('(', litStart);
@@ -117,18 +122,57 @@
       }
       if (depth === 0) {
         var raw = str.substring(openParen + 1, k);
-        // Procesar escapes básicos del PDF
-        return raw
-          .replace(/\\\(/g, '(')
-          .replace(/\\\)/g, ')')
-          .replace(/\\\\/g, '\\')
-          .replace(/\\n/g, '\n')
-          .replace(/\\r/g, '\r')
-          .replace(/\\t/g, '\t');
+
+        // ── Formato 3: literal con BOM UTF-16 BE binario ─────────────
+        // jsPDF 4.2.1 escribe el subject así cuando hay caracteres
+        // Unicode (acentos, etc.). Bytes: \xFE \xFF \x00 P \x00 D ...
+        // Como recorrimos `bytes` con String.fromCharCode, esos bytes
+        // se preservan como caracteres en `raw`.
+        if (raw.length >= 2 &&
+            raw.charCodeAt(0) === 0xFE &&
+            raw.charCodeAt(1) === 0xFF) {
+          // Decodificar UTF-16 BE: cada par de bytes (high, low) es un
+          // carácter. En ASCII range, high==0x00 y low==el carácter.
+          // Para caracteres acentuados (LATIN-1), el codepoint puede
+          // estar en high*256+low. Cubrimos el caso general.
+          var decoded3 = '';
+          // PDF puede usar escapes octales (ej. \237) DENTRO del literal
+          // UTF-16 incluso. Los procesamos primero antes de leer pares.
+          var unescaped = unescapePdfLiteral(raw);
+          for (var u = 2; u < unescaped.length - 1; u += 2) {
+            var hi = unescaped.charCodeAt(u);
+            var lo = unescaped.charCodeAt(u + 1);
+            var cc = (hi << 8) | lo;
+            if (cc === 0) break;
+            decoded3 += String.fromCharCode(cc);
+          }
+          return decoded3;
+        }
+
+        // ── Formato 2: literal ASCII puro ────────────────────────────
+        return unescapePdfLiteral(raw);
       }
     }
 
     return null;
+  }
+
+
+  /**
+   * Procesa los escapes básicos de un literal PDF: \( \) \\ \n \r \t
+   * y escapes octales \DDD (3 dígitos máx).
+   */
+  function unescapePdfLiteral(raw) {
+    return raw
+      .replace(/\\([0-7]{1,3})/g, function (_, oct) {
+        return String.fromCharCode(parseInt(oct, 8));
+      })
+      .replace(/\\\(/g, '(')
+      .replace(/\\\)/g, ')')
+      .replace(/\\\\/g, '\\')
+      .replace(/\\n/g, '\n')
+      .replace(/\\r/g, '\r')
+      .replace(/\\t/g, '\t');
   }
 
 
