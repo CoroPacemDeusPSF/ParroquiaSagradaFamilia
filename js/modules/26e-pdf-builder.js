@@ -6,7 +6,7 @@
  *   @brief      Constructor de PDF vectorial con identidad visual Pacem Deus
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -206,6 +206,48 @@
       compress:    true
     });
 
+    /* v3.6.6: Metadata del PDF. Si el caller pasa opts.metadata (un
+       objeto serializable a JSON), lo embebemos en el campo subject del
+       PDF como JSON con un prefijo identificador "PD-SETLIST-V1:" para
+       que el importador (módulo 33) pueda detectar y parsear este PDF
+       como un SetList exportado por nuestro propio sistema.
+
+       Por qué subject y no XMP completo:
+         - jsPDF v2.5+ soporta setProperties.subject sin issues.
+         - XMP requiere construir un packet XML válido (>2KB), riesgo
+           de incompatibilidad con visores PDF restrictivos.
+         - El subject permite hasta varios KB de texto y se preserva
+           bien en operaciones del PDF (descargar, reabrir, compartir
+           por WhatsApp). Ideal para nuestro caso de uso.
+
+       Por qué prefijo "PD-SETLIST-V1:":
+         - Permite detectar inmediatamente si un PDF que el usuario
+           sube fue generado por nosotros (vs cualquier otro PDF).
+         - El "V1" deja espacio para evolucionar el schema sin
+           romper compatibilidad con PDFs viejos.
+    */
+    var pdfTitle    = opts.title    || 'Cancionero — Coro Pacem Deus';
+    var pdfAuthor   = opts.author   || 'Coro Pacem Deus';
+    var pdfKeywords = opts.keywords || 'cancionero, coro, parroquia';
+    var pdfSubject  = opts.subject  || ('Cantos para ' + dateLabel);
+
+    if (opts.metadata && typeof opts.metadata === 'object') {
+      try {
+        var jsonStr = JSON.stringify(opts.metadata);
+        pdfSubject = 'PD-SETLIST-V1:' + jsonStr;
+      } catch (e) {
+        console.warn('[PDFBuilder] No se pudo serializar metadata:', e.message);
+      }
+    }
+
+    doc.setProperties({
+      title:    pdfTitle,
+      subject:  pdfSubject,
+      author:   pdfAuthor,
+      keywords: pdfKeywords,
+      creator:  'Pacem Deus Opus v3.6.6'
+    });
+
     const fontStatus = registerFonts(doc);
 
     /* Helpers para configurar tipografías con fallback silencioso */
@@ -336,7 +378,13 @@
       doc.setFont('times', 'italic');
       doc.setFontSize(9);
       setText(doc, CFG.color.textMuted);
-      safeText(doc, song.moment, cx + 70, y, { align: 'right' });
+      /* v3.6.6: si el caller pasó un _slotLabel (ej: "Entrada de la Novia"
+         para SetList Bodas), lo preferimos sobre el moment del cancionero
+         (ej: "Bodas"). Esto permite que el mismo builder genere PDFs para
+         SetList Dominical (con momento litúrgico) y SetList Bodas (con
+         slot de boda) sin lógica condicional. */
+      var indexLabel = song._slotLabel || song.moment;
+      safeText(doc, indexLabel, cx + 70, y, { align: 'right' });
 
       y += 7;
     });
@@ -432,8 +480,9 @@
     safeText(doc, song.title.toUpperCase(), cx, y + 23, { align: 'center' });
     doc.setCharSpace(0);
 
-    /* Tag verde litúrgico con momento */
-    drawLiturgicalTag(doc, cx, y + 30, song.moment);
+    /* Tag verde litúrgico con momento (o con slot label si fue
+       provisto por el caller — ver _slotLabel arriba). */
+    drawLiturgicalTag(doc, cx, y + 30, song._slotLabel || song.moment);
 
     return y + 40;
   }
@@ -960,10 +1009,37 @@
            ' de ' + sunday.getFullYear();
   }
 
+  /**
+   * v3.6.6: Formatea una fecha YYYY-MM-DD a formato español elegante para
+   * usar en el PDF de bodas. Ejemplo:
+   *   '2026-06-13' → 'Sábado, 13 de junio de 2026'
+   *
+   * Calculamos el día de la semana en hora local — la entrada es solo
+   * fecha, sin hora, así que el riesgo de drift por timezone es nulo
+   * mientras parseemos como local (no UTC).
+   */
+  function formatBodaDate(yyyyMmDd) {
+    if (!yyyyMmDd || !/^\d{4}-\d{2}-\d{2}$/.test(yyyyMmDd)) {
+      return yyyyMmDd || '';
+    }
+    var parts = yyyyMmDd.split('-');
+    var d = new Date(parseInt(parts[0], 10),
+                     parseInt(parts[1], 10) - 1,
+                     parseInt(parts[2], 10));
+    var dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var meses = [
+      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+    ];
+    return dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()] +
+           ' de ' + d.getFullYear();
+  }
+
   /* ── Exportar API pública ─────────────────────────────────────────────── */
   global.PDFBuilder = {
     buildPdf:         buildPdf,
-    formatNextSunday: formatNextSunday
+    formatNextSunday: formatNextSunday,
+    formatBodaDate:   formatBodaDate
   };
 
 })(window);

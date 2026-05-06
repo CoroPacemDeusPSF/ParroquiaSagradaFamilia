@@ -1,0 +1,169 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       css/components/pdf-import.css
+ *   @brief      Estilos del importador PDF (dialog modal + botón Modo Dev)
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.6.6
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ============================================================================
+   pdf-import.css
+   ============================================================================
+   Estilos para:
+     - .pdfi-dialog-overlay  → modal full-screen "Sobrescribir vs Adicional"
+     - .pdfi-dialog          → caja blanca centrada
+     - .pdfi-import-btn      → botón "Importar PDF" en footer SLB (Modo Dev)
+
+   Paleta:
+     - Reusa tokens existentes del cancionero (color-accent, sepia-deep)
+     - El dialog tiene fondo cremoso para que contraste con el panel SLB
+       que puede ser cualquier paleta (Bodas rosa perla, Novios sepia)
+   ============================================================================ */
+
+
+/* ── DIALOG OVERLAY ──────────────────────────────────────────────────── */
+.pdfi-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 100001; /* sobre el SLB panel */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: pdfi-fade-in 0.2s ease;
+}
+
+@keyframes pdfi-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.pdfi-dialog {
+  background: #FBF7EE;
+  border-radius: 6px;
+  border: 1px solid rgba(200, 148, 60, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  max-width: 480px;
+  width: 100%;
+  padding: 1.4rem 1.6rem 1.2rem;
+}
+
+.pdfi-dialog-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-deep);
+  margin: 0 0 0.8rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(200, 148, 60, 0.2);
+  padding-bottom: 0.6rem;
+}
+
+.pdfi-dialog-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #3D3530;
+  margin: 0 0 1.2rem;
+  text-align: center;
+}
+
+.pdfi-dialog-body strong {
+  color: var(--color-accent-deep);
+  font-weight: 600;
+}
+
+.pdfi-dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* En desktop, los 3 botones lado a lado. En mobile, apilados. */
+@media (min-width: 540px) {
+  .pdfi-dialog-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .pdfi-dialog-actions .pdfi-dialog-btn {
+    flex: 1;
+  }
+}
+
+/* ── BOTONES DEL DIALOG ──────────────────────────────────────────────── */
+.pdfi-dialog-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid;
+  background: transparent;
+  transition: all 0.2s;
+}
+
+/* Cancelar — neutro */
+.pdfi-btn-cancel {
+  border-color: rgba(60, 60, 40, 0.3);
+  color: #5A5040;
+}
+.pdfi-btn-cancel:hover {
+  background: rgba(60, 60, 40, 0.06);
+}
+
+/* Sobrescribir — destacado naranja terracota (acción cuidadosa) */
+.pdfi-btn-overwrite {
+  border-color: #B45309;
+  color: #B45309;
+}
+.pdfi-btn-overwrite:hover {
+  background: rgba(180, 83, 9, 0.08);
+}
+
+/* Crear adicional — verde (acción segura) */
+.pdfi-btn-additional {
+  border-color: #5C7A3A;
+  color: #fff;
+  background: #5C7A3A;
+}
+.pdfi-btn-additional:hover {
+  background: #4A6830;
+}
+
+
+/* ── BOTÓN "IMPORTAR PDF" EN FOOTER SLB (MODO DEV) ───────────────────── */
+.pdfi-import-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid #4A90D9;
+  background: transparent;
+  color: #4A90D9;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.pdfi-import-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.pdfi-import-btn:hover {
+  background: rgba(74, 144, 217, 0.1);
+}

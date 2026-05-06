@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.5
+ *   @version    v3.6.6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -1397,6 +1397,46 @@
     pickerNext:      pickerNextMonth,
     selectDate:      selectDate,
     promptNewDate:   promptNewDate,
+
+    /* v3.6.6: getCurrentSetlist devuelve un snapshot del estado interno
+       del SLB (setlistData + meta) para que módulos externos como
+       SLBPdf (módulo 32) puedan generar PDFs sin tocar internals. El
+       objeto devuelto es un clon defensivo: mutaciones no afectan al
+       estado del SLB. */
+    getCurrentSetlist: function() {
+      return {
+        fecha:     currentDate,
+        novios:    noviosNombres,
+        slots:     JSON.parse(JSON.stringify(setlistData)),
+        optionals: enabledOptionals.slice()
+      };
+    },
+
+    /* v3.6.6: loadDate es alias de selectDate para que el módulo 33
+       (importador PDF) pueda cargar una fecha programáticamente
+       después de escribir a Firebase. selectDate ya hace todo lo
+       necesario (persiste localStorage, llama loadFromFirebase). */
+    loadDate: selectDate,
+
+    /* v3.6.6: para que el importador (módulo 33) pueda escribir un
+       SetList completo a Firebase de una vez. Recibe un objeto
+       compatible con saveAll del backend. */
+    saveSetlistData: function(dateKey, data) {
+      return storage.saveAll(dateKey, data);
+    },
+
+    /* v3.6.6: para que el importador pueda preguntar si una fecha
+       ya tiene SetList guardado (decidir sobrescribir vs crear adicional). */
+    hasDateInStorage: function(dateKey) {
+      return storage.loadAll(dateKey).then(function(data) {
+        if (!data) return false;
+        // Considerar que existe solo si tiene al menos un slot con cpd
+        var keys = Object.keys(data).filter(function(k) {
+          return k !== '_meta' && data[k] && (data[k].cpd || data[k].instrumental);
+        });
+        return keys.length > 0;
+      });
+    },
 
     // Estado (para módulos consumidores ej. event delegation)
     isActive: function() {

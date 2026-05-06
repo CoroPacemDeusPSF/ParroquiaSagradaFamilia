@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r6
+ *   @version    v3.6.6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -34,9 +34,10 @@
         - Mínimo: mañana (hoy + 1 día)
         - Máximo: hoy + 18 meses
 
-     5. Botones "Exportar borrador (.json)" / "Importar borrador" que
-        sustituyen al botón "Grabar" del SLB en Modo Novios — porque la
-        sincronización a localStorage es automática en cada cambio.
+     5. Botón "Exportar PDF" que sustituye al botón "Grabar" del SLB en
+        Modo Novios — porque la sincronización a localStorage es automática
+        en cada cambio. El PDF generado embebe metadata JSON en el subject
+        del documento para poder ser reimportado en Modo Dev (módulo 33).
 
    ORDEN DE CARGA EN HTML
      Este módulo (31) debe cargar ANTES que el módulo 30 para que el
@@ -52,8 +53,7 @@
      window.SLN (SetList Novios)
        .openWithDateCheck()  → abre el panel; si no hay fecha pide picker
        .openDatePicker()     → abre el rodillo de fecha
-       .exportDraft()        → descarga el borrador como .json
-       .importDraft()        → abre input file para cargar un .json
+       .exportPdf()          → genera PDF con metadata embebida y lo abre
    ============================================================================ */
 
 (function() {
@@ -475,12 +475,20 @@
   }
 
   /**
-   * Inyecta los botones "Exportar borrador" e "Importar borrador" en el
-   * footer del panel SLB. Idempotente — si ya existen, no se duplican.
+   * Inyecta el botón "Exportar PDF" en el footer del panel SLB. Idempotente —
+   * si ya existe, no se duplica.
+   *
+   * v3.6.6: antes inyectaba dos botones (Exportar/Importar borrador JSON).
+   * Ahora solo inyecta "Exportar PDF" porque:
+   *   - El export genera un PDF imprimible CON metadata JSON embebida en el
+   *     subject del PDF — ese mismo PDF puede ser reimportado en Modo Dev
+   *     para reconstruir el SetList en Firebase.
+   *   - El import fue movido a Modo Dev (donde escribe a Firebase). En Modo
+   *     Novios no tendría sentido importar (no escribe a Firebase).
    *
    * Se busca el footer del panel SLB (donde estaba el botón "Grabar" en
    * Modo Bodas). El CSS de novios-mode.css oculta el botón "Grabar" en
-   * Modo Novios, así que estos botones lo reemplazan visualmente.
+   * Modo Novios, así que este botón lo reemplaza visualmente.
    */
   function injectDraftActions() {
     // Idempotencia: si ya existen, no duplicar
@@ -492,7 +500,7 @@
                    document.querySelector('#slb-panel') ||
                    document.querySelector('.setlist-panel');
     if (!slbPanel) {
-      console.warn('[SLN] No se encontró el panel SLB para inyectar botones export/import');
+      console.warn('[SLN] No se encontró el panel SLB para inyectar botón Exportar PDF');
       return;
     }
 
@@ -504,7 +512,7 @@
       footer = slbPanel;
     }
 
-    // Crear contenedor con los 2 botones
+    // Crear contenedor con el botón "Exportar PDF"
     var actions = document.createElement('div');
     actions.className = 'sln-draft-actions';
 
@@ -513,27 +521,13 @@
     exportBtn.className = 'sln-draft-btn sln-draft-export';
     exportBtn.innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
-        '<polyline points="7 10 12 15 17 10"></polyline>' +
-        '<line x1="12" y1="15" x2="12" y2="3"></line>' +
+        '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
+        '<polyline points="14 2 14 8 20 8"></polyline>' +
       '</svg>' +
-      '<span>Exportar borrador</span>';
-    exportBtn.addEventListener('click', exportDraft);
-
-    var importBtn = document.createElement('button');
-    importBtn.type = 'button';
-    importBtn.className = 'sln-draft-btn sln-draft-import';
-    importBtn.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
-        '<polyline points="17 8 12 3 7 8"></polyline>' +
-        '<line x1="12" y1="3" x2="12" y2="15"></line>' +
-      '</svg>' +
-      '<span>Importar borrador</span>';
-    importBtn.addEventListener('click', importDraft);
+      '<span>Exportar PDF</span>';
+    exportBtn.addEventListener('click', exportPdfFromNovios);
 
     actions.appendChild(exportBtn);
-    actions.appendChild(importBtn);
     footer.appendChild(actions);
   }
 
@@ -544,100 +538,65 @@
    * incluye los nombres de los novios (si existen) y la fecha de la boda
    * para identificación rápida.
    */
-  function exportDraft() {
+  /**
+   * v3.6.6: Exporta el SetList actual como PDF imprimible CON metadata
+   * JSON embebida en el subject del PDF. Ese PDF puede ser reimportado
+   * después en Modo Dev (módulo 33) para reconstruir el SetList en
+   * Firebase.
+   *
+   * En Modo Novios el backend es localStorage (no Firebase), así que el
+   * "borrador" del SetList vive en localStorage['pdNoviosSetlistDraft'].
+   * Lo leemos aquí, lo pasamos al builder PDF (módulo 32) que lo procesa
+   * igual que un setlist de Firebase.
+   *
+   * El builder genera el PDF, lo abre en una nueva pestaña, y queda
+   * disponible para que los novios:
+   *   - Lo impriman
+   *   - Lo guarden en su celular
+   *   - Lo envíen al sacerdote por WhatsApp / email
+   *   - Lo lleven a la parroquia para que Renzo lo importe en Modo Dev
+   */
+  function exportPdfFromNovios() {
     try {
       var raw = localStorage.getItem('pdNoviosSetlistDraft');
       if (!raw) {
-        window.alert('No hay borrador para exportar todavía. Selecciona algunos cantos primero.');
+        window.alert('No hay cantos en el borrador todavía. Selecciona algunos cantos primero.');
         return;
       }
       var data = JSON.parse(raw);
 
-      // Construir nombre de archivo descriptivo
-      var noviosName = (data._meta && data._meta.novios) ? data._meta.novios : 'borrador';
-      var fecha = data.fecha || 'sin-fecha';
-      var safeName = noviosName.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&]/g, '').replace(/\s+/g, '-');
-      var filename = 'CPD-Setlist-Boda-' + safeName + '-' + fecha + '.json';
+      if (!data.fecha) {
+        window.alert('El borrador no tiene fecha de boda. Selecciona la fecha primero.');
+        return;
+      }
 
-      // Construir blob y disparar descarga
-      var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      var url  = URL.createObjectURL(blob);
-      var a    = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-        URL.revokeObjectURL(url);
-        if (a.parentNode) a.parentNode.removeChild(a);
-      }, 100);
-      console.log('[SLN] Borrador exportado:', filename);
+      // Verificar que el módulo 32 esté disponible (orquestador del PDF)
+      if (!window.SLBPdf || typeof window.SLBPdf.generateAndOpen !== 'function') {
+        window.alert('El generador PDF no está disponible. Contacta al equipo del coro.');
+        console.error('[SLN] window.SLBPdf no disponible — verificar que módulo 32 esté cargado');
+        return;
+      }
+
+      // Delegar al módulo 32 con el draft de localStorage como fuente de datos
+      window.SLBPdf.generateAndOpen({
+        fecha:      data.fecha,
+        novios:     (data._meta && data._meta.novios) || '',
+        slotsData:  data,           // objeto con slotId → { cpd, title } / instrumental
+        optionals:  (data._meta && data._meta.optionals) || []
+      });
+
+      console.log('[SLN] PDF generado para fecha:', data.fecha);
     } catch (e) {
-      console.error('[SLN] Export error:', e.message);
-      window.alert('Error al exportar borrador: ' + e.message);
+      console.error('[SLN] Export PDF error:', e.message);
+      window.alert('Error al generar PDF: ' + e.message);
     }
-  }
-
-  /**
-   * Abre un input file para que los novios suban un .json previamente
-   * exportado. Valida la estructura y carga al localStorage. Recarga el
-   * panel SLB después para mostrar los datos cargados.
-   */
-  function importDraft() {
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json,.json';
-
-    input.addEventListener('change', function() {
-      var file = input.files && input.files[0];
-      if (!file) return;
-
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          var data = JSON.parse(e.target.result);
-          // Validación básica del schema
-          if (typeof data !== 'object' || data === null) {
-            throw new Error('El archivo no contiene un objeto JSON válido.');
-          }
-          if (!data.fecha || !/^\d{4}-\d{2}-\d{2}$/.test(data.fecha)) {
-            throw new Error('El borrador no tiene una fecha válida.');
-          }
-
-          // Confirmar sobrescritura si ya hay borrador
-          if (localStorage.getItem('pdNoviosSetlistDraft')) {
-            if (!window.confirm('Ya hay un borrador en este dispositivo. ¿Reemplazarlo con el archivo cargado?')) {
-              return;
-            }
-          }
-
-          // Guardar en localStorage
-          localStorage.setItem('pdNoviosSetlistDraft', JSON.stringify(data));
-          localStorage.setItem(DATE_KEY_FOR_NOVIOS, data.fecha);
-          console.log('[SLN] Borrador importado:', data.fecha);
-
-          // Recargar el panel SLB con la nueva fecha
-          if (window.SLB && typeof window.SLB.loadDate === 'function') {
-            window.SLB.loadDate(data.fecha);
-          }
-          window.alert('Borrador cargado correctamente. La fecha de la boda es ' + data.fecha + '.');
-        } catch (err) {
-          console.error('[SLN] Import error:', err.message);
-          window.alert('No se pudo cargar el archivo: ' + err.message);
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    input.click();
   }
 
   // ── API GLOBAL ────────────────────────────────────────────────────────
   window.SLN = {
     openWithDateCheck: openWithDateCheck,
     openDatePicker:    openDatePicker,
-    exportDraft:       exportDraft,
-    importDraft:       importDraft
+    exportPdf:         exportPdfFromNovios
   };
 
   // ── INICIALIZACIÓN ────────────────────────────────────────────────────

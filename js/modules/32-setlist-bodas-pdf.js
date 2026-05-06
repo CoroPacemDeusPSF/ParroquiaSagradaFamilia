@@ -1,0 +1,343 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       js/modules/32-setlist-bodas-pdf.js
+ *   @brief      Orquestador PDF del SetList Bodas — genera PDF imprimible
+ *               con metadata JSON embebida para reimportación en Modo Dev.
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.6.6
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ============================================================================
+   32-setlist-bodas-pdf.js — Generador PDF de SetList de Boda
+   ============================================================================
+
+   ROL EN LA ARQUITECTURA
+     Reusa el builder existente (26e-pdf-builder.js, window.PDFBuilder)
+     adaptándolo para el formato de SetList de Boda. El builder es
+     genérico — recibe un array de cantos con metadata; este módulo se
+     encarga de:
+       1. Recolectar los cantos del SetList según los slots fijos+opcionales
+       2. Decorarlos con _slotLabel para que el builder muestre el slot
+          de boda (ej. "Entrada de la Novia") en lugar del moment del
+          cancionero (ej. "Bodas").
+       3. Construir el objeto metadata que se embebe en el PDF para
+          permitir reimportación en Modo Dev (módulo 33).
+       4. Generar el blob PDF y abrirlo en una nueva pestaña.
+
+   FUENTES DE DATOS
+     Este orquestador puede ser invocado desde dos contextos:
+       a) Modo Novios → datos vienen de localStorage (window.SLN llama
+          con slotsData ya parseado).
+       b) Modo Dev (Bodas) → datos vienen de Firebase (window.SLB tiene
+          la fecha activa cargada en memoria; aquí leemos directamente
+          de la API pública de SLB).
+
+   API PÚBLICA
+     window.SLBPdf.generateAndOpen({
+       fecha:     'YYYY-MM-DD',     // requerida
+       novios:    'Pedro & María',  // opcional, string descriptivo
+       slotsData: { slot-id: {...}, _meta: {...} },  // opcional si SLB activo
+       optionals: ['foto-4', ...]   // opcional, lista de slots opc activos
+     })
+       → Genera PDF, lo abre en nueva pestaña.
+
+     window.SLBPdf.buildMetadataObject(fecha, novios, slotsData, optionals)
+       → Devuelve el objeto que se embebe en el PDF como JSON. Útil para
+         testing y para que el módulo 33 sepa el schema esperado.
+
+   FORMATO DE METADATA EMBEBIDA (PD-SETLIST-V1)
+     El subject del PDF contiene "PD-SETLIST-V1:" seguido de un JSON
+     serializado con esta estructura:
+
+       {
+         "version": "1",
+         "fecha":   "2026-06-13",
+         "novios":  "Pedro & María",
+         "slots": {
+           "ingreso-novio":    { "cpd": "cpd-149", "title": "Canon en Re Mayor" },
+           "entrada-novia":    { "instrumental": true, "title": "Marcha Nupcial" },
+           "piedad":           { "cpd": "cpd-100", "title": "Kyrie Eléison" },
+           ...
+         },
+         "optionals": ["foto-4"],
+         "exportedAt": "2026-05-06T12:34:56.789Z",
+         "exportedBy": "novios"  // "novios" | "dev"
+       }
+
+   ORDEN DE CARGA: 32 (después de 26d, 26e, 30, 31; antes de 33).
+   ============================================================================ */
+
+(function () {
+  'use strict';
+
+  /* ──────────────────────────────────────────────────────────────────────
+     SLOTS DE BODA — copiados del módulo 30 para mantener este orquestador
+     independiente. Si el módulo 30 cambia los slots, hay que actualizar
+     aquí también. (Aceptamos esa duplicación porque el módulo 30 expone
+     SLOTS_FIJOS solo a través de su API interna y queremos evitar
+     acoplamientos rígidos.)
+     ────────────────────────────────────────────────────────────────────── */
+  var SLOTS_FIJOS = [
+    { id: 'ingreso-novio',    label: 'Ingreso del Novio'   },
+    { id: 'entrada-novia',    label: 'Entrada de la Novia' },
+    { id: 'piedad',           label: 'Piedad'              },
+    { id: 'gloria',           label: 'Gloria'              },
+    { id: 'evangelio',        label: 'Evangelio'           },
+    { id: 'ofertorio',        label: 'Ofertorio'           },
+    { id: 'santo',            label: 'Santo'               },
+    { id: 'cordero',          label: 'Cordero de Dios'     },
+    { id: 'comunion',         label: 'Comunión'            },
+    { id: 'firma-pliego',     label: 'Firma del Pliego'    },
+    { id: 'foto-1',           label: 'Fotografía 1'        },
+    { id: 'foto-2',           label: 'Fotografía 2'        },
+    { id: 'foto-3',           label: 'Fotografía 3'        },
+    { id: 'salida',           label: 'Salida de Novios'    }
+  ];
+  var SLOTS_OPCIONALES = [
+    { id: 'foto-4',  label: 'Fotografía 4',  insertAfter: 'foto-3' },
+    { id: 'foto-5',  label: 'Fotografía 5',  insertAfter: 'foto-4' }
+  ];
+
+
+  /**
+   * Resuelve los slots a renderizar en el orden visual correcto:
+   * fijos en orden, con opcionales habilitados intercalados después
+   * de su anchor (insertAfter).
+   */
+  function resolveSlots(enabledOptionals) {
+    var result = SLOTS_FIJOS.slice();
+    SLOTS_OPCIONALES.forEach(function (opt) {
+      if (enabledOptionals.indexOf(opt.id) === -1) return;
+      var anchorIdx = result.findIndex(function (s) { return s.id === opt.insertAfter; });
+      if (anchorIdx === -1) {
+        result.push(opt);
+      } else {
+        result.splice(anchorIdx + 1, 0, opt);
+      }
+    });
+    return result;
+  }
+
+
+  /**
+   * Toma slotsData (objeto plano con slot-id → { cpd, title }) y devuelve
+   * un array de cantos con la metadata necesaria para el builder PDF.
+   *
+   * Cada item tiene:
+   *   - title:       título del canto (string)
+   *   - moment:      moment del cancionero (string, ej. "Bodas")
+   *   - body_html:   HTML del cuerpo (puede estar vacío en instrumentales)
+   *   - chords_html: HTML de los acordes (puede estar vacío)
+   *   - context_html: HTML del contexto (no se renderiza en PDF, pero lo
+   *                  pasamos por completitud)
+   *   - _slotLabel:  label del slot de boda (override del builder)
+   *
+   * Para slots vacíos: NO se incluyen en el PDF (no se imprime una página
+   * "Comunión: vacío"). Solo se incluyen los slots que tienen cpd o
+   * marca instrumental.
+   *
+   * Para slots con instrumental={ instrumental: true, title: '...' }:
+   * generamos un canto sintético con body_html/chords_html vacío y
+   * context_html mínimo. El builder lo manejará igual que un canto
+   * cualquiera (su parser es robusto a body_html vacíos).
+   */
+  function collectSongsForPdf(slotsData, enabledOptionals) {
+    if (!window.PACEM_SONGS_DATA || !Array.isArray(window.PACEM_SONGS_DATA)) {
+      throw new Error('window.PACEM_SONGS_DATA no está disponible — el cancionero todavía no terminó de cargar.');
+    }
+
+    var songsByCpd = {};
+    window.PACEM_SONGS_DATA.forEach(function (s) {
+      songsByCpd[s.cpd] = s;
+    });
+
+    var slots = resolveSlots(enabledOptionals || []);
+    var result = [];
+
+    slots.forEach(function (slot) {
+      var entry = slotsData[slot.id];
+      if (!entry) return; // slot vacío: skip
+
+      if (entry.cpd) {
+        var song = songsByCpd[entry.cpd];
+        if (!song) {
+          console.warn('[SLBPdf] cpd no encontrado:', entry.cpd, 'en slot', slot.id);
+          return;
+        }
+        // Clonamos el song y agregamos _slotLabel
+        result.push(Object.assign({}, song, { _slotLabel: slot.label }));
+      } else if (entry.instrumental === true) {
+        // Canto sintético para piezas instrumentales agregadas inline
+        // (no del catálogo Instrumentales — eso usaría cpd).
+        result.push({
+          cpd:          'instrumental-' + slot.id,
+          did:          'instrumental-' + slot.id,
+          title:        entry.title || 'Pieza instrumental',
+          moment:       'Instrumentales',
+          body_html:    '',
+          chords_html: '',
+          context_html: '<p class="ctx-title">Pieza instrumental</p><p>Acompañamiento musical sin letra.</p>',
+          _slotLabel:   slot.label
+        });
+      }
+    });
+
+    return result;
+  }
+
+
+  /**
+   * Construye el objeto que se embebe como metadata JSON en el subject
+   * del PDF. Será leído por el módulo 33 al importar.
+   *
+   * IMPORTANTE: el contenido debe ser pequeño porque el subject del PDF
+   * tiene un límite práctico de unos 64KB (depende del visor). Para un
+   * SetList típico de 14 slots, esto da ~1KB — cómodo.
+   */
+  function buildMetadataObject(fecha, novios, slotsData, optionals) {
+    // Filtrar a solo los slots que tienen contenido (no _meta, no vacíos)
+    var slotsClean = {};
+    Object.keys(slotsData).forEach(function (key) {
+      if (key === '_meta' || key === 'fecha') return;
+      var entry = slotsData[key];
+      if (!entry) return;
+      if (entry.cpd) {
+        slotsClean[key] = { cpd: entry.cpd, title: entry.title || '' };
+      } else if (entry.instrumental === true) {
+        slotsClean[key] = { instrumental: true, title: entry.title || '' };
+      }
+    });
+
+    return {
+      version:    '1',
+      fecha:      fecha,
+      novios:     novios || '',
+      slots:      slotsClean,
+      optionals:  optionals || [],
+      exportedAt: new Date().toISOString(),
+      exportedBy: window.PD_NOVIOS_MODE ? 'novios' : 'dev'
+    };
+  }
+
+
+  /**
+   * Función principal: arma todo, llama al builder, abre el PDF en una
+   * nueva pestaña.
+   *
+   * Si el caller no pasa slotsData, intentamos obtenerlo del módulo SLB
+   * directamente (Modo Dev/Bodas — Firebase backend). En Modo Novios el
+   * caller siempre pasa slotsData explícito (vienen de localStorage).
+   */
+  function generateAndOpen(opts) {
+    opts = opts || {};
+
+    var fecha     = opts.fecha;
+    var novios    = opts.novios || '';
+    var slotsData = opts.slotsData;
+    var optionals = opts.optionals;
+
+    if (!fecha) {
+      window.alert('No hay fecha de boda definida. No se puede generar el PDF.');
+      return;
+    }
+
+    // Si no nos pasaron slotsData explícito, intentar obtenerlo de SLB
+    if (!slotsData) {
+      if (!window.SLB || typeof window.SLB.getCurrentSetlist !== 'function') {
+        window.alert('No se puede leer el SetList actual. Verifica que tengas la fecha cargada.');
+        return;
+      }
+      var snapshot = window.SLB.getCurrentSetlist();
+      slotsData = snapshot.slots || {};
+      novios    = novios || snapshot.novios || '';
+      optionals = optionals || snapshot.optionals || [];
+    }
+
+    // Verificar dependencias
+    if (!window.PDFBuilder || typeof window.PDFBuilder.buildPdf !== 'function') {
+      window.alert('El generador PDF no está disponible. Verifica que el cancionero terminó de cargar.');
+      return;
+    }
+
+    // Recolectar cantos a renderizar
+    var songs;
+    try {
+      songs = collectSongsForPdf(slotsData, optionals);
+    } catch (e) {
+      window.alert(e.message);
+      return;
+    }
+
+    if (songs.length === 0) {
+      window.alert('No hay cantos en el SetList para exportar. Selecciona algunos cantos primero.');
+      return;
+    }
+
+    // Construir metadata para embebido
+    var metadata = buildMetadataObject(fecha, novios, slotsData, optionals);
+
+    // Formatear fecha para portada del PDF
+    var dateLabel = window.PDFBuilder.formatBodaDate(fecha);
+
+    // Construir título descriptivo
+    var pdfTitle = novios
+      ? ('Boda de ' + novios + ' — Coro Pacem Deus')
+      : ('Boda — Coro Pacem Deus');
+
+    // Generar el PDF
+    var blob;
+    try {
+      blob = window.PDFBuilder.buildPdf(songs, {
+        withChords: false,    // las bodas no incluyen acordes en el PDF público
+        dateLabel:  dateLabel,
+        title:      pdfTitle,
+        author:     'Coro Pacem Deus — Parroquia Sagrada Familia',
+        keywords:   'boda, setlist, cancionero, coro pacem deus',
+        metadata:   metadata
+      });
+    } catch (e) {
+      console.error('[SLBPdf] Error generando PDF:', e);
+      window.alert('Error generando el PDF: ' + e.message);
+      return;
+    }
+
+    // Abrir en nueva pestaña
+    var url = URL.createObjectURL(blob);
+    var newWindow = window.open(url, '_blank');
+    if (!newWindow) {
+      // Algunos navegadores bloquean window.open si no es respuesta a un
+      // click directo. Fallback: descarga directa.
+      var safeName = novios.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&]/g, '').replace(/\s+/g, '-') || 'sin-novios';
+      var filename = 'CPD-Boda-' + safeName + '-' + fecha + '.pdf';
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        if (a.parentNode) a.parentNode.removeChild(a);
+      }, 100);
+    }
+
+    // Liberar URL después de un tiempo (el navegador ya cargó el blob)
+    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+
+    console.log('[SLBPdf] PDF generado:', fecha, '|', songs.length, 'cantos |',
+                JSON.stringify(metadata).length, 'bytes metadata');
+  }
+
+
+  // ── API PÚBLICA ─────────────────────────────────────────────────────────
+  window.SLBPdf = {
+    generateAndOpen:      generateAndOpen,
+    buildMetadataObject:  buildMetadataObject,
+    collectSongsForPdf:   collectSongsForPdf
+  };
+
+  console.log('[SLBPdf] Módulo cargado');
+})();

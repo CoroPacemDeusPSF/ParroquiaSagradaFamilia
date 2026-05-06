@@ -60,6 +60,7 @@
 @import url('components/back-bar.css?v=3.5.3');
 @import url('components/share.css?v=3.6.2');
 @import url('components/search.css?v=3.6.3');
+@import url('components/pdf-import.css?v=3.6.6');
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
 @import url('components/index.css?v=3.6.2');
