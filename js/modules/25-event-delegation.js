@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r7
+ *   @version    v3.6.0r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -139,9 +139,13 @@
       const cpd = el.getAttribute('data-target');
       // El botón "+" se inyecta una sola vez por el renderer; aquí
       // decidimos a qué setlist agregar en función del modo activo.
-      // Mutuamente excluyentes (módulos 05 y 29 garantizan invariante).
+      // Mutuamente excluyentes (módulos 05, 29 y 31 garantizan invariante).
+      // v3.6.0r6: agregado reconocimiento de novios-mode — los novios
+      // editan el mismo SLB pero la capa storage del módulo 30 redirige
+      // automáticamente a localStorage en lugar de Firebase.
       const inWedding = document.body.classList.contains('wedding-mode');
-      const target = inWedding ? window.SLB : window.SL;
+      const inNovios  = document.body.classList.contains('novios-mode');
+      const target = (inWedding || inNovios) ? window.SLB : window.SL;
       if (target && typeof target.addSong === 'function') {
         target.addSong(cpd);
       }

@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r5
+ *   @version    v3.6.0r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -393,105 +393,204 @@ body.novios-mode #novios-badge .novios-badge-icon {
 
 
 /* ════════════════════════════════════════════════════════════════════════
-   6. FAB SETLIST NOVIOS (#sln-fab)
+   6. EDGE-TAB SETLIST NOVIOS (#sln-edge)
    ════════════════════════════════════════════════════════════════════════
-   Floating Action Button rosa perla que abre el panel SLB de los novios.
-   Visible solo cuando body.novios-mode está activo. Posicionado en la
-   esquina inferior derecha (zona habitual del AI Agent en otros modos,
-   que en Modo Novios está oculto — ver sección 1.4).
+   v3.6.0r6: cambio del FAB circular por un edge-tab vertical pegado al
+   borde izquierdo, mismo patrón visual que .slb-tab (Modo Bodas) pero con
+   paleta rosa perla más viva y emanaciones decorativas (notas musicales
+   y corazones flotando hacia arriba) para señalizar visualmente la
+   función nupcial-musical.
 
-   Paleta: gradiente diagonal de --wm-rose-pearl a --wm-rose, mismo lenguaje
-   visual que el badge "Modo Novios" y el sello de la animación de entrada.
+   Por qué edge-tab en lugar de FAB:
+     · El panel SLB se abre desde la izquierda (sliding); el edge en el
+       mismo lado mantiene la coherencia espacial — el botón "se convierte"
+       en el panel al hacer click.
+     · Patrón consistente con Modo Bodas (.slb-tab) — el usuario familiar
+       con el coro reconoce el lenguaje visual.
+     · El edge ocupa menos área visible que un FAB (24×64 vs 56×56) y no
+       compite con el contenido del cancionero.
 
-   Icono: checklist de 3 líneas con checks verificados (SVG inline en JS).
-   Trazos limpios sin fill — refleja la función "marca tu setlist".
-
-   El FAB NO se inyecta en HTML público — lo crea el módulo 31 al detectar
-   Modo Novios. La regla CSS solo aplica cuando body.novios-mode está activo
-   (defensa en profundidad: si por algún bug el FAB queda en el DOM en
-   otro modo, no se mostraría).
+   Animación de heartbeat (latido) — mismo timing que .slb-tab pero con
+   un poco más de intensidad para mayor visibilidad en Modo Novios donde
+   es el ÚNICO control de acción del usuario.
    ════════════════════════════════════════════════════════════════════════ */
 
-.sln-fab {
-  /* Visibilidad gobernada por la clase del body — fuera de Modo Novios,
-     ocultar como medida defensiva. */
+.sln-edge {
+  /* Default oculto — fuera de Modo Novios. */
   display: none;
 }
 
-body.novios-mode .sln-fab {
-  /* Posicionamiento — esquina inferior derecha, encima del contenido pero
-     sin tocar el borde de la pantalla. z-index alto para no quedar tapado
-     por elementos del cancionero (cards, índice). */
+body.novios-mode .sln-edge {
+  /* Posición: pegado al borde izquierdo, vertical, centrado verticalmente.
+     z-index alto para no quedar tapado por cards o índice. */
   display: flex;
   position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  z-index: 950;          /* debajo de modales (1000+) pero encima de cards */
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90000;
 
-  /* Forma y tamaño — círculo de 3.5rem, suficiente para un objetivo táctil
-     cómodo (>44px en móvil, recomendación de Apple HIG / Material Design). */
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 50%;
+  /* Forma: rectángulo vertical con border-radius solo a la derecha
+     (el lado izquierdo está pegado al borde de la pantalla). */
+  width: 30px;
+  height: 76px;
+  border-radius: 0 12px 12px 0;
   align-items: center;
   justify-content: center;
 
-  /* Paleta rosa perla con gradiente diagonal — mismo lenguaje visual que
-     el badge "Modo Novios" y la animación de sello. La luminosidad
-     superior izquierda crea la sensación de perla iluminada por arriba. */
+  /* Paleta rosa perla con destello superior-izquierdo (15% pearl-shimmer)
+     que simula el reflejo de luz sobre una perla pulida. */
   background:
     linear-gradient(135deg,
       var(--wm-pearl-shimmer) 0%,
-      var(--wm-rose-pearl) 35%,
-      var(--wm-rose) 70%,
+      var(--wm-rose-pearl) 25%,
+      var(--wm-rose) 60%,
       var(--wm-rose-deep) 100%);
 
-  /* Borde sutil dorado oscuro (sepia) para definir la silueta sin
-     romper la paleta perlada. */
-  border: 1px solid rgba(184, 138, 130, 0.35);
+  /* Borde rosa profundo solo en el lado derecho (los otros 3 lados son
+     borde de la pantalla o redondeo). */
+  border: none;
+  border-right: 1px solid rgba(184, 138, 130, 0.40);
+  border-top:    1px solid rgba(184, 138, 130, 0.40);
+  border-bottom: 1px solid rgba(184, 138, 130, 0.40);
 
-  /* Sombra exterior cálida — eleva el FAB del fondo. La sombra interior
-     blanca por arriba refuerza la sensación de perla iluminada. */
+  /* Sombra: brillo interno superior + sombra exterior cálida. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 16px rgba(184, 138, 130, 0.30),
-    0 8px 32px rgba(184, 138, 130, 0.20);
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    2px 4px 16px rgba(184, 138, 130, 0.30),
+    4px 8px 32px rgba(184, 138, 130, 0.20);
 
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  color: var(--sepia-deep, #4A3F2C);  /* color del icono (currentColor del SVG) */
+  color: var(--wm-rose-deep);
+  overflow: visible;          /* permite que las emanaciones salgan del botón */
+
+  /* Animación de heartbeat — latido rítmico que llama la atención sin
+     ser invasivo. 2 latidos cortos seguidos cada 2.5 segundos, como un
+     pulso real. */
+  animation: sln-edge-heartbeat 2.5s ease-out infinite;
 }
 
-body.novios-mode .sln-fab:hover {
-  /* Hover: pequeño levantamiento + sombra más profunda */
-  transform: translateY(-2px);
+body.novios-mode .sln-edge:hover {
+  /* Hover: pequeño desplazamiento hacia la derecha + sombra más fuerte. */
+  transform: translateY(-50%) translateX(2px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 6px 20px rgba(184, 138, 130, 0.40),
-    0 12px 40px rgba(184, 138, 130, 0.25);
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    3px 6px 24px rgba(184, 138, 130, 0.45),
+    6px 12px 40px rgba(184, 138, 130, 0.30);
+  animation-play-state: paused;    /* pausar latido en hover */
 }
 
-body.novios-mode .sln-fab:active {
-  /* Click: presión hacia abajo */
-  transform: translateY(0) scale(0.96);
+body.novios-mode .sln-edge:active {
+  transform: translateY(-50%) translateX(0);
 }
 
-body.novios-mode .sln-fab svg {
-  width: 1.6rem;
-  height: 1.6rem;
+body.novios-mode .sln-edge .sln-edge-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Animación heartbeat — dos latidos cortos seguidos cada 2.5s.
+   Imita un latido cardíaco real: contracción rápida + expansión rápida +
+   pausa larga. Más visible que el pulso suave del .slb-tab. */
+@keyframes sln-edge-heartbeat {
+  0%   { transform: translateY(-50%) scale(1); }
+  4%   { transform: translateY(-50%) scale(1.10); }
+  8%   { transform: translateY(-50%) scale(1); }
+  12%  { transform: translateY(-50%) scale(1.10); }
+  16%  { transform: translateY(-50%) scale(1); }
+  /* Pausa larga del 16% al 100% — latido visible cada 2.5s */
+}
+
+/* ── Emanaciones (notas musicales y corazones flotantes) ─────────────────
+   6 partículas que flotan hacia arriba desde el edge con animación
+   escalonada (delays de 0s, 1.2s, 2.4s, 3.6s, 4.8s, 6s). Cada partícula
+   dura 5 segundos completos (subir + fade-out). El loop completo es
+   7.2s para que las 6 partículas se distribuyan uniformemente.
+
+   Combinación: 3 notas musicales (♪, ♫) + 3 corazones (♥) — una
+   representa la música del coro, el otro representa la naturaleza
+   nupcial del modo. */
+
+body.novios-mode .sln-emanation {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--wm-rose-deep);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  animation: sln-emanation-rise 7.2s ease-out infinite;
+}
+
+/* Delays escalonados — cada emanación arranca 1.2s después de la anterior */
+body.novios-mode .sln-em-1 { animation-delay: 0s;     color: var(--wm-rose-deep); }
+body.novios-mode .sln-em-2 { animation-delay: 1.2s;   color: #C66B6B; }            /* corazón rojo suave */
+body.novios-mode .sln-em-3 { animation-delay: 2.4s;   color: var(--wm-rose-deep); }
+body.novios-mode .sln-em-4 { animation-delay: 3.6s;   color: #C66B6B; }
+body.novios-mode .sln-em-5 { animation-delay: 4.8s;   color: var(--wm-rose-deep); }
+body.novios-mode .sln-em-6 { animation-delay: 6.0s;   color: #C66B6B; }
+
+/* Trayectoria: parten del centro superior del edge, suben con leve
+   oscilación lateral (alternando izquierda/derecha cada partícula),
+   se desvanecen al final. */
+@keyframes sln-emanation-rise {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.8);
+  }
+  10% {
+    opacity: 0.85;
+    transform: translateX(-50%) translateY(-8px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-80px) scale(1.1);
+  }
+}
+
+/* Variantes: emanaciones pares se desvían a la derecha, impares a la
+   izquierda — efecto de "humo musical" que sale del edge. */
+body.novios-mode .sln-em-2,
+body.novios-mode .sln-em-4,
+body.novios-mode .sln-em-6 {
+  animation-name: sln-emanation-rise-right;
+}
+
+@keyframes sln-emanation-rise-right {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.8);
+  }
+  10% {
+    opacity: 0.85;
+    transform: translateX(-30%) translateY(-8px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(60%) translateY(-80px) scale(1.1);
+  }
+}
+
+/* Ocultar el edge cuando el panel SLB está abierto (no compita visualmente).
+   Mismo comportamiento que .slb-tab.slb-tab-hidden en Modo Bodas. */
+body.novios-mode .sln-edge.sln-edge-hidden {
+  display: none;
 }
 
 @media (max-width: 30rem) {
-  /* Móvil: FAB un poco más pequeño y más cerca del borde */
-  body.novios-mode .sln-fab {
-    width: 3rem;
-    height: 3rem;
-    right: 1rem;
-    bottom: 1rem;
+  /* Móvil: edge un poco más pequeño */
+  body.novios-mode .sln-edge {
+    width: 26px;
+    height: 64px;
   }
-  body.novios-mode .sln-fab svg {
-    width: 1.4rem;
-    height: 1.4rem;
+  body.novios-mode .sln-edge .sln-edge-icon {
+    width: 14px;
+    height: 14px;
+  }
+  body.novios-mode .sln-emanation {
+    font-size: 1rem;
   }
 }
 
@@ -797,14 +896,20 @@ body.novios-mode .sln-fab svg {
   background: rgba(184, 138, 130, 0.10);
 }
 
+/* Botón Confirmar — contraste alto: fondo rosa profundo + texto blanco perla.
+   v3.6.0r6: cambio de --sepia-deep (puede no estar resuelto en el contexto)
+   por --wm-rose-deep que sí existe siempre al cargar wedding-mode.css.
+   También fuerzo el color del texto a blanco puro para máxima legibilidad. */
 .sln-picker-confirm {
-  background: var(--sepia-deep);
-  border: 1px solid var(--sepia-deep);
-  color: var(--wm-pearl-shimmer);
+  background: var(--wm-rose-deep);
+  border: 1px solid var(--wm-rose-deep);
+  color: #FFFFFF;
+  font-weight: 600;
 }
 
 .sln-picker-confirm:hover {
-  background: #5A4A2E;
+  background: #8E5F58;     /* rose-deep oscurecido para hover */
+  border-color: #8E5F58;
 }
 
 .sln-picker-confirm:active {
@@ -828,6 +933,68 @@ body.novios-mode .sln-fab svg {
     font-size: 1.25rem;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   9. BOTÓN "+" EN EL ÍNDICE (Modo Novios)
+   ════════════════════════════════════════════════════════════════════════
+   El botón ".idx-add-btn" se inyecta en cada fila del índice por el
+   módulo 15 (build-index). Por defecto está oculto y solo aparece en
+   body.dev-mode (ver setlist.css).
+
+   En Modo Novios queremos que sea visible para que los novios puedan
+   agregar cantos a su setlist directamente desde el índice. La
+   delegación de eventos del módulo 25 maneja el click — al detectar
+   novios-mode, redirige el addSong al SLB (que con la capa storage
+   abstracta escribe a localStorage).
+   ════════════════════════════════════════════════════════════════════════ */
+
+body.novios-mode .idx-add-btn {
+  display: inline-flex;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   9.1. BOTÓN "+" EN HEADER DE SONG-CARDS (Modo Novios)
+   ════════════════════════════════════════════════════════════════════════
+   El módulo 28-novios-mode.js inyecta un botón "+" dentro del header
+   de cada .song-card al activar el modo. Este botón permite a los
+   novios agregar cantos al setlist desde la cabecera del canto, sin
+   tener que volver al índice.
+
+   Estilo coherente con .idx-add-btn pero un poco más visible (los
+   headers tienen más espacio y el botón debe destacar).
+   ════════════════════════════════════════════════════════════════════════ */
+
+body.novios-mode .novios-card-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.6rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--wm-rose-pearl);
+  border: 1px solid var(--wm-rose-deep);
+  color: var(--wm-rose-deep);
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+body.novios-mode .novios-card-add-btn:hover {
+  background: var(--wm-rose-deep);
+  color: #FFFFFF;
+}
+
+body.novios-mode .novios-card-add-btn:active {
+  transform: scale(0.92);
+}
+
 
 /* ════════════════════════════════════════════════════════════════════════
    8. BOTONES EXPORT/IMPORT BORRADOR EN FOOTER DEL SLB (Modo Novios)

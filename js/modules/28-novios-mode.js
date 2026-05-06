@@ -6,7 +6,7 @@
  *   @brief      Modo Novios: vista limpia para novios — activación vía URL
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.8
+ *   @version    v3.6.0r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -213,6 +213,45 @@
   }
 
   /**
+   * Inyecta un botón "+" en el header de cada song-card para que los
+   * novios puedan agregar el canto a su setlist directamente desde la
+   * cabecera del canto (no solo desde el índice).
+   *
+   * Por qué desde JS y no desde el renderer del 00:
+   * Modificar el renderer afectaría a todos los modos (Coro, Bodas,
+   * Novios, público). Inyectar desde aquí mantiene el HTML público
+   * intacto y solo agrega el botón cuando se activa Modo Novios.
+   *
+   * El botón usa data-action="add-to-setlist" → el módulo 25 lo procesa
+   * con la lógica que ya redirige a SLB en novios-mode.
+   *
+   * Idempotente: si ya hay un botón en una card, no se duplica.
+   */
+  function addSongCardButtons() {
+    var cards = document.querySelectorAll('.song-card[data-chord-id]');
+    cards.forEach(function(card) {
+      // Idempotencia
+      if (card.querySelector('.novios-card-add-btn')) return;
+
+      var cpdId  = card.dataset.chordId;
+      var header = card.querySelector('.song-header-text');
+      if (!cpdId || !header) return;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'novios-card-add-btn';
+      btn.setAttribute('data-action', 'add-to-setlist');
+      btn.setAttribute('data-target', cpdId);
+      btn.setAttribute('aria-label', 'Agregar al setlist de la boda');
+      btn.setAttribute('title', 'Agregar al setlist de la boda');
+      btn.textContent = '+';
+
+      // Añadir al final del header (junto al título)
+      header.appendChild(btn);
+    });
+  }
+
+  /**
    * Activa el modo: dispara la misma animación del sello del Modo Bodas
    * (overlay #wedding-intro con anillos animados, texto rotante "Coro Pacem
    * Deus", paleta perlada) pero con label central "Modo Novios" en vez de
@@ -236,6 +275,10 @@
     // Estos puntos dorados son parte del sistema visual "manuscrito
     // litúrgico contemporáneo" introducido en v3.5.8.
     addIndexVinettes();
+
+    // Inyectar botones "+" en cada song-card para que los novios puedan
+    // agregar cantos al setlist desde la cabecera de cada canto. (v3.6.0r6)
+    addSongCardButtons();
 
     // Si por alguna razón la función global de animación no existe (módulo
     // 29 no cargó por algún error de red), aplicamos el modo igual sin

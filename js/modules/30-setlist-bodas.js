@@ -1077,6 +1077,10 @@
     panel.classList.add('open');
     overlay.classList.add('open');
     if (tab) tab.classList.add('slb-tab-hidden');
+    // v3.6.0r6: si hay edge-tab del Modo Novios visible, ocultarlo
+    // mientras el panel está abierto (no tiene sentido que ambos compitan).
+    var slnEdge = document.getElementById('sln-edge');
+    if (slnEdge) slnEdge.classList.add('sln-edge-hidden');
 
     // Si no hay fecha activa pero hay disponibles, pre-seleccionar la
     // más cercana a hoy (la primera futura, o la última si todas son pasadas).
@@ -1103,6 +1107,9 @@
     panel.classList.remove('open');
     overlay.classList.remove('open');
     if (tab) tab.classList.remove('slb-tab-hidden');
+    // v3.6.0r6: re-mostrar el edge-tab del Modo Novios al cerrar el panel
+    var slnEdge = document.getElementById('sln-edge');
+    if (slnEdge) slnEdge.classList.remove('sln-edge-hidden');
   }
 
   // Cierre forzoso: ignora el pin. Usado por el módulo 29 al desactivar
@@ -1112,6 +1119,9 @@
     panel.classList.remove('open');
     overlay.classList.remove('open');
     if (tab) tab.classList.remove('slb-tab-hidden');
+    // v3.6.0r6: re-mostrar el edge del Modo Novios al force-close
+    var slnEdge2 = document.getElementById('sln-edge');
+    if (slnEdge2) slnEdge2.classList.remove('sln-edge-hidden');
   }
   function togglePanel() { isOpen ? closePanel() : openPanel(); }
 

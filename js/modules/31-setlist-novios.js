@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r5
+ *   @version    v3.6.0r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -383,36 +383,54 @@
   // ── FAB (Floating Action Button) ──────────────────────────────────────
 
   /**
-   * Crea el FAB rosa perla con icono de checklist. Solo visible cuando
-   * body.novios-mode está activo (el CSS controla la visibilidad).
-   * Se inserta una sola vez al cargar el módulo.
+   * Crea el edge-tab vertical pegado al borde izquierdo de la pantalla.
+   * Mismo patrón visual que .slb-tab del Modo Bodas pero con paleta
+   * propia y emanaciones decorativas (notas musicales y corazones).
+   *
+   * Visible solo cuando body.novios-mode está activo (el CSS controla
+   * la visibilidad). Se inserta una sola vez al cargar el módulo.
+   *
+   * Estructura DOM:
+   *   <button#sln-edge>
+   *     <svg.sln-edge-icon> ← icono de checklist (función)
+   *     <span.sln-emanation>♪</span> × N ← notas musicales y corazones
+   *                                        flotantes con animación CSS
+   *   </button>
    */
   function createFAB() {
     // Idempotencia: si ya existe, no duplicar
-    if (document.getElementById('sln-fab')) return;
+    if (document.getElementById('sln-edge')) return;
 
-    var fab = document.createElement('button');
-    fab.id = 'sln-fab';
-    fab.className = 'sln-fab';
-    fab.setAttribute('type', 'button');
-    fab.setAttribute('aria-label', 'Abrir mi setlist de boda');
-    fab.setAttribute('title', 'Mi SetList');
+    var edge = document.createElement('button');
+    edge.id = 'sln-edge';
+    edge.className = 'sln-edge';
+    edge.setAttribute('type', 'button');
+    edge.setAttribute('aria-label', 'Abrir mi setlist de boda');
+    edge.setAttribute('title', 'Mi SetList');
 
-    // SVG checklist: 3 líneas con checks. Trazo limpio, sin fills, para
-    // que se vea profesional sobre el fondo perlado del FAB.
-    fab.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    // SVG checklist principal (función del botón)
+    edge.innerHTML =
+      '<svg class="sln-edge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
         '<polyline points="3 7 5 9 9 5"></polyline>' +
         '<polyline points="3 13 5 15 9 11"></polyline>' +
         '<polyline points="3 19 5 21 9 17"></polyline>' +
         '<line x1="13" y1="7" x2="21" y2="7"></line>' +
         '<line x1="13" y1="13" x2="21" y2="13"></line>' +
         '<line x1="13" y1="19" x2="21" y2="19"></line>' +
-      '</svg>';
+      '</svg>' +
+      // Emanaciones: 6 partículas (3 notas musicales + 3 corazones)
+      // que flotan hacia arriba con animación CSS escalonada. Cada una
+      // tiene su propio delay para que no salgan todas al mismo tiempo.
+      '<span class="sln-emanation sln-em-1" aria-hidden="true">♪</span>' +
+      '<span class="sln-emanation sln-em-2" aria-hidden="true">♥</span>' +
+      '<span class="sln-emanation sln-em-3" aria-hidden="true">♫</span>' +
+      '<span class="sln-emanation sln-em-4" aria-hidden="true">♥</span>' +
+      '<span class="sln-emanation sln-em-5" aria-hidden="true">♪</span>' +
+      '<span class="sln-emanation sln-em-6" aria-hidden="true">♥</span>';
 
-    fab.addEventListener('click', openWithDateCheck);
+    edge.addEventListener('click', openWithDateCheck);
 
-    document.body.appendChild(fab);
+    document.body.appendChild(edge);
   }
 
   // ── APERTURA DEL PANEL SLB ────────────────────────────────────────────
