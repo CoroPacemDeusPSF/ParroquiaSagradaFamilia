@@ -6,7 +6,7 @@
      @brief      Overrides finales específicos del cancionero dominical (paleta verde, utilities)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.8
+     @version    v3.6.1r1
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -209,6 +209,16 @@
 .ceremony.dominical .index-list a.yt-play-btn--ref-2 { color: #2E9D3F; }  /* verde */
 .yt-play-btn--youtube.yt-play-btn--ref-3,
 .ceremony.dominical .index-list a.yt-play-btn--ref-3 { color: #8E4DC9; }  /* morado */
+
+/* v3.6.1r1 — Fix: el ícono de acordes en el índice se veía blanquecino
+   (#C8D8A8 = --theme-link-cover) porque el selector `.yt-play-btn--chords`
+   tiene especificidad (0,1,0), menor que `.ceremony.dominical .index-list a`
+   (0,3,1) que pinta todos los <a> del índice. Sin esta regla con
+   especificidad alta (0,4,1), el ícono heredaba el color del texto del
+   enlace en vez del verde tematizado --theme-icon-score (#43A047).
+
+   Patrón idéntico al del fix de los iconos --ref-N de YouTube de arriba. */
+.ceremony.dominical .index-list a.yt-play-btn--chords { color: var(--theme-icon-score); }
 
 /* Marcador rojo discreto (subnotas): variante alternativa del context-toggle */
 .context-toggle--alt {
