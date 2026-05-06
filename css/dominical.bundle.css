@@ -63,7 +63,7 @@
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
 @import url('components/index.css?v=3.6.2');
-@import url('components/song-card.css?v=3.6.2');
+@import url('components/song-card.css?v=3.6.5');
 @import url('components/chords.css?v=3.6.2');
 @import url('components/context.css?v=3.5.2');
 

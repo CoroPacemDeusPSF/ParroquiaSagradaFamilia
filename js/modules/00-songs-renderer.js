@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.5.0
+ *   @version    v3.6.5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -250,16 +250,16 @@
       // Para cantos LITÚRGICOS: "Ver contexto litúrgico" (etiqueta histórica
       // del proyecto, mantenida para que la UI siga siendo coherente con la
       // mayor parte del cancionero).
-      // Para cantos del moment "Bodas": "Ver sobre este canto" — porque
-      // los cantos nupciales no son litúrgicos en sentido estricto (no son
-      // textos del ordinario ni cantos para momentos rituales fijos), sino
-      // música pastoral asociada al sacramento del matrimonio. Cambiar el
-      // label evita que el feligrés espere un análisis litúrgico que no
-      // encajaría con el carácter del canto. Esta lógica está centralizada
-      // aquí en el renderer; el módulo 18 (toggle) consulta este mismo flag
-      // al alternar el texto entre "Ver" y "Ocultar".
+      // Para cantos NO-LITÚRGICOS ("Bodas" e "Instrumentales"): "Ver sobre
+      // este canto" — porque no son textos del ordinario ni cantos para
+      // momentos rituales fijos. Bodas son canciones pastorales asociadas
+      // al sacramento; Instrumentales son piezas sin letra para acompañar
+      // el ingreso de los novios. Cambiar el label evita que el feligrés
+      // espere un análisis litúrgico que no encajaría. Esta lógica está
+      // centralizada aquí en el renderer; el módulo 18 (toggle) consulta
+      // este mismo flag al alternar el texto entre "Ver" y "Ocultar".
       ((function() {
-        var isNonLiturgical = (song.moment === 'Bodas');
+        var isNonLiturgical = (song.moment === 'Bodas' || song.moment === 'Instrumentales');
         var openLabel  = isNonLiturgical ? 'Ver sobre este canto'    : 'Ver contexto lit&uacute;rgico';
         var closeLabel = isNonLiturgical ? 'Ocultar'                 : 'Ocultar contexto lit&uacute;rgico';
         return '    <button class="context-toggle" id="context-toggle-' + did + '"' +
@@ -327,6 +327,12 @@
        antes de Bodas, agrupando cantos pastoralmente diferenciados de
        los demás moments por su carácter consolador y exequial. */
     'Misa de Honras':                           'sec-misa-honras',
+    /* Instrumentales: piezas instrumentales (sin letra) usadas
+       principalmente para Ingreso del Novio y Entrada de la Novia
+       en bodas. Se ubican antes de Bodas para que el flujo visual
+       del cancionero presente las opciones instrumentales primero
+       y luego los cantos nupciales. (v3.6.5) */
+    'Instrumentales':                           'sec-instrumentales',
     /* Bodas: moment para cantos nupciales (v3.3.0r4).
        Por ahora visible en ambos modos (Coro y Bodas) — en r5+
        podríamos filtrar para que solo aparezca en Modo Bodas si Renzo

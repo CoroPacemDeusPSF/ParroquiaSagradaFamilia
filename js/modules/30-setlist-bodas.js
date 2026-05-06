@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.4
+ *   @version    v3.6.5
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -300,6 +300,14 @@
   // Para bodas, los moments litúrgicos del cancionero son los mismos que
   // los dominicales, así que reusamos los mismos targets.
   var LABEL_TO_SECTION = {
+    /* v3.6.5: 'Ingreso del Novio' y 'Entrada de la Novia' navegan a
+       la sección 'sec-instrumentales' del cancionero. Antes el primer
+       slot no era clickable (no tenía mapeo) y el segundo iba a
+       'sec-entrada' (entrada litúrgica), inconsistente. Ahora ambos
+       caen al moment 'Instrumentales' donde están las piezas sin letra
+       (Pachelbel, Mendelssohn, etc.) que el coro usa para el ingreso. */
+    'Ingreso del Novio':  'sec-instrumentales',
+    'Entrada de la Novia':'sec-instrumentales',
     'Piedad':           'sec-piedad',
     'Gloria':           'sec-gloria',
     'Evangelio':        'sec-aleluya',
@@ -313,6 +321,11 @@
   // Mapeo de moment del cancionero → slot de boda sugerido (para
   // resaltar opciones en el dialog "Agregar al setlist de boda").
   var TAG_MAP = {
+    /* v3.6.5: 'Instrumentales' sugieren ingresos. Cuando el usuario
+       hace click en + sobre un canto instrumental, el dialog
+       resalta los slots 'ingreso-novio' y 'entrada-novia' como
+       destinos sugeridos (ambos son slots instrumentables). */
+    'Instrumentales':           'entrada-novia',
     'Entrada':                  'entrada-novia',
     'Piedad':                   'piedad',
     'Gloria':                   'gloria',

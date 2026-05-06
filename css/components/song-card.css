@@ -396,3 +396,62 @@ body.wedding-mode  .add-setlist-btn { display: inline-flex; }
   50%       { opacity: 0; }
 }
 
+
+/* ════════════════════════════════════════════════════════════════════════
+   Instrumental notice — para piezas sin letra (moment "Instrumentales")
+   ════════════════════════════════════════════════════════════════════════
+   v3.6.5: las piezas instrumentales (Pachelbel, Mendelssohn, etc.) no
+   tienen estrofas ni coros, así que en lugar del bloque normal de
+   .strophe/.chorus mostramos un aviso elegante centrado: ícono musical,
+   título "Pieza instrumental" y subtítulo invitando a escuchar la
+   referencia en YouTube. Mantiene la estética del cancionero sin
+   forzar a fingir letras vacías.
+
+   Tipografía/colores se heredan del tema dominical activo.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.instrumental-notice {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+  margin: 0.8rem 0 0.4rem;
+}
+
+.instrumental-icon {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem;
+  line-height: 1;
+  color: var(--color-accent);
+  opacity: 0.55;
+  margin: 0 0 0.6rem;
+  letter-spacing: 0.05em;
+}
+
+.instrumental-text {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-accent-deep);
+  margin: 0 0 0.4rem;
+  opacity: 0.85;
+}
+
+.instrumental-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #5A5040;
+  opacity: 0.75;
+  margin: 0;
+}
+
+/* Composer line en context-html (solo aparece en cantos instrumentales
+   por la firma de make_instrumental_context) */
+.ctx-composer {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--color-accent-deep);
+  opacity: 0.85;
+  margin: 0 0 1rem;
+  text-align: center;
+}
