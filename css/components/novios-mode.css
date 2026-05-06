@@ -56,6 +56,10 @@
      .slb-header-action → botón "Elegir fecha" del SLB (la fecha la
        gestionamos nosotros vía flatpickr)
      .slb-save → autosave en localStorage, no necesita botón manual
+     .slb-clear → "Borrar todo" (v3.6.6r1): los novios solo configuran
+       el SetList una vez, borrar todo sería un accidente costoso. Renzo
+       sí lo necesita en Modo Bodas/Coro/Dev así que solo lo ocultamos
+       acá en Novios, no lo eliminamos del HTML.
      .slb-picker / .slb-picker-cell → picker de fecha del SLB nativo
        (reemplazado por flatpickr)
      .sl-* → controles del Modo Coro (modos exclusivos) */
@@ -72,6 +76,7 @@ body.novios-mode .slb-tab,
 body.novios-mode .slb-pin-btn,
 body.novios-mode .slb-header-action,
 body.novios-mode .slb-save,
+body.novios-mode .slb-clear,
 body.novios-mode .slb-picker,
 body.novios-mode .slb-picker-cell {
   display: none !important;

@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6
+ *   @version    v3.6.6r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -281,20 +281,23 @@
     { id: 'foto-1',           label: 'Fotografía',  sub: '1' },
     { id: 'foto-2',           label: 'Fotografía',  sub: '2' },
     { id: 'foto-3',           label: 'Fotografía',  sub: '3' },
+    /* v3.6.6r1: foto-4 ahora es slot fijo (antes era opcional con +botón).
+       El SetList se considera completo con o sin canto en este slot —
+       solo está listo para que los novios agreguen una 4ta canción si
+       quieren, sin tener que clickear "+" antes. La 5ta fotografía y
+       posteriores quedaron eliminadas; en la práctica nunca se usaron. */
+    { id: 'foto-4',           label: 'Fotografía',  sub: '4' },
     { id: 'salida',           label: 'Salida de Novios',    instrumentable: true }
   ];
 
-  // Slots opcionales y dónde se insertan en el orden visual.
-  // - 'foto-4' va después de 'foto-3'.
-  // - 'foto-5' va después de 'foto-4' (o foto-3 si foto-4 no está).
-  //
-  // v3.6.4: eliminados 'salmo' y 'canto-maria'. El salmo se maneja
-  // por fuera del cancionero (lector o instrumental). El canto a
-  // María no se realiza habitualmente en este coro.
-  var SLOTS_OPCIONALES = [
-    { id: 'foto-4',      label: 'Fotografía', sub: '4', insertAfter: 'foto-3' },
-    { id: 'foto-5',      label: 'Fotografía', sub: '5', insertAfter: 'foto-4' }
-  ];
+  // v3.6.6r1: SLOTS_OPCIONALES quedó vacío. Antes contenía 'foto-4' y
+  // 'foto-5' como slots con +botón en el footer. Renzo decidió que un
+  // 4to slot de Fotografía siempre debe estar visible (aunque opcional
+  // para llenar) y que un 5to slot ya no es necesario. Mantenemos el
+  // array como [] para no romper la lógica de computeDisplaySlots y
+  // saveAll que iteran sobre SLOTS_OPCIONALES — un array vacío resuelve
+  // como "no hay opcionales que insertar/persistir".
+  var SLOTS_OPCIONALES = [];
 
   // Mapa de label → id de sección del cancionero (clic en label navega).
   // Para bodas, los moments litúrgicos del cancionero son los mismos que
@@ -617,13 +620,15 @@
 
   // ── RENDER DEL FOOTER ─────────────────────────────────────────────────
   // Layout del footer (cuando hay fecha activa):
-  //   ┌─ slots opcionales por agregar ──────────────────────────────┐
-  //   │ [+ Foto 4] [+ Foto 5]                                        │
-  //   └────────────────────────────────────────────────────────────┘
   //   ┌─ acciones del setlist ────────────────────────────────────┐
-  //   │              [Borrar todo]      [💾 Grabar]               │
+  //   │ [Borrar todo*]   [Exportar PDF**]   [💾 Grabar]            │
+  //   │  *oculto en novios-mode (CSS, ver novios-mode.css)         │
+  //   │  **solo visible en wedding-mode estricto (no novios-mode)  │
   //   └────────────────────────────────────────────────────────────┘
   //
+  // El botón "Grabar" reenvía TODA la fecha activa a Firebase de una sola
+  // vez, sirve como red de seguridad si por alguna razón un save individual
+  // falló (ej. red intermitente). Muestra confirmación visual al terminar.
   // El botón "Grabar" reenvía TODA la fecha activa a Firebase de una sola
   // vez, sirve como red de seguridad si por alguna razón un save individual
   // falló (ej. red intermitente). Muestra confirmación visual al terminar.
@@ -631,9 +636,12 @@
     if (!footerEl) return;
     if (!currentDate) { footerEl.innerHTML = ''; return; }
 
+    /* v3.6.6r1: SLOTS_OPCIONALES quedó vacío. La lógica que sigue se
+       conserva por si en el futuro se vuelven a agregar slots opcionales,
+       pero como `available` siempre será `[]` con el array vacío, en la
+       práctica `optionalsHtml` queda como string vacío. La condición
+       `if (available.length > 0)` evita renderizar el contenedor vacío. */
     var available = SLOTS_OPCIONALES.filter(function(opt) {
-      // foto-5 solo si foto-4 ya está habilitada (orden secuencial)
-      if (opt.id === 'foto-5' && enabledOptionals.indexOf('foto-4') === -1) return false;
       return enabledOptionals.indexOf(opt.id) === -1;
     });
 
@@ -646,7 +654,9 @@
       optionalsHtml = '<div class="slb-footer-optionals">' + optionsHtml + '</div>';
     }
 
-    // Acciones del setlist: Borrar todo (izq) + Exportar PDF (centro) + Grabar (der)
+    // Acciones del setlist: Borrar todo (oculto en novios-mode via CSS)
+    //                      + Exportar PDF (solo wedding-mode estricto)
+    //                      + Grabar (oculto en novios-mode via CSS).
     // v3.6.6: el botón "Exportar PDF" se muestra en wedding-mode y novios-mode.
     // En novios-mode, el módulo 31 inyecta SU PROPIO botón "Exportar PDF" como
     // reemplazo del "Grabar" (que se oculta en CSS), así que aquí solo lo

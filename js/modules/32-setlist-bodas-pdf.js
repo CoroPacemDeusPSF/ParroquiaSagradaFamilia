@@ -7,7 +7,7 @@
  *               con metadata JSON embebida para reimportación en Modo Dev.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6
+ *   @version    v3.6.6r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -81,6 +81,8 @@
      aquí también. (Aceptamos esa duplicación porque el módulo 30 expone
      SLOTS_FIJOS solo a través de su API interna y queremos evitar
      acoplamientos rígidos.)
+
+     v3.6.6r1: foto-4 promovido a slot fijo. SLOTS_OPCIONALES vacío.
      ────────────────────────────────────────────────────────────────────── */
   var SLOTS_FIJOS = [
     { id: 'ingreso-novio',    label: 'Ingreso del Novio'   },
@@ -96,12 +98,10 @@
     { id: 'foto-1',           label: 'Fotografía 1'        },
     { id: 'foto-2',           label: 'Fotografía 2'        },
     { id: 'foto-3',           label: 'Fotografía 3'        },
+    { id: 'foto-4',           label: 'Fotografía 4'        },
     { id: 'salida',           label: 'Salida de Novios'    }
   ];
-  var SLOTS_OPCIONALES = [
-    { id: 'foto-4',  label: 'Fotografía 4',  insertAfter: 'foto-3' },
-    { id: 'foto-5',  label: 'Fotografía 5',  insertAfter: 'foto-4' }
-  ];
+  var SLOTS_OPCIONALES = [];
 
 
   /**
@@ -226,6 +226,35 @@
 
 
   /**
+   * v3.6.6r1: Carga diferida de jsPDF (self-hosted en js/lib/).
+   * Es la misma estrategia que usa el módulo 27 (PDF dominical) — la lib
+   * pesa ~411 KB así que solo se carga cuando el usuario realmente pide
+   * exportar PDF. Una vez cargada, queda en memoria para invocaciones
+   * subsiguientes.
+   *
+   * El path es relativo al HTML del cancionero (cancioneros/dominical.html).
+   * Cache-bust por versión global del proyecto.
+   *
+   * @returns {Promise<void>}
+   */
+  function ensureJsPDFLoaded() {
+    if (window.jspdf && window.jspdf.jsPDF) {
+      return Promise.resolve();
+    }
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = '../js/lib/jspdf.umd.min.js?v=3.6.6';
+      script.async = true;
+      script.onload  = function () { resolve(); };
+      script.onerror = function () {
+        reject(new Error('No se pudo cargar el motor PDF. Verifica tu conexión y recarga la página.'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+
+  /**
    * Función principal: arma todo, llama al builder, abre el PDF en una
    * nueva pestaña.
    *
@@ -258,6 +287,25 @@
       optionals = optionals || snapshot.optionals || [];
     }
 
+    // v3.6.6r1: Cargar jsPDF antes de generar el PDF.
+    // Antes el builder fallaba con "jsPDF no está cargado" porque la
+    // lib es self-hosted y se carga bajo demanda. El módulo 27 (PDF
+    // dominical) la carga al hacer click; aquí replicamos esa estrategia.
+    ensureJsPDFLoaded()
+      .then(function () { actuallyGeneratePdf(fecha, novios, slotsData, optionals); })
+      .catch(function (err) {
+        console.error('[SLBPdf] Error cargando jsPDF:', err);
+        window.alert('Error generando el PDF: ' + err.message);
+      });
+  }
+
+
+  /**
+   * Generación del PDF propiamente dicha. Se llama después de que jsPDF
+   * está disponible. Separada de generateAndOpen para que el flujo
+   * asíncrono (carga + generación) se vea claro.
+   */
+  function actuallyGeneratePdf(fecha, novios, slotsData, optionals) {
     // Verificar dependencias
     if (!window.PDFBuilder || typeof window.PDFBuilder.buildPdf !== 'function') {
       window.alert('El generador PDF no está disponible. Verifica que el cancionero terminó de cargar.');
