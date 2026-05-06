@@ -1,0 +1,227 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       css/components/dev-pin.css
+ *   @brief      Modal del PIN numérico para activar Modo Dev (keypad 3x4)
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.6.6r7
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ============================================================================
+   dev-pin.css
+   ============================================================================
+   Modal centrado con:
+     - Título "Modo Desarrollador"
+     - 6 dots que se llenan al ingresar dígitos
+     - Keypad 3x4 (1-9, C, 0, ⌫)
+     - Botones Cancelar / Confirmar
+   Paleta sepia/dorada (estética del cancionero) — coherente con index/dominical.
+   ============================================================================ */
+
+
+/* ── OVERLAY ─────────────────────────────────────────────────────────── */
+.dev-pin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 14, 10, 0.78);
+  z-index: 100002; /* sobre cualquier otro modal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: dev-pin-fade-in 0.2s ease;
+}
+
+@keyframes dev-pin-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ── MODAL ───────────────────────────────────────────────────────────── */
+.dev-pin-modal {
+  background: linear-gradient(160deg, #FBF6E8 0%, #F5EBD3 100%);
+  border-radius: 8px;
+  border: 1px solid #C8A36A;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45),
+              0 0 0 1px rgba(200, 163, 106, 0.2);
+  max-width: 360px;
+  width: 100%;
+  padding: 1.5rem 1.6rem 1.3rem;
+  text-align: center;
+}
+
+/* Animación de shake para PIN incorrecto */
+.dev-pin-modal.shake {
+  animation: dev-pin-shake 0.5s ease;
+}
+
+@keyframes dev-pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+
+/* ── TÍTULOS ─────────────────────────────────────────────────────────── */
+.dev-pin-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6B4226;
+  margin-bottom: 0.3rem;
+}
+
+.dev-pin-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #8B6F47;
+  margin-bottom: 1.2rem;
+}
+
+
+/* ── DOTS DEL PIN (6 círculos) ───────────────────────────────────────── */
+.dev-pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0.5rem 0 1.3rem;
+}
+
+.dev-pin-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid #C8A36A;
+  background: transparent;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.dev-pin-dot.filled {
+  background: #C8A36A;
+  border-color: #8B6F47;
+  transform: scale(1.1);
+}
+
+
+/* ── KEYPAD 3×4 ──────────────────────────────────────────────────────── */
+.dev-pin-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.dev-pin-key {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #5A3D1F;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid #D4B98F;
+  border-radius: 8px;
+  padding: 0.7rem 0;
+  cursor: pointer;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dev-pin-key:hover {
+  background: rgba(200, 163, 106, 0.18);
+  border-color: #C8A36A;
+}
+
+.dev-pin-key:active {
+  transform: scale(0.94);
+  background: rgba(200, 163, 106, 0.30);
+}
+
+/* Botones especiales C y ⌫: tipografía + color distintos para diferenciar */
+.dev-pin-key-clear,
+.dev-pin-key-back {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #8B6F47;
+}
+
+
+/* ── BOTONES ACCIÓN ──────────────────────────────────────────────────── */
+.dev-pin-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.dev-pin-btn {
+  flex: 1;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.65rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+}
+
+.dev-pin-btn-cancel {
+  border-color: rgba(60, 60, 40, 0.3);
+  color: #5A5040;
+  background: transparent;
+}
+.dev-pin-btn-cancel:hover {
+  background: rgba(60, 60, 40, 0.06);
+}
+
+.dev-pin-btn-ok {
+  border-color: #6B4226;
+  color: #fff;
+  background: linear-gradient(135deg, #8B6F47 0%, #6B4226 100%);
+}
+.dev-pin-btn-ok:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.dev-pin-btn-ok:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+
+/* ── INPUT INVISIBLE PARA MOBILE ─────────────────────────────────────── */
+/* Posicionado fuera de la pantalla pero NO display:none ni visibility:
+   hidden — necesitamos que el navegador lo trate como elemento real
+   para que pueda recibir focus y abrir el teclado numérico nativo
+   en mobile. opacity:0 + position:absolute lo logra sin estorbar. */
+.dev-pin-mobile-input {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  border: none;
+  outline: none;
+}
+
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .dev-pin-modal {
+    padding: 1.2rem 1.1rem 1rem;
+  }
+  .dev-pin-key {
+    font-size: 1.3rem;
+    padding: 0.6rem 0;
+  }
+}

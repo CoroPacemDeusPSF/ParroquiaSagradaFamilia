@@ -779,7 +779,18 @@ body.novios-mode .sln-edge.sln-edge-hidden {
   font-weight: 500;
 }
 
-/* Grid de días */
+/* Grid de días.
+   v3.6.6r7: BUG FIX CRÍTICO. Flatpickr usa flex-wrap en .dayContainer
+   y calcula el ancho de cada día como 14.2857% (1/7) para garantizar
+   exactamente 7 días por fila. Pero si el contenedor es más ancho que
+   `7 × max-width-del-día`, los días "sobran" y se acomodan 8, 9 o 10
+   por fila — desalineando los días con los headers DOM/LUN/MAR...
+
+   Solución: forzar `min-width: 100%` en dayContainer (ya estaba)
+   Y SOBRE TODO no fijar `max-width: 36px` en .flatpickr-day, sino
+   `flex-basis: 14.2857%` + `max-width: 14.2857%` para garantizar
+   que SIEMPRE caben exactamente 7 por fila.
+*/
 .sln-picker-modal .flatpickr-days {
   background: transparent;
   width: 100%;
@@ -788,11 +799,14 @@ body.novios-mode .sln-edge.sln-edge-hidden {
 .sln-picker-modal .dayContainer {
   background: transparent;
   width: 100%;
-  min-width: 0;
+  min-width: 100%;
   max-width: 100%;
 }
 
-/* Cada día (botón seleccionable) */
+/* Cada día (botón seleccionable).
+   v3.6.6r7: flex-basis 14.2857% (1/7) garantiza 7 por fila. El height
+   se mantiene como en r6 para que las celdas sean cuadradas en mobile
+   y rectangulares (más altas) en desktop. */
 .sln-picker-modal .flatpickr-day {
   color: var(--sepia-deep);
   font-family: 'EB Garamond', serif;
@@ -800,10 +814,11 @@ body.novios-mode .sln-edge.sln-edge-hidden {
   border-radius: 50%;
   border: 1px solid transparent;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  max-width: 36px;
+  flex-basis: 14.2857143%;
+  max-width: 14.2857143%;
   height: 36px;
   line-height: 36px;
-  margin: 1px;
+  margin: 1px 0;
 }
 
 /* Hover */

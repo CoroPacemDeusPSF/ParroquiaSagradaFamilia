@@ -6,7 +6,7 @@
  *   @brief      Modo Dev: 5-clicks en cruz del footer (solo en Modo Coro)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0
+ *   @version    v3.6.6r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -48,29 +48,51 @@
 
     if (clicks >= CLICKS_NEEDED) {
       clicks = 0;
-      // El intro se reproduce con la paleta del modo padre activo:
-      //   • Modo Coro  → playModeIntro (dorado, cruz)
-      //   • Modo Bodas → playWeddingIntro (rosa, anillos)
-      var introFn = inBodas && window.playWeddingIntro
-        ? window.playWeddingIntro
-        : window.playModeIntro;
 
-      if (introFn) {
-        introFn('Modo<br>Dev', function() {
-          document.body.classList.add('dev-mode');
-          // Persistencia: indica el modo padre + dev para que tras reload
-          // se restaure correctamente.
-          var savedMode = inBodas ? 'bodas+dev' : 'coro+dev';
-          try { localStorage.setItem('pdMode', savedMode); } catch(e) {}
-          console.log('[Dev] Modo Dev activado sobre ' + (inBodas ? 'Bodas' : 'Coro'));
-        });
-      } else {
-        // Fallback sin animación
-        document.body.classList.add('dev-mode');
-        var fbMode = inBodas ? 'bodas+dev' : 'coro+dev';
-        try { localStorage.setItem('pdMode', fbMode); } catch(e) {}
-        console.log('[Dev] Modo Dev activado (sin animación)');
-      }
+      /* v3.6.6r7: Antes de activar Modo Dev, exigir PIN de 6 dígitos.
+         Si la sesión ya está desbloqueada (sessionStorage), DevPin.verify
+         resuelve inmediatamente sin pedir nada. Si Firebase no tiene PIN
+         configurado, DevPin.verify muestra mensaje pidiendo configurarlo
+         con __setDevPin('XXXXXX') en consola y rechaza la promesa. */
+      var verifyFn = (window.DevPin && typeof window.DevPin.verify === 'function')
+        ? window.DevPin.verify
+        : function () { return Promise.resolve(); }; // fallback si módulo 34 falla
+
+      verifyFn().then(function () {
+        // PIN OK (o sesión ya desbloqueada): proceder con la activación
+        activateDevMode(inBodas);
+      }).catch(function (err) {
+        // PIN cancelado o no configurado: no activar
+        console.log('[Dev] Activación cancelada:', err.message);
+      });
     }
   });
+
+  /**
+   * v3.6.6r7: Lógica de activación extraída en función para llamarla
+   * solo después de que DevPin.verify resuelva. El intro animado y el
+   * cambio de clase del body solo ocurren si el PIN fue correcto.
+   */
+  function activateDevMode(inBodas) {
+    var introFn = inBodas && window.playWeddingIntro
+      ? window.playWeddingIntro
+      : window.playModeIntro;
+
+    if (introFn) {
+      introFn('Modo<br>Dev', function() {
+        document.body.classList.add('dev-mode');
+        // Persistencia: indica el modo padre + dev para que tras reload
+        // se restaure correctamente.
+        var savedMode = inBodas ? 'bodas+dev' : 'coro+dev';
+        try { localStorage.setItem('pdMode', savedMode); } catch(e) {}
+        console.log('[Dev] Modo Dev activado sobre ' + (inBodas ? 'Bodas' : 'Coro'));
+      });
+    } else {
+      // Fallback sin animación
+      document.body.classList.add('dev-mode');
+      var fbMode = inBodas ? 'bodas+dev' : 'coro+dev';
+      try { localStorage.setItem('pdMode', fbMode); } catch(e) {}
+      console.log('[Dev] Modo Dev activado (sin animación)');
+    }
+  }
 })();
