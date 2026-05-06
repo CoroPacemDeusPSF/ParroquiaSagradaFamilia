@@ -140,23 +140,27 @@
 }
 
 
-/* ── BOTÓN "IMPORTAR PDF" EN FOOTER SLB (MODO DEV) ───────────────────── */
+/* ── BOTÓN "IMPORTAR PDF" EN FOOTER SLB ──────────────────────────────── */
+/* v3.6.6r6: aparece en Modo Bodas (no requiere Dev). Tamaño compacto
+   para que quepa junto a los otros 3 botones del footer en mobile.
+   Color azul para diferenciar visualmente de Exportar (rosa) y
+   Grabar (rosa primario). */
 .pdfi-import-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.45rem 0.9rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 3px;
   cursor: pointer;
   border: 1px solid #4A90D9;
   background: transparent;
   color: #4A90D9;
   transition: all 0.2s;
-  margin-left: 0.5rem;
+  white-space: nowrap;
 }
 
 .pdfi-import-btn svg {

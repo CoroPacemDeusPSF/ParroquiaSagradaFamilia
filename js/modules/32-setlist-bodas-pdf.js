@@ -7,7 +7,7 @@
  *               con metadata JSON embebida para reimportación en Modo Dev.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r2
+ *   @version    v3.6.6r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -169,8 +169,19 @@
           console.warn('[SLBPdf] cpd no encontrado:', entry.cpd, 'en slot', slot.id);
           return;
         }
-        // Clonamos el song y agregamos _slotLabel
-        result.push(Object.assign({}, song, { _slotLabel: slot.label }));
+        /* v3.6.6r6: marcamos _isInstrumental cuando:
+           a) el canto pertenece al moment "Instrumentales" (cpd-149..153,
+              que son las piezas clásicas: Pachelbel, Mendelssohn, etc.)
+           b) o el slot es instrumentable (ingreso-novio, entrada-novia,
+              salida) — esos slots típicamente reciben piezas instrumentales
+              aunque ocasionalmente reciben canciones con letra.
+           El builder usa este flag para layout compacto (2 instrumentales
+           contiguos comparten una página). */
+        var isInstrumental = (song.moment === 'Instrumentales');
+        result.push(Object.assign({}, song, {
+          _slotLabel: slot.label,
+          _isInstrumental: isInstrumental
+        }));
       } else if (entry.instrumental === true) {
         // Canto sintético para piezas instrumentales agregadas inline
         // (no del catálogo Instrumentales — eso usaría cpd).
@@ -182,7 +193,8 @@
           body_html:    '',
           chords_html: '',
           context_html: '<p class="ctx-title">Pieza instrumental</p><p>Acompañamiento musical sin letra.</p>',
-          _slotLabel:   slot.label
+          _slotLabel:   slot.label,
+          _isInstrumental: true
         });
       }
     });

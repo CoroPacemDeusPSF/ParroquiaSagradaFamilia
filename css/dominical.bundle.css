@@ -60,7 +60,7 @@
 @import url('components/back-bar.css?v=3.5.3');
 @import url('components/share.css?v=3.6.2');
 @import url('components/search.css?v=3.6.3');
-@import url('components/pdf-import.css?v=3.6.6');
+@import url('components/pdf-import.css?v=3.6.6r6');
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
 @import url('components/index.css?v=3.6.2');
@@ -87,7 +87,7 @@
    coexistir con los del dominical sin interferencia (clases prefijadas .slb-*
    y selectores body.wedding-mode evitan colisiones).                        */
 @import url('components/wedding-mode.css?v=3.3.0r10');
-@import url('components/setlist-bodas.css?v=3.6.6');
+@import url('components/setlist-bodas.css?v=3.6.6r6');
 /* Modo Novios — vista limpia para que los novios revisen el cancionero
    antes de la boda. Activado vía URL (?modo=novios&pin=CPD2026). Importado
    AL FINAL de los componentes para que sus reglas !important tengan máxima

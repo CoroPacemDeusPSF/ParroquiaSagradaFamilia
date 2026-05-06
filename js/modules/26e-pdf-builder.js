@@ -6,7 +6,7 @@
  *   @brief      Constructor de PDF vectorial con identidad visual Pacem Deus
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6
+ *   @version    v3.6.6r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -263,11 +263,30 @@
     /* Portada */
     drawCover(doc, songs, dateLabel, withChords);
 
-    /* Cantos */
-    songs.forEach(function (song, idx) {
+    /* Cantos.
+       v3.6.6r6: Pares contiguos de cantos instrumentales se renderizan
+       en la MISMA página (compactos arriba/abajo) para evitar gastar
+       hojas enteras en piezas que no tienen letra. Solo aplica a pares
+       contiguos en el SetList — si hay 3 instrumentales seguidos, los
+       primeros 2 comparten página y el 3ro va solo. */
+    var i = 0;
+    while (i < songs.length) {
+      var current = songs[i];
+      var next = songs[i + 1];
+      var pairsInstrumental = current._isInstrumental === true &&
+                              next && next._isInstrumental === true;
+
       doc.addPage();
-      drawSong(doc, song, idx + 1, songs.length, withChords);
-    });
+      if (pairsInstrumental) {
+        // Renderizar 2 instrumentales en la misma página, divididos
+        // visualmente por la mitad vertical de la hoja.
+        drawInstrumentalPair(doc, current, next, i + 1, songs.length);
+        i += 2;
+      } else {
+        drawSong(doc, current, i + 1, songs.length, withChords);
+        i += 1;
+      }
+    }
 
     /* Pintar cabecera/pie en TODAS las páginas (excepto la portada).
        Lo hacemos al final cuando ya conocemos el total de páginas. */
@@ -529,6 +548,110 @@
     } else {
       drawSongLyrics(doc, song, y);
     }
+  }
+
+  /* ============================================================
+     RENDER COMPACTO PARA PARES INSTRUMENTALES
+     ============================================================
+     v3.6.6r6: Cuando hay 2 cantos instrumentales contiguos (típicamente
+     "Ingreso del Novio" + "Entrada de la Novia"), comparten página
+     dividida horizontalmente en mitades. Cada mitad tiene:
+       - Badge numérico circular (igual al normal)
+       - Título en Cinzel UPPERCASE
+       - Tag verde con el slot label
+       - Aviso visual "Pieza instrumental"
+     Sin estrofas/coros (los instrumentales no tienen letra).
+
+     La división vertical incluye una línea ornamental al medio para
+     separar visualmente las dos piezas y evitar que se confundan
+     como si fueran una sola.
+     ============================================================ */
+  function drawInstrumentalPair(doc, songA, songB, numberA, total) {
+    paintPageBackground(doc);
+
+    /* Cada canto ocupa la mitad vertical de la zona útil de la página.
+       midPoint = línea horizontal divisoria. */
+    var topZoneStart    = CFG.marginTop;
+    var midPoint        = (CFG.pageHeight - CFG.marginBottom + CFG.marginTop) / 2;
+    var bottomZoneStart = midPoint + 8; // pequeño gap visual tras el separador
+
+    /* ── Mitad superior: songA ─────────────────────────────────── */
+    drawCompactInstrumentalSong(doc, songA, numberA, topZoneStart);
+
+    /* ── Separador ornamental al medio ─────────────────────────── */
+    drawOrnamentalDivider(doc, midPoint);
+
+    /* ── Mitad inferior: songB ─────────────────────────────────── */
+    drawCompactInstrumentalSong(doc, songB, numberA + 1, bottomZoneStart);
+  }
+
+  /**
+   * Render compacto de un canto instrumental en la posición Y dada.
+   * Usa la misma estética que drawSongHeader pero más vertical-eficiente:
+   * el badge, título y tag se concentran en menos espacio vertical, y
+   * después se agrega un aviso "Pieza instrumental" en lugar de letra.
+   */
+  function drawCompactInstrumentalSong(doc, song, number, y) {
+    var cx = CFG.pageWidth / 2;
+    var numStr = String(number).padStart(2, '0');
+
+    /* Badge dorado más pequeño que el normal (4mm en lugar de 5.5mm) */
+    var badgeR = 4.5;
+    var badgeY = y + 6;
+
+    setFill(doc, CFG.color.accent);
+    doc.circle(cx, badgeY, badgeR, 'F');
+
+    setDraw(doc, CFG.color.accentDeep);
+    doc.setLineWidth(0.3);
+    doc.circle(cx, badgeY, badgeR, 'S');
+
+    doc.setHeaderFont('bold');
+    doc.setFontSize(9);
+    setText(doc, CFG.color.white);
+    safeText(doc, numStr, cx, badgeY + 1.2, { align: 'center' });
+
+    /* Título Cinzel UPPERCASE — más pequeño que en página completa */
+    doc.setHeaderFont('bold');
+    doc.setFontSize(CFG.font.titleSize - 2);
+    setText(doc, CFG.color.textStrong);
+    doc.setCharSpace(0.5);
+    safeText(doc, song.title.toUpperCase(), cx, y + 18, { align: 'center' });
+    doc.setCharSpace(0);
+
+    /* Tag verde con slot label */
+    drawLiturgicalTag(doc, cx, y + 25, song._slotLabel || song.moment);
+
+    /* Aviso "Pieza instrumental" — replicado del CSS web */
+    doc.setFont('times', 'italic');
+    doc.setFontSize(11);
+    setText(doc, CFG.color.textMuted);
+    safeText(doc, '\u266B  Pieza instrumental', cx, y + 43, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    setText(doc, CFG.color.textMuted);
+    safeText(doc, 'Sin letra — solo acompañamiento musical',
+             cx, y + 51, { align: 'center' });
+  }
+
+  /**
+   * Separador ornamental horizontal al medio de la página, para dividir
+   * los 2 instrumentales que comparten hoja. Estética coherente con el
+   * filete dorado de la portada (drawDecorativeRule).
+   */
+  function drawOrnamentalDivider(doc, y) {
+    var cx = CFG.pageWidth / 2;
+
+    /* Filetes laterales dorados con punto central decorativo */
+    setDraw(doc, CFG.color.accent);
+    doc.setLineWidth(0.3);
+    doc.line(CFG.marginX + 10, y, cx - 5, y);
+    doc.line(cx + 5, y, CFG.pageWidth - CFG.marginX - 10, y);
+
+    /* Punto central */
+    setFill(doc, CFG.color.accent);
+    doc.circle(cx, y, 0.8, 'F');
   }
 
   /* Espacio disponible vertical en la página actual */

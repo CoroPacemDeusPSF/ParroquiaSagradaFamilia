@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r5
+ *   @version    v3.6.6r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -144,6 +144,15 @@
         });
       },
 
+      /* v3.6.6r6: borra el evento completo de Firebase. Útil para
+         "Eliminar Evento" — libera la fecha por completo (no queda
+         registro en el shallow listDates). */
+      deleteAll: function(dateKey) {
+        return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '.json', {
+          method: 'DELETE'
+        });
+      },
+
       listDates: function() {
         return fetch(FIREBASE_URL + FB_BASE + '.json?shallow=true')
           .then(function(r) { return r.json(); })
@@ -231,6 +240,18 @@
         Object.keys(fullObject).forEach(function(k) { copy[k] = fullObject[k]; });
         if (dateKey) copy.fecha = dateKey;
         write(copy);
+        return Promise.resolve();
+      },
+
+      /* v3.6.6r6: en localStorage solo existe UN borrador, así que
+         deleteAll simplemente borra la key. Mantiene compatibilidad
+         con la firma de Firebase backend (mismo nombre, mismo Promise). */
+      deleteAll: function(/* dateKey */) {
+        try {
+          localStorage.removeItem(KEY);
+        } catch (e) {
+          console.warn('[SLB/local] deleteAll error:', e.message);
+        }
         return Promise.resolve();
       },
 
@@ -665,15 +686,20 @@
                       !document.body.classList.contains('novios-mode');
     var exportPdfBtnHtml = '';
     if (isPureBodas) {
+      /* v3.6.6r6: ícono unificado con Importar (misma bandeja con flecha)
+         pero con flecha hacia abajo para exportar. Texto compacto
+         "Exp. PDF" para que los 3 botones quepan en una línea junto
+         a "Borrar todo". */
       exportPdfBtnHtml =
         '<button class="slb-export-pdf" id="slb-export-pdf-btn" ' +
                 'onclick="window.SLBPdf && window.SLBPdf.generateAndOpen({fecha: \'' + currentDate + '\'})" ' +
                 'title="Generar PDF imprimible con metadata embebida">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true">' +
-            '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
-            '<polyline points="14 2 14 8 20 8"></polyline>' +
+            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
+            '<polyline points="7 10 12 15 17 10"></polyline>' +
+            '<line x1="12" y1="15" x2="12" y2="3"></line>' +
           '</svg>' +
-          '<span>Exportar PDF</span>' +
+          '<span>Exp. PDF</span>' +
         '</button>';
     }
 
@@ -701,7 +727,7 @@
             '<polyline points="17 8 12 3 7 8"></polyline>' +
             '<line x1="12" y1="3" x2="12" y2="15"></line>' +
           '</svg>' +
-          '<span>Importar PDF</span>' +
+          '<span>Imp. PDF</span>' +
         '</button>';
     }
 
@@ -720,7 +746,32 @@
         '</button>' +
       '</div>';
 
-    footerEl.innerHTML = optionalsHtml + actionsHtml;
+    /* v3.6.6r6: Botón "Eliminar Evento" — barra ancha al fondo del footer.
+       Acción más destructiva que "Borrar todo": no solo limpia los slots,
+       sino que elimina la entrada COMPLETA de Firebase (incluyendo _meta,
+       novios, optionals). Casos de uso:
+       - La pareja canceló la boda → liberar la fecha
+       - Pruebas / testing
+       - Eventos creados por error
+       Solo aparece en wedding-mode estricto (no novios-mode) y cuando hay
+       una fecha activa. Pide confirmación antes de ejecutar. */
+    var deleteEventHtml = '';
+    if (isPureBodas && currentDate) {
+      deleteEventHtml =
+        '<button class="slb-delete-event" onclick="window.SLB.deleteEvent()" ' +
+                'title="Elimina por completo este evento de Firebase (libera la fecha)">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true">' +
+            '<polyline points="3 6 5 6 21 6"></polyline>' +
+            '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>' +
+            '<path d="M10 11v6"></path>' +
+            '<path d="M14 11v6"></path>' +
+            '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>' +
+          '</svg>' +
+          '<span>Eliminar Evento</span>' +
+        '</button>';
+    }
+
+    footerEl.innerHTML = optionalsHtml + actionsHtml + deleteEventHtml;
   }
 
   // ── SLOTS OPCIONALES: AGREGAR / QUITAR ────────────────────────────────
@@ -992,6 +1043,55 @@
       })
       .catch(function(err) {
         console.warn('[SLB] Clear error:', err.message);
+      });
+  }
+
+  /* v3.6.6r6: Eliminar evento completo.
+     Diferencia con clearAll:
+       - clearAll: limpia slots, mantiene fecha + _meta (novios) en Firebase.
+       - deleteEvent: borra TODA la entrada de Firebase. La fecha desaparece
+         del listado y queda libre para crear otra boda nueva.
+     Casos de uso: pareja canceló la boda, evento creado por error, pruebas. */
+  function deleteEvent() {
+    if (!currentDate) return;
+
+    var confirmMsg = '¿Eliminar por completo el evento del ' + currentDate + '?\n\n' +
+                     'Esta acción borra TODO de Firebase: slots, novios, configuración.\n' +
+                     'La fecha quedará libre para crear una boda nueva.\n\n' +
+                     'Esta acción NO se puede deshacer.';
+
+    if (!window.confirm(confirmMsg)) return;
+
+    var dateBeingDeleted = currentDate;
+
+    storage.deleteAll(dateBeingDeleted)
+      .then(function() {
+        console.log('[SLB] Evento eliminado:', dateBeingDeleted);
+
+        // Limpiar estado en memoria
+        setlistData = {};
+        enabledOptionals = [];
+        noviosNombres = '';
+        currentDate = null;
+
+        // Limpiar la fecha persistida
+        try { localStorage.removeItem('pdSlbDate'); } catch (e) {}
+
+        // Recargar lista de fechas y volver al picker
+        return loadAvailableDates();
+      })
+      .then(function() {
+        currentView = 'date-picker';
+        renderSlots();
+        renderFooter();
+        renderHeader();
+
+        window.alert('Evento eliminado correctamente. La fecha ' + dateBeingDeleted +
+                     ' está libre nuevamente.');
+      })
+      .catch(function(err) {
+        console.error('[SLB] Delete event error:', err);
+        window.alert('Error eliminando el evento: ' + (err.message || err));
       });
   }
 
@@ -1437,6 +1537,7 @@
     goTo:           goToSong,
     remove:         function(slotId) { removeSlot(slotId, false); },
     clearAll:       clearAll,
+    deleteEvent:    deleteEvent,
     saveAll:        saveAll,
     scrollToIndex:  scrollToIndex,
     addSong:        addSong,

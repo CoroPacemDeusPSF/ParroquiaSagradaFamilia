@@ -500,36 +500,40 @@ body.rehearsal-mode .slb-dialog-overlay {
    Refactorizado en r10 a rojo fresa con tratamiento perlado (el mismo
    estilo de gradiente que .slb-save) para que ambos botones del footer
    sean visualmente coherentes pese a representar acciones opuestas.
-   Antes era un rojo borgoña plano que rompía con la paleta perlada. */
+   Antes era un rojo borgoña plano que rompía con la paleta perlada.
+   v3.6.6r6: cambio a marrón rojizo (terracota oscuro) por pedido de
+   Renzo. La paleta perlada (Bodas) tiene mucho rosado claro; un rojo
+   fresa demasiado saturado se sentía estridente al lado de los
+   botones rosa pálido. Marrón rojizo equilibra: comunica peligro
+   (acción destructiva) sin dominar visualmente la paleta. */
 .slb-clear {
-  background: linear-gradient(135deg,
-    var(--wm-strawberry-bright) 0%,
-    var(--wm-strawberry)        25%,
-    var(--wm-strawberry-deep)   100%
-  );
+  background: linear-gradient(135deg, #A04A3C 0%, #8B3A2E 100%);
   color: #fff;
   border: none;
-  padding: 0.5rem 0.95rem;
+  padding: 0.4rem 0.7rem;
   border-radius: 4px;
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
   transition: filter 0.2s, transform 0.1s;
-  box-shadow: 0 1px 4px rgba(184, 51, 64, 0.35);
+  box-shadow: 0 1px 4px rgba(160, 74, 60, 0.35);
+  white-space: nowrap;
 }
 .slb-clear:hover  { filter: brightness(0.92); }
 .slb-clear:active { transform: translateY(1px); }
 
-/* Wrapper de acciones del footer: Borrar todo (izq) + Grabar (der).
-   Layout horizontal con space-between para separar acciones destructivas
-   de constructivas, y dar al botón "Grabar" peso visual diferenciado. */
+/* Wrapper de acciones del footer: 4 botones en línea (Borrar / Exp PDF /
+   Imp PDF / Grabar). Antes había solo 2; ahora con la integración de
+   Exportar/Importar PDF necesitamos espacio para 4 elementos en mobile.
+   Solución: gap mínimo + flex con shrink, padding reducido por botón. */
 .slb-footer-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
 }
 
 /* Botón "Grabar" — la acción principal del footer, visualmente prominente
@@ -538,7 +542,7 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-save {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   /* Gradiente perlado más oscuro (r10): partía con destello, transición
      muy rápida al rose-deep, y termina en un tono café-rosa más profundo
      para que el botón se sienta sólido y "pesado" como una acción primaria
@@ -550,11 +554,12 @@ body.rehearsal-mode .slb-dialog-overlay {
   );
   color: #fff;
   border: none;
-  padding: 0.5rem 0.95rem;
+  padding: 0.4rem 0.7rem;
   border-radius: 4px;
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
+  font-size: 0.55rem;
+  white-space: nowrap;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: filter 0.2s, transform 0.1s;
@@ -955,18 +960,19 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-export-pdf {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.13em;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.45rem 0.85rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 3px;
   border: 1px solid var(--wm-rose, #E8B4B8);
   background: transparent;
   color: var(--wm-rose-deep, #B07A7E);
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .slb-export-pdf svg {
@@ -976,4 +982,49 @@ body.rehearsal-mode .slb-dialog-overlay {
 .slb-export-pdf:hover {
   background: rgba(232, 180, 184, 0.12);
   border-color: var(--wm-rose-deep, #B07A7E);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Botón "Eliminar Evento" — barra ancha al fondo del footer
+   ════════════════════════════════════════════════════════════════════════
+   v3.6.6r6: barra full-width separada del row de 4 botones (Borrar /
+   Exp / Imp / Grabar). Acción más destructiva: elimina la entrada
+   completa de Firebase liberando la fecha. Color rojo más intenso que
+   "Borrar todo" para diferenciar las dos destructivas.
+
+   Layout: ocupa todo el ancho del edge del footer, separación vertical
+   del row anterior con margen para que no se confundan.
+   ════════════════════════════════════════════════════════════════════════ */
+.slb-delete-event {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #8B2E2E;
+  background: transparent;
+  color: #8B2E2E;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slb-delete-event svg {
+  flex-shrink: 0;
+}
+
+.slb-delete-event:hover {
+  background: rgba(139, 46, 46, 0.08);
+  border-color: #6B2222;
+  color: #6B2222;
+}
+
+.slb-delete-event:active {
+  transform: translateY(1px);
 }
