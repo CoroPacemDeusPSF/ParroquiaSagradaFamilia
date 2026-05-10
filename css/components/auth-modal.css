@@ -1,0 +1,166 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       css/components/auth-modal.css
+ *   @brief      Modal de Google Sign-In para autenticación
+ *   @author     Renzo Núñez Berdejo
+ *   @project    Cancionero Dominical
+ *   @version    v3.6.7r1
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ============================================================================
+   auth-modal.css
+   ============================================================================
+   Modal sepia/dorado coherente con el cancionero. Centrado, con ícono de
+   candado, mensaje contextual, botón Google oficial y cancelar.
+   ============================================================================ */
+
+
+/* ── OVERLAY ─────────────────────────────────────────────────────────── */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 14, 10, 0.78);
+  z-index: 100003; /* sobre cualquier otro modal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: auth-fade-in 0.2s ease;
+}
+
+@keyframes auth-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ── MODAL ───────────────────────────────────────────────────────────── */
+.auth-modal {
+  background: linear-gradient(160deg, #FBF6E8 0%, #F5EBD3 100%);
+  border-radius: 8px;
+  border: 1px solid #C8A36A;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45),
+              0 0 0 1px rgba(200, 163, 106, 0.2);
+  max-width: 400px;
+  width: 100%;
+  padding: 1.8rem 1.6rem 1.4rem;
+  text-align: center;
+}
+
+
+/* ── ÍCONO DEL CANDADO ──────────────────────────────────────────────── */
+.auth-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 0.8rem;
+  border-radius: 50%;
+  background: rgba(200, 163, 106, 0.15);
+  color: #8B6F47;
+}
+
+
+/* ── TEXTOS ──────────────────────────────────────────────────────────── */
+.auth-modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6B4226;
+  margin-bottom: 0.6rem;
+}
+
+.auth-modal-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: #5A3D1F;
+  line-height: 1.4;
+  margin-bottom: 1.4rem;
+  padding: 0 0.5rem;
+}
+
+
+/* ── BOTÓN GOOGLE (estilo oficial Material) ──────────────────────────── */
+.auth-modal-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #DADCE0;
+  background: #FFFFFF;
+  color: #3C4043;
+  font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s;
+  margin-bottom: 0.6rem;
+}
+
+.auth-modal-google-btn:hover:not(:disabled) {
+  box-shadow: 0 1px 6px rgba(60, 64, 67, 0.18);
+  background: #F8F9FA;
+}
+
+.auth-modal-google-btn:active:not(:disabled) {
+  background: #F1F3F4;
+}
+
+.auth-modal-google-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+
+/* ── BOTÓN CANCELAR ──────────────────────────────────────────────────── */
+.auth-modal-cancel {
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: none;
+  color: #8B6F47;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.auth-modal-cancel:hover {
+  color: #6B4226;
+}
+
+
+/* ── MENSAJE DE ERROR ────────────────────────────────────────────────── */
+.auth-modal-error {
+  margin-bottom: 0.8rem;
+  padding: 0.5rem 0.7rem;
+  background: rgba(180, 83, 9, 0.08);
+  border: 1px solid rgba(180, 83, 9, 0.3);
+  border-radius: 4px;
+  color: #B45309;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .auth-modal {
+    padding: 1.4rem 1.2rem 1.1rem;
+  }
+  .auth-modal-body {
+    font-size: 1rem;
+  }
+}

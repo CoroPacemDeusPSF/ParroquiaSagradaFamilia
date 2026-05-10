@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Coro Pacem Deus — Reglas de seguridad Realtime Database (v3.6.7)
+   ═══════════════════════════════════════════════════════════════════════
+   SEGURIDAD REAL CON FIREBASE AUTH
+   --------------------------------
+   Cambio crítico vs v3.6.6r7:
+     ANTES: ".write": true (cualquier persona con la URL escribía)
+     AHORA: ".write": "auth.uid === 'TU-UID-AQUI'"
+            (solo Renzo autenticado escribe)
+
+   Lectura sigue pública porque el cancionero la necesita para mostrar
+   contenido al feligrés sin login.
+
+   /dev-pin: ELIMINADO. El PIN ya no existe — Firebase Auth lo reemplaza.
+
+   ═══════════════════════════════════════════════════════════════════════
+   PASOS DE APLICACIÓN
+   ═══════════════════════════════════════════════════════════════════════
+
+   1. HABILITAR GOOGLE AUTH EN LA CONSOLA FIREBASE
+      Console → Authentication → Sign-in method
+      → Habilita "Google" como provider
+      → Selecciona renzonunez.af@gmail.com como project support email
+      → Guardar
+
+   2. AGREGAR DOMINIO AUTORIZADO
+      Console → Authentication → Settings → Authorized domains
+      → Agregar: coropacemdeuspsf.github.io
+      (localhost ya está autorizado por default si pruebas en local)
+
+   3. OBTENER LA API KEY DE FIREBASE
+      Console → Project Settings (engranaje) → General → Tus apps →
+      → Web app → SDK setup → copiar el valor de apiKey
+      → Pegarla en js/modules/35-firebase-auth.js (FIREBASE_CONFIG.apiKey)
+      → Hacer push del cambio
+
+   4. PROBAR LOGIN
+      Abrir cancionero en producción
+      Activar Modo Coro → 5 clicks en cruz footer →
+      Aparecerá modal "Iniciar sesión con Google"
+      Click → autorizar con tu cuenta → ✓ logueado
+
+   5. OBTENER TU UID
+      Después del primer login, abrir consola (F12) y ejecutar:
+         __authStatus()
+      Te dará tu UID (algo como: "MOj3HvRkX2YZ...")
+
+   6. APLICAR ESTAS REGLAS
+      Reemplazar TU-UID-AQUI por tu UID real (4 ocurrencias en este JSON)
+      Console → Realtime Database → Reglas → pegar JSON → Publicar
+
+   ═══════════════════════════════════════════════════════════════════════ */
+
+{
+  "rules": {
+
+    "//": "DEFAULT DENY — cualquier path no listado abajo queda bloqueado",
+    ".read":  false,
+    ".write": false,
+
+    "//chord-overrides": "Solo Renzo autenticado escribe. Lectura pública.",
+    "chord-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write":    "auth != null && auth.uid === 'TU-UID-AQUI' && $cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 50000"
+      }
+    },
+
+    "//lyrics-overrides": "Solo Renzo autenticado escribe. Lectura pública.",
+    "lyrics-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write":    "auth != null && auth.uid === 'TU-UID-AQUI' && $cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 100000"
+      }
+    },
+
+    "//chord-history": "Historial de versiones de acordes.",
+    "chord-history": {
+      ".read": true,
+      "$cpdId": {
+        "$timestamp": {
+          ".write":    "auth != null && auth.uid === 'TU-UID-AQUI' && $cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 50000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "//lyrics-history": "Historial de versiones de letras.",
+    "lyrics-history": {
+      ".read": true,
+      "$cpdId": {
+        "$timestamp": {
+          ".write":    "auth != null && auth.uid === 'TU-UID-AQUI' && $cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 100000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "//setlist": "SetList dominical. Solo Renzo escribe.",
+    "setlist": {
+      ".read": true,
+      "$dateKey": {
+        ".write": "auth != null && auth.uid === 'TU-UID-AQUI' && $dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)",
+        "$slotId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['cpd', 'title']) && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/) && newData.child('title').isString() && newData.child('title').val().length <= 200)"
+        }
+      }
+    },
+
+    "//setlist-bodas": "SetList de bodas. Solo Renzo escribe (los novios trabajan en localStorage local de su dispositivo, no tocan Firebase).",
+    "setlist-bodas": {
+      ".read": true,
+      "$dateKey": {
+        ".write": "auth != null && auth.uid === 'TU-UID-AQUI' && $dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}(-[0-9])?$/)",
+        "_meta": {
+          ".validate": "newData.hasChildren() && (!newData.hasChild('novios') || (newData.child('novios').isString() && newData.child('novios').val().length <= 200))"
+        },
+        "$slotId": {
+          ".validate": "$slotId === '_meta' || !newData.exists() || (newData.child('cpd').exists() && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/)) || (newData.child('instrumental').exists() && newData.child('instrumental').val() === true)"
+        }
+      }
+    },
+
+    "//agent-feedback": "Feedback del AI Agent. Cualquiera puede crear (no requiere auth) pero nadie puede leerlo desde el browser. Renzo lo lee desde la consola Firebase si lo necesita.",
+    "agent-feedback": {
+      ".read":  false,
+      ".write": "newData.exists() && !data.exists()"
+    },
+
+    "//liturgical-card-feedback": "Igual que agent-feedback.",
+    "liturgical-card-feedback": {
+      ".read":  false,
+      ".write": "newData.exists() && !data.exists()"
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ANÁLISIS DE SEGURIDAD POST-AUTH
+   ═══════════════════════════════════════════════════════════════════════
+
+   QUÉ PROTEGEN ESTAS REGLAS:
+     ✓ Solo Renzo autenticado puede escribir overrides, history y setlists
+     ✓ Cualquier path NO listado queda denegado por default (.read y .write)
+     ✓ Validación de estructura previene basura aleatoria
+     ✓ Límites de tamaño previenen ataques de spam masivo
+     ✓ Feedback no puede ser leído por terceros
+
+   CÓMO SE COMPARA CON v3.6.6r7:
+     v3.6.6r7: cualquiera podía escribir si conocía el formato.
+     v3.6.7: solo el dueño del UID = Renzo, autenticado vía Google,
+             puede escribir. Esto es seguridad real.
+
+   QUÉ NO PROTEGEN (por diseño):
+     ✗ La lectura sigue pública. Esto es intencional — el cancionero
+       la necesita para mostrar contenido al feligrés sin login. No es
+       una vulnerabilidad, es el modelo de uso.
+
+   FACTOR HUMANO:
+     ✗ Si alguien obtiene físicamente acceso a un dispositivo donde
+       Renzo está logueado, puede escribir como Renzo. Mitigación:
+       cerrar sesión vía consola con __signOut() o desde Settings de
+       Google si el dispositivo se pierde.
+
+   ═══════════════════════════════════════════════════════════════════════ */

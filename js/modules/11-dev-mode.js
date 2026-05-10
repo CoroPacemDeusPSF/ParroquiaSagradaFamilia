@@ -49,29 +49,33 @@
     if (clicks >= CLICKS_NEEDED) {
       clicks = 0;
 
-      /* v3.6.6r7: Antes de activar Modo Dev, exigir PIN de 6 dígitos.
-         Si la sesión ya está desbloqueada (sessionStorage), DevPin.verify
-         resuelve inmediatamente sin pedir nada. Si Firebase no tiene PIN
-         configurado, DevPin.verify muestra mensaje pidiendo configurarlo
-         con __setDevPin('XXXXXX') en consola y rechaza la promesa. */
-      var verifyFn = (window.DevPin && typeof window.DevPin.verify === 'function')
-        ? window.DevPin.verify
-        : function () { return Promise.resolve(); }; // fallback si módulo 34 falla
+      /* v3.6.7: Antes de activar Modo Dev, exigir autenticación con
+         Google. Solo el usuario cuyo UID está en las reglas Firebase
+         puede escribir overrides — pero pedir auth aquí ANTES da feedback
+         inmediato al usuario en lugar de fallar silenciosamente al
+         intentar guardar. Si la sesión ya está activa, AuthGate.requireAuth
+         resuelve inmediatamente sin pedir nada (el SDK Firebase persiste
+         la sesión en indexedDB). */
+      var requireAuth = (window.AuthGate && typeof window.AuthGate.requireAuth === 'function')
+        ? window.AuthGate.requireAuth
+        : function (cb) { return Promise.resolve(cb && cb()); }; // fallback
 
-      verifyFn().then(function () {
-        // PIN OK (o sesión ya desbloqueada): proceder con la activación
+      requireAuth(function () {
+        // Auth OK (o sesión ya activa): proceder con la activación
         activateDevMode(inBodas);
+      }, {
+        message: 'Modo Desarrollador requiere iniciar sesión con tu cuenta autorizada.'
       }).catch(function (err) {
-        // PIN cancelado o no configurado: no activar
+        // Login cancelado: no activar
         console.log('[Dev] Activación cancelada:', err.message);
       });
     }
   });
 
   /**
-   * v3.6.6r7: Lógica de activación extraída en función para llamarla
-   * solo después de que DevPin.verify resuelva. El intro animado y el
-   * cambio de clase del body solo ocurren si el PIN fue correcto.
+   * v3.6.7: Lógica de activación extraída en función para llamarla
+   * solo después de que AuthGate.requireAuth resuelva. El intro animado y el
+   * cambio de clase del body solo ocurren si el usuario está autenticado.
    */
   function activateDevMode(inBodas) {
     var introFn = inBodas && window.playWeddingIntro

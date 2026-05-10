@@ -61,7 +61,7 @@
 @import url('components/share.css?v=3.6.2');
 @import url('components/search.css?v=3.6.3');
 @import url('components/pdf-import.css?v=3.6.6r6');
-@import url('components/dev-pin.css?v=3.6.6r7');
+@import url('components/auth-modal.css?v=3.6.7r1');
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
 @import url('components/index.css?v=3.6.2');

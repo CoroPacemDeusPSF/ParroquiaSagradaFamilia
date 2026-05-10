@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Coro Pacem Deus — Reglas de seguridad Realtime Database (v3.6.6r7)
+   ═══════════════════════════════════════════════════════════════════════
+   Versión actualizada de las reglas de abril 2026. Cambios:
+
+     1. NUEVO: /dev-pin protegido — read público, write DENEGADO
+        (cambias el PIN solo desde la consola Firebase, no desde browser)
+
+     2. NUEVO: /setlist-bodas (estructura distinta a /setlist) con sus
+        propias validaciones de slots permitidos y meta de novios.
+
+     3. NUEVO: /agent-feedback y /liturgical-card-feedback (write-only,
+        para que feedback del usuario no sea legible por terceros).
+
+     4. MANTENIDO: chord-overrides, lyrics-overrides, chord-history,
+        lyrics-history, setlist (dominical) — sin cambios.
+
+   Cómo aplicar:
+     1. Firebase Console → Realtime Database → Reglas
+     2. Copiar SOLO el JSON (desde la línea con { hasta el } final)
+     3. Eliminar este bloque de comentarios y el de comentarios al
+        final — Firebase Console NO acepta comentarios en el editor.
+     4. Click "Publicar"
+
+   Cómo configurar TU PIN inicial (paso obligatorio antes de publicar
+   estas reglas):
+
+     OPCIÓN A — Desde browser ANTES de publicar reglas:
+       1. NO publiques las reglas todavía
+       2. Abre el cancionero, F12 (consola)
+       3. Ejecuta: __setDevPin('TU-PIN-AQUI')
+       4. Verifica con: __devPinStatus()
+       5. AHORA sí publica las reglas estrictas
+
+     OPCIÓN B — Desde Firebase Console (recomendado, más seguro):
+       1. En la consola Firebase, navega a: /dev-pin/hash
+       2. Calcula el hash SHA-256 de tu PIN (ej. con
+          https://emn178.github.io/online-tools/sha256.html)
+       3. Pega el hash directo en /dev-pin/hash como string
+       4. Publica las reglas
+
+   ═══════════════════════════════════════════════════════════════════════ */
+
+{
+  "rules": {
+
+    "//": "DEFAULT DENY — cualquier path no listado abajo queda bloqueado",
+    ".read":  false,
+    ".write": false,
+
+    "//dev-pin": "Hash SHA-256 del PIN para activar Modo Dev. Lectura abierta porque la app necesita comparar hashes; escritura DENEGADA porque solo Renzo debe poder cambiar el PIN, vía la consola Firebase.",
+    "dev-pin": {
+      ".read":  true,
+      ".write": false
+    },
+
+    "//chord-overrides": "Acordes editados por Renzo en Modo Dev. Lectura pública (la app las muestra al feligrés). Escritura permitida pero solo si el cpdId tiene formato válido y el contenido no excede 50 KB.",
+    "chord-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write":    "$cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 50000"
+      }
+    },
+
+    "//lyrics-overrides": "Letras editadas. Mismo patrón que chord-overrides pero límite 100 KB (las letras son más largas).",
+    "lyrics-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write":    "$cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 100000"
+      }
+    },
+
+    "//chord-history": "Historial de versiones de acordes (módulo 13). Permite Renzo restaurar versiones anteriores.",
+    "chord-history": {
+      ".read": true,
+      "$cpdId": {
+        "$timestamp": {
+          ".write":    "$cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 50000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "//lyrics-history": "Historial de versiones de letras.",
+    "lyrics-history": {
+      ".read": true,
+      "$cpdId": {
+        "$timestamp": {
+          ".write":    "$cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 100000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "//setlist": "SetList del cancionero dominical. Estructura: /setlist/{YYYY-MM-DD}/{slotId}/{cpd, title}",
+    "setlist": {
+      ".read": true,
+      "$dateKey": {
+        ".write": "$dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)",
+        "$slotId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['cpd', 'title']) && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/) && newData.child('title').isString() && newData.child('title').val().length <= 200)"
+        }
+      }
+    },
+
+    "//setlist-bodas": "SetList de bodas. Estructura: /setlist-bodas/{YYYY-MM-DD}/{slotId}/{cpd,title} más /setlist-bodas/{YYYY-MM-DD}/_meta/{novios,optionals}. Soporta sufijo -2, -3 para bodas múltiples mismo día.",
+    "setlist-bodas": {
+      ".read": true,
+      "$dateKey": {
+        ".write": "$dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}(-[0-9])?$/)",
+        "_meta": {
+          ".validate": "newData.hasChildren() && (!newData.hasChild('novios') || (newData.child('novios').isString() && newData.child('novios').val().length <= 200))"
+        },
+        "$slotId": {
+          ".validate": "$slotId === '_meta' || !newData.exists() || (newData.child('cpd').exists() && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/)) || (newData.child('instrumental').exists() && newData.child('instrumental').val() === true)"
+        }
+      }
+    },
+
+    "//agent-feedback": "Feedback del módulo AI Agent (módulo 19). Solo escritura — el feedback de los usuarios no debe ser legible por terceros. Renzo lee desde la consola Firebase si lo necesita.",
+    "agent-feedback": {
+      ".read":  false,
+      ".write": "newData.exists() && !data.exists()"
+    },
+
+    "//liturgical-card-feedback": "Feedback del módulo de tarjeta litúrgica (módulo 21). Mismo patrón que agent-feedback.",
+    "liturgical-card-feedback": {
+      ".read":  false,
+      ".write": "newData.exists() && !data.exists()"
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ANÁLISIS DE SEGURIDAD HONESTO
+   ═══════════════════════════════════════════════════════════════════════
+
+   QUÉ PROTEGEN ESTAS REGLAS:
+     ✓ Nadie puede sobrescribir tu hash de PIN (/dev-pin)
+     ✓ Cualquier path NO listado queda denegado por default
+     ✓ Validación de estructura previene basura aleatoria
+     ✓ Límites de tamaño previenen ataques de spam masivo
+     ✓ Feedback (agent/liturgical-card) no puede ser leído por terceros
+     ✓ feedback solo se puede CREAR, no modificar (protege historial)
+
+   QUÉ NO PROTEGEN (limitación sin Firebase Auth):
+     ✗ Cualquiera con la URL puede leer setlist, overrides, history
+       (pero esa lectura ya era pública ANTES — el cancionero las
+       necesita para mostrar al feligrés sin login)
+     ✗ Cualquiera puede escribir overrides y setlists si conoce el
+       formato exacto. En la práctica: alguien tendría que querer
+       específicamente sabotear este cancionero parroquial.
+     ✗ /dev-pin sigue siendo legible — alguien podría intentar
+       fuerza bruta offline contra el hash. Para un PIN de 6 dígitos
+       (1M combinaciones) y SHA-256, un atacante motivado con GPU
+       lo rompe en segundos. PERO: aún rompiéndolo, no puede usarlo
+       para nada útil porque la siguiente capa (las clases body
+       .dev-mode y la activación) son del browser, no del backend.
+       El "Modo Dev" solo da acceso a botones del editor que ya
+       escriben a paths protegidos por estas reglas.
+
+   QUÉ FALTARÍA PARA SEGURIDAD REAL (Opción B / Firebase Auth):
+     - Reemplazar `.write: true` por `.write: "auth.uid === 'TU-UID'"`
+       en chord-overrides, lyrics-overrides, setlist, setlist-bodas
+     - Agregar SDK Firebase Auth al frontend (~15 KB)
+     - Login con Google una vez (queda recordado en el navegador)
+     - Eliminar el sistema de PIN (innecesario con Auth)
+
+   ═══════════════════════════════════════════════════════════════════════ */
