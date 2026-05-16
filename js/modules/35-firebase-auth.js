@@ -7,7 +7,7 @@
  *               Firebase; las reglas validan auth.uid === Renzo's UID.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r1
+ *   @version    v3.6.7r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -66,7 +66,7 @@
   */
   var FIREBASE_CONFIG = {
     apiKey:      'AIzaSyAOIgTOcdn_JZB3sWVZqDDXSsF6xCH6lx4',
-    authDomain:  'coropacemdeusdominical.firebaseapp.com',
+    authDomain: 'coropacemdeusdominical.firebaseapp.com',
     databaseURL: 'https://coropacemdeusdominical-default-rtdb.firebaseio.com',
     projectId:   'coropacemdeusdominical',
     appId:       '1:1044224786783:web:4dff30bc2917cfb3e7b6ea'
