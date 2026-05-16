@@ -6,7 +6,7 @@
  *   @brief      Orquestación: genera PDF vectorial del SetList y lo abre en el visor
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.7r3
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -115,7 +115,11 @@
       return {
         cpd:         item.cpd,
         title:       data.title || item.title,
-        moment:      data.moment || item.moment,
+        /* v3.6.7r3 fix: el momento del slot del SetList DEBE prevalecer sobre
+           data.moment (clasificación permanente del canto en songs.json).
+           Si la usuaria pone "Madre del Silencio" (clasificada como Salida)
+           en el slot de Entrada, el PDF debe mostrarla como Entrada. */
+        moment:      item.moment || data.moment,
         body_html:   data.body_html || '',
         chords_html: data.chords_html || ''
       };
