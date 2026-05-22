@@ -7,7 +7,7 @@
  *               Firebase; las reglas validan auth.uid === Renzo's UID.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r3
+ *   @version    v3.6.7r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
