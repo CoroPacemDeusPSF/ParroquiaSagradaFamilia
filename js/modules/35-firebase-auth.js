@@ -7,7 +7,7 @@
  *               Firebase; las reglas validan auth.uid === Renzo's UID.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r9
+ *   @version    v3.6.7r10
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -86,6 +86,9 @@
   var _sdkLoadPromise = null;    // promesa de carga del SDK (singleton)
   var _authChangeListeners = []; // listeners de cambios de auth
   var _modalEl       = null;     // referencia al modal de login (si abierto)
+  var _resolveFirstAuth = null;  // resolver de la primera resolución de auth
+  var _firstAuthDone = false;    // ¿ya resolvió la primera vez?
+  var _firstAuthPromise = new Promise(function (res) { _resolveFirstAuth = res; });
 
   /* ──────────────────────────────────────────────────────────────────────
      CARGA LAZY DEL SDK FIREBASE AUTH
@@ -144,19 +147,25 @@
         }
         _auth = _firebaseSDK.auth();
 
-        // onAuthStateChanged se dispara INMEDIATAMENTE con el usuario
-        // actual (si la sesión persistía en indexedDB) o con null.
-        _auth.onAuthStateChanged(function (user) {
+        // onIdTokenChanged se dispara en login, logout Y en cada refresco de
+        // token (~1h). onAuthStateChanged NO se dispara en los refrescos, por
+        // eso usamos onIdTokenChanged: así _currentUser/_idToken nunca quedan
+        // obsoletos. Se dispara de inmediato con la sesión persistida en
+        // indexedDB (o con null si no hay).
+        _auth.onIdTokenChanged(function (user) {
           _currentUser = user;
           if (user) {
-            // Obtener idToken fresco
             user.getIdToken().then(function (token) {
               _idToken = token;
               notifyAuthChange(user);
+              if (!_firstAuthDone) { _firstAuthDone = true; _resolveFirstAuth(user); }
+            }).catch(function () {
+              if (!_firstAuthDone) { _firstAuthDone = true; _resolveFirstAuth(user); }
             });
           } else {
             _idToken = null;
             notifyAuthChange(null);
+            if (!_firstAuthDone) { _firstAuthDone = true; _resolveFirstAuth(null); }
           }
         });
 
@@ -179,20 +188,28 @@
   var _originalFetch = window.fetch.bind(window);
 
   window.fetch = function (input, init) {
-    // Solo interceptar si hay token Y la URL es de Firebase
     var url = typeof input === 'string' ? input : (input && input.url) || '';
     var isFirebase = url.indexOf(FIREBASE_HOST) !== -1;
 
-    if (isFirebase && _idToken) {
-      var separator = url.indexOf('?') === -1 ? '?' : '&';
-      var newUrl = url + separator + 'auth=' + encodeURIComponent(_idToken);
-      if (typeof input === 'string') {
-        input = newUrl;
-      } else {
-        input = new Request(newUrl, input);
-      }
+    // Peticiones que no son a Firebase, o sin sesión activa: pasan sin tocar.
+    if (!isFirebase || !_currentUser) {
+      return _originalFetch(input, init);
     }
-    return _originalFetch(input, init);
+
+    // Petición a Firebase con sesión: adjuntar un token FRESCO en el momento
+    // del request. getIdToken() devuelve el token vigente al instante, o lo
+    // refresca solo si expiró. Esto elimina el bug de usar un token capturado
+    // que quedaba obsoleto (~1h) o aún no disponible (carrera post-login).
+    return _currentUser.getIdToken().then(function (token) {
+      var separator = url.indexOf('?') === -1 ? '?' : '&';
+      var newUrl = url + separator + 'auth=' + encodeURIComponent(token);
+      var newInput = (typeof input === 'string') ? newUrl : new Request(newUrl, input);
+      return _originalFetch(newInput, init);
+    }).catch(function () {
+      // Si falla obtener el token, enviar sin auth: las reglas lo rechazarán y
+      // la capa de guardado lo reportará (ya no falla en silencio).
+      return _originalFetch(input, init);
+    });
   };
 
   /* ──────────────────────────────────────────────────────────────────────
@@ -316,22 +333,38 @@
     opts = opts || {};
     var message = opts.message;
 
-    // Cargar SDK si no estaba (idempotente)
+    // Cargar SDK (idempotente) y ESPERAR la primera resolución real de auth
+    // (la sesión persistida en indexedDB se restaura de forma asíncrona).
     return loadFirebaseSDK().then(function () {
+      return _firstAuthPromise;
+    }).then(function () {
       // Si ya hay sesión, ejecutar cb directamente
       if (_currentUser) {
         return Promise.resolve(typeof cb === 'function' ? cb(_currentUser) : null);
       }
 
-      // No hay sesión: pedir login
+      // No hay sesión: pedir login. Tras el popup, garantizar que el token
+      // quede en memoria ANTES de ejecutar cb (sin setTimeout adivinado).
       return showLoginModal(message).then(function (user) {
-        // Pequeña pausa para que onAuthStateChanged actualice _idToken
-        return new Promise(function (resolve) {
-          setTimeout(function () { resolve(user); }, 100);
+        return user.getIdToken().then(function (token) {
+          _currentUser = user;
+          _idToken = token;
+          return user;
         });
       }).then(function (user) {
         return typeof cb === 'function' ? cb(user) : null;
       });
+    });
+  }
+
+  /* ensureReady: carga el SDK y espera la primera resolución de auth. Resuelve
+     con el usuario actual (o null). NO muestra modal. Lo usa el módulo 11 para
+     restaurar Modo Dev SOLO si hay una sesión Firebase válida. */
+  function ensureReady() {
+    return loadFirebaseSDK().then(function () {
+      return _firstAuthPromise;
+    }).then(function () {
+      return _currentUser || null;
     });
   }
 
@@ -379,6 +412,7 @@
      ────────────────────────────────────────────────────────────────────── */
   window.AuthGate = {
     requireAuth:       requireAuth,
+    ensureReady:       ensureReady,
     isAuthenticated:   function () { return _currentUser !== null; },
     getCurrentUser:    function () {
       if (!_currentUser) return null;

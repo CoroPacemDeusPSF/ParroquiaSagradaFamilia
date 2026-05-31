@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r6
+ *   @version    v3.6.7r10
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
