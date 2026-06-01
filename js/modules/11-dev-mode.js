@@ -6,7 +6,7 @@
  *   @brief      Modo Dev: 5-clicks en cruz del footer (solo en Modo Coro)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r7
+ *   @version    v3.6.7r10
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -99,4 +99,47 @@
       console.log('[Dev] Modo Dev activado (sin animación)');
     }
   }
+
+  /* ──────────────────────────────────────────────────────────────────────
+     RESTAURACIÓN DE MODO DEV AL CARGAR (v3.6.7r10)
+     ──────────────────────────────────────────────────────────────────────
+     Antes, el módulo 05 restauraba dev-mode desde localStorage SIN validar la
+     sesión Firebase: la UI mostraba botones de edición sin token, las
+     escrituras salían sin auth, las reglas las rechazaban y la app fingía
+     "guardado" (datos que desaparecían al recargar).
+
+     Ahora pasa por el gate de auth: solo se agrega dev-mode si
+     AuthGate.ensureReady() confirma sesión válida. Si no, se degrada el modo a
+     su padre (coro/bodas) y NO aparecen botones de edición. Este módulo carga
+     DESPUÉS del 35, así que AuthGate ya existe.
+     ────────────────────────────────────────────────────────────────────── */
+  (function restoreDevMode() {
+    var saved;
+    try { saved = localStorage.getItem('pdMode'); } catch (e) { return; }
+    if (saved !== 'coro+dev' && saved !== 'dev' && saved !== 'bodas+dev') return;
+
+    function downgradeStoredMode() {
+      try {
+        localStorage.setItem('pdMode', saved === 'bodas+dev' ? 'bodas' : 'coro');
+      } catch (e) {}
+    }
+
+    if (!window.AuthGate || typeof window.AuthGate.ensureReady !== 'function') {
+      document.body.classList.remove('dev-mode');
+      downgradeStoredMode();
+      return;
+    }
+
+    window.AuthGate.ensureReady().then(function (user) {
+      if (user) {
+        document.body.classList.add('dev-mode');
+      } else {
+        document.body.classList.remove('dev-mode');
+        downgradeStoredMode();
+      }
+    }).catch(function () {
+      document.body.classList.remove('dev-mode');
+      downgradeStoredMode();
+    });
+  })();
 })();

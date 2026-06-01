@@ -6,7 +6,7 @@
  *   @brief      Modo Coro: 5-clicks en ícono iglesia, animación de ingreso, badge
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0
+ *   @version    v3.6.7r10
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -138,9 +138,10 @@
       active = true;
       document.body.classList.add('rehearsal-mode');
       document.getElementById('rehearsal-badge').classList.add('active');
-      if (saved === 'coro+dev' || saved === 'dev') {
-        document.body.classList.add('dev-mode');
-      }
+      // v3.6.7r10: la restauración de dev-mode ya NO se hace aquí (permitía
+      // "guardar" sin sesión Firebase → las reglas rechazaban en silencio y la
+      // UI fingía éxito). El módulo 11 restaura dev-mode tras validar la sesión
+      // con AuthGate.ensureReady().
       console.log('[Mode] Restaurado: ' + saved);
     } catch(e) {}
   })();

@@ -119,6 +119,10 @@
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
+        }).then(function(r) {
+          // v3.6.7r10: rechaza el PUT no-200 para que el caller lo reporte.
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r;
         });
       },
 
@@ -888,7 +892,14 @@
         availableDates.sort();
       }
     }).catch(function(err) {
-      console.warn('[SLB] Save error:', err.message);
+      // v3.6.7r10: en Firebase un PUT rechazado (sin sesión) ahora se reporta
+      // en vez de fingir éxito. En Modo Novios (localStorage) nunca rechaza.
+      console.error('[SLB] No se pudo guardar:', err && err.message);
+      var now = Date.now();
+      if (now - (saveSlot._lastWarn || 0) > 4000) {
+        saveSlot._lastWarn = now;
+        alert('No se pudo guardar en la nube. Verifica que estés en Modo Dev con sesión iniciada.');
+      }
     });
   }
 
