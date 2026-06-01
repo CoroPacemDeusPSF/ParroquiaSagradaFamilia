@@ -361,10 +361,18 @@
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cpd: cpd, title: title })
-    }).then(function() {
+    }).then(function(r) {
+      // v3.6.7r10: ya no fingimos éxito. Si el PUT no fue 200 (p. ej. sin
+      // sesión válida), avisamos en vez de dejar un guardado fantasma.
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       console.log('[Setlist] Guardado:', slotId, '→', title);
     }).catch(function(err) {
-      console.warn('[Setlist] Error guardando:', err.message);
+      console.error('[Setlist] No se pudo guardar:', err && err.message);
+      var now = Date.now();
+      if (now - (saveSlot._lastWarn || 0) > 4000) {
+        saveSlot._lastWarn = now;
+        alert('No se pudo guardar en la nube. Verifica que estés en Modo Dev con sesión iniciada (vuelve a entrar a Modo Dev).');
+      }
     });
   }
 
