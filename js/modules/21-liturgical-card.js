@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.7r15
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -269,6 +269,9 @@
     if(psBtn&&psUrl){psBtn.style.display='flex';
       if(psLabel){psLabel.textContent=lit.ant?'Salmo: '+lit.ant:'Salmo responsorial';}
       psBtn.onclick=function(e){e.stopPropagation();
+      /* v3.6.7r15: al pulsar para reproducir, el botón emana notas musicales.
+         Guarda typeof: en prefers-reduced-motion el módulo 22 no define la fn. */
+      if(typeof window.PDEmanateSalmoNotes==='function'){window.PDEmanateSalmoNotes(psBtn);}
       var wrap=document.getElementById('psalm-player');
       if(!wrap){
         /* Build custom player */

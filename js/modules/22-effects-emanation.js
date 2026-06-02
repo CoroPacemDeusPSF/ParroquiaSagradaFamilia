@@ -6,7 +6,7 @@
  *   @brief      Efecto de emanación de halo en cruces y elementos sagrados
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r14
+ *   @version    v3.6.7r15
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -167,6 +167,17 @@
     /* Caso defensivo: si por timing el botón ya está visible al cargar el módulo */
     if (btn.style.display && btn.style.display !== 'none') trigger();
   }
+
+  /* v3.6.7r15: API pública para emanar notas musicales bajo demanda.
+     La usa el módulo 21 (botón del salmo) para lanzar un burst de notas
+     cuando el usuario pulsa para reproducir el salmo.
+     Nota: si el usuario tiene prefers-reduced-motion, todo este módulo retorna
+     antes (línea ~50) y esta función NUNCA se define — por eso el llamador
+     (módulo 21) la invoca con guarda `typeof === 'function'`. */
+  window.PDEmanateSalmoNotes = function (el) {
+    var target = el || document.getElementById('lit-psalm-btn');
+    if (target) spawnBurst(target, 'fx-salmo-note', 4, 80);
+  };
 
   function init() {
     bindSyncedNotes();

@@ -58,9 +58,9 @@
      sobre propiedades distintas. El halo arranca con un retraso de 0.6s
      para que la entrada portal haga su show antes.
      Ciclo total: 25s con ratio 4:1 (reposo:activo) — ver keyframes abajo. */
-  animation:
-    lit-portal-emerge 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    lit-halo-radiate 25s ease-in-out 0.6s infinite;
+  /* v3.6.7r15: se quitó el halo celeste pulsante (lit-halo-radiate) —
+     a pedido de Renzo, la card ya no emite glow. Queda solo la entrada portal. */
+  animation: lit-portal-emerge 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 /* Portal emergence: aparición desde el centro con scale + rotación + blur.
    NO toca box-shadow (queda libre para la animación del halo). */
