@@ -6,7 +6,7 @@
  *   @brief      Efecto de emanación de halo en cruces y elementos sagrados
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0
+ *   @version    v3.6.7r14
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -138,14 +138,9 @@
       });
     }
 
-    var btn = document.getElementById('lit-psalm-btn');
-    if (btn) {
-      btn.addEventListener('animationiteration', function(e) {
-        if (e.animationName !== 'salmo-bounce') return;
-        if (!btn.style.display || btn.style.display === 'none') return;
-        spawnBurst(btn, 'fx-salmo-note');
-      });
-    }
+    /* v3.6.7r14: el botón del salmo ya no emana notas musicales. Se eliminó
+       junto con el bounce infinito (salmo-bounce) que las disparaba — saturaba.
+       La entrada ahora es "deslizar + subrayado", una sola vez (ver lit-card.css). */
   }
 
   /* ── Hook de entrada whirlwind para el salmo ──

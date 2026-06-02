@@ -77,7 +77,7 @@
 @import url('components/chord-diag.css?v=3.6.2');
 
 /* ─── Componentes especializados (Evangelio, Salmo, AI, Efectos) ──────────── */
-@import url('components/lit-card.css?v=3.6.7r13');
+@import url('components/lit-card.css?v=3.6.7r14');
 @import url('components/psalm-player.css?v=3.5.2');
 @import url('components/effects.css?v=3.2.46r15');
 @import url('components/ai-agent.css?v=3.2.46r15');
