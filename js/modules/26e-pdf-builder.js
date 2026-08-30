@@ -6,7 +6,7 @@
  *   @brief      Constructor de PDF vectorial con identidad visual Pacem Deus
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r6
+ *   @version    v3.6.7r30
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -261,7 +261,7 @@
     };
 
     /* Portada */
-    drawCover(doc, songs, dateLabel, withChords);
+    drawCover(doc, songs, dateLabel, withChords, opts.coverImage);
 
     /* Cantos.
        v3.6.6r6: Pares contiguos de cantos instrumentales se renderizan
@@ -303,15 +303,33 @@
      PORTADA — emula site-header del index.html
      ============================================================ */
 
-  function drawCover(doc, songs, dateLabel, withChords) {
+  function drawCover(doc, songs, dateLabel, withChords, coverImage) {
     const cx = CFG.pageWidth / 2;
 
     /* Fondo beige suave de toda la página */
     paintPageBackground(doc);
 
-    /* Banda superior verde profundo (≈ site-header) */
+    /* Banda superior verde profundo (≈ site-header).
+       Se pinta SIEMPRE, también cuando hay ilustración: es el color de
+       respaldo si el JPEG no llegara a componerse en algún visor, y evita
+       un rectángulo blanco en ese caso. */
     setFill(doc, CFG.color.bgDeep);
     doc.rect(0, 0, CFG.pageWidth, 100, 'F');
+
+    /* v3.6.7r30: ilustración del domingo detrás de la banda.
+       Llega ya compuesta con su velo desde el módulo 38 —imagen y velo en un
+       solo JPEG— porque jsPDF no sabe aplicar degradados con alfa sobre una
+       imagen. Va antes de los filetes y del texto para que ambos queden
+       encima. */
+    if (coverImage && coverImage.dataUrl) {
+      try {
+        doc.addImage(coverImage.dataUrl, 'JPEG', 0, 0, CFG.pageWidth, 100,
+                     'portadaLit', 'FAST');
+      } catch (e) {
+        /* Un visor que rechace el JPEG no debe impedir generar el PDF:
+           queda la banda verde lisa de siempre. */
+      }
+    }
 
     /* Filetes dorados arriba/abajo de la banda */
     setDraw(doc, CFG.color.accent);
@@ -1117,12 +1135,31 @@
      UTILIDADES DE FECHA
      ============================================================ */
 
-  function formatNextSunday() {
+  /* v3.6.7r30: el cálculo del domingo se extrae a su propia función.
+     La etiqueta de la portada y la ilustración que va detrás TIENEN que ser
+     del mismo domingo; si cada una lo calculase por su cuenta, bastaría un
+     cambio en una para que el PDF anunciara una fecha e ilustrara otra.
+     Nótese que en domingo devuelve el SIGUIENTE, no el de hoy: el SetList se
+     prepara para la misa que viene. */
+  function nextSunday() {
     const today = new Date();
     const day = today.getDay(); /* 0 = domingo */
     const daysToSunday = (7 - day) % 7 || 7;
     const sunday = new Date(today);
     sunday.setDate(today.getDate() + daysToSunday);
+    return sunday;
+  }
+
+  /** El mismo domingo que formatNextSunday, como clave 'AAAA-MM-DD'. */
+  function nextSundayKey() {
+    const d = nextSunday();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + mm + '-' + dd;
+  }
+
+  function formatNextSunday() {
+    const sunday = nextSunday();
 
     const meses = [
       'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
@@ -1162,6 +1199,7 @@
   global.PDFBuilder = {
     buildPdf:         buildPdf,
     formatNextSunday: formatNextSunday,
+    nextSundayKey:    nextSundayKey,
     formatBodaDate:   formatBodaDate
   };
 

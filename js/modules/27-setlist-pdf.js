@@ -6,7 +6,7 @@
  *   @brief      Orquestación: genera PDF vectorial del SetList y lo abre en el visor
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r18
+ *   @version    v3.6.7r30
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -417,18 +417,33 @@
         throw new Error('Generador PDF no disponible. Recarga la pagina.');
       }
 
-      var blob = window.PDFBuilder.buildPdf(songs, {
-        withChords: withChords,
-        dateLabel:  window.PDFBuilder.formatNextSunday()
+      /* v3.6.7r30: la ilustración del domingo va detrás de la banda verde de
+         la portada, la misma que se ve en la web. Componerla es asíncrono
+         (hay que cargar el .webp y leer sus píxeles para calcular el velo),
+         así que se resuelve ANTES de construir el PDF, que es síncrono.
+
+         Si la semana no tiene ilustración, build devuelve null y la portada
+         sale como siempre. Por eso no hace falta rama de error aquí. */
+      var clave = window.PDFBuilder.nextSundayKey();
+      var portada = (window.PDFCoverImage && clave)
+        ? window.PDFCoverImage.build(clave)
+        : Promise.resolve(null);
+
+      return portada.then(function (coverImage) {
+        var blob = window.PDFBuilder.buildPdf(songs, {
+          withChords: withChords,
+          dateLabel:  window.PDFBuilder.formatNextSunday(),
+          coverImage: coverImage
+        });
+
+        hideLoading();
+
+        var filename = buildFileName(withChords);
+
+        /* v3.6.7r18: el destino lo elige el usuario en el diálogo. */
+        if (destination === 'download') downloadPdf(blob, filename);
+        else                            shareOrOpenPdf(blob, filename);
       });
-
-      hideLoading();
-
-      var filename = buildFileName(withChords);
-
-      /* v3.6.7r18: el destino lo elige el usuario en el diálogo. */
-      if (destination === 'download') downloadPdf(blob, filename);
-      else                            shareOrOpenPdf(blob, filename);
     });
   }
 
