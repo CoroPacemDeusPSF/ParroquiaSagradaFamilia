@@ -112,7 +112,9 @@ jobs:
         if: ${{ !inputs.dry_run && steps.existentes.outputs.hay == 'no' }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          IMAGE_MODEL: ${{ vars.IMAGE_MODEL }}
+          # El `||` da el valor por defecto cuando la variable no esta definida:
+          # sin el, GitHub inyecta una cadena vacia y la API rechaza el modelo.
+          IMAGE_MODEL: ${{ vars.IMAGE_MODEL || 'gpt-image-1' }}
         run: |
           set -euo pipefail
           if [ -z "${OPENAI_API_KEY:-}" ]; then

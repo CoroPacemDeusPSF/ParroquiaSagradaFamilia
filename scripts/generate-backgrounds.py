@@ -63,7 +63,11 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(REPO, "img", "liturgico")
 
 API_URL = "https://api.openai.com/v1/images/generations"
-DEFAULT_MODEL = os.environ.get("IMAGE_MODEL", "gpt-image-1")
+# `or` y no el segundo argumento de .get(): en GitHub Actions una variable
+# de repositorio no definida llega como cadena VACIA, no ausente, asi que
+# .get(clave, defecto) devolvia "" y la API respondia "The model '' does
+# not exist". Verificado en el run #2.
+DEFAULT_MODEL = os.environ.get("IMAGE_MODEL") or "gpt-image-1"
 
 # Tamanos que admite el generador; se elige el mas cercano a cada destino.
 GEN_SIZE_LANDSCAPE = "1536x1024"   # 3:2  -> se recorta a 16:9
