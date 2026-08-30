@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 semana.json
+
+# Estado de un lote de generacion en curso: cambia cada imagen.
+img/liturgico/progreso.json

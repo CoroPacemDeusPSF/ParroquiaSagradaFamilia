@@ -6,7 +6,7 @@
      @brief      Asistente AI litúrgico (panel flotante)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r21
+     @version    v3.6.7r32
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -18,8 +18,76 @@
    ============================================================================ */
 
 /* ── AI Agent ── */
-.ai-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:#2A3926;border:1px solid rgba(107,158,74,.35);color:#A0B890;cursor:pointer;z-index:9999;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:all .25s}
-.ai-fab:hover{background:#34452E;transform:scale(1.06);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+/* ── El botón flotante del asistente (v3.6.7r32) ─────────────────────────────
+
+   Antes: fondo plano, un borde de 1px y el pastor cortado a cuchillo por el
+   canto del círculo. Eso lo hacía leer como una estampa pegada encima y no
+   como un asistente que flota sobre la página.
+
+   Tres cambios, todos en la misma dirección — que el borde deje de ser una
+   línea y pase a ser una transición:
+
+     1. FUERA EL BORDE DIBUJADO. En su lugar, un halo exterior suave y dos
+        sombras interiores: una luz arriba y una caída abajo. El canto se
+        insinúa por iluminación, no por un trazo. Es la práctica habitual
+        hoy en asistentes flotantes: el resplandor va FUERA y la superficie
+        queda limpia, sin desenfoque por dentro.
+
+     2. EL PASTOR SE DISUELVE, no se recorta. Se cruza su máscara con un
+        degradado radial (mask-composite:intersect), así la figura se apaga
+        antes de tocar el canto y parece emerger de la sombra. Encaja además
+        con el claroscuro del resto del cancionero.
+
+     3. RESPIRACIÓN. El halo late muy despacio (4.5 s) y muy poco. Da señal
+        de que está vivo sin pedir atención. Se anula con prefers-reduced-
+        motion, y se anima sólo box-shadow del propio botón, que overflow:clip
+        no recorta —clip afecta al contenido, no a la sombra del elemento—.  */
+.ai-fab{
+  position:fixed;bottom:24px;right:24px;width:52px;height:52px;
+  border-radius:50%;border:0;color:#A0B890;cursor:pointer;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(120% 120% at 32% 18%, #3A4A33 0%, #2A3926 46%, #1E2A1B 100%);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,.42),
+    0 0 22px -6px rgba(140,190,110,.34),
+    inset 0 1px 1px rgba(226,240,210,.10),
+    inset 0 -9px 14px -9px rgba(0,0,0,.55);
+  transition:transform .25s ease, box-shadow .25s ease;
+  animation:aiRespira 4.5s ease-in-out infinite;
+}
+@keyframes aiRespira{
+  0%,100%{box-shadow:
+    0 6px 20px rgba(0,0,0,.42),
+    0 0 22px -6px rgba(140,190,110,.30),
+    inset 0 1px 1px rgba(226,240,210,.10),
+    inset 0 -9px 14px -9px rgba(0,0,0,.55)}
+  50%{box-shadow:
+    0 6px 20px rgba(0,0,0,.42),
+    0 0 30px -4px rgba(140,190,110,.52),
+    inset 0 1px 1px rgba(226,240,210,.14),
+    inset 0 -9px 14px -9px rgba(0,0,0,.55)}
+}
+.ai-fab:hover{
+  transform:scale(1.06);
+  animation:none;
+  box-shadow:
+    0 10px 28px rgba(0,0,0,.5),
+    0 0 34px -3px rgba(160,210,125,.62),
+    inset 0 1px 1px rgba(226,240,210,.16),
+    inset 0 -9px 14px -9px rgba(0,0,0,.5);
+}
+.ai-fab:focus-visible{
+  outline:none;
+  box-shadow:
+    0 10px 28px rgba(0,0,0,.5),
+    0 0 0 3px rgba(160,210,125,.55),
+    inset 0 1px 1px rgba(226,240,210,.16);
+}
+@media (prefers-reduced-motion:reduce){
+  .ai-fab{animation:none}
+  .ai-fab:hover{transform:none}
+}
 /* ── Pastor (v3.6.7r20) ──────────────────────────────────────────────────
    El dibujo original va como MASCARA CSS, no como <img>: asi el trazo se
    pinta con background-color y hereda currentColor, igual que hacia el SVG.
@@ -39,6 +107,33 @@
    extremo del cayado, que es donde termina el dibujo. */
 .ai-fab{overflow:clip}  /* ya es position:fixed arriba: eso basta como bloque contenedor; ponerle relative aqui lo desanclaria de la esquina */
 .ai-fab .pastor-icon{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:48px;width:37px}
+
+/* v3.6.7r32: la figura se apaga antes de llegar al canto del círculo.
+   Dos capas de máscara cruzadas: el dibujo del pastor Y un degradado radial.
+   mask-composite:intersect deja sólo lo que está en ambas, de modo que el
+   pastor conserva su silueta pero pierde intensidad hacia los bordes en vez
+   de terminar en un corte recto. El centro del degradado va alto (38%)
+   porque la figura está anclada abajo: así la cara y el cayado quedan a plena
+   opacidad y lo que se disuelve son los hombros. */
+.ai-fab .pastor-icon,
+.ai-header-icon .pastor-icon{
+  -webkit-mask-image:
+    url(../../img/pastor-mask.png),
+    radial-gradient(118% 96% at 50% 38%,
+      #000 0%, #000 58%, rgba(0,0,0,.72) 82%, rgba(0,0,0,.12) 100%);
+  mask-image:
+    url(../../img/pastor-mask.png),
+    radial-gradient(118% 96% at 50% 38%,
+      #000 0%, #000 58%, rgba(0,0,0,.72) 82%, rgba(0,0,0,.12) 100%);
+  -webkit-mask-repeat:no-repeat,no-repeat;
+  mask-repeat:no-repeat,no-repeat;
+  -webkit-mask-position:center,center;
+  mask-position:center,center;
+  -webkit-mask-size:contain,100% 100%;
+  mask-size:contain,100% 100%;
+  -webkit-mask-composite:source-in;   /* sintaxis antigua de WebKit */
+  mask-composite:intersect;           /* estándar */
+}
 .ai-panel{position:fixed;bottom:88px;right:24px;width:370px;max-width:calc(100vw - 32px);max-height:520px;background:#1A1F17;border:1px solid rgba(107,158,74,.25);border-radius:16px;z-index:9998;display:none;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5);overflow:hidden;font-family:'Cormorant Garamond',Georgia,serif}
 .ai-panel.open{display:flex}
 .ai-header{padding:14px 18px;background:#222F1E;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(107,158,74,.15)}

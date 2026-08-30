@@ -1,0 +1,390 @@
+{
+  "_lee_esto": [
+    "El objeto concreto que ilustra cada domingo, sacado de SU pericopa.",
+    "",
+    "Antes esta decision la tomaba el modelo de imagen a partir del titular del",
+    "tema, y cuando el titular era abstracto ('Perdona setenta veces siete')",
+    "caia en lo generico: el Evangelio abierto y la cruz de madera salieron dos",
+    "veces cada uno en el primer lote de 16 domingos.",
+    "",
+    "Ahora el objeto se decide aqui, por escrito y de antemano. La ventaja no es",
+    "solo que acierta mas: es que las repeticiones SE VEN LEYENDO UNA COLUMNA,",
+    "antes de gastar una sola generacion.",
+    "",
+    "  clave   domingo AAAA-MM-DD",
+    "  ev      cita del Evangelio de ese domingo",
+    "  es      que es el objeto, en cristiano, para poder revisarlo de un vistazo",
+    "  motivo  la descripcion que recibe el generador (en ingles: los modelos",
+    "          entienden mejor el ingles y aqui no lo lee nadie mas)",
+    "",
+    "Para cambiar la ilustracion de un domingo basta editar su 'motivo' y volver",
+    "a generar ese domingo. No hace falta tocar el guion."
+  ],
+
+  "2026-08-30": {
+    "ev": "Mt 16,21-27",
+    "es": "La piedra de tropiezo: Pedro quiere apartar a Jesus de la cruz",
+    "motivo": "a single large stumbling stone lying in a worn dirt path, sandal prints in the dust around it"
+  },
+  "2026-09-06": {
+    "ev": "Mt 18,15-20",
+    "es": "Correccion fraterna: donde dos o tres estan reunidos",
+    "motivo": "two empty wooden chairs turned to face each other across a small bare table"
+  },
+  "2026-09-13": {
+    "ev": "Mt 18,21-35",
+    "es": "El siervo sin entranas: la deuda perdonada",
+    "motivo": "a torn parchment debt ledger with its wax seal broken, lying open on worn oak"
+  },
+  "2026-09-20": {
+    "ev": "Mt 20,1-16",
+    "es": "Obreros de la vina: los de la hora undecima cobran igual",
+    "motivo": "a stone sundial in a vineyard casting a long shadow at the eleventh hour"
+  },
+  "2026-09-27": {
+    "ev": "Mt 21,28-32",
+    "es": "Los dos hijos: uno dijo que si y no fue, otro dijo que no y fue",
+    "motivo": "two hoes leaning against a vineyard wall, one caked with fresh earth, the other clean and unused"
+  },
+  "2026-10-04": {
+    "ev": "Mt 21,33-43",
+    "es": "Vinadores homicidas: la piedra que desecharon los constructores",
+    "motivo": "a squared cornerstone set apart from a heap of rubble at the foot of a vineyard watchtower"
+  },
+  "2026-10-11": {
+    "ev": "Mt 22,1-14",
+    "es": "Banquete de bodas: el que no llevaba traje de fiesta",
+    "motivo": "a long banquet table set with clay cups, and a folded festive garment left on a bench"
+  },
+  "2026-10-18": {
+    "ev": "Mt 22,15-21",
+    "es": "Dad al Cesar lo que es del Cesar",
+    "motivo": "a single worn Roman denarius standing upright in a shaft of light, the emperor's effigy just visible"
+  },
+  "2026-10-25": {
+    "ev": "Mt 22,34-40",
+    "es": "El mandamiento principal: amar a Dios y al projimo",
+    "motivo": "two small stone tablets bound together with a single leather cord"
+  },
+  "2026-11-01": {
+    "ev": "Mt 5,1-12a",
+    "es": "Todos los Santos: la muchedumbre inmensa de las bienaventuranzas",
+    "motivo": "countless small oil lamps burning scattered across a dark hillside at dusk, stretching to the horizon"
+  },
+  "2026-11-08": {
+    "ev": "Mt 25,1-13",
+    "es": "Las diez virgenes: cinco previsoras y cinco necias",
+    "motivo": "five oil lamps burning and five dark and cold on a stone ledge, a sealed flask of oil beside them"
+  },
+  "2026-11-15": {
+    "ev": "Mt 25,14-30",
+    "es": "Los talentos: el que enterro el suyo",
+    "motivo": "a leather bag of gold coins being unearthed from a hole in dark soil, a spade standing in the earth beside it"
+  },
+  "2026-11-22": {
+    "ev": "Mt 25,31-46",
+    "es": "Cristo Rey: separa las ovejas de los cabritos",
+    "motivo": "a shepherd's crook and a simple gold crown resting together on dark stone"
+  },
+  "2026-11-29": {
+    "ev": "Mc 13,33-37",
+    "es": "Velad: no sabeis cuando vendra el dueno de la casa",
+    "motivo": "a lit lantern hanging beside a half-open door at night, the threshold falling into deep shadow"
+  },
+  "2026-12-06": {
+    "ev": "Mc 1,1-8",
+    "es": "Juan Bautista en el desierto: voz que clama",
+    "motivo": "a rough leather belt and worn sandals on a river stone at the water's edge, desert cliffs beyond"
+  },
+  "2026-12-13": {
+    "ev": "Jn 1,6-8.19-28",
+    "es": "No era el la luz, sino testigo de la luz",
+    "motivo": "a small clay lamp on a ledge, its little flame dwarfed by a great light breaking in from beyond the frame"
+  },
+  "2026-12-20": {
+    "ev": "Lc 1,26-38",
+    "es": "La Anunciacion",
+    "motivo": "white lilies in a clay jar beside a spindle wound with scarlet wool, in a bare stone room"
+  },
+  "2026-12-25": {
+    "ev": "Jn 1,1-18",
+    "es": "Natividad: la Palabra se hizo carne",
+    "motivo": "an empty manger heaped with straw and folded swaddling linen, warm lamplight spilling across it"
+  },
+  "2026-12-27": {
+    "ev": "Lc 2,22-40",
+    "es": "Presentacion en el templo: la ofrenda de los pobres",
+    "motivo": "two turtledoves in a small wicker basket on worn temple steps, a candle burning beside them"
+  },
+
+  "2027-01-03": {
+    "ev": "Jn 1,1-18",
+    "es": "El Verbo puso su tienda entre nosotros",
+    "motivo": "a nomad's hide tent glowing warmly from within on a dark plain at night, its entrance flap open"
+  },
+  "2027-01-10": {
+    "ev": "Mc 1,7-11",
+    "es": "Bautismo del Senor: se rasgaron los cielos",
+    "motivo": "river water still rippling in wide concentric rings, a single white feather resting on the surface"
+  },
+  "2027-01-17": {
+    "ev": "Jn 1,35-42",
+    "es": "Tu te llamaras Cefas, es decir, Pedro",
+    "motivo": "a smooth river stone with a name freshly chiselled into it, an iron chisel lying beside it"
+  },
+  "2027-01-24": {
+    "ev": "Mc 1,14-20",
+    "es": "Llamada de los primeros discipulos: dejaron las redes",
+    "motivo": "fishing nets left folded on the shore beside a beached wooden boat, cold dawn light"
+  },
+  "2027-01-31": {
+    "ev": "Mc 1,21-28",
+    "es": "Ensenaba con autoridad, no como los escribas",
+    "motivo": "a worn stone teaching seat in an empty synagogue, dust motes turning in a single beam"
+  },
+  "2027-02-07": {
+    "ev": "Mc 1,29-39",
+    "es": "Cura a la suegra de Pedro y ora de madrugada",
+    "motivo": "a low empty bed with rumpled linen, and a lamp guttering out as grey dawn reaches the window"
+  },
+  "2027-02-14": {
+    "ev": "Mc 1,12-15",
+    "es": "Cuarenta dias en el desierto",
+    "motivo": "cracked desert earth and a bare wind-scoured stone, forty tally marks scratched into a rock face"
+  },
+  "2027-02-21": {
+    "ev": "Mc 9,2-10",
+    "es": "La Transfiguracion: sus vestidos blanquisimos",
+    "motivo": "linen garments of blinding white spread over mountain rock beneath a break in the clouds"
+  },
+  "2027-02-28": {
+    "ev": "Jn 2,13-25",
+    "es": "Purificacion del templo: volco las mesas",
+    "motivo": "an overturned money-changer's table, coins scattered across temple flagstones, a knotted cord whip"
+  },
+  "2027-03-07": {
+    "ev": "Jn 3,14-21",
+    "es": "Como Moises elevo la serpiente en el desierto",
+    "motivo": "a bronze serpent coiled around a wooden standard raised against a darkening sky"
+  },
+  "2027-03-14": {
+    "ev": "Jn 12,20-33",
+    "es": "Si el grano de trigo no muere, queda infecundo",
+    "motivo": "a single grain of wheat half-buried in dark turned earth, one green shoot just breaking the surface"
+  },
+  "2027-03-21": {
+    "ev": "Mc 14,1—15,47",
+    "es": "Domingo de Ramos y Pasion",
+    "motivo": "palm branches and a dust-stained cloak strewn across a stone road"
+  },
+  "2027-03-28": {
+    "ev": "Jn 20,1-9",
+    "es": "Pascua: el sepulcro vacio y los lienzos",
+    "motivo": "folded linen burial cloths and a separate rolled face-cloth on an empty stone slab, dawn light flooding through the tomb mouth"
+  },
+  "2027-04-04": {
+    "ev": "Jn 20,19-31",
+    "es": "Estando cerradas las puertas: Tomas",
+    "motivo": "a heavy barred door seen from inside, its iron bolt drawn across, faint light at the edges"
+  },
+  "2027-04-11": {
+    "ev": "Lc 24,35-48",
+    "es": "Lo reconocieron al partir el pan; comio pez asado",
+    "motivo": "a piece of grilled fish and torn bread on an earthen plate beside dying embers"
+  },
+  "2027-04-18": {
+    "ev": "Jn 10,11-18",
+    "es": "Yo soy el Buen Pastor",
+    "motivo": "a shepherd's staff leaning across the gap of a dry-stone sheepfold at dusk"
+  },
+  "2027-04-25": {
+    "ev": "Jn 15,1-8",
+    "es": "Yo soy la vid, vosotros los sarmientos",
+    "motivo": "a gnarled grapevine bearing fresh pruning cuts, severed canes on the ground, a pruning knife"
+  },
+  "2027-05-02": {
+    "ev": "Jn 15,9-17",
+    "es": "Os destine para que vayais y deis fruto",
+    "motivo": "a woven basket overflowing with first fruits — figs, pomegranates, grapes — on a stone bench"
+  },
+  "2027-05-09": {
+    "ev": "Mc 16,15-20",
+    "es": "La Ascension del Senor",
+    "motivo": "two footprints worn into bare summit rock, empty sky above and clouds far below"
+  },
+  "2027-05-16": {
+    "ev": "Jn 15,26-27;16,12-15",
+    "es": "Pentecostes: el Espiritu de la verdad",
+    "motivo": "small flames hovering above a circle of empty stone seats in a closed upper room"
+  },
+  "2027-05-23": {
+    "ev": "Mt 28,16-20",
+    "es": "Santisima Trinidad",
+    "motivo": "three interlaced circles carved deep into ancient stone, a single shaft of light passing through them"
+  },
+  "2027-05-30": {
+    "ev": "Mc 14,12-16.22-26",
+    "es": "Corpus Christi: esto es mi cuerpo",
+    "motivo": "a chased silver chalice and a round unleavened loaf on white linen, in a shaft of golden light"
+  },
+  "2027-06-06": {
+    "ev": "Mc 3,20-35",
+    "es": "Un reino dividido no puede sostenerse",
+    "motivo": "a stone house wall split from top to bottom by a deep fissure"
+  },
+  "2027-06-13": {
+    "ev": "Mc 4,26-34",
+    "es": "El grano de mostaza, la mas pequena de las semillas",
+    "motivo": "one tiny mustard seed alone on dark soil, and behind it the vast silhouette of a shrub full of nests"
+  },
+  "2027-06-20": {
+    "ev": "Mc 4,35-41",
+    "es": "Calma la tempestad: quien es este?",
+    "motivo": "a small wooden boat on water gone suddenly glassy, its sail torn, storm clouds retreating"
+  },
+  "2027-06-27": {
+    "ev": "Mc 5,21-43",
+    "es": "La hija de Jairo: dadle de comer",
+    "motivo": "a small empty bed with the covers thrown back, and a bowl of food set beside it"
+  },
+  "2027-07-04": {
+    "ev": "Mc 6,1-6",
+    "es": "No es este el carpintero?",
+    "motivo": "a carpenter's plane, an adze and curls of wood shavings on a workbench, sawdust hanging in the light"
+  },
+  "2027-07-11": {
+    "ev": "Mc 6,7-13",
+    "es": "Los envio de dos en dos, sin nada para el camino",
+    "motivo": "a plain walking staff and a pair of sandals on a doorstep, an empty travelling bag left behind"
+  },
+  "2027-07-18": {
+    "ev": "Mc 6,30-34",
+    "es": "Ovejas sin pastor; venid y descansad",
+    "motivo": "a lone tree on an empty green hillside offering a patch of shade, no flock in sight"
+  },
+  "2027-07-25": {
+    "ev": "Jn 6,1-15",
+    "es": "Multiplicacion: cinco panes y dos peces",
+    "motivo": "five barley loaves and two small fish in a boy's woven basket set on the grass"
+  },
+  "2027-08-01": {
+    "ev": "Jn 6,24-35",
+    "es": "Yo soy el pan de vida; el mana del desierto",
+    "motivo": "fine white manna scattered like frost across desert ground at dawn"
+  },
+  "2027-08-08": {
+    "ev": "Jn 6,41-51",
+    "es": "El pan bajado del cielo; Elias bajo la retama",
+    "motivo": "a flat loaf baking on hot stones and a jar of water beneath a desert broom bush"
+  },
+  "2027-08-15": {
+    "ev": "Lc 1,39-56",
+    "es": "Asuncion de la Virgen: el Magnificat",
+    "motivo": "white lilies and a circlet of twelve small stars above them against deep night blue"
+  },
+  "2027-08-22": {
+    "ev": "Jn 6,60-69",
+    "es": "Senor, a quien iremos?",
+    "motivo": "a fork in a stony road at dusk, one path catching the last light, the other falling into shadow"
+  },
+  "2027-08-29": {
+    "ev": "Mc 7,1-8.14-15.21-23",
+    "es": "La tradicion de los mayores: las abluciones",
+    "motivo": "six stone water jars for ritual washing lined along a wall, one tipped over and empty"
+  },
+  "2027-09-05": {
+    "ev": "Mc 7,31-37",
+    "es": "Effeta: abrete",
+    "motivo": "a large sea shell resting on wet sand, its spiral opening turned toward the light"
+  },
+  "2027-09-12": {
+    "ev": "Mc 8,27-35",
+    "es": "En Cesarea de Filipo: quien decis que soy yo?",
+    "motivo": "a spring welling out from the foot of a great rock face, ancient carved niches above it"
+  },
+  "2027-09-19": {
+    "ev": "Mc 9,30-37",
+    "es": "El que quiera ser el primero, que sea el ultimo",
+    "motivo": "a simple carved wooden toy set alone in the middle of an empty stone floor"
+  },
+  "2027-09-26": {
+    "ev": "Mc 9,38-43.45.47-48",
+    "es": "Mejor una piedra de molino al cuello",
+    "motivo": "a great millstone standing upright at the very edge of deep dark water"
+  },
+  "2027-10-03": {
+    "ev": "Mc 10,2-16",
+    "es": "Lo que Dios unio que no lo separe el hombre",
+    "motivo": "a double wooden ox-yoke worn smooth by use, resting on straw"
+  },
+  "2027-10-10": {
+    "ev": "Mc 10,17-30",
+    "es": "El joven rico; el camello y el ojo de la aguja",
+    "motivo": "a fine bone needle standing upright beside a heavy money pouch spilling coins"
+  },
+  "2027-10-17": {
+    "ev": "Mc 10,35-45",
+    "es": "El que quiera ser grande, que sea vuestro servidor",
+    "motivo": "a shallow basin of water and a coarse towel folded on the floor beside it"
+  },
+  "2027-10-24": {
+    "ev": "Mc 10,46-52",
+    "es": "Bartimeo arroja el manto y salta",
+    "motivo": "a beggar's threadbare cloak cast aside at the roadside, a walking stick fallen beside it"
+  },
+  "2027-10-31": {
+    "ev": "Mc 12,28-34",
+    "es": "Escucha, Israel: el primer mandamiento",
+    "motivo": "a small leather phylactery box and its long straps laid out on a stone shelf"
+  },
+  "2027-11-01": {
+    "ev": "Mt 5,1-12a",
+    "es": "Todos los Santos: vestiduras blancas y palmas",
+    "motivo": "white robes and palm branches heaped together in radiant light"
+  },
+  "2027-11-07": {
+    "ev": "Mc 12,38-44",
+    "es": "El obolo de la viuda: echo todo lo que tenia",
+    "motivo": "two tiny copper coins lying at the bottom of a great empty bronze temple treasury chest"
+  },
+  "2027-11-14": {
+    "ev": "Mc 13,24-32",
+    "es": "Aprended de la higuera; el sol se oscurecera",
+    "motivo": "a fig branch putting out tender new leaves against a darkened sky and a blood-red sun"
+  },
+  "2027-11-21": {
+    "ev": "Jn 18,33-37",
+    "es": "Cristo Rey: mi reino no es de este mundo",
+    "motivo": "a crown of thorns resting on a folded purple cloth"
+  },
+  "2027-11-28": {
+    "ev": "Lc 21,25-28.34-36",
+    "es": "Adviento: levantad la cabeza, se acerca vuestra liberacion",
+    "motivo": "a stone watchtower silhouetted against the very first light, restless sea and fading stars behind"
+  },
+  "2027-12-05": {
+    "ev": "Lc 3,1-6",
+    "es": "Preparad el camino del Senor, allanad sus senderos",
+    "motivo": "a rough mountain path half levelled, a mattock left in the earth and a line of cleared stones set aside"
+  },
+  "2027-12-12": {
+    "ev": "Lc 3,10-18",
+    "es": "El bieldo en la mano para aventar la parva",
+    "motivo": "a winnowing fork standing upright in a threshing floor, chaff drifting on the wind"
+  },
+  "2027-12-19": {
+    "ev": "Lc 1,39-45",
+    "es": "La Visitacion: Maria va a la montana",
+    "motivo": "two water jars set side by side at a hill-country well"
+  },
+  "2027-12-25": {
+    "ev": "Jn 1,1-18",
+    "es": "Natividad del Senor",
+    "motivo": "a single low star burning over a stable roof, straw and lamplight glowing below"
+  },
+  "2027-12-26": {
+    "ev": "Lc 2,41-52",
+    "es": "Sagrada Familia: el Nino perdido y hallado en el templo",
+    "motivo": "a child's small sandals left on temple steps, great columns rising into shadow above"
+  }
+}

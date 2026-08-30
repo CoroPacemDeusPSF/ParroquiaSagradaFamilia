@@ -11,7 +11,7 @@
 
     @file    img/liturgico/preview.html
     @brief   Revisión de los fondos litúrgicos, navegando domingo a domingo
-    @version v3.6.7r28
+    @version v3.6.7r32
 
     Por qué existe: mirar los .webp sueltos en el explorador no dice nada. Lo
     que importa es cómo queda el fondo CON LA TARJETA ENCIMA, que es donde se
@@ -97,6 +97,25 @@
   footer{padding:14px 20px;color:#6c7a60;font-size:.8rem;border-top:1px solid rgba(200,148,60,.14)}
   kbd{font-family:ui-monospace,monospace;font-size:.72rem;border:1px solid var(--borde);
       border-radius:3px;padding:.1rem .35rem;color:var(--crema)}
+  /* ── Progreso del lote (v3.6.7r32) ─────────────────────────────────────
+     Se alimenta de progreso.json, que el generador reescribe entero después
+     de cada imagen (con reemplazo atómico, para que nunca se lea a medias).
+     Sondear un archivo estático es lo más simple que funciona aquí: no hay
+     servidor con estado que pueda empujar eventos. */
+  .progreso{margin:14px 20px 0;padding:12px 15px;border:1px solid var(--borde);
+            border-radius:8px;background:var(--panel)}
+  .prog-fila{display:flex;align-items:baseline;justify-content:space-between;
+             gap:12px;margin-bottom:8px;flex-wrap:wrap}
+  .prog-tit{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.14em;
+            text-transform:uppercase;color:var(--oro)}
+  .prog-det{font-size:.8rem;color:#9aa88c;text-align:right}
+  .prog-riel{height:7px;border-radius:99px;background:rgba(255,255,255,.07);
+             overflow:clip}
+  .prog-relleno{height:100%;width:0;border-radius:99px;
+                background:linear-gradient(90deg,#6B9E4A,#C8943C);
+                transition:width .6s ease}
+  .progreso.fin .prog-tit{color:#6B9E4A}
+  .progreso.fin .prog-relleno{background:#6B9E4A}
 </style>
 </head>
 <body>
@@ -116,6 +135,16 @@
     <button id="next">Siguiente ▶</button>
   </div>
 </header>
+
+<!-- Progreso del lote (v3.6.7r32). Sólo aparece si hay un progreso.json:
+     cuando no se está generando nada, esta franja no existe. -->
+<div class="progreso" id="progreso" hidden>
+  <div class="prog-fila">
+    <span class="prog-tit" id="prog-tit">Generando</span>
+    <span class="prog-det" id="prog-det"></span>
+  </div>
+  <div class="prog-riel"><div class="prog-relleno" id="prog-relleno"></div></div>
+</div>
 
 <div class="ficha" id="ficha"></div>
 <div class="lienzos">
@@ -248,6 +277,7 @@
       '<span><b>Celebración</b> ' + v.n + '</span>' +
       (v.e ? '<span><b>Especial</b> ' + v.e + '</span>' : '') +
       '<span><b>Evangelio</b> ' + (v.ev || '—') + '</span>' +
+      (MOTIVOS[k] ? '<span><b>Motivo</b> ' + MOTIVOS[k].es + '</span>' : '') +
       '<span class="cat">' + (v.c || 'Verde') + ' · ' + v.t + ' · ciclo ' + (v.ci || '—') + '</span>';
 
     var g = velo(v.c);
@@ -262,10 +292,14 @@
     document.getElementById('card-d').innerHTML = tarjeta;
     document.getElementById('card-m').innerHTML = tarjeta;
 
+    /* El sufijo cambia cada vez que el lote termina una imagen. Sin él, al
+       repintar durante la generación el navegador serviría de su caché la
+       versión anterior del mismo nombre de archivo y no se vería nada nuevo.
+       Fuera de una generación queda vacío y la caché funciona normal. */
     var base = baseImagenes();
-    ponImagen('desktop', base + k + '-desktop.webp',
+    ponImagen('desktop', base + k + '-desktop.webp' + rompeCache,
               document.getElementById('bg-d'), document.getElementById('falta-d'));
-    ponImagen('mobile', base + k + '-mobile.webp',
+    ponImagen('mobile', base + k + '-mobile.webp' + rompeCache,
               document.getElementById('bg-m'), document.getElementById('falta-m'));
   }
 
@@ -285,6 +319,71 @@
     if (e.key === 'ArrowLeft')  { mueve(-1); e.preventDefault(); }
     if (e.key === 'ArrowRight') { mueve(1);  e.preventDefault(); }
   });
+
+  /* ── Motivo de cada domingo ────────────────────────────────────────────
+     Se lee de motivos.json para poder revisar de un vistazo QUÉ objeto le
+     tocó a cada domingo, que es justo donde estaban las repeticiones. Si el
+     archivo no está, la ficha simplemente no muestra esa línea. */
+  var rompeCache = '';
+  var MOTIVOS = {};
+  fetch('motivos.json')
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .then(function (m) { MOTIVOS = m; pinta(); })
+    .catch(function () {});
+
+  /* ── Seguimiento del lote ──────────────────────────────────────────────
+     Sondea progreso.json cada 3 s. Cuando termina, deja de sondear: no tiene
+     sentido seguir pidiendo un archivo que ya no cambia.
+
+     Además repinta la semana en curso al vuelo, así se ve aparecer cada
+     ilustración según se genera sin tocar nada. El ?t= es obligatorio: sin
+     él el navegador serviría la imagen vieja de su caché. */
+  (function seguimiento() {
+    var caja = document.getElementById('progreso');
+    var visto = -1;
+
+    function tic() {
+      fetch('progreso.json?t=' + Date.now())
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (p) {
+          if (!p) { caja.hidden = true; return; }
+          caja.hidden = false;
+
+          var hechas = p.hechas + (p.fallos ? p.fallos.length : 0);
+          var pct = p.total ? Math.round(hechas * 100 / p.total) : 0;
+          document.getElementById('prog-relleno').style.width = pct + '%';
+
+          if (p.terminado) {
+            caja.classList.add('fin');
+            document.getElementById('prog-tit').textContent = 'Lote terminado';
+            document.getElementById('prog-det').textContent =
+              p.hechas + ' ilustraciones en ' + p.duracion_min + ' min' +
+              (p.fallos && p.fallos.length ? '  ·  ' + p.fallos.length + ' con fallo' : '');
+            return;   // se corta el sondeo
+          }
+
+          document.getElementById('prog-tit').textContent =
+            'Generando · motor ' + p.motor;
+          var enc = p.en_curso;
+          document.getElementById('prog-det').textContent =
+            hechas + ' de ' + p.total + '  (' + pct + '%)' +
+            (enc ? '  ·  ahora ' + enc.clave + ' ' + enc.variante : '') +
+            (p.faltan_min != null ? '  ·  quedan ~' + p.faltan_min + ' min' : '');
+
+          /* Si acaba de terminar una imagen del domingo que está en pantalla,
+             se repinta para verla aparecer. */
+          if (p.hechas !== visto) {
+            visto = p.hechas;
+            rompeCache = '?n=' + p.hechas;
+            var ult = p.hechas_lista && p.hechas_lista[p.hechas_lista.length - 1];
+            if (ult && ult.clave === claves[i]) pinta();
+          }
+          setTimeout(tic, 3000);
+        })
+        .catch(function () { caja.hidden = true; });
+    }
+    tic();
+  })();
 
   pinta();
   cargaRamas();
