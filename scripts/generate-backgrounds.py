@@ -9,7 +9,7 @@
   @brief      Genera las dos ilustraciones de portada de un domingo
   @author     Renzo Núñez Berdejo
   @project    Cancionero Dominical
-  @version    v3.6.7r28
+  @version    v3.6.7r29
 
 ────────────────────────────────────────────────────────────────────────────
 
@@ -212,14 +212,23 @@ STYLE_BLOCK = (
 # fecha del domingo: sin esto, varias semanas abstractas seguidas devolvian el
 # mismo motivo —una cruz con el Evangelio abierto— y la portada se repetia.
 # Determinista y no aleatorio para que regenerar un domingo de al mismo objeto.
+# NI EL LIBRO ABIERTO NI LA CRUZ estan en esta lista, a proposito. Son los dos
+# objetos religiosos por defecto a los que tira cualquier generador, y en el
+# primer lote salieron dos veces cada uno: 13-sep y 18-oct con el mismo
+# Evangelio abierto, 06-sep y 27-sep con la misma cruz. Teniendolos en la lista
+# la variedad se hunde. Si un domingo pide de verdad una cruz, saldra por la
+# via del tema, no por la de reserva.
 FALLBACK_MOTIFS = (
-    "an open Gospel book on worn wood",
-    "a plain hewn wooden cross",
     "a single clay oil lamp burning in the dark",
     "a folded linen cloth over aged oak",
     "a clay cup and a piece of broken bread",
     "a beeswax candle with a still flame",
     "an iron key resting on old parchment",
+    "a shallow clay water jar, half in shadow",
+    "a woven basket with a few grains of wheat",
+    "a coil of rough rope on a worn table",
+    "a small brass scale at rest",
+    "a bundle of dried herbs tied with twine",
 )
 
 
@@ -271,18 +280,32 @@ def subject_block(week):
     # Sin figura humana. El tema del Evangelio casi siempre trae ya una imagen
     # concreta —el sembrador, el tesoro, la vid, el pan, las lamparas— y de ahi
     # sale una naturaleza muerta sacra. Si el tema es abstracto, luz y materia.
+    # La frase del tema suele ser corta y a veces abstracta ("Perdona setenta
+    # veces siete"). La CITA, en cambio, identifica una pericopa concreta que
+    # casi siempre trae objetos: Mt 18,21-35 es el siervo sin entranas, y de ahi
+    # salen la deuda, las monedas, un registro de cuentas. Por eso se le pide
+    # primero que recuerde el pasaje entero y saque de ahi el objeto; la frase
+    # es solo el titular.
     return (
         "Featured subject: a sacred still life. NO PEOPLE, NO FACES, NO HANDS, "
-        "no human figures of any kind, not even distant or blurred ones. "
-        "Build the image from the concrete objects and materials evoked by this "
-        "Gospel line: " + gospel + " - " + tema + " (" + context + ", " + season +
-        " season). Take the visual metaphor literally: if the line speaks of "
-        "sowing, show seed and furrowed earth; of a hidden treasure, an old "
-        "chest and turned soil; of a vine, vine and branches; of bread, broken "
-        "bread; of lamps, oil lamps in the dark; of a stone, a hewn "
-        "cornerstone; of a coin, a worn silver coin. "
-        "If and only if the line is truly abstract with no object in it, fall "
-        "back to: " + _fallback_motif(week) + ". "
+        "no human figures of any kind, not even distant or blurred ones.\n\n"
+        "STEP 1. Recall the full Gospel passage " + gospel + " (" + context +
+        ", " + season + " season), whose headline is \"" + tema + "\". Identify "
+        "the parable, miracle or teaching it actually is.\n"
+        "STEP 2. Pick ONE concrete object that belongs to THAT passage and to no "
+        "other, and build the whole image around it. Examples of the level of "
+        "specificity expected: sowing -> seed and furrowed earth; a hidden "
+        "treasure -> an old chest and turned soil; the vine -> vine and "
+        "branches; the wedding banquet -> a set table and a folded garment; "
+        "the talents -> stacked coins and a ledger; the unforgiving servant -> "
+        "a torn debt record; the rejected stone -> a hewn cornerstone; the "
+        "coin of Caesar -> a single worn denarius; the ten virgins -> oil lamps "
+        "in the dark.\n"
+        "STEP 3. Only if the passage genuinely contains no object at all, use: "
+        + _fallback_motif(week) + ".\n\n"
+        "AVOID the generic religious defaults: do NOT show an open Bible or "
+        "Gospel book, and do NOT show a plain standing cross, unless the "
+        "passage itself is specifically about Scripture or the Crucifixion. "
         "One clear motif, nothing crowded."
     )
 
@@ -616,17 +639,46 @@ def run_batch(semanas, args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--week", required=True, help="JSON de scripts/liturgical-week.js")
+    ap.add_argument("--week", help="JSON de scripts/liturgical-week.js")
     ap.add_argument("--print-prompts", action="store_true")
     ap.add_argument("--from-files", nargs=2, metavar=("APAISADA", "VERTICAL"),
                     help="probar el post-proceso con archivos locales, sin API")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--quality", default=DEFAULT_QUALITY,
                     help="low | medium | high | auto")
+    ap.add_argument("--reemplazar", nargs=3,
+                    metavar=("AAAA-MM-DD", "desktop|mobile", "ARCHIVO"),
+                    help="procesa una imagen ya generada a mano y la deja en su sitio")
     args = ap.parse_args()
+
+    # Reemplazo manual: Renzo genera una imagen por su cuenta y solo hay que
+    # meterla por el mismo post-proceso (proporcion, WebP, control de zonas
+    # claras) para que encaje igual que las automaticas.
+    if args.reemplazar:
+        key, variant, origen = args.reemplazar
+        if variant not in ("desktop", "mobile"):
+            raise SystemExit("La variante debe ser 'desktop' o 'mobile'.")
+        if not os.path.exists(origen):
+            raise SystemExit("No existe el archivo: " + origen)
+        os.makedirs(OUT_DIR, exist_ok=True)
+        destino = os.path.join(OUT_DIR, "%s-%s.webp" % (key, variant))
+        im = Image.open(origen)
+        print("Reemplazo %s %s" % (key, variant))
+        print("  origen: %s  %dx%d" % (os.path.basename(origen), im.size[0], im.size[1]))
+        avisos = finish(im, variant, destino)
+        print()
+        if avisos:
+            print("REVISAR:")
+            for a in avisos:
+                print("  - " + a)
+        else:
+            print("Sin avisos: queda oscura donde va la interfaz.")
+        return
 
     # --week acepta un objeto (un domingo) o un array (lote). Asi el guion no
     # necesita dos rutas de entrada distintas ni el workflow partir ficheros.
+    if not args.week:
+        raise SystemExit("Falta --week (o usa --reemplazar).")
     with open(args.week, encoding="utf-8") as f:
         cargado = json.load(f)
     semanas = cargado if isinstance(cargado, list) else [cargado]
