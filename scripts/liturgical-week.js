@@ -7,7 +7,7 @@
  *   @brief      Extrae los datos litúrgicos de un domingo para el generador de fondos
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r25
+ *   @version    v3.6.7r27
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -116,6 +116,27 @@ function main() {
     return;
   }
 
+  /* --range DESDE HASTA: emite un ARRAY con todos los domingos del intervalo.
+     Sirve para generar por lotes: los evangelios ya estan fijados de antemano,
+     asi que no hay razon para esperar a que llegue cada semana. */
+  if (args[0] === '--range') {
+    const desde = args[1], hasta = args[2];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(desde || '') || !/^\d{4}-\d{2}-\d{2}$/.test(hasta || '')) {
+      process.stderr.write('Uso: --range AAAA-MM-DD AAAA-MM-DD\n');
+      process.exit(1);
+    }
+    const dentro = keys.filter((k) => k >= desde && k <= hasta);
+    if (!dentro.length) {
+      process.stderr.write(
+        'Ningun domingo del calendario cae entre ' + desde + ' y ' + hasta +
+        ' (cubre de ' + keys[0] + ' a ' + keys[keys.length - 1] + ').\n'
+      );
+      process.exit(1);
+    }
+    process.stdout.write(JSON.stringify(dentro.map((k) => build(k, data[k])), null, 1) + '\n');
+    return;
+  }
+
   const explicit = args.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a));
   const key = explicit ? upcomingSundayKey(explicit) : upcomingSundayKey();
   const entry = data[key];
@@ -129,7 +150,12 @@ function main() {
     process.exit(1);
   }
 
-  process.stdout.write(JSON.stringify({
+  process.stdout.write(JSON.stringify(build(key, entry), null, 2) + '\n');
+}
+
+/** Construye el objeto de una semana. Compartido por el modo simple y --range. */
+function build(key, entry) {
+  return {
     sunday_key:         key,
     week_id:            isoWeekId(key),
     liturgical_context: entry.n,
@@ -147,8 +173,7 @@ function main() {
     cycle:              entry.ci || '',
     liturgical_color:   entry.c || 'Verde',
     liturgical_color_en: COLOR_EN[entry.c] || 'green',
-    calendar_range:     { first: keys[0], last: keys[keys.length - 1] },
-  }, null, 2) + '\n');
+  };
 }
 
 main();

@@ -2,39 +2,45 @@
 #  Coro Pacem Deus — Parroquia Sagrada Familia
 # ────────────────────────────────────────────────────────────────────────────
 #
-#   Genera las dos ilustraciones de portada del próximo domingo y abre un Pull
-#   Request para que Renzo las apruebe.
+#   Genera las ilustraciones de portada y abre un Pull Request para aprobarlas.
+#
+#   DOS MODOS
+#     • Semanal (automático, lunes): el próximo domingo.
+#     • Lote (manual, con `hasta`): todos los domingos que falten hasta esa
+#       fecha, en un solo PR. Los evangelios están fijados de antemano, así que
+#       no hay razón para esperar a que llegue cada semana.
 #
 #   POR QUÉ UN PR Y NO UN COMMIT DIRECTO
-#   Una imagen generada de un santo puede salir con iconografía equivocada, con
-#   una mano de seis dedos o sencillamente fea, y esto es la portada de una
-#   parroquia. El PR es el punto donde una persona mira antes de publicar.
-#   Fusionarlo dispara el redespliegue de GitHub Pages como cualquier otro
-#   commit; si no se fusiona, el sitio se queda con el degradado del color
-#   litúrgico, que es un estado perfectamente digno.
+#   Una imagen generada puede salir con iconografía equivocada, con una mano de
+#   seis dedos o sencillamente fea, y esto es la portada de una parroquia. El PR
+#   es el punto donde una persona mira antes de publicar. Fusionarlo dispara el
+#   redespliegue de GitHub Pages; si no se fusiona, la portada se queda con el
+#   degradado del color litúrgico, que es un estado digno.
 #
 #   REQUISITOS
-#     • Secreto  OPENAI_API_KEY   — clave del generador de imágenes.
-#     • Variable IMAGE_MODEL      — opcional. Por defecto gpt-image-1. Se deja
-#       configurable porque el identificador del modelo cambia entre
-#       generaciones y no conviene tenerlo enterrado en el código.
+#     • Secreto  OPENAI_API_KEY
+#     • Variable IMAGE_MODEL — opcional, por defecto gpt-image-1
+#     • Settings → Actions → General → "Allow GitHub Actions to create and
+#       approve pull requests" activado
 #
 #   COSTE
-#     Dos imágenes por semana. A precios de 2026 son unos 0,08 USD semanales,
-#     alrededor de 4 USD al año.
+#     Unos 0,04 USD por imagen, dos por domingo.
 # ────────────────────────────────────────────────────────────────────────────
 
 name: Fondos litúrgicos semanales
 
 on:
   schedule:
-    # Lunes 11:00 UTC = 06:00 en Lima. Deja toda la semana para revisar el PR
-    # antes del domingo.
+    # Lunes 11:00 UTC = 06:00 en Lima. Deja toda la semana para revisar el PR.
     - cron: '0 11 * * 1'
   workflow_dispatch:
     inputs:
       sunday:
         description: 'Domingo concreto (AAAA-MM-DD). Vacío = el próximo.'
+        required: false
+        type: string
+      hasta:
+        description: 'LOTE: generar hasta esta fecha (AAAA-MM-DD). Vacío = solo un domingo.'
         required: false
         type: string
       dry_run:
@@ -54,6 +60,7 @@ concurrency:
 jobs:
   generar:
     runs-on: ubuntu-latest
+    timeout-minutes: 90     # un lote largo puede tardar; el semanal, 2 minutos
 
     steps:
       - name: Descargar el repositorio
@@ -77,43 +84,73 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/liturgical-week.js --check
-          node scripts/liturgical-week.js ${{ inputs.sunday }} > semana.json
-          cat semana.json
-          {
-            echo "sunday=$(jq -r .sunday_key semana.json)"
-            echo "week_id=$(jq -r .week_id semana.json)"
-            echo "context=$(jq -r .liturgical_context semana.json)"
-            echo "subject=$(jq -r .featured_subject semana.json)"
-            echo "gospel=$(jq -r .gospel semana.json)"
-            echo "theme=$(jq -r .gospel_theme semana.json)"
-            echo "color=$(jq -r .liturgical_color semana.json)"
-          } >> "$GITHUB_OUTPUT"
 
-      # Si ya existen en main, no se vuelve a gastar crédito. Para rehacerlas
-      # hay que borrarlas primero, que es una decisión consciente.
-      - name: ¿Ya existen las ilustraciones?
-        id: existentes
-        run: |
-          set -euo pipefail
-          S="${{ steps.semana.outputs.sunday }}"
-          if [ -f "img/liturgico/$S-desktop.webp" ] && [ -f "img/liturgico/$S-mobile.webp" ]; then
-            echo "hay=si" >> "$GITHUB_OUTPUT"
-            echo "Las dos ilustraciones de $S ya están en el repositorio. No se genera nada."
+          DESDE="${{ inputs.sunday }}"
+          HASTA="${{ inputs.hasta }}"
+
+          if [ -n "$HASTA" ]; then
+            # Sin fecha de inicio, el lote arranca en el próximo domingo.
+            if [ -z "$DESDE" ]; then
+              DESDE=$(node scripts/liturgical-week.js | jq -r .sunday_key)
+            fi
+            node scripts/liturgical-week.js --range "$DESDE" "$HASTA" > semanas.json
+            N=$(jq 'length' semanas.json)
+            PRIMERO=$(jq -r '.[0].sunday_key' semanas.json)
+            ULTIMO=$(jq -r '.[-1].sunday_key' semanas.json)
+            {
+              echo "modo=lote"
+              echo "n=$N"
+              echo "primero=$PRIMERO"
+              echo "ultimo=$ULTIMO"
+              echo "rama=fondos/lote-$PRIMERO-a-$ULTIMO"
+              echo "titulo=Fondos litúrgicos: $N domingos, de $PRIMERO a $ULTIMO"
+            } >> "$GITHUB_OUTPUT"
+            echo "LOTE de $N domingos: $PRIMERO -> $ULTIMO"
+            jq -r '.[] | "  \(.sunday_key)  \(.liturgical_context)"' semanas.json
           else
-            echo "hay=no" >> "$GITHUB_OUTPUT"
+            node scripts/liturgical-week.js $DESDE > semanas.json
+            S=$(jq -r .sunday_key semanas.json)
+            C=$(jq -r .liturgical_context semanas.json)
+            {
+              echo "modo=simple"
+              echo "n=1"
+              echo "primero=$S"
+              echo "ultimo=$S"
+              echo "rama=fondos/$S"
+              echo "titulo=Fondos litúrgicos $S — $C"
+            } >> "$GITHUB_OUTPUT"
+            cat semanas.json
           fi
 
       - name: Mostrar los prompts (sin gastar crédito)
         if: inputs.dry_run
-        run: python scripts/generate-backgrounds.py --week semana.json --print-prompts
+        run: python scripts/generate-backgrounds.py --week semanas.json --print-prompts
+
+      # En lote, el propio guion se salta los domingos que ya tienen imagen, así
+      # que no hace falta comprobarlo aquí. En modo simple sí, para no gastar
+      # crédito regenerando algo que ya está en main.
+      - name: ¿Ya existe la ilustración?
+        id: existentes
+        if: ${{ !inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.semana.outputs.modo }}" = "simple" ]; then
+            S="${{ steps.semana.outputs.primero }}"
+            if [ -f "img/liturgico/$S-desktop.webp" ] && [ -f "img/liturgico/$S-mobile.webp" ]; then
+              echo "hay=si" >> "$GITHUB_OUTPUT"
+              echo "Las dos ilustraciones de $S ya están en el repositorio. No se genera nada."
+              exit 0
+            fi
+          fi
+          echo "hay=no" >> "$GITHUB_OUTPUT"
 
       - name: Generar las ilustraciones
         id: generar
         if: ${{ !inputs.dry_run && steps.existentes.outputs.hay == 'no' }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # El `||` da el valor por defecto cuando la variable no esta definida:
-          # sin el, GitHub inyecta una cadena vacia y la API rechaza el modelo.
+          # El `||` da el valor por defecto cuando la variable no está definida:
+          # sin él, GitHub inyecta una cadena vacía y la API rechaza el modelo.
           IMAGE_MODEL: ${{ vars.IMAGE_MODEL || 'gpt-image-1' }}
         run: |
           set -euo pipefail
@@ -121,7 +158,7 @@ jobs:
             echo "::error::Falta el secreto OPENAI_API_KEY en la configuración del repositorio."
             exit 1
           fi
-          python scripts/generate-backgrounds.py --week semana.json
+          python scripts/generate-backgrounds.py --week semanas.json
 
       - name: Abrir el Pull Request
         if: ${{ !inputs.dry_run && steps.existentes.outputs.hay == 'no' }}
@@ -129,51 +166,51 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          S="${{ steps.semana.outputs.sunday }}"
-          BRANCH="fondos/$S"
+          BRANCH="${{ steps.semana.outputs.rama }}"
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -b "$BRANCH"
-          git add "img/liturgico/$S-desktop.webp" "img/liturgico/$S-mobile.webp"
+          git add img/liturgico/*.webp
 
           if git diff --cached --quiet; then
-            echo "No hay nada que subir."
+            echo "No hay imágenes nuevas que subir."
             exit 0
           fi
 
-          git commit -m "Fondos litúrgicos $S — ${{ steps.semana.outputs.context }}"
+          git commit -m "${{ steps.semana.outputs.titulo }}"
           git push --force origin "$BRANCH"
 
+          LISTA=$(jq -r '(if type=="array" then . else [.] end)[] | "| `\(.sunday_key)` | \(.liturgical_context) | \(.gospel) — «\(.gospel_theme)» | \(.liturgical_color) |"' semanas.json)
+
           BODY=$(cat <<EOF
-          ## Ilustraciones del domingo ${{ steps.semana.outputs.sunday }}
+          ## ${{ steps.semana.outputs.titulo }}
 
-          | | |
-          |---|---|
-          | **Semana** | ${{ steps.semana.outputs.week_id }} |
-          | **Celebración** | ${{ steps.semana.outputs.context }} |
-          | **Sujeto** | ${{ steps.semana.outputs.subject }} |
-          | **Evangelio** | ${{ steps.semana.outputs.gospel }} — «${{ steps.semana.outputs.theme }}» |
-          | **Color litúrgico** | ${{ steps.semana.outputs.color }} |
+          | Domingo | Celebración | Evangelio | Color |
+          |---|---|---|---|
+          $LISTA
 
-          **Control automático de luminancia:** ${{ steps.generar.outputs.warnings || 'sin avisos' }}
+          **Control automático:** ${{ steps.generar.outputs.warnings || 'sin avisos' }}
+
+          > El control solo comprueba que **no haya una zona clara donde va el texto**, que es
+          > lo único que mide con fiabilidad. No juzga si la imagen es buena: eso se mira.
 
           ### Antes de fusionar, mirar de verdad las imágenes
 
-          - Iconografía correcta y propia de este santo, sin atributos prestados de otro.
+          - Iconografía correcta y propia del sujeto, sin atributos prestados de otro.
           - Rostro y manos con anatomía natural; contar los dedos.
-          - Crucifijo u objetos religiosos coherentes, sin piezas rotas ni duplicadas.
+          - **Sin rostros duplicados ni figuras de relleno al fondo.**
+          - En los domingos simbólicos, **ninguna figura humana** debe aparecer.
           - Ninguna zona clara detrás de donde va la tarjeta litúrgica.
           - Sin texto, logos ni firmas generados dentro de la imagen.
-          - Las dos deben parecer de la misma familia artística.
-          - La vertical no debe parecer un recorte de la apaisada.
+          - Apaisada y vertical deben parecer de la misma familia artística.
 
           Los criterios completos están en \`img/liturgico/PRESET.md\`.
+          Para verlas en contexto, con la tarjeta encima: \`img/liturgico/preview.html\`.
 
-          Al fusionar, GitHub Pages redespliega solo. Si no se fusiona, la portada
-          se queda con el degradado del color litúrgico de la semana, que es un
-          estado válido.
+          Al fusionar, GitHub Pages redespliega solo. Si no se fusiona, la portada se queda
+          con el degradado del color litúrgico de la semana, que es un estado válido.
 
           ---
           Generado automáticamente por \`.github/workflows/fondos-liturgicos.yml\`.
@@ -182,7 +219,7 @@ jobs:
 
           if gh pr list --head "$BRANCH" --state open --json number --jq 'length' | grep -q '^0$'; then
             gh pr create \
-              --title "Fondos litúrgicos $S — ${{ steps.semana.outputs.context }}" \
+              --title "${{ steps.semana.outputs.titulo }}" \
               --body "$BODY" \
               --base main \
               --head "$BRANCH"

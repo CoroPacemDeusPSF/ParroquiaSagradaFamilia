@@ -9,7 +9,7 @@
   @brief      Genera las dos ilustraciones de portada de un domingo
   @author     Renzo Núñez Berdejo
   @project    Cancionero Dominical
-  @version    v3.6.7r26
+  @version    v3.6.7r27
 
 ────────────────────────────────────────────────────────────────────────────
 
@@ -199,6 +199,30 @@ STYLE_BLOCK = (
 )
 
 
+# Reserva para los temas sin objeto propio. Rota de forma DETERMINISTA con la
+# fecha del domingo: sin esto, varias semanas abstractas seguidas devolvian el
+# mismo motivo —una cruz con el Evangelio abierto— y la portada se repetia.
+# Determinista y no aleatorio para que regenerar un domingo de al mismo objeto.
+FALLBACK_MOTIFS = (
+    "an open Gospel book on worn wood",
+    "a plain hewn wooden cross",
+    "a single clay oil lamp burning in the dark",
+    "a folded linen cloth over aged oak",
+    "a clay cup and a piece of broken bread",
+    "a beeswax candle with a still flame",
+    "an iron key resting on old parchment",
+)
+
+
+def _fallback_motif(week):
+    # crc32 y no el valor numerico de la fecha: los domingos van de 7 en 7, y
+    # con 7 motivos el modulo daba SIEMPRE el mismo indice dentro de un mes.
+    # crc32 es estable entre ejecuciones y plataformas, a diferencia de hash().
+    import zlib
+    key = week.get("sunday_key", "")
+    return FALLBACK_MOTIFS[zlib.crc32(key.encode("utf-8")) % len(FALLBACK_MOTIFS)]
+
+
 def subject_block(week):
     """Que se pide representar, segun la categoria del domingo."""
     cat = classify(week)
@@ -246,8 +270,10 @@ def subject_block(week):
         " season). Take the visual metaphor literally: if the line speaks of "
         "sowing, show seed and furrowed earth; of a hidden treasure, an old "
         "chest and turned soil; of a vine, vine and branches; of bread, broken "
-        "bread; of lamps, oil lamps in the dark. If the line is abstract, use "
-        "light, cloth, worn wood, an open Gospel book, or a plain wooden cross. "
+        "bread; of lamps, oil lamps in the dark; of a stone, a hewn "
+        "cornerstone; of a coin, a worn silver coin. "
+        "If and only if the line is truly abstract with no object in it, fall "
+        "back to: " + _fallback_motif(week) + ". "
         "One clear motif, nothing crowded."
     )
 
@@ -493,6 +519,82 @@ def finish(im, variant, out_path):
 
 # ── Principal ──────────────────────────────────────────────────────────────
 
+def run_batch(semanas, args):
+    """Genera varios domingos seguidos. Un fallo individual NO tumba el lote:
+    se anota y se sigue, porque perder 30 imagenes buenas por la 31 seria
+    absurdo y ademas costaria volver a pagarlas."""
+    import time
+
+    os.makedirs(OUT_DIR, exist_ok=True)
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise SystemExit("Falta OPENAI_API_KEY.")
+
+    hechas, fallidas, avisos = [], [], []
+    print("LOTE de %d domingos\n" % len(semanas))
+
+    for i, week in enumerate(semanas, 1):
+        key = week["sunday_key"]
+        cat = classify(week)
+        print("[%2d/%d] %s  %-13s %s" % (i, len(semanas), key, cat,
+                                         week.get("liturgical_context", "")[:44]))
+
+        prompts = {"desktop": prompt_desktop(week), "mobile": prompt_mobile(week)}
+        ok_par = True
+        for variant, gen_size in (("desktop", GEN_SIZE_LANDSCAPE),
+                                  ("mobile", GEN_SIZE_PORTRAIT)):
+            out = os.path.join(OUT_DIR, "%s-%s.webp" % (key, variant))
+            if os.path.exists(out):
+                print("        %s ya existe, se salta" % variant)
+                continue
+            try:
+                raw = generate(prompts[variant], gen_size, args.model, api_key)
+                tmp = os.path.join(OUT_DIR, ".raw-%s.png" % variant)
+                with open(tmp, "wb") as f:
+                    f.write(raw)
+                im = Image.open(tmp)
+                avisos += ["%s %s: %s" % (key, variant, w) for w in finish(im, variant, out)]
+                os.remove(tmp)
+            except SystemExit as e:
+                print("        FALLO en %s: %s" % (variant, str(e)[:160]))
+                fallidas.append("%s %s" % (key, variant))
+                ok_par = False
+            except Exception as e:
+                print("        FALLO en %s: %s" % (variant, str(e)[:160]))
+                fallidas.append("%s %s" % (key, variant))
+                ok_par = False
+            # Respiro entre llamadas para no chocar con el limite por minuto.
+            time.sleep(2)
+        if ok_par:
+            hechas.append(key)
+        print()
+
+    print("=" * 62)
+    print("Domingos completos : %d de %d" % (len(hechas), len(semanas)))
+    if fallidas:
+        print("Imagenes fallidas  : %d  -> %s" % (len(fallidas), ", ".join(fallidas)))
+    if avisos:
+        print("Avisos de contraste:")
+        for a in avisos:
+            print("   - " + a)
+    else:
+        print("Avisos de contraste: ninguno")
+
+    salida = os.environ.get("GITHUB_OUTPUT")
+    if salida:
+        with open(salida, "a", encoding="utf-8") as f:
+            resumen = "%d domingos generados" % len(hechas)
+            if fallidas:
+                resumen += "; %d imagenes fallidas (%s)" % (len(fallidas), ", ".join(fallidas))
+            if avisos:
+                resumen += "; avisos: " + "; ".join(avisos)
+            f.write("warnings=%s\n" % (resumen if (fallidas or avisos) else "ninguno"))
+
+    # Solo se considera fallo total si no salio NADA.
+    if not hechas:
+        raise SystemExit("El lote no produjo ninguna imagen.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--week", required=True, help="JSON de scripts/liturgical-week.js")
@@ -502,8 +604,16 @@ def main():
     ap.add_argument("--model", default=DEFAULT_MODEL)
     args = ap.parse_args()
 
+    # --week acepta un objeto (un domingo) o un array (lote). Asi el guion no
+    # necesita dos rutas de entrada distintas ni el workflow partir ficheros.
     with open(args.week, encoding="utf-8") as f:
-        week = json.load(f)
+        cargado = json.load(f)
+    semanas = cargado if isinstance(cargado, list) else [cargado]
+
+    if len(semanas) > 1:
+        return run_batch(semanas, args)
+
+    week = semanas[0]
 
     key = week["sunday_key"]
     print("Domingo   : %s  (%s)" % (key, week["week_id"]))
