@@ -9,7 +9,7 @@
   @brief      Genera las dos ilustraciones de portada de un domingo
   @author     Renzo Núñez Berdejo
   @project    Cancionero Dominical
-  @version    v3.6.7r25
+  @version    v3.6.7r26
 
 ────────────────────────────────────────────────────────────────────────────
 
@@ -407,16 +407,27 @@ def extend_down_to_aspect(im, ratio):
     return canvas
 
 
-def zone_luma(im, y0, y1, x0=0.0, x1=1.0):
+def _lumas(im, y0, y1, x0=0.0, x1=1.0):
     s = im.convert("RGB").resize((160, 160))
     p = s.load()
-    tot = n = 0
+    out = []
     for y in range(int(160 * y0), max(int(160 * y1), int(160 * y0) + 1)):
         for x in range(int(160 * x0), max(int(160 * x1), int(160 * x0) + 1)):
             r, g, b = p[x, y]
-            tot += 0.2126 * r + 0.7152 * g + 0.0722 * b
-            n += 1
-    return tot / max(n, 1)
+            out.append(0.2126 * r + 0.7152 * g + 0.0722 * b)
+    return out or [0.0]
+
+
+def zone_luma(im, y0, y1, x0=0.0, x1=1.0):
+    v = _lumas(im, y0, y1, x0, x1)
+    return sum(v) / len(v)
+
+
+def zone_p95(im, y0, y1, x0=0.0, x1=1.0):
+    """Luminancia del 5% mas claro de la zona: dice si HAY algo iluminado ahi,
+    cosa que la media no dice cuando la zona es casi toda fondo negro."""
+    v = sorted(_lumas(im, y0, y1, x0, x1))
+    return v[int(len(v) * 0.95) - 1]
 
 
 def finish(im, variant, out_path):
@@ -440,12 +451,36 @@ def finish(im, variant, out_path):
     print("  %-8s %dx%d  %6.1f KB   luma arriba %3.0f/255   luma centro %3.0f/255"
           % (variant, im.size[0], im.size[1], kb, top, centre))
 
-    # El motivo vive en el tercio derecho: es ahi donde hay que comprobar que se
-    # vea algo. El primer intento paso el control con 11/255 de media porque
-    # solo se miraba que NO hubiera zonas claras.
-    motif = zone_luma(im, 0.05, 0.95, 0.70, 1.00) if variant == "desktop" \
-            else zone_luma(im, 0.02, 0.32, 0.62, 1.00)
-    print("           motivo (zona derecha) %3.0f/255" % motif)
+    # ── Que se avisa y que no ────────────────────────────────────────────
+    #
+    # Este control avisa SOLO de lo unico que mide con fiabilidad: que no haya
+    # una zona clara donde va el texto. Eso es contraste, es objetivo y es
+    # critico para la accesibilidad.
+    #
+    # NO dictamina si la imagen esta "demasiado oscura". Se intento con un
+    # umbral y se equivocaba. Medido sobre seis imagenes reales, en la zona del
+    # motivo:
+    #
+    #                        media   percentil 95
+    #   aprobada apaisada      30        117
+    #   aprobada vertical      18         51
+    #   mala     apaisada      12         30
+    #   mala     vertical      17         44
+    #   buena    apaisada      12         42
+    #   buena    vertical      11         34
+    #
+    # Ni la media ni el percentil separan lo bueno de lo malo: la vertical BUENA
+    # queda por debajo de la MALA en ambas. Y es logico, porque el fallo de
+    # aquella vertical no era la luz sino un rostro duplicado, algo que ninguna
+    # estadistica de luminancia puede ver. Ajustar el umbral a seis muestras
+    # seria fingir un criterio que no se tiene.
+    #
+    # Asi que los numeros del motivo se REPORTAN, para que quien mira el PR
+    # tenga contexto, pero no emiten veredicto. El veredicto es humano.
+    zona = (0.05, 0.95, 0.70, 1.00) if variant == "desktop" else (0.02, 0.32, 0.62, 1.00)
+    motif_mean = zone_luma(im, *zona)
+    motif_p95 = zone_p95(im, *zona)
+    print("           motivo: media %3.0f  ·  percentil 95 %3.0f" % (motif_mean, motif_p95))
 
     warn = []
     if centre > 60:
@@ -453,16 +488,6 @@ def finish(im, variant, out_path):
                     "perder contraste" % centre)
     if top > 70:
         warn.append("la franja superior esta clara (%d/255)" % top)
-    # Umbral calibrado contra imagenes reales:
-    #   aprobada Santa Rosa   apaisada 30   vertical 18
-    #   rechazada (run #3)    apaisada 12   vertical 17
-    # En apaisada separa bien. En vertical NO: 18 contra 17 es ruido. Y el fallo
-    # real de aquella vertical no era la oscuridad sino un rostro duplicado, que
-    # ninguna medida de luminancia puede ver. Este control es un filtro grueso,
-    # no un sustituto de mirar la imagen: por eso existe el PR.
-    if motif < 15:
-        warn.append("el motivo esta demasiado oscuro (%d/255): apenas se "
-                    "distingue. Referencia: la apaisada aprobada mide 30" % motif)
     return warn
 
 
@@ -483,8 +508,18 @@ def main():
     key = week["sunday_key"]
     print("Domingo   : %s  (%s)" % (key, week["week_id"]))
     print("Contexto  : %s" % week["liturgical_context"])
-    print("Sujeto    : %s%s" % (week["featured_subject"],
-                                "" if week.get("has_saint") else "  [sin santo: tema del Evangelio]"))
+    cat = classify(week)
+    ETIQUETA = {
+        "saint":        "santo nombrado",
+        "marian":       "la Virgen",
+        "christ_scene": "escena cristologica canonica",
+        "symbol":       "naturaleza muerta sacra (SIN figuras humanas)",
+    }
+    print("Categoria : %-13s -> %s" % (cat, ETIQUETA[cat]))
+    if cat == "saint":
+        print("Sujeto    : %s" % week["featured_subject"])
+    else:
+        print("Motivo    : %s - %s" % (week.get("gospel",""), week.get("gospel_theme","")))
     print("Color     : %s" % week["liturgical_color"])
     print()
 
