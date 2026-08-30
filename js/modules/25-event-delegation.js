@@ -6,7 +6,7 @@
  *   @brief      Sistema centralizado de event delegation (data-action, data-keydown)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r6
+ *   @version    v3.6.7r19
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -207,36 +207,14 @@
       if (window.SL && typeof window.SL.clearAll === 'function') window.SL.clearAll();
     },
 
-    /** Abre el diálogo "Imprimir SetList" con opciones Con/Sin Acordes. */
-    'sl-print': () => {
-      if (document.body.classList.contains('wedding-mode')) return;
-      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.open === 'function') {
-        window.PdSetlistPrint.open();
-      }
-    },
-
-    /** Imprime el SetList incluyendo bloques de acordes en cada canto. */
-    'sl-print-with-chords': () => {
-      if (document.body.classList.contains('wedding-mode')) return;
-      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.printWithChords === 'function') {
-        window.PdSetlistPrint.printWithChords();
-      }
-    },
-
-    /** Imprime el SetList solo con letras (sin acordes). */
-    'sl-print-no-chords': () => {
-      if (document.body.classList.contains('wedding-mode')) return;
-      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.printNoChords === 'function') {
-        window.PdSetlistPrint.printNoChords();
-      }
-    },
-
-    /** Cancela el diálogo de impresión. */
-    'sl-print-cancel': () => {
-      if (window.PdSetlistPrint && typeof window.PdSetlistPrint.close === 'function') {
-        window.PdSetlistPrint.close();
-      }
-    },
+    /* v3.6.7r19 — RETIRADOS: 'sl-print', 'sl-print-with-chords',
+       'sl-print-no-chords' y 'sl-print-cancel'.
+       Eran código muerto: los cuatro delegaban en `window.PdSetlistPrint`, un
+       objeto que NUNCA se define en el proyecto. Al estar protegidos por un
+       `typeof === 'function'` fallaban en silencio y nadie lo notó. Quien
+       atiende de verdad esas acciones es el listener propio del módulo 27
+       (27-setlist-pdf.js), que además ya gestiona el nuevo selector de destino
+       'sl-print-dest'. Dejarlos aquí sugería un contrato que no existía. */
 
     /** Cierra el diálogo "Add to Setlist". */
     'sl-close-dialog': () => {
