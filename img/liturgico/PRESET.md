@@ -56,6 +56,62 @@ tarjetas**; nada de negro neutro plano ni colores neón.
 
 ---
 
+## Qué se representa cada domingo — la regla que más importa
+
+Se recorrieron los **171 domingos** del calendario (2025-2028) para fijar esto. Dos hallazgos
+cambiaron el diseño:
+
+**1. El campo `e` del calendario no es el santoral.** De los 53 domingos que lo traen, **27
+dicen "Solemnidad"**, y el resto "Gaudete", "Laetare", "Fiesta", "Domingo del Buen Pastor"…
+En los 171 domingos hay **un solo santo real: Santa Rosa de Lima**. La primera versión tomaba
+ese campo como sujeto y le pedía al generador *"representa la iconografía verificada de
+Solemnidad"* 27 veces al año.
+
+**2. Pedir una figura sagrada genérica sale mal siempre.** En el primer intento, un domingo
+sin sujeto nombrado produjo **una figura crística sosteniendo un crucifijo de sí misma**, con
+rostros fantasma de relleno en el fondo.
+
+De ahí la regla:
+
+> **Solo se autoriza una figura humana cuando hay un sujeto NOMBRADO con iconografía
+> canónica. En todo lo demás se pide composición simbólica, sin rostros.**
+
+| Categoría | Domingos | Qué se pide |
+|---|---:|---|
+| `symbol` | **126 (73,7%)** | Naturaleza muerta sacra. **Prohibido**: personas, rostros, manos, incluso lejanos o desenfocados |
+| `christ_scene` | 38 (22,2%) | Escena cristológica canónica: Navidad, Bautismo, Ramos, Pascua, Ascensión, Pentecostés, Corpus, Cristo Rey, Buen Pastor, Divina Misericordia, Transfiguración, Sagrada Familia |
+| `marian` | 6 (3,5%) | La Virgen: Anunciación, Visitación, Asunción, Caná, Santa María Madre de Dios |
+| `saint` | 1 (0,6%) | El santo nombrado, con su iconografía propia |
+
+**Tres de cada cuatro semanas no llevan figura humana.** En esas, el motivo sale del tema del
+Evangelio tomado al pie de la letra: si habla de sembrar, semilla y tierra removida; de un
+tesoro escondido, un arca vieja y tierra levantada; de la vid, vid y sarmientos; de pan, pan
+partido; de lámparas, candiles en la oscuridad. Si el tema es abstracto, luz y materia — tela,
+madera gastada, el Evangelio abierto, una cruz de madera.
+
+En las categorías con figura se añade siempre *"nunca muestres una figura sosteniendo una
+imagen de sí misma"* y *"sin multitud, sin figurantes, sin rostros al fondo"*.
+
+## Luz: el error del primer intento
+
+El bloque de estilo repetía *"almost black"*, *"very low central luminance"* y *"vignette"* —
+tres órdenes que se suman. Las imágenes salieron a **11/255** de luminancia media: casi
+invisibles. Ahora la oscuridad se **confina a la zona de la interfaz** y se pide de forma
+explícita que el motivo quede **claramente iluminado y legible**, con la referencia de una
+naturaleza muerta barroca o una escena de Georges de La Tour.
+
+El control automático mide la luminancia del **tercio derecho**, que es donde vive el motivo,
+y avisa por debajo de 15/255. Calibrado contra imágenes reales:
+
+| | apaisada | vertical |
+|---|---:|---:|
+| Aprobada (Santa Rosa) | 30 | 18 |
+| Rechazada (run #3) | 12 | 17 |
+
+**En apaisada separa bien; en vertical no** — 18 contra 17 es ruido. Y el fallo real de aquella
+vertical no era la oscuridad sino un rostro duplicado, que ninguna medida de luminancia puede
+ver. El control es un filtro grueso, no un sustituto de mirar: por eso existe el PR.
+
 ## Las dos composiciones
 
 **Se generan por separado. La vertical NO es un recorte de la apaisada** — recortarla dejaría

@@ -9,7 +9,7 @@
   @brief      Genera las dos ilustraciones de portada de un domingo
   @author     Renzo Núñez Berdejo
   @project    Cancionero Dominical
-  @version    v3.6.7r22
+  @version    v3.6.7r25
 
 ────────────────────────────────────────────────────────────────────────────
 
@@ -80,63 +80,212 @@ DELIVER_DESKTOP_W = 1600
 DELIVER_MOBILE_W  = 1024
 
 
+# ── Clasificacion del domingo ──────────────────────────────────────────────
+#
+# EL PROBLEMA QUE ESTO RESUELVE
+#
+# La primera version tomaba el campo `e` del calendario como "el santo de la
+# semana". Es falso: de los 53 domingos que tienen `e`, 27 dicen "Solemnidad",
+# y el resto "Gaudete", "Laetare", "Fiesta", "Domingo del Buen Pastor"...
+# En los 171 domingos de 2025-2028 hay UN solo santo real: Santa Rosa de Lima.
+# Con aquella logica se le pedia al generador "representa la iconografia
+# verificada de Solemnidad" 27 veces al ano.
+#
+# Y hay un problema mayor: en los domingos sin sujeto nombrado se pedia una
+# "evocacion simbolica" pero sin PROHIBIR figuras humanas, y el generador
+# respondio con una figura cristica sosteniendo un crucifijo de si mismo, con
+# rostros fantasma de relleno. Inventar una figura sagrada generica sale mal.
+#
+# LA REGLA
+#
+#   Solo se autoriza una figura humana cuando hay un sujeto NOMBRADO con
+#   iconografia canonica. En todo lo demas, composicion simbolica sin rostros.
+#
+# Repartido sobre los 171 domingos del calendario:
+#
+#   symbol         126  (73,7%)   parabolas, ensenanzas, domingos del Ordinario
+#   christ_scene    38  (22,2%)   Navidad, Bautismo, Pascua, Buen Pastor...
+#   marian           6  ( 3,5%)   Anunciacion, Visitacion, Asuncion, Cana
+#   saint            1  ( 0,6%)   Santa Rosa de Lima
+#
+# Tres de cada cuatro semanas NO deben llevar figura humana.
+
+def _norm(s):
+    import unicodedata
+    s = unicodedata.normalize("NFD", s or "")
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return s.lower().strip()
+
+
+MARIAN_N = {"santa maria madre de dios", "asuncion de la virgen maria"}
+MARIAN_TEMA = (
+    "alegrate, llena de gracia",
+    "bendita tu entre las mujeres",
+    "el poderoso ha hecho obras grandes por mi",
+    "la madre de jesus le dijo: no tienen vino",
+)
+CHRIST_N = {
+    "natividad del senor", "epifania del senor", "bautismo del senor",
+    "transfiguracion del senor", "domingo de ramos", "domingo de pascua",
+    "la ascension del senor", "domingo de pentecostes", "corpus christi",
+    "cristo rey del universo", "sagrada familia",
+}
+CHRIST_E = {
+    "pasion del senor", "resurreccion del senor", "domingo del buen pastor",
+    "domingo de la divina misericordia",
+}
+# Valores de `e` que NO son personas, por mucho que ocupen ese campo.
+NOT_A_PERSON = {
+    "solemnidad", "fiesta", "gaudete", "laetare",
+    "domingo de la palabra de dios", "pasion del senor",
+    "resurreccion del senor", "domingo de la divina misericordia",
+    "domingo del buen pastor",
+}
+
+
+def classify(week):
+    n = _norm(week.get("liturgical_context"))
+    e = _norm(week.get("special"))
+    tema = _norm(week.get("gospel_theme"))
+    if e and e not in NOT_A_PERSON:
+        return "saint"
+    if n in MARIAN_N or tema in MARIAN_TEMA:
+        return "marian"
+    if n in CHRIST_N or e in CHRIST_E:
+        return "christ_scene"
+    return "symbol"
+
+
 # ── Prompts ────────────────────────────────────────────────────────────────
 
+# Negativo comun, reforzado contra rostros repetidos y de relleno: fue el
+# artefacto concreto del primer intento, con un rostro duplicado abajo en la
+# variante vertical y caras fantasma en el fondo.
 NEGATIVE = (
     "text, letters, numbers, logos, signatures, watermarks, buttons, cards, "
-    "borders, toolbars, interface icons, centered portrait, large face behind "
-    "content, bright center, busy scenery, dense flowers, symmetrical poster "
-    "layout, extra fingers, missing fingers, malformed hands, asymmetrical "
-    "eyes, distorted face, duplicated objects, broken crucifix, anime, cartoon, "
-    "3D plastic render, fantasy armor, fashion editorial, horror, neon colors, "
-    "overly ornate Catholic kitsch, literal glowing halo disk, modern objects, "
-    "cityscape, mountains, church interior, garden panorama, dominant green "
-    "background"
+    "borders, toolbars, interface icons, centered composition, bright center, "
+    "busy scenery, dense flowers, symmetrical poster layout, "
+    "duplicated faces, repeated faces, ghost faces in the background, "
+    "crowd, extra people, background figures, "
+    "extra fingers, missing fingers, malformed hands, asymmetrical eyes, "
+    "distorted face, duplicated objects, broken crucifix, "
+    "anime, cartoon, 3D plastic render, fantasy armor, fashion editorial, "
+    "horror, neon colors, overly ornate Catholic kitsch, "
+    "literal glowing halo disk, modern objects, cityscape, mountains, "
+    "church interior, garden panorama, dominant green background, "
+    "muddy underexposed image, everything pitch black, illegible subject"
 )
 
+# CAMBIO IMPORTANTE frente al primer intento: alli se repetia "almost black",
+# "very low central luminance" y "vignette" — tres ordenes que se sumaban y
+# ahogaban el motivo. Las imagenes salieron a 11/255 de luminancia media, casi
+# invisibles. Ahora la oscuridad se CONFINA a la zona de la interfaz y se pide
+# explicitamente que el motivo quede legible.
 STYLE_BLOCK = (
     "Style: cinematic sacred fine-art realism, museum-quality religious "
-    "portrait, high-end editorial finish, subtle painterly grain, realistic "
-    "skin with natural texture, correct anatomy in face and hands, reverent "
-    "and understated rather than ornamental or kitsch. "
-    "Lighting: low-key chiaroscuro, very soft warm directional key light, "
-    "subtle warm rim light, atmospheric halo only — never a literal glowing "
-    "disk. "
+    "painting, high-end editorial finish, subtle painterly grain, natural "
+    "materials, reverent and understated rather than ornamental or kitsch. "
+    "Lighting: low-key chiaroscuro. The focal motif must be CLEARLY LIT and "
+    "fully readable, lifted out of the darkness by a soft warm directional "
+    "light, the way a Baroque still life or a Georges de La Tour scene is lit. "
+    "Darkness belongs to the empty side of the frame, NOT to the motif itself. "
     "Backdrop: minimal near-black gradient between deep burgundy, oxblood and "
     "charcoal, with very discreet painterly texture. No landscape, no "
     "architecture, no cityscape, no garden. "
-    "Palette: background stays almost black (#12090D, #130B0E); burgundy is "
-    "felt rather than seen; restrained warm highlights (#A58E6D, #C1AC87) "
-    "reserved for the face, the habit and the crucifix. No bright patch "
-    "anywhere the interface sits."
+    "Palette: the empty areas stay almost black (#12090D, #130B0E); burgundy is "
+    "felt rather than seen; warm highlights (#A58E6D, #C1AC87) are reserved for "
+    "the motif. No bright patch where the interface sits, but do not "
+    "underexpose the motif to achieve that."
 )
 
 
 def subject_block(week):
-    if week.get("has_saint"):
+    """Que se pide representar, segun la categoria del domingo."""
+    cat = classify(week)
+    tema = week.get("gospel_theme", "")
+    gospel = week.get("gospel", "")
+    context = week.get("liturgical_context", "")
+    season = week.get("season", "")
+
+    if cat == "saint":
         return (
-            "Featured subject: {subject}, for the liturgical context "
-            "\"{context}\". Depict the verified traditional Catholic "
-            "iconography of this figure and nothing borrowed from another "
-            "saint. Gospel of the day: {gospel} — \"{theme}\"."
-        ).format(
-            subject=week["featured_subject"],
-            context=week["liturgical_context"],
-            gospel=week.get("gospel", ""),
-            theme=week.get("gospel_theme", ""),
+            "Featured subject: " + week.get("featured_subject", "") + ". "
+            "Depict the verified traditional Catholic iconography of this "
+            "specific saint and nothing borrowed from another. One single "
+            "figure, no companions, no bystanders. Liturgical context: "
+            + context + ". Gospel of the day: " + gospel + " - " + tema + "."
         )
-    # Domingos sin santo: el tema del Evangelio manda, tratado como escena o
-    # simbolo, no como retrato inventado de nadie.
+
+    if cat == "marian":
+        return (
+            "Featured subject: the Blessed Virgin Mary in traditional Catholic "
+            "iconography, for " + context + ". One single figure, serene and "
+            "contemplative, no companions and no bystanders. The scene evoked "
+            "is " + gospel + " - " + tema + "."
+        )
+
+    if cat == "christ_scene":
+        return (
+            "Featured subject: the canonical Catholic depiction of " + context +
+            ", as fixed by the tradition of sacred art. The Gospel scene is "
+            + gospel + " - " + tema + ". Keep the figures to the strict minimum "
+            "the scene requires: no crowd, no filler bystanders, no faces in "
+            "the background. Never show a figure holding an image of itself."
+        )
+
+    # ── symbol: tres de cada cuatro domingos ──
+    #
+    # Sin figura humana. El tema del Evangelio casi siempre trae ya una imagen
+    # concreta —el sembrador, el tesoro, la vid, el pan, las lamparas— y de ahi
+    # sale una naturaleza muerta sacra. Si el tema es abstracto, luz y materia.
     return (
-        "Featured subject: a restrained symbolic evocation of the Gospel theme "
-        "\"{theme}\" ({gospel}) for {context}, in the {season} season. Use "
-        "sacred symbolism or a discreet scriptural scene. Do not invent a "
-        "portrait of a named saint."
-    ).format(
-        theme=week.get("gospel_theme", ""),
-        gospel=week.get("gospel", ""),
-        context=week["liturgical_context"],
-        season=week.get("season", ""),
+        "Featured subject: a sacred still life. NO PEOPLE, NO FACES, NO HANDS, "
+        "no human figures of any kind, not even distant or blurred ones. "
+        "Build the image from the concrete objects and materials evoked by this "
+        "Gospel line: " + gospel + " - " + tema + " (" + context + ", " + season +
+        " season). Take the visual metaphor literally: if the line speaks of "
+        "sowing, show seed and furrowed earth; of a hidden treasure, an old "
+        "chest and turned soil; of a vine, vine and branches; of bread, broken "
+        "bread; of lamps, oil lamps in the dark. If the line is abstract, use "
+        "light, cloth, worn wood, an open Gospel book, or a plain wooden cross. "
+        "One clear motif, nothing crowded."
+    )
+
+
+def _composition_desktop(week):
+    if classify(week) == "symbol":
+        return (
+            "Composition: place the motif in the right third of the frame, "
+            "occupying roughly 22% to 30% of the canvas width, cropped by the "
+            "right edge if needed, dissolving softly into darkness toward the "
+            "centre. Keep the entire central and left area empty, very dark and "
+            "low-detail: a website interface sits there. Leave clean margin at "
+            "the top and bottom edges, the image will be cropped in height."
+        )
+    return (
+        "Composition: place the figure on the extreme right side, occupying "
+        "roughly 20% to 28% of the canvas width, waist-up, partially cropped by "
+        "the right edge, dissolving softly into darkness toward the lower and "
+        "central areas. Gaze slightly downward and toward the centre. Keep the "
+        "entire central and left area empty, very dark and low-detail: a "
+        "website interface sits there. Leave clean margin at the top and bottom "
+        "edges, the image will be cropped in height."
+    )
+
+
+def _composition_mobile(week):
+    what = "motif" if classify(week) == "symbol" else "figure"
+    return (
+        "Composition: show only a small, subdued " + what + " at the extreme "
+        "upper-right edge, occupying no more than the rightmost third and only "
+        "the upper 30% of the image, partially cropped by the right edge. Fade "
+        "it completely into darkness before one third of the image height. Keep "
+        "the central column dark, clean and nearly detail-free from top to "
+        "bottom. Keep the entire lower two thirds free of any subject, object "
+        "or visible highlight: only a dark gradient with extremely subtle "
+        "grain. The " + what + " must read as a devotional watermark rather "
+        "than a hero image, but must still be clearly legible. The bottom edge "
+        "must be pure dark gradient, the canvas will be extended downward."
     )
 
 
@@ -145,16 +294,7 @@ def prompt_desktop(week):
         "Standalone premium website background, landscape. No text, no user "
         "interface, no logo, no signature, no watermark.\n\n"
         + subject_block(week) + "\n\n"
-        "Composition: place the figure on the extreme right side, occupying "
-        "roughly 20% to 28% of the canvas width, as a dignified waist-up "
-        "sacred portrait, partially cropped by the right edge, dissolving "
-        "softly into darkness toward the lower and central areas. Gaze "
-        "slightly downward and toward the centre. Keep the entire central area "
-        "extremely dark, clean and low-detail — a website interface sits "
-        "there. Keep the left side nearly empty; at most very faint petals or "
-        "symbolic details along the outer edge. Maintain very low central "
-        "luminance and a moderate edge-to-centre vignette. Leave clean margin "
-        "at the top and bottom edges: the image will be cropped in height.\n\n"
+        + _composition_desktop(week) + "\n\n"
         + STYLE_BLOCK + "\n\n"
         "Avoid: " + NEGATIVE
     )
@@ -165,20 +305,9 @@ def prompt_mobile(week):
         "Standalone premium mobile app background, tall portrait. No text, no "
         "user interface, no logo, no signature, no watermark.\n\n"
         + subject_block(week) + "\n\n"
-        "Composition: show only a small, subdued head-and-shoulders portrait at "
-        "the extreme upper-right edge, occupying no more than the rightmost "
-        "third and only the upper 30% of the image, with the veil or outer "
-        "clothing partially cropped by the right edge. Fade the figure "
-        "completely into darkness before one third of the image height. Keep "
-        "the central column dark, clean and nearly detail-free from top to "
-        "bottom. Keep the entire lower two thirds free of faces, hands, "
-        "religious objects, flowers and visible highlights — only a dark "
-        "gradient with extremely subtle grain. The portrait must read as a "
-        "devotional watermark, not as a hero portrait, with lower contrast "
-        "than a full illustration. The bottom edge must be pure dark gradient: "
-        "the canvas will be extended downward.\n\n"
+        + _composition_mobile(week) + "\n\n"
         + STYLE_BLOCK + "\n\n"
-        "Avoid: " + NEGATIVE + ", full body figure, large portrait"
+        "Avoid: " + NEGATIVE + ", full body figure, large subject"
     )
 
 
@@ -311,12 +440,29 @@ def finish(im, variant, out_path):
     print("  %-8s %dx%d  %6.1f KB   luma arriba %3.0f/255   luma centro %3.0f/255"
           % (variant, im.size[0], im.size[1], kb, top, centre))
 
+    # El motivo vive en el tercio derecho: es ahi donde hay que comprobar que se
+    # vea algo. El primer intento paso el control con 11/255 de media porque
+    # solo se miraba que NO hubiera zonas claras.
+    motif = zone_luma(im, 0.05, 0.95, 0.70, 1.00) if variant == "desktop" \
+            else zone_luma(im, 0.02, 0.32, 0.62, 1.00)
+    print("           motivo (zona derecha) %3.0f/255" % motif)
+
     warn = []
     if centre > 60:
         warn.append("el centro esta claro (%d/255): el texto de la portada puede "
                     "perder contraste" % centre)
     if top > 70:
         warn.append("la franja superior esta clara (%d/255)" % top)
+    # Umbral calibrado contra imagenes reales:
+    #   aprobada Santa Rosa   apaisada 30   vertical 18
+    #   rechazada (run #3)    apaisada 12   vertical 17
+    # En apaisada separa bien. En vertical NO: 18 contra 17 es ruido. Y el fallo
+    # real de aquella vertical no era la oscuridad sino un rostro duplicado, que
+    # ninguna medida de luminancia puede ver. Este control es un filtro grueso,
+    # no un sustituto de mirar la imagen: por eso existe el PR.
+    if motif < 15:
+        warn.append("el motivo esta demasiado oscuro (%d/255): apenas se "
+                    "distingue. Referencia: la apaisada aprobada mide 30" % motif)
     return warn
 
 

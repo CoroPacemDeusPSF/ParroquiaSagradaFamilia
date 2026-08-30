@@ -7,7 +7,7 @@
  *   @brief      Extrae los datos litúrgicos de un domingo para el generador de fondos
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r22
+ *   @version    v3.6.7r25
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -133,8 +133,13 @@ function main() {
     sunday_key:         key,
     week_id:            isoWeekId(key),
     liturgical_context: entry.n,
+    /* `special` va CRUDO. No es el santoral: de los 53 domingos que lo traen,
+       27 dicen "Solemnidad" y el resto "Gaudete", "Laetare", "Fiesta"...
+       En los 171 domingos hay UN santo real, Santa Rosa de Lima. Quien decide
+       si es una persona es classify() en generate-backgrounds.py; aqui solo
+       se transporta el dato sin interpretarlo. */
+    special:            entry.e || '',
     featured_subject:   entry.e || entry.n,
-    has_saint:          !!entry.e,
     gospel:             entry.ev || '',
     gospel_theme:       entry.tema || '',
     antiphon:           entry.ant || '',
