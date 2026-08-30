@@ -73,7 +73,14 @@
      custom property se resuelve contra la hoja de estilos que la consume, no
      contra el documento. Con '../img/...' el navegador pediría /css/img/...
 
-     Es aritmética de fechas y cuatro líneas de DOM; no merece un archivo. -->
+     Es aritmética de fechas y cuatro líneas de DOM; no merece un archivo.
+
+     v3.6.7r31 — OJO: el cálculo del domingo de aquí abajo es la ÚNICA copia
+     que queda fuera de window.PDSunday (módulo 21), y no puede evitarse: este
+     script corre antes que cualquier módulo, que es justamente su razón de
+     ser. Debe dar SIEMPRE el mismo resultado que PDSunday.key(); si algún día
+     cambia la definición del domingo, hay que tocar los dos sitios. -->
+
 <script>
 (function(){
   try{
@@ -501,7 +508,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.6.7r30</span>
+    <span class="cancionero-version">v3.6.7r31</span>
     <p class="ceremony-eyebrow ceremony-eyebrow--script">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -641,11 +648,11 @@
 <script src="../js/modules/20-hamburger-menu.js?v=3.2.44r5"></script>
 
 
-<script src="../js/modules/21-liturgical-card.js?v=3.6.7r18"></script>
+<script src="../js/modules/21-liturgical-card.js?v=3.6.7r31"></script>
 
 <script src="../js/modules/22-effects-emanation.js?v=3.6.7r15"></script>
 <!-- 36: portada litúrgica dinámica. DESPUÉS del 21, que publica window.LITURGICAL_DATA. -->
-<script src="../js/modules/36-liturgical-background.js?v=3.6.7r24"></script>
+<script src="../js/modules/36-liturgical-background.js?v=3.6.7r31"></script>
 <!-- 37: caida de las letras del tema del Evangelio. Despues del 21. -->
 <script src="../js/modules/37-lit-theme-animation.js?v=3.6.7r22"></script>
 
@@ -655,9 +662,9 @@
 <script src="../js/modules/26b-cinzel-font.js?v=3.2.44r5"></script>
 <script src="../js/modules/26c-pinyon-font.js?v=3.2.44r5"></script>
 <script src="../js/modules/26d-pdf-parser.js?v=3.2.44r5"></script>
-<script src="../js/modules/26e-pdf-builder.js?v=3.6.7r30"></script>
-<script src="../js/modules/38-pdf-cover-image.js?v=3.6.7r30"></script>
-<script src="../js/modules/27-setlist-pdf.js?v=3.6.7r30"></script>
+<script src="../js/modules/26e-pdf-builder.js?v=3.6.7r31"></script>
+<script src="../js/modules/38-pdf-cover-image.js?v=3.6.7r31"></script>
+<script src="../js/modules/27-setlist-pdf.js?v=3.6.7r31"></script>
 <!-- ══ MÓDULOS NUEVOS DEL MODO BODAS (v3.3.0) ══
      29 depende de window.playModeIntro (módulo 05). 30 es paralelo al 23.
      Ambos deben cargar después de los módulos del Modo Coro para que la

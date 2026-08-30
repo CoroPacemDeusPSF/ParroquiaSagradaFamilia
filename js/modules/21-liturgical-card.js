@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r18
+ *   @version    v3.6.7r31
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -200,7 +200,17 @@
   };
   var COL={'Blanco':'#F5F5F0','Verde':'#4A7A3A','Morado':'#6A3D7A','Rojo':'#A03030','Rosa':'#C07090'};
   function pad(n){return n<10?'0'+n:''+n;}
+  /* v3.6.7r31: EL domingo del cancionero. Definicion unica.
+     En domingo devuelve HOY, no el siguiente: la misa de hoy es la que
+     importa. El resto de la semana, el domingo que viene.
+     Antes existian tres copias de este calculo (aqui, en el modulo 36 y en
+     formatNextSunday del 26e) y la del PDF discrepaba justo en domingo, de
+     modo que el sitio mostraba una ilustracion y el PDF otra. Ahora los tres
+     consumen esta. Se publica como window.PDSunday para que no vuelva a
+     duplicarse. */
   function nextSun(){var d=new Date();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function sunDate(){var d=new Date();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d;}
+  window.PDSunday={key:nextSun,date:sunDate};
   function getPsalmUrl(n,ci,t){
     var base='../salmos/';
     var c=ci.toLowerCase();

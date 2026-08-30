@@ -6,7 +6,7 @@
  *   @brief      Constructor de PDF vectorial con identidad visual Pacem Deus
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r30
+ *   @version    v3.6.7r31
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -1135,19 +1135,27 @@
      UTILIDADES DE FECHA
      ============================================================ */
 
-  /* v3.6.7r30: el cálculo del domingo se extrae a su propia función.
-     La etiqueta de la portada y la ilustración que va detrás TIENEN que ser
-     del mismo domingo; si cada una lo calculase por su cuenta, bastaría un
-     cambio en una para que el PDF anunciara una fecha e ilustrara otra.
-     Nótese que en domingo devuelve el SIGUIENTE, no el de hoy: el SetList se
-     prepara para la misa que viene. */
+  /* v3.6.7r31: el domingo lo define el módulo 21 (window.PDSunday), que es
+     el dueño del calendario litúrgico. Aquí sólo se consume.
+
+     Antes esta función tenía su propia cuenta —con `|| 7`, que en domingo
+     saltaba al SIGUIENTE— mientras la tarjeta y el fondo de la web devolvían
+     HOY. El resultado era que un domingo el sitio mostraba una ilustración y
+     el PDF anunciaba otra fecha con otra ilustración. La causa no era la
+     fórmula sino tener tres copias, así que ahora hay una sola.
+
+     El respaldo replica la definición porque este módulo debe seguir dando un
+     PDF aunque el 21 no haya cargado; es el único sitio donde se repite y por
+     eso queda marcado. */
   function nextSunday() {
-    const today = new Date();
-    const day = today.getDay(); /* 0 = domingo */
-    const daysToSunday = (7 - day) % 7 || 7;
-    const sunday = new Date(today);
-    sunday.setDate(today.getDate() + daysToSunday);
-    return sunday;
+    if (window.PDSunday && typeof window.PDSunday.date === 'function') {
+      return window.PDSunday.date();
+    }
+    /* respaldo — misma definición que window.PDSunday */
+    const d = new Date();
+    const dy = d.getDay(); /* 0 = domingo */
+    d.setDate(d.getDate() + (dy === 0 ? 0 : 7 - dy));
+    return d;
   }
 
   /** El mismo domingo que formatNextSunday, como clave 'AAAA-MM-DD'. */

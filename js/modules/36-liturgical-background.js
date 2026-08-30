@@ -6,7 +6,7 @@
  *   @brief      Pinta la portada según el color litúrgico y la ilustración de la semana
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r24
+ *   @version    v3.6.7r31
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -77,7 +77,14 @@
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
+  /* v3.6.7r31: el domingo lo define el módulo 21 (window.PDSunday), que ya
+     es de quien depende este módulo para LITURGICAL_DATA. La cuenta local
+     queda de respaldo por si el 21 no cargara: idéntica salvo el mediodía,
+     que se fija para que un cambio de horario no corra la fecha un día. */
   function upcomingSundayKey() {
+    if (window.PDSunday && typeof window.PDSunday.key === 'function') {
+      return window.PDSunday.key();
+    }
     var d = new Date();
     d.setHours(12, 0, 0, 0);
     d.setDate(d.getDate() + ((7 - d.getDay()) % 7));
