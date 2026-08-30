@@ -6,7 +6,7 @@
      @brief      Lit-card del Evangelio del domingo (cita bíblica, tema)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r22
+     @version    v3.6.7r24
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -82,10 +82,14 @@
    se proyecte FUERA del contorno de la card, no hacia adentro.
    Capas: 18px (núcleo) · 40px (medio) · 70px (aura externa). */
 .lit-card {
-  /* Estado inicial: oculta, comprimida, desenfocada (preparada para emerger) */
+  /* Estado inicial. v3.6.7r24: era scale(0.55) rotate(-2deg) blur(8px), el
+     punto de partida de la antigua entrada "portal". Al sustituirla por un
+     fundido que solo anima opacity y translateY, esos tres valores se quedaban
+     puestos para siempre y la tarjeta salía encogida, girada y borrosa.
+     El estado inicial tiene que ser el reflejo exacto del fotograma 0 de la
+     animación que lo consume. */
   opacity: 0;
-  transform: scale(0.55) rotate(-2deg);
-  filter: blur(8px);
+  transform: translateY(10px);
   cursor: pointer;
   text-decoration: none;
   display: block;

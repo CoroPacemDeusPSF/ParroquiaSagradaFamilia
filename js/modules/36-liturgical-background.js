@@ -6,7 +6,7 @@
  *   @brief      Pinta la portada según el color litúrgico y la ilustración de la semana
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r22
+ *   @version    v3.6.7r24
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -96,7 +96,13 @@
   function loadVariant(cover, variant) {
     if (_applied === variant) return;
 
-    var url = IMG_DIR + _key + '-' + variant + IMG_EXT;
+    /* Si el <head> ya precargó esta misma variante, se reutiliza su URL
+       absoluta: la petición sale de la caché y no se pide nada dos veces. */
+    var booted = document.documentElement.getAttribute('data-lit-preload');
+    var bootedVariant = document.documentElement.getAttribute('data-lit-boot-variant');
+    var url = (booted && bootedVariant === variant)
+      ? booted
+      : IMG_DIR + _key + '-' + variant + IMG_EXT;
     var probe = new Image();
     var t0 = (window.performance && performance.now) ? performance.now() : 0;
 
@@ -124,6 +130,11 @@
         loadVariant(cover, 'desktop');
         return;
       }
+      /* No hay ilustración esta semana. Se retira el arranque del <head> —que
+         había puesto un casi negro y la capa de imagen visible— para que
+         aparezca el degradado del color litúrgico, que es el respaldo bueno. */
+      document.documentElement.classList.remove('lit-boot');
+      document.documentElement.style.removeProperty('--lit-bg-image');
       console.log('[LitBg] Sin ilustración para ' + _key + ' — se usa el degradado.');
     };
 

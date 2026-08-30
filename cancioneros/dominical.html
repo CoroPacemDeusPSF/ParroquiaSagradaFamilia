@@ -50,14 +50,30 @@
 <meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png?v=361">
 <meta name="description" content="Cancionero del Coro Pacem Deus — Cantos litúrgicos y de bodas con acordes, contexto y referencias bíblicas. Parroquia de la Sagrada Familia.">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-<!-- ══ ARRANQUE DE LA ILUSTRACIÓN DE PORTADA (v3.6.7r22) ══════════════════
-     El módulo 36 vive al final del <body> y esperaba a DOMContentLoaded para
-     empezar siquiera a pedir la imagen: hasta entonces se veía el degradado
-     verde. Este trozo la pide YA, mientras se parsea el <head>, con un
-     rel="preload". No necesita el calendario litúrgico —la fecha del próximo
-     domingo es aritmética pura— así que no depende del módulo 21 ni de nada.
-     Cuando el 36 arranca, la imagen suele estar ya en caché y se aplica sin
-     fundido. Es un cálculo de cuatro líneas; no merece un archivo aparte. -->
+<!-- ══ ARRANQUE DE LA ILUSTRACIÓN DE PORTADA (v3.6.7r24) ══════════════════
+     El problema no era solo cuándo empieza a descargarse la imagen, sino que
+     hasta que el módulo 36 no corría se veía el degradado VERDE de la portada.
+     Precargar acortaba la espera pero no la eliminaba: la capa de la imagen
+     estaba en opacity:0 esperando al JavaScript.
+
+     Aquí se quitan las dos esperas de en medio:
+
+       1. La URL de la ilustración se pone como custom property en <html>, así
+          que el CSS la tiene desde el primer fotograma y el navegador la pinta
+          en cuanto la decodifica. Sin JavaScript de por medio.
+       2. Se marca <html class="lit-boot">, que hace dos cosas en el CSS: pone
+          la capa de la imagen a opacity:1 sin transición, y sustituye el
+          degradado verde por un casi negro — el mismo tono al que tienden las
+          ilustraciones. Así el primer fotograma ya es oscuro.
+
+     Si esa semana no hay ilustración, el módulo 36 detecta el fallo al
+     precargarla, retira lit-boot y aparece el degradado del color litúrgico.
+
+     La URL se construye ABSOLUTA a propósito: un url() relativo dentro de una
+     custom property se resuelve contra la hoja de estilos que la consume, no
+     contra el documento. Con '../img/...' el navegador pediría /css/img/...
+
+     Es aritmética de fechas y cuatro líneas de DOM; no merece un archivo. -->
 <script>
 (function(){
   try{
@@ -66,15 +82,21 @@
     var p=function(n){return (n<10?'0':'')+n;};
     var k=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
     var v=(window.matchMedia&&window.matchMedia('(orientation: portrait)').matches)?'mobile':'desktop';
-    var u='../img/liturgico/'+k+'-'+v+'.webp';
+    var abs=new URL('../img/liturgico/'+k+'-'+v+'.webp',location.href).href;
+
     var l=document.createElement('link');
-    l.rel='preload'; l.as='image'; l.href=u;
+    l.rel='preload'; l.as='image'; l.href=abs;
     document.head.appendChild(l);
-    document.documentElement.setAttribute('data-lit-preload',u);
+
+    var h=document.documentElement;
+    h.style.setProperty('--lit-bg-image','url("'+abs+'")');
+    h.setAttribute('data-lit-boot-variant',v);
+    h.setAttribute('data-lit-preload',abs);
+    h.className+=' lit-boot';
   }catch(e){/* si algo falla aquí, el módulo 36 hace su trabajo igual */}
 })();
 </script>
-<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r22">
+<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r24">
 <!-- flatpickr (date picker) — cargado desde cdnjs. v3.6.0r3 reemplazó
      el rodillo custom buggy por esta librería madura (~30KB, MIT). -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
@@ -479,7 +501,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.6.7r23</span>
+    <span class="cancionero-version">v3.6.7r24</span>
     <p class="ceremony-eyebrow ceremony-eyebrow--script">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -623,7 +645,7 @@
 
 <script src="../js/modules/22-effects-emanation.js?v=3.6.7r15"></script>
 <!-- 36: portada litúrgica dinámica. DESPUÉS del 21, que publica window.LITURGICAL_DATA. -->
-<script src="../js/modules/36-liturgical-background.js?v=3.6.7r22"></script>
+<script src="../js/modules/36-liturgical-background.js?v=3.6.7r24"></script>
 <!-- 37: caida de las letras del tema del Evangelio. Despues del 21. -->
 <script src="../js/modules/37-lit-theme-animation.js?v=3.6.7r22"></script>
 

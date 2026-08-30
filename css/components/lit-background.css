@@ -6,7 +6,7 @@
      @brief      Fondo de portada que cambia cada semana según el color litúrgico
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r22
+     @version    v3.6.7r24
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -132,6 +132,52 @@ body[data-lit-color="rosa"] {
    disolvencia. Fundir algo que ya está listo solo hace esperar al usuario. */
 .ceremony.dominical .ceremony-cover.lit-bg-instant::before {
   transition: none;
+}
+
+/* ── ARRANQUE SIN VERDE (v3.6.7r24) ───────────────────────────────────────
+   El script del <head> marca <html class="lit-boot"> y deja puesta la URL de
+   la ilustración en --lit-bg-image. Estas tres reglas hacen que el primer
+   fotograma de la página ya sea el definitivo, sin pasar por el degradado
+   verde y sin esperar a que corra el módulo 36:
+
+     • la capa de la imagen arranca visible y sin transición;
+     • el suelo bajo ella es casi negro, el mismo tono al que tienden las
+       ilustraciones, así que mientras la imagen decodifica no se ve un color
+       que luego va a cambiar;
+     • el velo se pinta desde el principio, con el tinte de reserva de :root.
+       Los cinco tintes litúrgicos son todos casi negros, así que la
+       diferencia hasta que el módulo 36 fija el definitivo es imperceptible.
+
+   Si esa semana no hay ilustración, el módulo 36 retira lit-boot al fallar la
+   precarga y vuelve el degradado del color litúrgico. */
+html.lit-boot .ceremony.dominical .ceremony-cover {
+  background: #0B0709;
+}
+
+html.lit-boot .ceremony.dominical .ceremony-cover::before {
+  opacity: 1;
+  transition: none;
+}
+
+html.lit-boot[data-lit-boot-variant="mobile"] .ceremony.dominical .ceremony-cover::before {
+  background-position: center top;
+}
+
+html.lit-boot .ceremony.dominical .ceremony-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--lit-scrim-tint), 0.72) 0%,
+      rgba(var(--lit-scrim-tint), 0.42) 28%,
+      rgba(var(--lit-scrim-tint), 0.38) 52%,
+      rgba(var(--lit-scrim-tint), 0.74) 86%,
+      rgba(var(--lit-scrim-tint), 0.93) 100%
+    );
 }
 
 .ceremony.dominical .ceremony-cover.lit-bg-ready::before {
