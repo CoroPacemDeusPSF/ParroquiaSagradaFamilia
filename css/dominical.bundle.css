@@ -72,7 +72,7 @@
 /* ─── Componentes interactivos (modos especiales) ─────────────────────────── */
 @import url('components/rehearsal.css?v=3.6.3');
 @import url('components/editor.css?v=3.6.3');
-@import url('components/setlist.css?v=3.6.2');
+@import url('components/setlist.css?v=3.6.7r18');
 @import url('components/pdf-overlays.css?v=3.6.3');
 @import url('components/chord-diag.css?v=3.6.2');
 

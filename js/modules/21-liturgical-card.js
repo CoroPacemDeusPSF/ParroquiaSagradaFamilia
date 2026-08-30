@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r15
+ *   @version    v3.6.7r18
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -313,8 +313,12 @@
     card.innerHTML='<div class="lit-loading">Consultando calendario lit\u00fargico\u2026</div>';
     var sun=new Date(key+'T12:00:00');
     var dh=sun.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    if(typeof _gk!=='function'){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';return;}
-    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+_gk(),{
+    /* v3.6.7r18: la clave la expone el módulo 19 como PdAiAgent.apiKey().
+       Antes esto dependía del global suelto `_gk`, que desapareció al
+       encapsular el 19 en un IIFE. */
+    var _key=(window.PdAiAgent&&typeof window.PdAiAgent.apiKey==='function')?window.PdAiAgent.apiKey:null;
+    if(!_key){card.innerHTML='<div class="lit-error">Calendario no disponible</div>';return;}
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+_key(),{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:'Para el domingo '+dh+' calendario lit\u00fargico cat\u00f3lico, responde SOLO JSON: {"t":"Pascua","n":"nombre","e":"especial o vacio","c":"Blanco","ev":"Jn 20,19-31","tema":"frase","ci":"A"}'}]}],tools:[{google_search:{}}],generationConfig:{temperature:0,maxOutputTokens:300}})
     }).then(function(r){return r.json();}).then(function(data){

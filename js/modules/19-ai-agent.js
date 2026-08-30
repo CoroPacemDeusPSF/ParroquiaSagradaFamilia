@@ -6,7 +6,7 @@
  *   @brief      Asistente AI litúrgico (consulta a Gemini con contexto del cancionero)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.7r18
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -14,144 +14,768 @@
 /* ============================================================================
    19-ai-agent.js
    ============================================================================
-   Asistente AI — chip de búsqueda inteligente con Gemini
+   Asistente litúrgico — panel de chat con Gemini
 
-   Llama a Gemini API para sugerencias de cantos según contexto litúrgico.
+   ORDEN DE CARGA: posición 19. Lee window.PACEM_SONGS_DATA (módulo 00) y
+   window.LITURGICAL_DATA (módulo 21) de forma PEREZOSA — al enviar el primer
+   mensaje, no al cargar. Por eso no importa que el 21 cargue después.
 
-   ORDEN DE CARGA: posición 19 de 24 (orden DOM original).
-   El orden importa: este script puede depender de globals definidos por
-   scripts anteriores y/o ser dependencia de scripts posteriores.
+   ───────────────────────────────────────────────────────────────────────────
+   REESCRITURA v3.6.7r18 — POR QUÉ
+   ───────────────────────────────────────────────────────────────────────────
+   La versión anterior fallaba constantemente ("This model is currently
+   experiencing high demand"). Medido en producción sobre una sola pregunta:
+
+       latencia .................. 13,2 s
+       system prompt ............. 9 986 tokens
+       grounding google_search ... 10 365 tokens
+       pensamiento ............... 968 tokens
+       respuesta ................. 1 290 tokens
+       ───────────────────────────────────────
+       TOTAL ..................... 22 609 tokens por mensaje
+
+   Un tercer turno con historial acumulado ni siquiera terminaba en 45 s.
+   A ese volumen se agota el límite por minuto del tier gratuito en pocas
+   preguntas, y Gemini responde 503. Los cinco arreglos de raíz:
+
+   1. NO SALIR A LA WEB A BUSCAR LO QUE YA TENEMOS.
+      El 46% de cada petición se iba en `google_search` para averiguar qué
+      domingo litúrgico era. Pero el módulo 21 ya tiene los 171 domingos de
+      2025-2028 con tiempo, ciclo, color, evangelio, tema y antífona — datos
+      curados, offline y más fiables que una búsqueda web. Ahora se inyectan
+      directamente y el grounding queda RESERVADO para cuando de verdad hace
+      falta: fechas fuera del rango que cubre el calendario local.
+
+   2. CATÁLOGO GENERADO EN RUNTIME desde window.PACEM_SONGS_DATA, con la misma
+      extracción que hacía scripts/regen-ai-catalog.js. Antes era una copia
+      literal de songs.json incrustada aquí (28 081 caracteres) que desfasaba
+      por construcción: tenía 152 cantos cuando el cancionero ya iba por 157,
+      y el prompt le decía al modelo "CATÁLOGO DE 100 CANTOS". Ahora es
+      imposible que se desincronice.
+
+   3. REINTENTOS con backoff exponencial en 429/500/502/503/504, respetando
+      Retry-After. Un 503 transitorio ya no llega a la pantalla del usuario.
+
+   4. HISTORIAL PODADO a los últimos turnos, para que la conversación no
+      crezca sin techo.
+
+   5. LECTURA ROBUSTA DE LA RESPUESTA. Antes hacía parts[0].text: si `parts`
+      venía vacío (corte por longitud) eso lanzaba un TypeError que caía en el
+      catch general y mostraba "Error de conexión. Verifica tu internet." con
+      la conexión intacta. Ahora se concatenan todas las partes y se
+      distinguen los casos reales (bloqueo de seguridad, corte por longitud,
+      cuota, timeout, red).
+
+   Además: streaming SSE (el texto aparece mientras se genera en vez de 13 s
+   de "Pensando"), timeout con AbortController, escapado de HTML antes de
+   pintar, y todo encapsulado en un IIFE — era el único módulo del proyecto
+   que colgaba sus símbolos del scope global.
+
+   NOTA — scripts/regen-ai-catalog.js quedó OBSOLETO con este cambio: ya no
+   existe la constante AI_CATALOG que regeneraba. Candidato a borrar.
    ============================================================================ */
 
-/* ── AI Agent ── */
-var _ai={h:[],p:false};
-function _gk(){var a=['QUl6YVN5QV9ON','01lTTRrenQ5cE','EyQnRyNDdrT2J','rTWpCRWFyd1dr'];return atob(a.join(''));}
+(function () {
+  'use strict';
 
-var AI_CATALOG=`• Desde el Alba hasta el Ocaso [Entrada] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Entrada, Adoración eucarística, Todo el Año Litúrgico\n• Dios Trino [Entrada] — Compositor: Paullo Roberto — Versículo: «Id y haced discípulos a todas las naciones, bautizándolos en el nombre del Padre, del Hijo y del Espíritu Santo» — Mt 28,19 — Tiempos: Entrada, Santísima Trinidad, Ordinario\n• El Pueblo de Dios [Entrada] — Versículo: «Recuerda todo el camino que el Señor tu Dios te ha hecho recorrer estos cuarenta años por el desierto, para humillarte, probarte y conocer tus intenciones» — Dt 8,2 — Tiempos: Entrada, Ordinario, Cuaresma, Pascua\n• Hacia Ti Morada Santa [Entrada] — Compositor: Kiko Argüello — Versículo: «El que come mi carne y bebe mi sangre tiene vida eterna, y yo lo resucitaré en el último día» — Jn 6,54 — Tiempos: Entrada, Procesión eucarística, Corpus Christi, Cuaresma, Ordinario\n• Heme Aquí [Entrada] — Compositor: Mons. Marco Frisina — Versículo: «Yo esperaba con ansia al Señor; Él se inclinó y escuchó mi grito... Entonces dije: "Aquí estoy, vengo, como está escrito en mi libro, para hacer Tu voluntad"» — Sal 40, 1.7-9 — Tiempos: Entrada, Ofertorio, II Dom. T.O. Ciclo B, Anunciación, Tiempo Ordinario\n• Maranatha [Entrada] — Compositor: Marco López — Versículo: «El que da testimonio de estas cosas dice: Sí, vengo pronto. ¡Amén! ¡Ven, Señor Jesús!» — Ap 22,20 — Tiempos: Entrada, Adviento\n• Nos Has Llamado al Desierto [Entrada] — Compositor: Bernardo Velado Graña — Versículo: «Por eso yo la voy a seducir, la llevaré al desierto y le hablaré al corazón» — Os 2,16 — Tiempos: Entrada, Salida, Cuaresma\n• Reunidos en el Nombre del Señor [Entrada] — Compositor: Francisco Palazón — Versículo: «Porque donde están dos o tres reunidos en mi nombre, allí estoy Yo en medio de ellos» — Mt 18,20 — Tiempos: Entrada, Todo el Año Litúrgico\n• Santa María de la Esperanza [Entrada] — Compositor: Rafael de Andrés — Versículo: «Y el Verbo se hizo carne y plantó su tienda entre nosotros» — Jn 1,14 — Tiempos: Entrada, Salida, Adviento, Fiestas marianas\n• Vamos, Cantad [Entrada] — Versículo: «Estad siempre alegres en el Señor; os lo repito: estad alegres» — Flp 4,4 — Tiempos: Entrada, Ordinario, Pascua\n• Venimos a Ti [Entrada] — Versículo: «Venid a mí todos los que estáis cansados y agobiados, y yo os aliviaré» — Mt 11,28 — Tiempos: Entrada, Ordinario\n• Vosotros Sois de Dios [Entrada] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Entrada, Tiempo Pascual, Solemnidades\n• Kyrie Eléison – CC Shalom [Piedad] — Compositor: Comunidad Católica Shalom — Versículo: «Señor, ten piedad de mí; sana mi alma, porque he pecado contra Ti» — Sal 41,5 — Tiempos: Acto penitencial, Todo el Año Litúrgico\n• Kyrie Eléison – M. Frisina [Piedad] — Compositor: Mons. Marco Frisina — Versículo: «Señor, ten piedad de mi hijo, que es epiléptico y sufre mucho» — Mt 17,15 — Tiempos: Acto penitencial, Todo el Año Litúrgico\n• Kyrie Eléison (Fiorella Berríos) [Piedad] — Compositor: Fiorella Berríos — Versículo: «Ten piedad de mí, oh Dios, en Tu misericordia; en Tu gran compasión, borra mi culpa» — Sal 51,3 — Tiempos: Acto penitencial, Todo el Año Litúrgico\n• Piedad Cantaré [Piedad] — Compositor: Cantaré — Versículo: «Señor, ten piedad de nosotros; en Ti hemos esperado» — Is 33,2 — Tiempos: Acto penitencial, Todo el Año Litúrgico\n• Señor, Ten Piedad [Piedad] — Compositor: Grial — Versículo: «¡Ten piedad de mí, oh Señor, Hijo de David! Mi hija es cruelmente atormentada por un demonio» — Mt 15,22 — Tiempos: Acto penitencial, Todo el Año Litúrgico\n• Gloria – M. Frisina [Gloria] — Compositor: Mons. Marco Frisina — Versículo: &laquo;Gloria a Dios en las alturas, y en la tierra paz a los hombres que gozan de Su amor&raquo; &mdash; Lc 2,14 — Tiempos: Gloria, Tiempo Ordinario, Navidad, Pascua, Solemnidades\n• Gloria – Palazón [Gloria] — Compositor: Francisco Palazón — Versículo: «Gloria a Dios en las alturas, y en la tierra paz a los hombres que gozan de su amor» — Lc 2,14 — Tiempos: Gloria, Ordinario, Navidad, Pascua\n• Gloria – Rioja [Gloria] — Compositor: Rioja — Versículo: «Gloria a Dios en las alturas, y en la tierra paz a los hombres que gozan de su amor» — Lc 2,14 — Tiempos: Gloria, Ordinario, Navidad, Pascua\n• Gloria (Giombini) [Gloria] — Compositor: Marcello Giombini — Versículo: «Gloria a Dios en las alturas, y en la tierra paz a los hombres que gozan de su amor» — Lc 2,14 — Tiempos: Gloria, Ordinario, Navidad, Pascua\n• Gloria en las Alturas [Gloria] — Versículo: «Gloria a Dios en las alturas, y en la tierra paz a los hombres que gozan de su amor» — Lc 2,14 — Tiempos: Gloria, Ordinario, Navidad, Pascua\n• Aleluya – Alabad al Señor [Aleluya] — Versículo: «Después de cantar los himnos, salieron hacia el Monte de los Olivos» — Mt 26,30 — Tiempos: Aclamación al Evangelio, Ordinario, Pascua\n• Aleluya – Verbum Panis [Aleluya] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Aleluya, Tiempo Pascual, Tiempo Ordinario\n• Aleluya — Kairoi [Aleluya] — Compositor: Kairoi — Versículo: «Toda la asamblea respondió: Amén, Amén; y todos alababan al Señor» — Neh 8,6 — Tiempos: Aleluya, Tiempo Ordinario\n• Aleluya Cantaré [Aleluya] — Compositor: Cantaré — Versículo: «¡Aleluya! La salvación, la gloria y el poder son de nuestro Dios» — Ap 19,1 — Tiempos: Aclamación al Evangelio, Ordinario, Pascua, Navidad\n• Aleluya Irlandés [Aleluya] — Versículo: «Alabad al Señor, porque es bueno; porque es eterna Su misericordia» — Sal 136,1 — Tiempos: Aclamación al Evangelio, Ordinario, Pascua\n• Aleluya Solemne [Aleluya] — Versículo: «Alabad a Dios en Su santuario, alabadlo en Su poderoso firmamento. Alabadlo por Sus proezas, alabadlo por Su inmensa grandeza» — Sal 150,1-2 — Tiempos: Aclamación al Evangelio, Ordinario, Pascua, Solemnidades\n• Busca Primero [Aleluya] — Versículo: «Buscad primero el Reino de Dios y Su justicia, y todas estas cosas se os darán por añadidura» — Mt 6,33 — Tiempos: Aleluya, Tiempo Ordinario\n• Cristo vive en mí [Aleluya] — Versículo: «Vivo, pero ya no soy yo quien vive, es Cristo quien vive en mí» — Gal 2,20 — Tiempos: Aleluya, Tiempo Pascual, Tiempo Ordinario\n• Todo el que Ama ha Nacido de Dios [Aleluya] — Versículo: «Todo el que ama ha nacido de Dios y conoce a Dios. Quien no ama no ha conocido a Dios, porque Dios es amor» — 1 Jn 4,7-8 — Tiempos: Aclamación al Evangelio, Ordinario, Pascua\n• Gloria a Ti Oh Cristo [Aclamación del Evangelio] — Versículo: «El cielo y la tierra pasarán, pero mis palabras no pasarán» — Mt 24,35 — Tiempos: Aclamación al Evangelio, Todo el Año Litúrgico\n• Como Lo Hizo María [Ofertorio] — Versículo: «He aquí la esclava del Señor; hágase en mí según Tu palabra» — Lc 1,38 — Tiempos: Ofertorio, Fiestas marianas, Todo el Año Litúrgico\n• Con Amor Te Presento, Señor [Ofertorio] — Versículo: «En verdad os digo que esta viuda pobre ha echado más que todos, porque todos han echado de lo que les sobraba; ella, en cambio, ha echado todo lo que tenía para vivir» — Mc 12,43-44 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Cristo Mío [Ofertorio] — Versículo: «Os exhorto, hermanos, por la misericordia de Dios, a que ofrezcáis vuestros cuerpos como sacrificio vivo, santo, agradable a Dios: este es vuestro culto racional» — Rom 12,1 — Tiempos: Ofertorio, Ordinario\n• El Alfarero [Ofertorio] — Versículo: «Bajé a la casa del alfarero, y lo encontré trabajando en el torno. Y si la vasija que estaba haciendo se estropeaba, volvía a hacer otra» — Jr 18,3-4 — Tiempos: Ofertorio, Ordinario, Cuaresma\n• En su Mesa hay Amor [Ofertorio] — Versículo: «Yo os preparo un Reino, como mi Padre me lo preparó a mí, para que comáis y bebáis a mi mesa en mi Reino» — Lc 22,29-30 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Esto que Te Doy [Ofertorio] — Versículo: «Mientras comían, Jesús tomó pan, lo bendijo, lo partió y se lo dio diciendo: Tomad, esto es mi Cuerpo» — Mc 14,22 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Ofrenda de Amor [Ofertorio] — Versículo: «Aunque repartiera todos mis bienes y entregara mi cuerpo a las llamas, si no tengo amor, de nada me sirve» — 1 Cor 13,3 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Ofrenda Mariana [Ofertorio] — Tiempos: Ofertorio, Fiestas marianas, Todo el Año Litúrgico\n• Pan y Vino de Amor [Ofertorio] — Versículo: «Melquisedec, rey de Salem, presentó pan y vino, pues era sacerdote del Dios Altísimo, y lo bendijo» — Gn 14,18 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Por Amor [Ofertorio] — Compositor: Hermana Inés de Jesús — Versículo: «En esto consiste el amor: no en que nosotros hayamos amado a Dios, sino en que Él nos amó primero y envió a Su Hijo como víctima por nuestros pecados» — 1 Jn 4,10 — Tiempos: Ofertorio, Ordinario\n• Recíbeme [Ofertorio] — Versículo: «Aquí estoy, Señor, para hacer Tu voluntad» — Sal 40,8-9 (citado en Heb 10,7) — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Sobre tu Altar [Ofertorio] — Versículo: «Tenemos un altar del cual no tienen derecho a comer los que sirven al tabernáculo» — Heb 13,10 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Son Para Ti [Ofertorio] — Versículo: «Todo viene de Ti, y de lo Tuyo Te damos» — 1 Cr 29,14 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Te Consagro [Ofertorio] — Versículo: «Porque habéis sido comprados a gran precio. Glorificad, pues, a Dios en vuestro cuerpo» — 1 Cor 6,20 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Te Ofrecemos Señor [Ofertorio] — Versículo: «Os exhorto, hermanos, por la misericordia de Dios, a presentar vuestros cuerpos como sacrificio vivo, santo, agradable a Dios; éste es vuestro culto razonable» — Rom 12,1 — Tiempos: Ofertorio, Tiempo Ordinario, Cuaresma\n• Tomad Señor y Recibid [Ofertorio] — Compositor: «Suscipe» — Versículo: «Te basta mi gracia, porque mi fuerza se manifiesta en la debilidad» — 2 Cor 12,9 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Tómame Señor – Jesed [Ofertorio] — Compositor: Jesed — Versículo: «Entonces dije: Aquí estoy, envíame a mí» — Is 6,8 — Tiempos: Ofertorio, Todo el Año Litúrgico\n• Tuyo Soy [Ofertorio] — Versículo: «Si vivimos, para el Señor vivimos; si morimos, para el Señor morimos. Así que, ya vivamos, ya muramos, del Señor somos» — Rom 14,8 — Tiempos: Ofertorio, Ordinario\n• Sanctus – Verbum Panis [Santo] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Santo, Universal, Solemnidades\n• Santo – Alejandro Mejía [Santo] — Compositor: Alejandro Mejía — Versículo: «Santo, Santo, Santo es el Señor de los ejércitos; toda la tierra está llena de Su gloria» — Is 6,3 — Tiempos: Santo, Todo el Año Litúrgico\n• Santo – Alfonso Luna [Santo] — Compositor: Alfonso Luna — Versículo: «Santo, Santo, Santo es el Señor de los ejércitos; toda la tierra está llena de Su gloria» — Is 6,3 — Tiempos: Santo, Todo el Año Litúrgico\n• Santo – Fones [Santo] — Compositor: Cristóbal Fones S.J. — Versículo: «Santo, Santo, Santo es el Señor de los ejércitos; toda la tierra está llena de Su gloria» — Is 6,3 — Tiempos: Santo, Todo el Año Litúrgico\n• Santo – Frisina [Santo] — Compositor: Mons. Marco Frisina — Versículo: «¡Bendito el que viene en nombre del Señor! ¡Hosanna en las alturas!» — Mt 21,9 — Tiempos: Santo, Todo el Año Litúrgico, Solemnidades\n• Santo Giombini [Santo] — Compositor: Marcello Giombini — Versículo: «Santo, Santo, Santo es el Señor de los ejércitos: la tierra entera está llena de Su gloria» — Is 6,3 — Tiempos: Santo, Solemnidades, Bodas\n• Santo Palestra [Santo] — Compositor: Palestra — Versículo: «Santo, Santo, Santo es el Señor de los ejércitos: la tierra entera está llena de Su gloria» — Is 6,3 (Cántico de los Serafines) — Tiempos: Santo, Universal\n• Agnus Dei – Verbum Panis [Cordero de Dios] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Cordero de Dios, Universal\n• Cordero - Marco Frisina [Cordero de Dios] — Compositor: Mons. Marco Frisina — Versículo: «He ahí el Cordero de Dios, que quita el pecado del mundo» — Jn 1,29 — Tiempos: Cordero de Dios, Todo el Año Litúrgico\n• Cordero – Dynamis [Cordero de Dios] — Compositor: Dynamis — Versículo: «He ahí el Cordero de Dios, que quita el pecado del mundo» — Jn 1,29 — Tiempos: Cordero de Dios, Todo el Año Litúrgico\n• Cordero – Mejía [Cordero de Dios] — Compositor: Alejandro Mejía — Versículo: «He ahí el Cordero de Dios, que quita el pecado del mundo» — Jn 1,29 — Tiempos: Cordero de Dios, Todo el Año Litúrgico\n• Cordero Piadoso [Cordero de Dios] — Versículo: «El Señor es compasivo y misericordioso, lento a la ira y rico en clemencia» — Sal 103,8 — Tiempos: Cordero de Dios, Todo el Año Litúrgico\n• Oh Cordero de Dios [Cordero de Dios] — Versículo: «Digno es el Cordero que fue inmolado de recibir el poder, la riqueza, la sabiduría, la fuerza, el honor, la gloria y la alabanza» — Ap 5,12 — Tiempos: Cordero de Dios, Todo el Año Litúrgico\n• Aquí Estoy, Señor [Comunión] — Versículo: «Habla, Señor, que tu siervo escucha» — 1 Sam 3,10 — Tiempos: Comunión, Todo el Año Litúrgico\n• Camino Firme [Comunión] — Versículo: «Levántate y come, porque el camino es demasiado largo para ti» — 1 Re 19,7 — Tiempos: Comunión, Ordinario\n• Creo en Ti [Comunión] — Compositor: Mons. Marco Frisina — Versículo: «Yo soy el camino, la verdad y la vida... Si Me conociesen a Mí, también conocerían a Mi Padre» — Jn 14,6-7 — Tiempos: Comunión, Adoración, Todo el Año Litúrgico\n• Divino Manjar [Comunión] — Versículo: «Yo soy el pan vivo bajado del cielo. El que coma de este pan vivirá para siempre» — Jn 6,51 — Tiempos: Comunión, Todo el Año Litúrgico, Corpus Christi\n• El Amor de mi Dios [Comunión] — Compositor: Hermana Inés de Jesús — Versículo: «Estoy seguro de que ni la muerte ni la vida, ni los ángeles ni los principados, ni lo presente ni lo futuro, ni las potestades, ni la altura ni la profundidad, ni ninguna otra criatura podrá separarnos del amor de Dios manifestado en Cristo Jesús, Señor nuestro» — Rom 8,38-39 — Tiempos: Comunión, Todo el Año Litúrgico\n• En Tu Nombre Echaré las Redes [Comunión] — Versículo: «Maestro, hemos estado bregando toda la noche y no hemos pescado nada; pero, en Tu palabra, echaré las redes» — Lc 5,5 — Tiempos: Comunión, Misión, Ordinario\n• Feliz Encuentro [Comunión] — Compositor: Hermana Inés de Jesús — Versículo: «Entonces se les abrieron los ojos y lo reconocieron al partir el pan» — Lc 24,31 — Tiempos: Ofertorio, Ordinario\n• Incomparable [Comunión] — Versículo: «Y conocer el amor de Cristo, que excede a todo conocimiento, para que os vayáis llenando hasta la total plenitud de Dios» — Ef 3,19 — Tiempos: Comunión, Ordinario\n• Me Has Seducido, Señor [Comunión] — Versículo: «Me has seducido, Señor, y me dejé seducir; me has agarrado y me has podido» — Jr 20,7 — Tiempos: Comunión, Ordinario\n• Milagro de Amor [Comunión] — Versículo: «Anunciad la muerte del Señor hasta que Él venga» — 1 Cor 11,26 — Tiempos: Comunión, Todo el Año Litúrgico\n• Oh Buen Jesús [Comunión] — Versículo: «Yo soy el buen pastor. El buen pastor da su vida por las ovejas» — Jn 10,11 — Tiempos: Comunión, Ordinario\n• Pan de Vida Nueva [Comunión] — Compositor: Mons. Marco Frisina — Versículo: «Yo soy el Pan vivo bajado del cielo. Si alguien come de este pan, vivirá para siempre. Y el pan que Yo daré es Mi Carne para la vida del mundo» — Jn 6,51 — Tiempos: Comunión, Adoración, Corpus Christi, Jueves Santo, Todo el Año Litúrgico\n• Pan de Vida, Pan de Fe [Comunión] — Versículo: «Porque el pan de Dios es el que baja del cielo y da vida al mundo» — Jn 6,33 — Tiempos: Comunión, Todo el Año Litúrgico, Corpus Christi\n• Pescador de Hombres [Comunión] — Compositor: Cesáreo Gabaráin — Versículo: «Venid conmigo y os haré pescadores de hombres. Y al instante, dejando las redes, lo siguieron» — Mc 1,17-18 — Tiempos: Comunión, Misión, Ordinario\n• Salmo 63 – Dios Mío Eres Tú [Comunión] — Versículo: «Oh Dios, Tú eres mi Dios; mi alma tiene sed de Ti, mi carne Te anhela como tierra seca y árida» — Sal 63,2 — Tiempos: Comunión, Adoración eucarística, Todo el Año Litúrgico\n• Señor, a Quién Iremos [Comunión] — Versículo: «Señor, ¿a quién iremos? Tú tienes palabras de vida eterna, y nosotros hemos creído y sabemos que Tú eres el Santo de Dios» — Jn 6,68-69 — Tiempos: Comunión, Todo el Año Litúrgico, Corpus Christi\n• Symbolum 77 [Comunión] — Compositor: Pierangelo Sequeri — Versículo: «La fe es garantía de lo que se espera, prueba de lo que no se ve» — Heb 11,1 — Tiempos: Comunión, Ordinario\n• Te Hiciste Pan [Comunión] — Versículo: «El que come mi carne y bebe mi sangre permanece en mí y yo en él» — Jn 6,56 — Tiempos: Comunión, Todo el Año Litúrgico, Corpus Christi\n• Te Seguiré – M. Frisina [Comunión] — Compositor: Mons. Marco Frisina — Versículo: «Cuando Jesús dijo esto, añadió: Sígueme» — Jn 21,19 — Tiempos: Comunión, Ordinario\n• Verbum Panis [Comunión] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Comunión, Corpus Christi, Tiempo Pascual, Jueves Santo\n• Ya No Eres Pan y Vino [Comunión] — Versículo: «Esto es mi Cuerpo, que se entrega por vosotros. Haced esto en memoria mía» — Lc 22,19 — Tiempos: Comunión, Todo el Año Litúrgico, Corpus Christi\n• Yo le Resucitaré [Comunión] — Versículo: «Yo soy el pan de vida. El que viene a mí no tendrá hambre, y el que cree en mí no tendrá sed jamás» — Jn 6,35 — Tiempos: Comunión, Todo el Año Litúrgico, Corpus Christi\n• Yo Soy el Camino Firme [Comunión] — Versículo: «Yo soy el camino, la verdad y la vida. Nadie va al Padre sino por mí» — Jn 14,6 — Tiempos: Comunión, Ordinario\n• Alabo Tu Bondad — Kairoi [Acción de Gracias] — Compositor: Kairoi — Versículo: «Dad gracias al Señor porque es bueno, porque es eterna Su misericordia» — Sal 136,1 — Tiempos: Adoración, Acción de Gracias, Ordinario, Pascua\n• Alma de Cristo [Acción de Gracias] — Compositor: «Anima Christi» — Versículo: «Uno de los soldados le traspasó el costado con una lanza, y al instante salió sangre y agua» — Jn 19,34 — Tiempos: Comunión, Todo el Año Litúrgico\n• Alma Mía, Alaba a Dios [Acción de Gracias] — Compositor: Mons. Marco Frisina — Versículo: «Como dista el oriente del occidente, así aleja de nosotros nuestras culpas... Como un padre siente ternura por sus hijos, así siente el Señor ternura por Sus fieles» — Sal 103, 12-13 — Tiempos: Acción de Gracias, Adoración, Salida, VII Dom. T.O. Ciclo C, Sagrado Corazón Ciclo B, Tiempo Ordinario\n• Anima Christi – Marco Frisina [Acción de Gracias] — Compositor: Mons. Marco Frisina — Versículo: «Uno de los soldados le traspasó el costado con una lanza, y al instante salió sangre y agua» — Jn 19,34 — Tiempos: Exposición del Santísimo, Adoración eucarística, Todo el Año Litúrgico\n• Déjate [Acción de Gracias] — Versículo: «He venido a arrojar fuego sobre la tierra, y ¡cuánto desearía que ya estuviera encendido!» — Lc 12,49 — Tiempos: Adoración, Comunión, Reflexión, Cuaresma, Ordinario\n• En Mi Getsemaní [Acción de Gracias] — Versículo: «Padre mío, si es posible, pase de mí este cáliz; pero no sea como Yo quiero, sino como Tú quieres» — Mt 26,39 — Tiempos: Adoración, Comunión, Reflexión, Cuaresma, Ordinario\n• Nada Te Turbe [Acción de Gracias] — Compositor: Santa Teresa de Jesús — Versículo: «La paz os dejo, mi paz os doy. No os la doy como la da el mundo. No se turbe vuestro corazón ni se acobarde» — Jn 14,27 — Tiempos: Adoración, Todo el Año Litúrgico\n• Alma Misionera [Salida] — Compositor: Enrique García Vélez — Versículo: «Id por todo el mundo y proclamad el Evangelio a toda la creación» — Mc 16,15 — Tiempos: Salida, Animación, Misión, Ordinario\n• Ave María (Verbum Panis) [Salida] — Compositor: Mite Balduzzi — Versículo: «¡Bendita tú entre las mujeres, y bendito el fruto de tu vientre!» — Lc 1,42 — Tiempos: Salida, Fiestas marianas, Todo el Año Litúrgico\n• Ave María Blues [Salida] — Versículo: «Alégrate, llena de gracia, el Señor está contigo» — Lc 1,28 — Tiempos: Salida, Fiestas marianas, Ordinario\n• Contigo, María [Salida] — Compositor: Athenas — Versículo: «Junto a la cruz de Jesús estaban Su Madre, la hermana de Su Madre, María la de Cleofás, y María Magdalena» — Jn 19,25 — Tiempos: Salida, Fiestas marianas, Ordinario\n• Dios te Salve María (Betsaida) [Salida] — Compositor: Betsaida — Versículo: «Desde ahora me llamarán bienaventurada todas las generaciones» — Lc 1,48 — Tiempos: Salida, Fiestas marianas, Todo el Año Litúrgico\n• Ella Es [Salida] — Versículo: «Junto a la cruz de Jesús estaban Su madre, la hermana de Su madre, María la de Cleofás, y María Magdalena» — Jn 19,25 — Tiempos: Salida, Fiestas marianas, Ordinario\n• En Fátima Apareciste [Salida] — Compositor: Juan Pablo Rojas — Versículo: «Dichosa Tú, que has creído, porque lo que te ha dicho el Señor se cumplirá» — Lc 1,45 — Tiempos: Salida, Fiestas marianas, Ordinario\n• Hoy he vuelto (Madre a recordar) [Salida] — Versículo: «Cuando todavía estaba lejos, su padre lo vio y se conmovió; corrió a echarse a su cuello y lo cubrió de besos» — Lc 15,20 — Tiempos: Salida, Mariano, Mes de mayo\n• Madre del Silencio [Salida] — Versículo: «María conservaba todas estas cosas, meditándolas en su corazón» — Lc 2,19 — Tiempos: Salida, Fiestas marianas, Adviento, Cuaresma\n• María Mírame [Salida] — Versículo: «La madre de Jesús le dijo: No tienen vino» — Jn 2,3 — Tiempos: Salida, Fiestas marianas, Ordinario\n• María, Tú [Salida] — Versículo: «Jesús dijo a Su madre: Mujer, ahí tienes a tu hijo. Luego dijo al discípulo: Ahí tienes a tu madre» — Jn 19,26-27 — Tiempos: Salida, Fiestas marianas, Ordinario\n• Rezo Por Ti [Salida] — Versículo: «Orad unos por otros para que seáis sanados. La oración ferviente del justo tiene mucho poder» — St 5,16 — Tiempos: Salida, Ordinario\n• Toda Hermosa [Salida] — Compositor: Hermana Inés de Jesús — Versículo: «Toda hermosa eres, amada mía, y no hay mancha en ti» — Ct 4,7 — Tiempos: Salida, Fiestas marianas, Inmaculada Concepción\n• Tus Maravillas [Salida] — Compositor: Mite Balduzzi — Versículo: «Que todos sean uno, como Tú, Padre, en Mí, y Yo en Ti, que también ellos sean uno en nosotros» — Jn 17,21 — Tiempos: Salida, Acción de Gracias, Todo el Año Litúrgico\n• Un Día del Cielo un Ángel [Salida] — Versículo: «El ángel le dijo: No temas, María, porque has hallado gracia delante de Dios. Concebirás y darás a luz un hijo, y le pondrás por nombre Jesús» — Lc 1,30-31 — Tiempos: Salida, Fiestas marianas, Adviento\n• Cantemos al Amor de los Amores [Exposición del Santísimo] — Versículo: «Nadie tiene amor más grande que el que da la vida por sus amigos» — Jn 15,13 — Tiempos: Exposición del Santísimo, Corpus Christi, Todo el Año Litúrgico\n• Canten con Gozo [✦ Momentos Especiales ✦] — Versículo: «Estad siempre alegres en el Señor; os lo repito: estad alegres» — Flp 4,4 — Tiempos: Momentos especiales, Todo el Año Litúrgico\n• Adorador [Adoración/Reflexión] — Compositor: Daniel Poli — Versículo: «Llega la hora, y es ahora, en que los verdaderos adoradores adorarán al Padre en espíritu y en verdad, porque así quiere el Padre que sean los que lo adoren» — Jn 4,23 — Tiempos: Adoración, Ordinario\n• El Espíritu de Dios Está en Este Lugar [Adoración/Reflexión] — Versículo: «De repente vino del cielo un ruido como el de un viento recio, que llenó toda la casa donde se encontraban» — Hch 2,2 — Tiempos: Adoración, Pascua, Pentecostés, Ordinario\n• Gloria (Valverde) [Adoración/Reflexión] — Compositor: Martín Valverde — Versículo: «Dios lo exaltó y le dio el nombre que está sobre todo nombre, para que ante el nombre de Jesús toda rodilla se doble» — Flp 2,9-10 — Tiempos: Adoración, Pascua, Ordinario\n• Rey de Reyes [Adoración/Reflexión] — Versículo: «En su manto y en su muslo lleva escrito un nombre: Rey de Reyes y Señor de Señores» — Ap 19,16 — Tiempos: Adoración, Cristo Rey, Pascua, Ordinario\n• Dame del Agua que Brota [Animación] — Versículo: «El que beba del agua que yo le daré no tendrá sed jamás, sino que el agua que yo le daré se convertirá en él en un manantial que brota para la vida eterna» — Jn 4,14 — Tiempos: Animación, Ordinario, Cuaresma\n• Granito de Mostaza [Animación] — Versículo: «El Reino de los cielos es semejante a un grano de mostaza que un hombre sembró en su campo. Es la más pequeña de las semillas, pero cuando crece es la mayor de las hortalizas» — Mt 13,31-32 — Tiempos: Animación, Ordinario\n• Jesús Está Pasando por Aquí [Animación] — Versículo: «Al enterarse de que pasaba Jesús de Nazaret, comenzó a gritar: ¡Jesús, Hijo de David, ten piedad de mí!» — Mc 10,47 — Tiempos: Animación, Ordinario\n• Mi Dios Está Vivo [Animación] — Versículo: «Porque vosotros os convertisteis a Dios, dejando los ídolos para servir al Dios vivo y verdadero» — 1 Tes 1,9 — Tiempos: Animación, Ordinario, Pascua\n• Mi Mano Está Llena [Animación] — Versículo: «Dad y se os dará; una medida buena, apretada, remecida y rebosante pondrán en vuestro regazo» — Lc 6,38 — Tiempos: Animación, Ordinario\n• Porque Cristo Ha Tomado Mi Vida [Animación] — Versículo: «Ya no soy yo quien vive, sino que es Cristo quien vive en mí. Y la vida que vivo ahora en la carne, la vivo en la fe del Hijo de Dios, que me amó y se entregó por mí» — Gal 2,20 — Tiempos: Animación, Ordinario, Pascua\n• Que Viva Cristo [Animación] — Versículo: «Jesús es el Señor» — la profesión de fe más antigua del cristianismo (Rom 10,9; 1 Cor 12,3; Flp 2,11) — Tiempos: Animación, Pascua, Cristo Rey, Ordinario\n• Vamos a Alabar al Señor [Animación] — Versículo: «¡Alabad al Señor! Alabadlo en Su santuario, alabadlo en Su poderoso firmamento. ¡Todo lo que respira alabe al Señor!» — Sal 150,1.6 — Tiempos: Animación, Todo el Año Litúrgico\n• No voy a Decirte Adiós [Misa de Honras] — Compositor: Alfareros — Versículo: «No queremos, hermanos, que ignoréis lo referente a los muertos, para que no os entristezcáis como los que no tienen esperanza» — 1 Tes 4,13 — Tiempos: Misa de Honras, Exequias, Fieles Difuntos\n• Athair ar Neamh (Boda Princesa Sofía de Suecia) [Instrumentales]\n• Canon en Re Mayor [Instrumentales]\n• Marcha del Príncipe de Dinamarca [Instrumentales]\n• Marcha Nupcial - Félix Mendelssohn [Instrumentales]\n• Pompa y Circunstancia [Instrumentales]\n• A Thousand Years [Bodas]\n• Aleluya de Bodas [Bodas]\n• Alianza de Amor [Bodas] — Versículo: «Lo que Dios unió, no lo separe el hombre» — Mc 10,9 — Tiempos: Rito Matrimonial\n• Best Day of My Life [Bodas]\n• Can't Help Falling in Love [Bodas]\n• Could I Love You Any More [Bodas]\n• Cuando llego a casa [Bodas]\n• De Aquí hasta el Final [Bodas] — Versículo: «Yo soy el Camino, la Verdad y la Vida; nadie va al Padre sino por Mí» — Jn 14,6 — Tiempos: Salida de Novios, Firma del Pliego, Fotografía\n• Hasta mi final [Bodas]\n• Isn't She Lovely [Bodas]\n• Just the Two of Us [Bodas]\n• Kiss Me [Bodas]\n• Marry You [Bodas]\n• Mi corazón encantado [Bodas]\n• Perfect [Bodas]\n• Regalo del Cielo [Bodas] — Versículo: «El que encuentra una esposa encuentra una cosa buena y alcanza el favor del Señor» — Pr 18,22 — Tiempos: Entrada de la Novia, Salida de Novios, Fotografía\n• Si nos dejan [Bodas]\n• Stand by Me [Bodas]\n• Sunday Morning [Bodas]\n• Te Diré que Sí [Bodas] — Versículo: «Sea vuestro lenguaje: sí, sí; no, no. Lo que pasa de aquí, viene del Maligno» — Mt 5,37 — Tiempos: Entrada de la Novia, Comunión\n• Toma Mi Mano [Bodas] — Versículo: «Lo que Dios unió, no lo separe el hombre» — Mt 19,6 / Mc 10,9 — Tiempos: Rito Matrimonial, Comunión\n• Un mismo Corazón [Bodas] — Versículo: «La multitud de los creyentes tenía un solo corazón y una sola alma» — Hch 4,32 — Tiempos: Entrada de la Novia, Ofertorio\n• Un Mundo Ideal [Bodas]\n• You Raise Me Up [Bodas]`;
+  /* ══ Configuración ═══════════════════════════════════════════════════════ */
 
-var AI_SYSTEM=`Eres el Asistente Litúrgico del Coro Pacem Deus, un coro de la Parroquia Sagrada Familia. RESPONDE SIEMPRE EN EL IDIOMA DEL USUARIO. Por defecto: español. NUNCA mezcles idiomas.
+  var MODEL     = 'gemini-2.5-flash';
+  var API_BASE  = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
-REGLAS:
-- IDIOMA: Responde SIEMPRE en el idioma en que el usuario te escriba. Si te escriben en español, responde en español. Si en inglés, en inglés. NUNCA mezcles idiomas. Por defecto: español.
-- Sé conciso pero preciso. No inventes información.
-- Usa SOLO cantos del catálogo (nunca inventes cantos).
-- USA GOOGLE SEARCH para buscar las lecturas exactas del domingo consultado (ej: 'lecturas misa domingo 12 abril 2026'). NUNCA adivines las lecturas de memoria.
-- Usa pronombres en mayúscula para Dios/Jesús/María: Tú, Ti, Te, Él, Su.
-- La fecha de hoy es: ${new Date().toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}.
+  /* Turnos de conversación que se conservan (usuario + modelo cuentan como 2).
+     Con 8 se recuerdan las últimas 4 preguntas, suficiente para "y el domingo
+     siguiente?" sin que la petición crezca sin control. */
+  var MAX_HISTORY = 8;
 
-FORMATO DE RESPUESTA (obligatorio):
-- NUNCA muestres los IDs internos del catálogo (d04|Entrada|...) en tu respuesta. Eso es formato interno, el usuario no debe verlo.
-- Presenta los cantos así: **Nombre del Canto** (Compositor si se conoce).
-- Usa negritas (**texto**) para nombres de cantos y secciones litúrgicas.
-- Separa cada momento litúrgico con su nombre en negrita.
-- No uses bloques de código ni formato técnico.
+  var TIMEOUT_MS  = 60000;
+  var MAX_RETRIES = 3;
+  var RETRIABLE   = [429, 500, 502, 503, 504];
 
-MÉTODO PARA RECOMENDAR SETLISTS:
-1. Busca con Google Search las lecturas REALES del domingo.
-2. Identifica los TEMAS CENTRALES: misericordia, fe, comunidad, resurrección, etc.
-3. Para cada momento, busca cantos cuyo VERSÍCULO BÍBLICO conecte temáticamente con las lecturas — no te guíes solo por el título del canto.
-4. Marca como CLAVE (★) los cantos cuya conexión bíblica sea directa. Explica POR QUÉ conecta con la lectura del día.
-5. Ofrece 2 opciones cuando sea natural, sin forzar.
-6. Para momentos sin conexión especial (ej: Santo siempre es el mismo texto), recomienda brevemente sin justificación extensa.
+  /* Domingos del calendario local que viajan en el prompt. 6 cubre mes y
+     medio: alcanza para "este domingo", "el siguiente" y "el de dentro de
+     tres semanas" sin buscar en la web. */
+  var SUNDAYS_AHEAD = 6;
 
-ESTRUCTURA DE LA MISA (momentos litúrgicos en orden):
-1. Entrada - Canto procesional de ingreso
-2. Piedad (Kyrie) - Acto penitencial
-3. Gloria - Himno de alabanza (se omite en Adviento y Cuaresma)
-4. Aleluya - Aclamación antes del Evangelio (se omite en Cuaresma)
-5. Aclamación del Evangelio - Respuesta post-Evangelio
-6. Ofertorio - Preparación de los dones
-7. Santo (Sanctus) - IGMR §79, toda la asamblea
-8. Cordero de Dios (Agnus Dei) - Fracción del pan
-9. Comunión - Procesión eucarística
-10. Salida - Despedida
+  /* maxOutputTokens tiene que dar cabida al pensamiento del modelo Y a la
+     respuesta: gemini-2.5-flash razona antes de contestar y ambos salen del
+     mismo techo. Con el 8192 anterior sin presupuesto explícito, una respuesta
+     larga podía agotarlo pensando y volver vacía. */
+  var THINKING_BUDGET   = 1024;
+  var MAX_OUTPUT_TOKENS = 4096;
 
-CATÁLOGO DE 100 CANTOS DEL CORO PACEM DEUS:
-${AI_CATALOG}
+  var _state = {
+    history: [],
+    busy: false,
+    catalog: null,     // se construye una vez, en el primer envío
+    lastQuestion: null // para el botón "Reintentar"
+  };
 
-CALENDARIO LITÚRGICO (Ciclo A=2026, B=2027, C=2028):
-- Adviento: 4 domingos antes de Navidad (NO se canta Gloria ni Aleluya)
-- Navidad: 25 dic - Bautismo del Señor
-- Ordinario I: después del Bautismo hasta Miércoles de Ceniza
-- Cuaresma: Ceniza → Sábado Santo (NO se canta Gloria ni Aleluya; el Aleluya se reemplaza por aclamación cuaresmal)
-- Pascua: Domingo de Resurrección → Pentecostés (50 días de MÁXIMA alegría; se retoma el Aleluya con júbilo)
-- Ordinario II: después de Pentecostés hasta Adviento
-- Solemnidades especiales: Santísima Trinidad, Corpus Christi, Cristo Rey, Inmaculada Concepción, fiestas marianas
-
-Al recomendar un setlist, identifica los cantos CLAVE (los que conectan directamente con las lecturas) y explica por qué. El resto déjalo a criterio del director.`;
-
-function toggleAIPanel(){
-  var p=document.getElementById('ai-panel');
-  p.classList.toggle('open');
-}
-
-function aiSuggest(t){
-  document.getElementById('ai-input').value=t;
-  aiSend();
-}
-
-function aiAddMsg(role,text){
-  var m=document.getElementById('ai-messages');
-  var w=m.querySelector('.ai-welcome');
-  if(w)w.remove();
-  var d=document.createElement('div');
-  d.className='ai-msg ai-msg-'+role;
-  d.innerHTML=text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
-  m.appendChild(d);
-  m.scrollTop=m.scrollHeight;
-  return d;
-}
-
-function aiShowTyping(){
-  var m=document.getElementById('ai-messages');
-  var d=document.createElement('div');
-  d.className='ai-typing';
-  d.id='ai-typing';
-  d.textContent='Pensando';
-  m.appendChild(d);
-  m.scrollTop=m.scrollHeight;
-}
-function aiHideTyping(){var t=document.getElementById('ai-typing');if(t)t.remove();}
-
-async function aiSend(){
-  var inp=document.getElementById('ai-input');
-  var txt=inp.value.trim();
-  if(!txt)return;
-  inp.value='';
-  inp.style.height='auto';
-  document.getElementById('ai-send-btn').disabled=true;
-
-  aiAddMsg('user',txt);
-  _ai.h.push({role:'user',parts:[{text:txt}]});
-
-  aiShowTyping();
-
-  try{
-    var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+_gk(),{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        system_instruction:{parts:[{text:AI_SYSTEM}]},
-        contents:_ai.h,
-        tools:[{google_search:{}}],
-        generationConfig:{temperature:0.7,maxOutputTokens:8192}
-      })
-    });
-    var d=await r.json();
-    aiHideTyping();
-
-    if(d.candidates&&d.candidates[0]&&d.candidates[0].content){
-      var reply=d.candidates[0].content.parts[0].text;
-      aiAddMsg('ai',reply);
-      _ai.h.push({role:'model',parts:[{text:reply}]});
-    }else{
-      var err=d.error?d.error.message:'Respuesta vacía';
-      aiAddMsg('ai','*Error: '+err+'*');
-    }
-  }catch(e){
-    aiHideTyping();
-    aiAddMsg('ai','*Error de conexión. Verifica tu internet.*');
+  function apiKey() {
+    var a = ['QUl6YVN5QV9ON', '01lTTRrenQ5cE', 'EyQnRyNDdrT2J', 'rTWpCRWFyd1dr'];
+    return atob(a.join(''));
   }
-  document.getElementById('ai-send-btn').disabled=false;
-  document.getElementById('ai-input').focus();
-}
+
+  /* ══ Utilidades ══════════════════════════════════════════════════════════ */
+
+  function sleep(ms) {
+    return new Promise(function (r) { setTimeout(r, ms); });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  /* Markdown mínimo — SIEMPRE sobre texto ya escapado, para que ni la
+     respuesta del modelo ni lo que escriba el usuario puedan inyectar HTML. */
+  function mdToHtml(s) {
+    return esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  function dateKey(d) {
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function longDate(key) {
+    return new Date(key + 'T12:00:00').toLocaleDateString('es-PE', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+
+  /* Domingo de referencia: hoy si hoy es domingo, si no el próximo. */
+  function upcomingSunday() {
+    var d = new Date();
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() + ((7 - d.getDay()) % 7));
+    return dateKey(d);
+  }
+
+  /* ══ Catálogo de cantos (desde songs.json, en runtime) ════════════════════ */
+
+  /* Misma extracción que scripts/regen-ai-catalog.js, para que el formato de
+     línea sea idéntico al que el prompt ya sabía interpretar. */
+
+  function extractComposer(html) {
+    if (!html) return null;
+    var section = html.match(
+      /<div class="ctx-label">Compositor<\/div>\s*<div class="ctx-text">([\s\S]*?)<\/div>\s*<\/div>/
+    );
+    if (!section) return null;
+    var strong = section[1].match(/<strong>([\s\S]*?)<\/strong>/);
+    if (!strong) return null;
+    return strong[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function extractVerse(html) {
+    if (!html) return null;
+    var verse = html.match(/<span class="ctx-verse">([\s\S]*?)<\/span>/);
+    if (!verse) return null;
+    return verse[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  /* Etiquetas que no aportan nada al modelo: o son universales (aplican a
+     todo canto) o repiten el momento litúrgico que ya va en la línea. Son el
+     grueso del ruido: los tags ocupaban el 25% del catálogo. Se conservan las
+     que sí discriminan — Adviento, Cuaresma, Pascua, Corpus Christi, fiestas
+     marianas, etc. */
+  var NOISE_TAGS = {
+    'todo el año litúrgico': 1,
+    'todo el año liturgico': 1,
+    'universal': 1,
+    'ordinario': 1,
+    'tiempo ordinario': 1
+  };
+
+  function extractTags(html, moment) {
+    if (!html) return [];
+    var matches = html.match(/<span class="ctx-tag[^"]*">([^<]+)<\/span>/g) || [];
+    var mom = String(moment || '').toLowerCase();
+    var seen = {};
+    var out = [];
+    matches.forEach(function (m) {
+      var t = m.match(/>([^<]+)</)[1].trim();
+      var k = t.toLowerCase();
+      if (seen[k] || NOISE_TAGS[k] || k === mom) return;
+      seen[k] = true;
+      out.push(t);
+    });
+    return out;
+  }
+
+  function catalogLine(song) {
+    var line = '• ' + song.title + ' [' + song.moment + ']';
+    var composer = extractComposer(song.context_html);
+    var verse    = extractVerse(song.context_html);
+    var tags     = extractTags(song.context_html, song.moment);
+    if (composer)    line += ' — Compositor: ' + composer;
+    if (verse)       line += ' — Versículo: ' + verse;
+    if (tags.length) line += ' — Tiempos: ' + tags.join(', ');
+    return line;
+  }
+
+  /* Se construye una sola vez por sesión y se cachea en memoria (nunca en
+     localStorage: el proyecto lo tiene prohibido por los bugs de datos
+     fantasma, y además songs.json puede cambiar entre despliegues). */
+  function getCatalog() {
+    if (_state.catalog) return _state.catalog;
+    var songs = window.PACEM_SONGS_DATA;
+    if (!Array.isArray(songs) || !songs.length) return null;
+    _state.catalog = {
+      count: songs.length,
+      text: songs.map(catalogLine).join('\n')
+    };
+    return _state.catalog;
+  }
+
+  /* ══ Contexto litúrgico (desde el calendario local del módulo 21) ═════════ */
+
+  function liturgicalRange() {
+    var D = window.LITURGICAL_DATA;
+    if (!D) return null;
+    var keys = Object.keys(D).sort();
+    if (!keys.length) return null;
+    return { first: keys[0], last: keys[keys.length - 1], keys: keys };
+  }
+
+  /* Ficha completa del domingo objetivo + línea resumida de los siguientes. */
+  function buildLiturgicalContext() {
+    var D = window.LITURGICAL_DATA;
+    var range = liturgicalRange();
+    if (!D || !range) return null;
+
+    var target = upcomingSunday();
+    var idx = range.keys.indexOf(target);
+    if (idx === -1) {
+      /* El domingo de hoy cae fuera del calendario local (p. ej. después de
+         2028). Sin ficha principal: quien decide es needsWebSearch(). */
+      return null;
+    }
+
+    var main = D[target];
+    var out = [];
+    out.push('CALENDARIO LITÚRGICO PROPIO DEL CANCIONERO — FUENTE PRINCIPAL.');
+    out.push('Estos datos son curados y verificados. Úsalos tal cual; NO los contradigas ni los busques en la web.');
+    out.push('');
+    out.push('▸ PRÓXIMO DOMINGO — ' + longDate(target) + ' (' + target + ')');
+    out.push('   Tiempo litúrgico: ' + main.t + ' · Ciclo: ' + (main.ci || '—') + ' · Color: ' + (main.c || '—'));
+    out.push('   Celebración: ' + main.n);
+    if (main.e)    out.push('   Santoral / especial: ' + main.e);
+    if (main.ev)   out.push('   Evangelio: ' + main.ev);
+    if (main.tema) out.push('   Tema central del Evangelio: ' + main.tema);
+    if (main.ant)  out.push('   Antífona / salmo responsorial: ' + main.ant);
+
+    var next = range.keys.slice(idx + 1, idx + SUNDAYS_AHEAD);
+    if (next.length) {
+      out.push('');
+      out.push('▸ DOMINGOS SIGUIENTES:');
+      next.forEach(function (k) {
+        var s = D[k];
+        var line = '   ' + k + ' — ' + s.n + ' · ' + s.t + ' · Ciclo ' + (s.ci || '—');
+        if (s.ev)   line += ' · Ev: ' + s.ev;
+        if (s.tema) line += ' · Tema: ' + s.tema;
+        if (s.e)    line += ' · ' + s.e;
+        out.push(line);
+      });
+    }
+
+    out.push('');
+    out.push('El calendario propio cubre de ' + range.first + ' a ' + range.last + '.');
+    return out.join('\n');
+  }
+
+  /* El grounding con google_search cuesta ~10 000 tokens y varios segundos.
+     Solo se enciende cuando el calendario local no puede responder: no está
+     cargado, el domingo pedido cae fuera del rango cubierto, o el usuario
+     nombra explícitamente un año que no tenemos. */
+  function needsWebSearch(userText) {
+    var range = liturgicalRange();
+    if (!range) return true;
+
+    if (range.keys.indexOf(upcomingSunday()) === -1) return true;
+
+    var firstYear = parseInt(range.first.slice(0, 4), 10);
+    var lastYear  = parseInt(range.last.slice(0, 4), 10);
+    var years = String(userText || '').match(/\b(19|20)\d{2}\b/g) || [];
+    for (var i = 0; i < years.length; i++) {
+      var y = parseInt(years[i], 10);
+      if (y < firstYear || y > lastYear) return true;
+    }
+    return false;
+  }
+
+  /* ══ System prompt ═══════════════════════════════════════════════════════ */
+
+  function buildSystemPrompt(userText, useSearch) {
+    var catalog = getCatalog();
+    var lit = buildLiturgicalContext();
+    var hoy = new Date().toLocaleDateString('es-PE', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    var p = [];
+    p.push('Eres el Asistente Litúrgico del Coro Pacem Deus, un coro de la Parroquia Sagrada Familia (Lima, Perú). RESPONDE SIEMPRE EN EL IDIOMA DEL USUARIO. Por defecto: español. NUNCA mezcles idiomas.');
+    p.push('');
+    p.push('REGLAS:');
+    p.push('- IDIOMA: responde en el idioma en que te escriban. Por defecto español. Nunca mezcles idiomas.');
+    p.push('- Sé conciso pero preciso. No inventes información.');
+    p.push('- Usa SOLO cantos del catálogo. Nunca inventes cantos ni sugieras cantos que no estén en la lista.');
+    p.push('- Usa pronombres en mayúscula para Dios / Jesús / María: Tú, Ti, Te, Él, Su.');
+    p.push('- La fecha de hoy es: ' + hoy + '.');
+
+    if (useSearch) {
+      p.push('- La fecha consultada queda FUERA del calendario propio del cancionero. Usa Google Search para obtener las lecturas y el domingo litúrgico exactos. Nunca los adivines de memoria.');
+    } else {
+      p.push('- NO uses búsqueda web: el calendario litúrgico que viene más abajo es la fuente autorizada y ya está verificado.');
+    }
+
+    p.push('');
+    p.push('FORMATO DE RESPUESTA (obligatorio):');
+    p.push('- Presenta los cantos así: **Nombre del Canto** (Compositor si se conoce).');
+    p.push('- Usa negritas (**texto**) para nombres de cantos y secciones litúrgicas.');
+    p.push('- Separa cada momento litúrgico con su nombre en negrita.');
+    p.push('- No uses bloques de código ni formato técnico. No muestres identificadores internos.');
+    p.push('');
+    p.push('MÉTODO PARA RECOMENDAR SETLISTS:');
+    p.push('1. Parte del Evangelio y el tema central del domingo (te los doy abajo).');
+    p.push('2. Identifica los temas: misericordia, fe, comunidad, resurrección, cruz, etc.');
+    p.push('3. Para cada momento, elige cantos cuyo VERSÍCULO BÍBLICO conecte con esos temas — no te guíes solo por el título.');
+    p.push('4. Marca con ★ los cantos cuya conexión sea directa y explica en una línea POR QUÉ conecta.');
+    p.push('5. Ofrece 2 opciones cuando sea natural, sin forzar.');
+    p.push('6. En los momentos de texto fijo (Santo, Cordero) recomienda brevemente, sin justificación extensa.');
+    p.push('');
+    p.push('ESTRUCTURA DE LA MISA (en orden): Entrada · Piedad (Kyrie) · Gloria · Aleluya · Aclamación del Evangelio · Ofertorio · Santo · Cordero de Dios · Comunión · Salida.');
+    p.push('El Gloria y el Aleluya se omiten en Adviento y Cuaresma.');
+
+    if (lit) {
+      p.push('');
+      p.push(lit);
+    }
+
+    if (catalog) {
+      p.push('');
+      p.push('CATÁLOGO DE ' + catalog.count + ' CANTOS DEL CORO PACEM DEUS:');
+      p.push(catalog.text);
+    }
+
+    return p.join('\n');
+  }
+
+  /* ══ Capa de red: reintentos, timeout, errores con sentido ════════════════ */
+
+  function AgentError(message, kind) {
+    var e = new Error(message);
+    e.kind = kind || 'unknown';
+    return e;
+  }
+
+  function messageForStatus(status, apiMessage) {
+    if (status === 429) {
+      return 'Se alcanzó el límite de consultas por minuto de la API. Espera unos segundos y vuelve a intentar.';
+    }
+    if (status === 400 && /API key|API_KEY/i.test(apiMessage || '')) {
+      return 'La clave de la API no es válida o está restringida para este dominio.';
+    }
+    if (status === 403) {
+      return 'Google denegó el acceso a la API (clave restringida o sin permisos).';
+    }
+    if (status >= 500) {
+      return 'El servicio de Google está saturado en este momento. Lo reintenté ' + MAX_RETRIES + ' veces sin éxito.';
+    }
+    return apiMessage || ('La API respondió con un error (HTTP ' + status + ').');
+  }
+
+  /**
+   * fetch con timeout y reintentos exponenciales sobre errores transitorios.
+   * Los errores NO recuperables (400, 403…) se devuelven de inmediato para que
+   * el llamador lea el cuerpo y explique la causa real.
+   */
+  async function fetchWithRetry(url, init, onRetry) {
+    var lastError = null;
+
+    for (var attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      var controller = new AbortController();
+      var timer = setTimeout(function () { controller.abort(); }, TIMEOUT_MS);
+      var waitMs = null;
+
+      try {
+        var res = await fetch(url, {
+          method: init.method,
+          headers: init.headers,
+          body: init.body,
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+
+        if (res.ok) return res;
+        if (RETRIABLE.indexOf(res.status) === -1) return res;
+
+        lastError = AgentError(messageForStatus(res.status, null), 'http');
+        lastError.status = res.status;
+
+        var retryAfter = res.headers.get('Retry-After');
+        if (retryAfter) {
+          var secs = parseInt(retryAfter, 10);
+          if (!isNaN(secs)) waitMs = Math.min(secs * 1000, 15000);
+        }
+      } catch (e) {
+        clearTimeout(timer);
+        if (e.name === 'AbortError') {
+          lastError = AgentError('La consulta superó los ' + Math.round(TIMEOUT_MS / 1000) + ' segundos y se canceló.', 'timeout');
+        } else {
+          lastError = AgentError('No se pudo conectar con el servicio. Revisa tu conexión a internet.', 'network');
+        }
+      }
+
+      if (attempt < MAX_RETRIES) {
+        var delay = waitMs || (Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 400));
+        if (onRetry) onRetry(attempt + 1, MAX_RETRIES, delay);
+        await sleep(delay);
+      }
+    }
+
+    throw lastError || AgentError('La consulta falló por una causa desconocida.', 'unknown');
+  }
+
+  function requestBody(userText, useSearch) {
+    var body = {
+      system_instruction: { parts: [{ text: buildSystemPrompt(userText, useSearch) }] },
+      contents: _state.history.concat([{ role: 'user', parts: [{ text: userText }] }]),
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        thinkingConfig: { thinkingBudget: THINKING_BUDGET }
+      }
+    };
+    if (useSearch) body.tools = [{ google_search: {} }];
+    return body;
+  }
+
+  /* Concatena TODAS las partes con texto. Con grounding la respuesta puede
+     traer varias, y la primera puede no ser texto — hacer parts[0].text era
+     justamente lo que rompía la versión anterior. */
+  function partsText(candidate) {
+    if (!candidate || !candidate.content || !Array.isArray(candidate.content.parts)) return '';
+    var out = '';
+    candidate.content.parts.forEach(function (p) {
+      if (p && typeof p.text === 'string') out += p.text;
+    });
+    return out;
+  }
+
+  /* Traduce una respuesta sin texto a una causa concreta, en vez del genérico
+     "Respuesta vacía" que no permitía diagnosticar nada. */
+  function explainEmpty(data) {
+    if (data && data.promptFeedback && data.promptFeedback.blockReason) {
+      return AgentError('La consulta fue bloqueada por los filtros de seguridad de Google (' +
+        data.promptFeedback.blockReason + ').', 'blocked');
+    }
+    var cand = data && data.candidates && data.candidates[0];
+    var reason = cand && cand.finishReason;
+    if (reason === 'MAX_TOKENS') {
+      return AgentError('La respuesta se cortó por longitud antes de poder mostrarse. Prueba con una pregunta más acotada.', 'truncated');
+    }
+    if (reason === 'SAFETY' || reason === 'PROHIBITED_CONTENT') {
+      return AgentError('La respuesta fue bloqueada por los filtros de seguridad de Google.', 'blocked');
+    }
+    if (reason === 'RECITATION') {
+      return AgentError('Google bloqueó la respuesta por posible recitación de material protegido.', 'blocked');
+    }
+    if (data && data.error && data.error.message) {
+      return AgentError(data.error.message, 'api');
+    }
+    return AgentError('El modelo devolvió una respuesta vacía' + (reason ? ' (' + reason + ')' : '') + '.', 'empty');
+  }
+
+  async function readErrorBody(res) {
+    try {
+      var d = await res.json();
+      return d && d.error ? d.error.message : null;
+    } catch (e) { return null; }
+  }
+
+  /**
+   * Envío con streaming SSE: el texto se pinta a medida que llega, en vez de
+   * dejar "Pensando" 13 segundos. Si el navegador no soporta lectura de
+   * streams, cae al modo no-streaming.
+   *
+   * Los reintentos solo cubren la fase de conexión. Una vez que empezó a
+   * llegar texto no se reintenta: se conserva lo recibido y se avisa, para no
+   * duplicar contenido en pantalla.
+   */
+  async function sendStreaming(userText, useSearch, handlers) {
+    var url = API_BASE + MODEL + ':streamGenerateContent?alt=sse&key=' + apiKey();
+    var res = await fetchWithRetry(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody(userText, useSearch))
+    }, handlers.onRetry);
+
+    if (!res.ok) {
+      var apiMsg = await readErrorBody(res);
+      var err = AgentError(messageForStatus(res.status, apiMsg), 'http');
+      err.status = res.status;
+      throw err;
+    }
+
+    if (!res.body || typeof res.body.getReader !== 'function') {
+      return sendBuffered(userText, useSearch, handlers);
+    }
+
+    var reader  = res.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer  = '';
+    var full    = '';
+    var lastPayload = null;
+
+    while (true) {
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+
+      var lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (line.indexOf('data:') !== 0) continue;
+        var payload = line.slice(5).trim();
+        if (!payload || payload === '[DONE]') continue;
+
+        var data;
+        try { data = JSON.parse(payload); } catch (e) { continue; }
+        lastPayload = data;
+
+        var piece = partsText(data.candidates && data.candidates[0]);
+        if (piece) {
+          full += piece;
+          handlers.onText(full);
+        }
+      }
+    }
+
+    if (!full) throw explainEmpty(lastPayload);
+    return full;
+  }
+
+  /** Respaldo sin streaming, para navegadores sin ReadableStream. */
+  async function sendBuffered(userText, useSearch, handlers) {
+    var url = API_BASE + MODEL + ':generateContent?key=' + apiKey();
+    var res = await fetchWithRetry(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody(userText, useSearch))
+    }, handlers.onRetry);
+
+    if (!res.ok) {
+      var apiMsg = await readErrorBody(res);
+      var err = AgentError(messageForStatus(res.status, apiMsg), 'http');
+      err.status = res.status;
+      throw err;
+    }
+
+    var data = await res.json();
+    var text = partsText(data.candidates && data.candidates[0]);
+    if (!text) throw explainEmpty(data);
+    handlers.onText(text);
+    return text;
+  }
+
+  /* ══ UI ══════════════════════════════════════════════════════════════════ */
+
+  function el(id) { return document.getElementById(id); }
+
+  function scrollDown() {
+    var m = el('ai-messages');
+    if (m) m.scrollTop = m.scrollHeight;
+  }
+
+  function dropWelcome() {
+    var m = el('ai-messages');
+    if (!m) return;
+    var w = m.querySelector('.ai-welcome');
+    if (w) w.remove();
+  }
+
+  function addMsg(role, text) {
+    var m = el('ai-messages');
+    if (!m) return null;
+    dropWelcome();
+    var d = document.createElement('div');
+    d.className = 'ai-msg ai-msg-' + role;
+    d.innerHTML = mdToHtml(text);
+    m.appendChild(d);
+    scrollDown();
+    return d;
+  }
+
+  function addError(message) {
+    var m = el('ai-messages');
+    if (!m) return;
+    dropWelcome();
+
+    var d = document.createElement('div');
+    d.className = 'ai-msg ai-msg-ai ai-msg-error';
+    d.innerHTML = '<em>' + esc(message) + '</em>';
+
+    if (_state.lastQuestion) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ai-retry-btn';
+      btn.textContent = 'Reintentar';
+      btn.addEventListener('click', function () {
+        var q = _state.lastQuestion;
+        d.remove();
+        send(q);
+      });
+      d.appendChild(document.createElement('br'));
+      d.appendChild(btn);
+    }
+
+    m.appendChild(d);
+    scrollDown();
+  }
+
+  function showTyping(label) {
+    var m = el('ai-messages');
+    if (!m) return;
+    var t = el('ai-typing');
+    if (!t) {
+      t = document.createElement('div');
+      t.className = 'ai-typing';
+      t.id = 'ai-typing';
+      m.appendChild(t);
+    }
+    t.textContent = label || 'Pensando';
+    scrollDown();
+  }
+
+  function hideTyping() {
+    var t = el('ai-typing');
+    if (t) t.remove();
+  }
+
+  function setBusy(busy) {
+    _state.busy = busy;
+    var b = el('ai-send-btn');
+    if (b) b.disabled = busy;
+  }
+
+  /* El número de cantos del texto de bienvenida sale del catálogo real, para
+     que no vuelva a quedarse clavado (decía 152 con 157 en el cancionero). */
+  function syncWelcomeCount() {
+    var slot = el('ai-welcome-count');
+    if (!slot) return;
+    var catalog = getCatalog();
+    if (catalog) slot.textContent = String(catalog.count);
+  }
+
+  /* ══ Flujo principal ═════════════════════════════════════════════════════ */
+
+  async function send(text) {
+    if (_state.busy) return;
+
+    var inp = el('ai-input');
+    var txt = (text !== undefined && text !== null) ? String(text).trim()
+                                                    : (inp ? inp.value.trim() : '');
+    if (!txt) return;
+
+    if (inp && text === undefined) {
+      inp.value = '';
+      inp.style.height = 'auto';
+    }
+
+    setBusy(true);
+    _state.lastQuestion = txt;
+    addMsg('user', txt);
+
+    if (!getCatalog()) {
+      hideTyping();
+      setBusy(false);
+      addError('El cancionero todavía no terminó de cargar. Espera unos segundos y reintenta.');
+      return;
+    }
+
+    var useSearch = needsWebSearch(txt);
+    showTyping(useSearch ? 'Consultando el calendario en la web' : 'Pensando');
+
+    var bubble = null;
+    var handlers = {
+      onRetry: function (attempt, total, delay) {
+        showTyping('El servicio está saturado. Reintentando ' + attempt + '/' + total +
+                   ' en ' + Math.round(delay / 1000) + ' s');
+      },
+      onText: function (accumulated) {
+        hideTyping();
+        if (!bubble) {
+          bubble = addMsg('ai', accumulated);
+        } else {
+          bubble.innerHTML = mdToHtml(accumulated);
+          scrollDown();
+        }
+      }
+    };
+
+    try {
+      var reply = await sendStreaming(txt, useSearch, handlers);
+
+      _state.history.push({ role: 'user',  parts: [{ text: txt }] });
+      _state.history.push({ role: 'model', parts: [{ text: reply }] });
+      if (_state.history.length > MAX_HISTORY) {
+        _state.history = _state.history.slice(-MAX_HISTORY);
+      }
+      _state.lastQuestion = null;
+    } catch (e) {
+      if (bubble) {
+        /* Ya se había pintado texto: se conserva y se avisa aparte, para no
+           perder lo que el usuario alcanzó a recibir. */
+        addError('La respuesta se interrumpió: ' + (e && e.message ? e.message : 'error desconocido'));
+      } else {
+        addError(e && e.message ? e.message : 'Error desconocido al consultar el asistente.');
+      }
+      console.warn('[AI]', e);
+    } finally {
+      hideTyping();
+      setBusy(false);
+      if (inp) inp.focus();
+    }
+  }
+
+  function togglePanel() {
+    var p = el('ai-panel');
+    if (!p) return;
+    p.classList.toggle('open');
+    if (p.classList.contains('open')) syncWelcomeCount();
+  }
+
+  function suggest(t) {
+    var inp = el('ai-input');
+    if (inp) inp.value = t;
+    send(t);
+  }
+
+  /* ══ API pública ═════════════════════════════════════════════════════════ */
+
+  /* Los tres globales que consume el dispatcher (módulo 25) se conservan con
+     el mismo nombre y firma: no hay que tocar el HTML ni el 25. */
+  window.toggleAIPanel = togglePanel;
+  window.aiSuggest     = suggest;
+  window.aiSend        = function () { send(); };
+
+  /* Namespace propio. `apiKey` está aquí porque el módulo 21 la necesita para
+     su fallback de calendario; antes dependía del global suelto `_gk`. */
+  window.PdAiAgent = {
+    open:   togglePanel,
+    send:   send,
+    apiKey: apiKey,
+    reset:  function () { _state.history = []; }
+  };
+
+})();

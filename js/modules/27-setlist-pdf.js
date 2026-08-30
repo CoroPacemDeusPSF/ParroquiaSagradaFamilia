@@ -6,7 +6,7 @@
  *   @brief      Orquestación: genera PDF vectorial del SetList y lo abre en el visor
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r3
+ *   @version    v3.6.7r18
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -47,7 +47,22 @@
     return;
   }
 
-  function openDialog()  { dialogOverlay.classList.add('open'); }
+  /* v3.6.7r18 — Destino del PDF elegido en el diálogo: 'share' | 'download'.
+     Vive en memoria y se conserva durante la sesión (no en localStorage: el
+     proyecto lo tiene prohibido para estado que pueda quedar fantasma). */
+  var destination = 'share';
+
+  function setDestination(dest) {
+    destination = (dest === 'download') ? 'download' : 'share';
+    var btns = document.querySelectorAll('.sl-print-dest-btn');
+    Array.prototype.forEach.call(btns, function (b) {
+      var active = (b.dataset.dest === destination);
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  function openDialog()  { setDestination(destination); dialogOverlay.classList.add('open'); }
   function closeDialog() { dialogOverlay.classList.remove('open'); }
 
   /* Cerrar al hacer click fuera del diálogo (sobre el overlay). */
@@ -225,6 +240,40 @@
    * usuario en el diálogo, el gesto está activo. La generación de jsPDF
    * tarda 1-2s lo que está dentro del timeout estándar (5s).
    */
+  /**
+   * v3.6.7r18 — DESCARGA DIRECTA.
+   *
+   * Antes el PDF salía siempre por shareOrOpenPdf, que en cuanto el navegador
+   * soportaba Web Share abría el share sheet del sistema sin alternativa: para
+   * quedarte con el archivo había que pasar sí o sí por una app. Ahora el
+   * diálogo deja elegir destino y esta es la rama "Descargar".
+   *
+   * Se fuerza con <a download>. Si el navegador no soporta el atributo
+   * (Safari iOS antiguo), se cae al visor, que al menos permite guardar desde
+   * ahí. La URL del blob se revoca con holgura: revocarla antes de que el
+   * navegador materialice la descarga la aborta en algunos motores.
+   */
+  function downloadPdf(blob, filename) {
+    var a = document.createElement('a');
+
+    if (typeof a.download === 'undefined') {
+      return openInViewer(blob, filename);
+    }
+
+    var blobUrl = URL.createObjectURL(blob);
+    a.href = blobUrl;
+    a.download = filename;
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(function () {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      try { URL.revokeObjectURL(blobUrl); } catch (e) { /* ignore */ }
+    }, 10000);
+  }
+
   function shareOrOpenPdf(blob, filename) {
     /* Crear File con nombre y mime explícitos — esto es lo que hace que
        al guardar mantenga el nombre, en vez del UUID del blob URL. */
@@ -377,7 +426,9 @@
 
       var filename = buildFileName(withChords);
 
-      shareOrOpenPdf(blob, filename);
+      /* v3.6.7r18: el destino lo elige el usuario en el diálogo. */
+      if (destination === 'download') downloadPdf(blob, filename);
+      else                            shareOrOpenPdf(blob, filename);
     });
   }
 
@@ -391,6 +442,9 @@
     if (action === 'sl-print') {
       ev.preventDefault();
       openDialog();
+    } else if (action === 'sl-print-dest') {
+      ev.preventDefault();
+      setDestination(target.dataset.dest);
     } else if (action === 'sl-print-no-chords') {
       ev.preventDefault();
       generatePdf(false);

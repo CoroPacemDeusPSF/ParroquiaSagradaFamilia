@@ -50,7 +50,7 @@
 <meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png?v=361">
 <meta name="description" content="Cancionero del Coro Pacem Deus — Cantos litúrgicos y de bodas con acordes, contexto y referencias bíblicas. Parroquia de la Sagrada Familia.">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r17">
+<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r18">
 <!-- flatpickr (date picker) — cargado desde cdnjs. v3.6.0r3 reemplazó
      el rodillo custom buggy por esta librería madura (~30KB, MIT). -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
@@ -336,23 +336,52 @@
   <div class="sl-toolbar">
     <button class="sl-clear" id="sl-clear" data-action="sl-clear-all">Limpiar</button>
     <button class="sl-print" id="sl-print" data-action="sl-print" aria-label="PDF del setlist" title="PDF del setlist">
-      <!-- Ícono de compartir: flecha saliendo hacia arriba desde un contenedor.
-           Universalmente reconocible como "share" en iOS / Android / desktop. -->
+      <!-- v3.6.7r18: el icono anterior era una bandeja con flecha hacia arriba,
+           que se lee como "subir/cargar" y no como "compartir". Ahora usa el
+           mismo glifo de tres nodos que ya emplea "Compartir canción" en el
+           encabezado de cada canto (módulo 00, renderShareBtn). -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
-        <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
-        <polyline points="16 6 12 2 8 6"/>
-        <line x1="12" y1="2" x2="12" y2="15"/>
+        <circle cx="18" cy="5"  r="2.6"/>
+        <circle cx="6"  cy="12" r="2.6"/>
+        <circle cx="18" cy="19" r="2.6"/>
+        <line x1="8.3" y1="10.7" x2="15.7" y2="6.3"/>
+        <line x1="8.3" y1="13.3" x2="15.7" y2="17.7"/>
       </svg>
       <span class="sl-print-label">PDF</span>
     </button>
   </div>
 </div>
 
-<!-- Diálogo de opciones de compartir: pregunta si compartir con o sin acordes -->
+<!-- Diálogo de exportación del SetList.
+     v3.6.7r18: además del formato (con/sin acordes) ahora se elige el DESTINO.
+     Antes el PDF iba siempre al share sheet del sistema y no había forma de
+     descargarlo sin pasar por una app de terceros. -->
 <div class="sl-print-dialog-overlay" id="sl-print-dialog-overlay">
   <div class="sl-print-dialog">
-    <div class="sl-print-dialog-title">Compartir SetList</div>
-    <div class="sl-print-dialog-subtitle">¿Cómo deseas compartir los cantos?</div>
+    <div class="sl-print-dialog-title">Exportar SetList</div>
+    <div class="sl-print-dialog-subtitle">Elige el destino y el formato</div>
+
+    <div class="sl-print-dest" role="group" aria-label="Destino del PDF">
+      <button type="button" class="sl-print-dest-btn is-active" data-action="sl-print-dest" data-dest="share" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
+          <circle cx="18" cy="5"  r="2.6"/>
+          <circle cx="6"  cy="12" r="2.6"/>
+          <circle cx="18" cy="19" r="2.6"/>
+          <line x1="8.3" y1="10.7" x2="15.7" y2="6.3"/>
+          <line x1="8.3" y1="13.3" x2="15.7" y2="17.7"/>
+        </svg>
+        <span>Compartir</span>
+      </button>
+      <button type="button" class="sl-print-dest-btn" data-action="sl-print-dest" data-dest="download" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">
+          <path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>
+          <polyline points="8 11 12 15 16 11"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span>Descargar</span>
+      </button>
+    </div>
+
     <div class="sl-print-dialog-buttons">
       <button class="sl-print-option sl-print-option-no-chords" data-action="sl-print-no-chords">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="22" height="22" aria-hidden="true">
@@ -426,7 +455,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.6.7r17</span>
+    <span class="cancionero-version">v3.6.7r18</span>
     <p class="ceremony-eyebrow ceremony-eyebrow--script">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -541,7 +570,9 @@
   <div class="ai-messages" id="ai-messages">
     <div class="ai-welcome">
       <div class="ai-welcome-title">¿En qué puedo ayudarte?</div>
-      Conozco los 152 cantos del cancionero, su contexto litúrgico, y el calendario de la Iglesia.
+      <!-- El número lo rellena el módulo 19 desde songs.json (id ai-welcome-count):
+           antes estaba escrito a mano y quedó clavado en 152 con 157 cantos. -->
+      Conozco los <span id="ai-welcome-count">157</span> cantos del cancionero, su contexto litúrgico, y el calendario de la Iglesia.
       <div class="ai-suggestions">
         <button class="ai-sug" data-action="ai-suggest">Arma un setlist completo para este domingo basado en las lecturas</button>
         <button class="ai-sug" data-action="ai-suggest">Lista los cantos del cancionero que hablan sobre el Espíritu Santo</button>
@@ -556,12 +587,12 @@
   </div>
 </div>
 
-<script src="../js/modules/19-ai-agent.js?v=3.2.44r5"></script>
+<script src="../js/modules/19-ai-agent.js?v=3.6.7r18"></script>
 
 <script src="../js/modules/20-hamburger-menu.js?v=3.2.44r5"></script>
 
 
-<script src="../js/modules/21-liturgical-card.js?v=3.6.7r15"></script>
+<script src="../js/modules/21-liturgical-card.js?v=3.6.7r18"></script>
 
 <script src="../js/modules/22-effects-emanation.js?v=3.6.7r15"></script>
 
@@ -572,7 +603,7 @@
 <script src="../js/modules/26c-pinyon-font.js?v=3.2.44r5"></script>
 <script src="../js/modules/26d-pdf-parser.js?v=3.2.44r5"></script>
 <script src="../js/modules/26e-pdf-builder.js?v=3.6.6r6"></script>
-<script src="../js/modules/27-setlist-pdf.js?v=3.2.44r5"></script>
+<script src="../js/modules/27-setlist-pdf.js?v=3.6.7r18"></script>
 <!-- ══ MÓDULOS NUEVOS DEL MODO BODAS (v3.3.0) ══
      29 depende de window.playModeIntro (módulo 05). 30 es paralelo al 23.
      Ambos deben cargar después de los módulos del Modo Coro para que la
