@@ -11,7 +11,7 @@
 
     @file    img/liturgico/preview.html
     @brief   Revisión de los fondos litúrgicos, navegando domingo a domingo
-    @version v3.6.7r32
+    @version v3.6.7r33
 
     Por qué existe: mirar los .webp sueltos en el explorador no dice nada. Lo
     que importa es cómo queda el fondo CON LA TARJETA ENCIMA, que es donde se
@@ -116,6 +116,9 @@
                 transition:width .6s ease}
   .progreso.fin .prog-tit{color:#6B9E4A}
   .progreso.fin .prog-relleno{background:#6B9E4A}
+  .aviso{margin:14px 20px 0;padding:11px 15px;border-radius:8px;font-size:.85rem;
+         border:1px solid rgba(200,112,80,.5);background:rgba(200,112,80,.12);
+         color:#E8B49C}
 </style>
 </head>
 <body>
@@ -135,6 +138,8 @@
     <button id="next">Siguiente ▶</button>
   </div>
 </header>
+
+<div class="aviso" id="aviso-origen" hidden></div>
 
 <!-- Progreso del lote (v3.6.7r32). Sólo aparece si hay un progreso.json:
      cuando no se está generando nada, esta franja no existe. -->
@@ -240,14 +245,28 @@
                o.textContent = b.name.replace('fondos/', '');
                sel.appendChild(o);
              });
-        var guardada = null;
-        try { guardada = localStorage.getItem('pd-preview-origen'); } catch (e) {}
-        if (guardada && [].some.call(sel.options, function (o) { return o.value === guardada; })) {
-          sel.value = guardada;
-          pinta();
-        }
+        /* v3.6.7r33: el origen elegido YA NO se recuerda entre sesiones.
+           Restaurarlo en silencio costó una confusión real: una rama elegida
+           en otra sesión seguía activa al reabrir la página, de modo que se
+           veían las ilustraciones VIEJAS de esa rama mientras en disco ya
+           estaban las nuevas — y encima se acababan antes de tiempo, porque
+           esa rama sólo cubría 16 domingos.
+           Desde que la generación es local, la carpeta local es la verdad.
+           Mirar una rama es la excepción y hay que pedirlo a propósito. */
       })
       .catch(function () { /* sin red: se queda en carpeta local */ });
+  }
+
+  /* Y si se elige una rama, que se note: un aviso fijo mientras dure. */
+  function avisaOrigen() {
+    var rama = document.getElementById('origen').value;
+    var caja = document.getElementById('aviso-origen');
+    caja.hidden = !rama;
+    if (rama) {
+      caja.textContent = 'Estás viendo la rama «' + rama + '» de GitHub, no tu ' +
+        'carpeta local. Puede tener ilustraciones antiguas o cubrir menos ' +
+        'domingos. Vuelve a «Carpeta local» para ver lo que hay en tu disco.';
+    }
   }
 
   function ponImagen(caja, url, elBg, elFalta) {
@@ -311,8 +330,8 @@
   document.getElementById('prev').addEventListener('click', function () { mueve(-1); });
   document.getElementById('next').addEventListener('click', function () { mueve(1); });
   sel.addEventListener('change', function () { i = +sel.value; pinta(); });
-  document.getElementById('origen').addEventListener('change', function (e) {
-    try { localStorage.setItem('pd-preview-origen', e.target.value); } catch (err) {}
+  document.getElementById('origen').addEventListener('change', function () {
+    avisaOrigen();
     pinta();
   });
   document.addEventListener('keydown', function (e) {
@@ -372,11 +391,16 @@
 
           /* Si acaba de terminar una imagen del domingo que está en pantalla,
              se repinta para verla aparecer. */
+          /* El sufijo cambia con cada imagen terminada. En la PRIMERA lectura
+             se repinta siempre: al abrir la página, el navegador ya tiene en
+             caché las versiones anteriores de esos mismos nombres de archivo
+             y sin esto seguiría enseñándolas. */
           if (p.hechas !== visto) {
+            var primera = (visto === -1);
             visto = p.hechas;
             rompeCache = '?n=' + p.hechas;
             var ult = p.hechas_lista && p.hechas_lista[p.hechas_lista.length - 1];
-            if (ult && ult.clave === claves[i]) pinta();
+            if (primera || (ult && ult.clave === claves[i])) pinta();
           }
           setTimeout(tic, 3000);
         })
