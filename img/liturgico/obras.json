@@ -1,0 +1,616 @@
+{
+ "_lee_esto": [
+  "La obra de arte que ilustra cada domingo. Curada a mano, obra por obra.",
+  "",
+  "No basta buscar por palabras: pedir 'Caravaggio Supper at Emmaus' devolvio",
+  "un Rottenhammer con licencia CC BY-SA. Por eso cada entrada lleva el autor",
+  "esperado, y el guion SOLO acepta un archivo que ademas de ser libre",
+  "coincida con ese autor. Si no encuentra ninguno, aborta ese domingo en vez",
+  "de poner cualquier cosa.",
+  "",
+  "  buscar          consulta para Wikimedia Commons",
+  "  autor_esperado  ha de aparecer en el titulo o la autoria del archivo",
+  "  obra/autor/museo  lo que se muestra en la ficha",
+  "  porque          que tiene que ver con el Evangelio de ese domingo",
+  "  archivo         opcional: fija un archivo exacto y salta la busqueda",
+  "",
+  "Casi todas son literales del pasaje. Unas pocas son tematicas y en su",
+  "'porque' se dice claramente."
+ ],
+ "2026-08-30": {
+  "buscar": "El Greco Christ Carrying the Cross Prado",
+  "autor_esperado": "El Greco",
+  "obra": "Cristo con la cruz a cuestas",
+  "autor": "El Greco (1580-1585)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Mt 16,21-27 — «El que quiera venir conmigo, que cargue con su cruz». El Greco no lo pinta sufriendo sino abrazando el madero."
+ },
+ "2026-09-06": {
+  "archivo": "Supper at Emmaus-Caravaggio (1601).jpg",
+  "buscar": "Caravaggio Supper at Emmaus",
+  "autor_esperado": "Caravaggio",
+  "obra": "La cena de Emaus",
+  "autor": "Caravaggio (1601)",
+  "museo": "National Gallery, Londres",
+  "porque": "Mt 18,15-20 — «Donde dos o tres estan reunidos en mi nombre, alli estoy yo»."
+ },
+ "2026-09-13": {
+  "archivo": "Domenico Fetti 001.jpg",
+  "buscar": "Domenico Fetti Unforgiving Servant",
+  "autor_esperado": "Fetti",
+  "obra": "Parabola del siervo sin entranas",
+  "autor": "Domenico Fetti (1620)",
+  "museo": "Gemaldegalerie, Dresde",
+  "porque": "Mt 18,21-35 — es literalmente esa parabola."
+ },
+ "2026-09-20": {
+  "buscar": "Rembrandt Parable of the Laborers in the Vineyard",
+  "autor_esperado": "Rembrandt",
+  "obra": "Parabola de los obreros de la vina",
+  "autor": "Rembrandt (1637)",
+  "museo": "Hermitage, San Petersburgo",
+  "porque": "Mt 20,1-16 — el ajuste de cuentas al final de la jornada."
+ },
+ "2026-09-27": {
+  "archivo": "The Calling of Saint Matthew-Caravaggo (1599-1600).jpg",
+  "buscar": "Caravaggio Calling of Saint Matthew",
+  "autor_esperado": "Caravag",
+  "obra": "La vocacion de San Mateo",
+  "autor": "Caravaggio (1599-1600)",
+  "museo": "San Luis de los Franceses, Roma",
+  "porque": "Mt 21,28-32 — «Los publicanos os preceden». Mateo era publicano; este es el instante en que dice que si."
+ },
+ "2026-10-04": {
+  "buscar": "Parable of the Wicked Husbandmen painting vineyard",
+  "autor_esperado": "",
+  "obra": "Parabola de los vinadores homicidas",
+  "autor": "Escuela flamenca (s. XVI)",
+  "museo": "Wikimedia Commons",
+  "porque": "Mt 21,33-43 — los arrendatarios que matan al hijo del propietario de la vina."
+ },
+ "2026-10-11": {
+  "buscar": "Bernardo Cavallino Parable Wedding Feast",
+  "autor_esperado": "",
+  "obra": "Parabola del banquete de bodas",
+  "autor": "Escuela barroca",
+  "museo": "Wikimedia Commons",
+  "porque": "Mt 22,1-14 — el rey que ve al invitado sin traje de fiesta.",
+  "archivo": "Gelijkenis van een bruiloftsfeest, RP-P-OB-44.954.jpg"
+ },
+ "2026-10-18": {
+  "buscar": "Titian The Tribute Money Dresden",
+  "autor_esperado": "Titian",
+  "obra": "El denario del Cesar",
+  "autor": "Tiziano (1516)",
+  "museo": "Gemaldegalerie, Dresde",
+  "porque": "Mt 22,15-21 — «Dad al Cesar lo que es del Cesar». Tiziano pinta el instante exacto en que le muestran la moneda."
+ },
+ "2026-10-25": {
+  "buscar": "Rembrandt The Good Samaritan painting",
+  "autor_esperado": "Rembrandt",
+  "obra": "El buen samaritano",
+  "autor": "Rembrandt (1633)",
+  "museo": "Wallace Collection, Londres",
+  "porque": "Mt 22,34-40 — tematica: el mandamiento de amar al projimo, ilustrado con la parabola que mejor lo explica."
+ },
+ "2026-11-01": {
+  "buscar": "Fra Angelico Forerunners of Christ with Saints and Martyrs",
+  "autor_esperado": "Angelico",
+  "obra": "Los predecesores de Cristo con santos y martires",
+  "autor": "Fra Angelico (1423)",
+  "museo": "National Gallery, Londres",
+  "porque": "Mt 5,1-12a — Todos los Santos: la muchedumbre inmensa de las bienaventuranzas."
+ },
+ "2026-11-08": {
+  "buscar": "William Blake Wise and Foolish Virgins",
+  "autor_esperado": "Blake",
+  "obra": "Las virgenes prudentes y las necias",
+  "autor": "William Blake (1822)",
+  "museo": "Tate, Londres",
+  "porque": "Mt 25,1-13 — es literalmente esa parabola."
+ },
+ "2026-11-15": {
+  "buscar": "Willem de Poorter Parable of the Talents",
+  "autor_esperado": "",
+  "obra": "Parabola de los talentos",
+  "autor": "Escuela de Rembrandt (s. XVII)",
+  "museo": "Wikimedia Commons",
+  "porque": "Mt 25,14-30 — el ajuste de cuentas con los tres siervos."
+ },
+ "2026-11-22": {
+  "buscar": "Fra Angelico Last Judgement painting",
+  "autor_esperado": "Angelico",
+  "obra": "El Juicio Final",
+  "autor": "Fra Angelico (1431)",
+  "museo": "Museo di San Marco, Florencia",
+  "porque": "Mt 25,31-46 — Cristo Rey separa las ovejas de los cabritos ante todas las naciones."
+ },
+ "2026-11-29": {
+  "buscar": "Georges de La Tour Magdalen with the Smoking Flame",
+  "autor_esperado": "La Tour",
+  "obra": "La Magdalena de la llama humeante",
+  "autor": "Georges de La Tour (1640)",
+  "museo": "LACMA, Los Angeles",
+  "porque": "Mc 13,33-37 — tematica: «Velad». La vigilia de una sola llama en la noche es la imagen de la espera."
+ },
+ "2026-12-06": {
+  "buscar": "Bruegel Sermon of Saint John the Baptist",
+  "autor_esperado": "Bruegel",
+  "obra": "La predicacion de san Juan Bautista",
+  "autor": "Pieter Bruegel el Viejo (1566)",
+  "museo": "Museo de Bellas Artes, Budapest",
+  "porque": "Mc 1,1-8 — la voz que clama en el desierto y la gente que acude a oirle."
+ },
+ "2026-12-13": {
+  "buscar": "El Greco Saint John the Baptist painting",
+  "autor_esperado": "El Greco",
+  "obra": "San Juan Bautista",
+  "autor": "El Greco (1600)",
+  "museo": "Museo de Bellas Artes, San Francisco",
+  "porque": "Jn 1,6-8.19-28 — «No soy yo la luz: vengo a dar testimonio de la luz»."
+ },
+ "2026-12-20": {
+  "buscar": "Fra Angelico Annunciation Prado",
+  "autor_esperado": "Angelico",
+  "obra": "La Anunciacion",
+  "autor": "Fra Angelico (1426)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Lc 1,26-38 — la Anunciacion."
+ },
+ "2026-12-25": {
+  "buscar": "Georges de La Tour Adoration of the Shepherds",
+  "autor_esperado": "La Tour",
+  "obra": "La adoracion de los pastores",
+  "autor": "Georges de La Tour (1644)",
+  "museo": "Musee du Louvre, Paris",
+  "porque": "Jn 1,1-18 — Natividad. Toda la luz del cuadro sale del Nino."
+ },
+ "2026-12-27": {
+  "buscar": "Rembrandt Simeon's Song of Praise",
+  "autor_esperado": "Rembrandt",
+  "obra": "El cantico de Simeon",
+  "autor": "Rembrandt (1631)",
+  "museo": "Mauritshuis, La Haya",
+  "porque": "Lc 2,22-40 — Simeon toma al Nino en brazos en el templo."
+ },
+ "2027-01-03": {
+  "buscar": "Geertgen tot Sint Jans Nativity at Night",
+  "autor_esperado": "Geertgen",
+  "obra": "La Natividad de noche",
+  "autor": "Geertgen tot Sint Jans (1490)",
+  "museo": "National Gallery, Londres",
+  "porque": "Jn 1,1-18 — «La luz brilla en las tinieblas». Toda la luz nace del Nino."
+ },
+ "2027-01-10": {
+  "buscar": "Piero della Francesca Baptism of Christ",
+  "autor_esperado": "Piero della Francesca",
+  "obra": "El bautismo de Cristo",
+  "autor": "Piero della Francesca (1450)",
+  "museo": "National Gallery, Londres",
+  "porque": "Mc 1,7-11 — el bautismo en el Jordan."
+ },
+ "2027-01-17": {
+  "buscar": "Duccio Calling of the Apostles Peter and Andrew",
+  "autor_esperado": "Duccio",
+  "obra": "La vocacion de Pedro y Andres",
+  "autor": "Duccio di Buoninsegna (1310)",
+  "museo": "National Gallery of Art, Washington",
+  "porque": "Jn 1,35-42 — «Venid y vereis»; Andres lleva a su hermano ante Jesus."
+ },
+ "2027-01-24": {
+  "buscar": "Ghirlandaio Calling of the Apostles Sistine",
+  "autor_esperado": "Ghirlandaio",
+  "obra": "La vocacion de los apostoles",
+  "autor": "Domenico Ghirlandaio (1481)",
+  "museo": "Capilla Sixtina, Roma",
+  "porque": "Mc 1,14-20 — dejaron las redes y le siguieron."
+ },
+ "2027-01-31": {
+  "buscar": "Rembrandt Christ Preaching La Petite Tombe",
+  "autor_esperado": "Rembrandt",
+  "obra": "Cristo predicando",
+  "autor": "Rembrandt (1652)",
+  "museo": "Rijksmuseum, Amsterdam",
+  "porque": "Mc 1,21-28 — «Ensenaba con autoridad, no como los escribas»."
+ },
+ "2027-02-07": {
+  "buscar": "Rembrandt Christ healing Peter's mother in law",
+  "autor_esperado": "",
+  "obra": "La curacion de la suegra de Pedro",
+  "autor": "Escuela holandesa (s. XVII)",
+  "museo": "Wikimedia Commons",
+  "porque": "Mc 1,29-39 — la cura en casa de Pedro; despues se retira a orar de madrugada."
+ },
+ "2027-02-14": {
+  "buscar": "Kramskoi Christ in the Wilderness painting",
+  "autor_esperado": "Kramskoi",
+  "obra": "Cristo en el desierto",
+  "autor": "Ivan Kramskoi (1872)",
+  "museo": "Galeria Tretiakov, Moscu",
+  "porque": "Mc 1,12-15 — cuarenta dias en el desierto. Kramskoi lo pinta sentado en las piedras al amanecer."
+ },
+ "2027-02-21": {
+  "buscar": "Raphael Transfiguration Vatican painting",
+  "autor_esperado": "Raphael",
+  "obra": "La Transfiguracion",
+  "autor": "Rafael (1520)",
+  "museo": "Museos Vaticanos, Roma",
+  "porque": "Mc 9,2-10 — la Transfiguracion ante Pedro, Santiago y Juan."
+ },
+ "2027-02-28": {
+  "buscar": "El Greco Christ Driving the Money Changers from the Temple",
+  "autor_esperado": "El Greco",
+  "obra": "La expulsion de los mercaderes del templo",
+  "autor": "El Greco (1600)",
+  "museo": "National Gallery, Londres",
+  "porque": "Jn 2,13-25 — la purificacion del templo."
+ },
+ "2027-03-07": {
+  "buscar": "Henry Ossawa Tanner Nicodemus Visiting Jesus",
+  "autor_esperado": "Tanner",
+  "obra": "Nicodemo visita a Jesus",
+  "autor": "Henry Ossawa Tanner (1899)",
+  "museo": "Pennsylvania Academy, Filadelfia",
+  "porque": "Jn 3,14-21 — la conversacion nocturna con Nicodemo en la azotea."
+ },
+ "2027-03-14": {
+  "buscar": "Velazquez Christ Crucified Prado",
+  "autor_esperado": "Vel",
+  "obra": "Cristo crucificado",
+  "autor": "Diego Velazquez (1632)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Jn 12,20-33 — «Cuando yo sea elevado sobre la tierra, atraere a todos hacia mi»."
+ },
+ "2027-03-21": {
+  "buscar": "Giotto Entry into Jerusalem Scrovegni",
+  "autor_esperado": "Giotto",
+  "obra": "La entrada en Jerusalen",
+  "autor": "Giotto (1305)",
+  "museo": "Capilla de los Scrovegni, Padua",
+  "porque": "Mc 11 — Domingo de Ramos: los mantos y las palmas en el camino."
+ },
+ "2027-03-28": {
+  "buscar": "Fra Angelico Resurrection of Christ and Women at the Tomb",
+  "autor_esperado": "Angelico",
+  "obra": "La resurreccion y las mujeres en el sepulcro",
+  "autor": "Fra Angelico (1441)",
+  "museo": "Museo di San Marco, Florencia",
+  "porque": "Jn 20,1-9 — el sepulcro vacio la manana de Pascua."
+ },
+ "2027-04-04": {
+  "buscar": "Caravaggio Incredulity of Saint Thomas",
+  "autor_esperado": "Caravag",
+  "obra": "La incredulidad de santo Tomas",
+  "autor": "Caravaggio (1602)",
+  "museo": "Sanssouci, Potsdam",
+  "porque": "Jn 20,19-31 — Tomas mete el dedo en la llaga."
+ },
+ "2027-04-11": {
+  "buscar": "Rembrandt Supper at Emmaus Louvre 1648",
+  "autor_esperado": "Rembrandt",
+  "obra": "Los peregrinos de Emaus",
+  "autor": "Rembrandt (1648)",
+  "museo": "Musee du Louvre, Paris",
+  "porque": "Lc 24,35-48 — «Lo reconocieron al partir el pan». Version distinta de la de Caravaggio del 6 de septiembre."
+ },
+ "2027-04-18": {
+  "buscar": "Murillo The Good Shepherd painting Prado",
+  "autor_esperado": "Murillo",
+  "obra": "El Buen Pastor",
+  "autor": "Bartolome Esteban Murillo (1660)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Jn 10,11-18 — «Yo soy el Buen Pastor»."
+ },
+ "2027-04-25": {
+  "buscar": "Christ the True Vine icon Byzantine",
+  "autor_esperado": "",
+  "obra": "Cristo, la vid verdadera",
+  "autor": "Icono bizantino (s. XVI)",
+  "museo": "Museo Bizantino, Atenas",
+  "porque": "Jn 15,1-8 — «Yo soy la vid, vosotros los sarmientos». La iconografia bizantina lo pinta literalmente."
+ },
+ "2027-05-02": {
+  "buscar": "Duccio Christ taking leave of the apostles Maesta",
+  "autor_esperado": "Duccio",
+  "obra": "Cristo se despide de los apostoles",
+  "autor": "Duccio di Buoninsegna (1311)",
+  "museo": "Museo dell'Opera del Duomo, Siena",
+  "porque": "Jn 15,9-17 — «Ya no os llamo siervos, sino amigos»."
+ },
+ "2027-05-09": {
+  "buscar": "Rembrandt Ascension of Christ Munich",
+  "autor_esperado": "Rembrandt",
+  "obra": "La Ascension del Senor",
+  "autor": "Rembrandt (1636)",
+  "museo": "Alte Pinakothek, Munich",
+  "porque": "Mc 16,15-20 — la Ascension."
+ },
+ "2027-05-16": {
+  "buscar": "El Greco Pentecost Prado",
+  "autor_esperado": "El Greco",
+  "obra": "Pentecostes",
+  "autor": "El Greco (1600)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Jn 15,26-27 — la venida del Espiritu sobre los reunidos."
+ },
+ "2027-05-23": {
+  "buscar": "Andrei Rublev Trinity icon",
+  "autor_esperado": "Rublev",
+  "obra": "La Trinidad",
+  "autor": "Andrei Rublev (1425)",
+  "museo": "Galeria Tretiakov, Moscu",
+  "porque": "Mt 28,16-20 — Santisima Trinidad. El icono mas famoso del misterio."
+ },
+ "2027-05-30": {
+  "buscar": "Juan de Juanes Last Supper Prado",
+  "autor_esperado": "Juanes",
+  "obra": "La Ultima Cena",
+  "autor": "Juan de Juanes (1562)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Mc 14,22-26 — Corpus Christi. Juan de Juanes pinta el caliz en alto, que es el centro de la fiesta."
+ },
+ "2027-06-06": {
+  "buscar": "Rembrandt Hundred Guilder Print Christ healing",
+  "autor_esperado": "Rembrandt",
+  "obra": "La Sagrada Familia",
+  "autor": "Bartolome Esteban Murillo (1650)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Mc 3,20-35 — el pasaje termina asi: «el que cumple la voluntad de Dios, ese es mi hermano y mi hermana y mi madre».",
+  "archivo": "Fotoreproductie van een schilderij door Bartolomé Esteban Murillo, voorstellend de Heilige Familie met een vogel B.E. MURILLO.- Sainte famille à l'oiseau (au Musée du Prado). (titel op object), RP-F-F01098-H.jpg"
+ },
+ "2027-06-13": {
+  "buscar": "Van Gogh The Sower 1888 painting",
+  "autor_esperado": "Gogh",
+  "obra": "El sembrador",
+  "autor": "Vincent van Gogh (1888)",
+  "museo": "Museo Kroller-Muller, Otterlo",
+  "porque": "Mc 4,26-34 — la semilla que crece sola mientras el sembrador duerme."
+ },
+ "2027-06-20": {
+  "archivo": "Rembrandt Christ in the Storm on the Lake of Galilee.jpg",
+  "buscar": "Rembrandt Christ in the Storm on the Sea of Galilee",
+  "autor_esperado": "Rembrandt",
+  "obra": "La tempestad en el mar de Galilea",
+  "autor": "Rembrandt (1633)",
+  "museo": "Robado del Museo Gardner, Boston (1990)",
+  "porque": "Mc 4,35-41 — «¿Quien es este, que hasta el viento y el mar le obedecen?»."
+ },
+ "2027-06-27": {
+  "buscar": "Repin Raising of Jairus Daughter",
+  "autor_esperado": "Repin",
+  "obra": "La resurreccion de la hija de Jairo",
+  "autor": "Ilia Repin (1871)",
+  "museo": "Museo Ruso, San Petersburgo",
+  "porque": "Mc 5,21-43 — «Talita kum»."
+ },
+ "2027-07-04": {
+  "buscar": "Millais Christ in the House of His Parents",
+  "autor_esperado": "Millais",
+  "obra": "Cristo en casa de sus padres",
+  "autor": "John Everett Millais (1850)",
+  "museo": "Tate, Londres",
+  "porque": "Mc 6,1-6 — «¿No es este el carpintero?». Millais lo pinta nino en el taller de Jose."
+ },
+ "2027-07-11": {
+  "buscar": "Duccio Christ sending the apostles Maesta",
+  "autor_esperado": "Duccio",
+  "obra": "El envio de los apostoles",
+  "autor": "Duccio di Buoninsegna (1311)",
+  "museo": "Museo dell'Opera del Duomo, Siena",
+  "porque": "Mc 6,7-13 — los envia de dos en dos, sin nada para el camino.",
+  "archivo": "Brooklyn Museum - The Exhortation to the Apostles (Recommandation aux apôtres) - James Tissot.jpg"
+ },
+ "2027-07-18": {
+  "buscar": "Jean-Baptiste Jouvenet Christ and the multitude",
+  "autor_esperado": "",
+  "obra": "Jesus y la multitud",
+  "autor": "Escuela barroca francesa",
+  "museo": "Wikimedia Commons",
+  "porque": "Mc 6,30-34 — al verlos sintio compasion, «porque estaban como ovejas sin pastor»."
+ },
+ "2027-07-25": {
+  "buscar": "Tintoretto Miracle of the Loaves and Fishes",
+  "autor_esperado": "Tintoretto",
+  "obra": "La multiplicacion de los panes y los peces",
+  "autor": "Tintoretto (1545)",
+  "museo": "Metropolitan Museum, Nueva York",
+  "porque": "Jn 6,1-15 — cinco panes y dos peces para cinco mil."
+ },
+ "2027-08-01": {
+  "buscar": "Poussin Israelites Gathering the Manna Louvre",
+  "autor_esperado": "Poussin",
+  "obra": "Los israelitas recogiendo el mana",
+  "autor": "Nicolas Poussin (1639)",
+  "museo": "Musee du Louvre, Paris",
+  "porque": "Jn 6,24-35 — «Nuestros padres comieron el mana»; yo soy el pan de vida."
+ },
+ "2027-08-08": {
+  "buscar": "Dieric Bouts Elijah in the Desert angel",
+  "autor_esperado": "Bouts",
+  "obra": "Elias en el desierto",
+  "autor": "Dieric Bouts (1465)",
+  "museo": "San Pedro, Lovaina",
+  "porque": "Jn 6,41-51 — el angel despierta a Elias bajo la retama con pan cocido: figura del pan bajado del cielo."
+ },
+ "2027-08-15": {
+  "buscar": "Titian Assumption of the Virgin Frari",
+  "autor_esperado": "Titian",
+  "obra": "La Asuncion de la Virgen",
+  "autor": "Tiziano (1518)",
+  "museo": "Basilica dei Frari, Venecia",
+  "porque": "Lc 1,39-56 — la Asuncion."
+ },
+ "2027-08-22": {
+  "buscar": "Duccio Maesta Christ and the apostles panel",
+  "autor_esperado": "Duccio",
+  "obra": "Cristo predicando (la estampa de los Cien Florines)",
+  "autor": "Rembrandt (1649)",
+  "museo": "Rijksmuseum, Amsterdam",
+  "porque": "Jn 6,60-69 — al final del discurso del pan de vida unos se van y otros se quedan. Rembrandt reune en torno a el a los que dudan y a los que creen.",
+  "archivo": "De predikende Christus (De Honderdguldenprent) De Honderd Gulden prent, RP-P-OB-601.jpg"
+ },
+ "2027-08-29": {
+  "buscar": "Christ and the Pharisees painting 17th century",
+  "autor_esperado": "",
+  "obra": "Jesus y los fariseos",
+  "autor": "Escuela barroca",
+  "museo": "Wikimedia Commons",
+  "porque": "Mc 7,1-8 — la discusion sobre la tradicion de los mayores y las abluciones."
+ },
+ "2027-09-05": {
+  "buscar": "Christ healing the deaf mute painting",
+  "autor_esperado": "",
+  "obra": "La curacion del sordomudo",
+  "autor": "Escuela europea",
+  "museo": "Wikimedia Commons",
+  "porque": "Mc 7,31-37 — «Effeta», es decir, «abrete»."
+ },
+ "2027-09-12": {
+  "buscar": "Raphael Christ's Charge to Peter cartoon",
+  "autor_esperado": "Raphael",
+  "obra": "La entrega de las llaves a Pedro",
+  "autor": "Rafael (1515)",
+  "museo": "Victoria and Albert Museum, Londres",
+  "porque": "Mc 8,27-35 — la confesion de Pedro en Cesarea de Filipo: «Tu eres el Mesias»."
+ },
+ "2027-09-19": {
+  "buscar": "Nicolaes Maes Christ blessing the children",
+  "autor_esperado": "",
+  "obra": "Jesus y los ninos",
+  "autor": "Escuela holandesa (s. XVII)",
+  "museo": "Wikimedia Commons",
+  "porque": "Mc 9,30-37 — pone a un nino en medio de ellos: «el que quiera ser el primero, que sea el ultimo»."
+ },
+ "2027-09-26": {
+  "buscar": "James Tissot Christ teaching disciples Brooklyn",
+  "autor_esperado": "Tissot",
+  "obra": "Cristo y los pequenos",
+  "autor": "Escuela europea",
+  "museo": "Wikimedia Commons",
+  "porque": "Mc 9,38-48 — «el que escandalice a uno de estos pequenos».",
+  "archivo": "NF 17 Jh Lasset die Kindlein zu mir kommen.jpg"
+ },
+ "2027-10-03": {
+  "buscar": "Lucas Cranach Suffer the Little Children to Come unto Me",
+  "autor_esperado": "Cranach",
+  "obra": "Dejad que los ninos se acerquen a mi",
+  "autor": "Lucas Cranach el Viejo (1538)",
+  "museo": "Museo de Bellas Artes, Leipzig",
+  "porque": "Mc 10,13-16 — el final del pasaje: los ninos que los discipulos querian apartar."
+ },
+ "2027-10-10": {
+  "buscar": "Heinrich Hofmann Christ and the Rich Young Ruler",
+  "autor_esperado": "Hofmann",
+  "obra": "Cristo y el joven rico",
+  "autor": "Heinrich Hofmann (1889)",
+  "museo": "Riverside Church, Nueva York",
+  "porque": "Mc 10,17-30 — el joven que se marcha triste porque tenia muchos bienes."
+ },
+ "2027-10-17": {
+  "buscar": "Tintoretto Washing of the Feet Prado",
+  "autor_esperado": "Tintoretto",
+  "obra": "El lavatorio de los pies",
+  "autor": "Tintoretto (1549)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Mc 10,35-45 — «El que quiera ser grande, que sea vuestro servidor»."
+ },
+ "2027-10-24": {
+  "buscar": "El Greco Christ Healing the Blind",
+  "autor_esperado": "El Greco",
+  "obra": "La curacion del ciego",
+  "autor": "El Greco (1570)",
+  "museo": "Gemaldegalerie, Dresde",
+  "porque": "Mc 10,46-52 — Bartimeo, el ciego de Jerico."
+ },
+ "2027-10-31": {
+  "buscar": "Tissot The Scribe Stood to Tempt Him Brooklyn",
+  "autor_esperado": "Tissot",
+  "obra": "El sermon de la montana",
+  "autor": "Carl Bloch (1877)",
+  "museo": "Museo de Historia Nacional, Frederiksborg",
+  "porque": "Mc 12,28-34 — tematica: el corazon de la ensenanza de Jesus, amar a Dios y al projimo.",
+  "archivo": "Bloch-SermonOnTheMount.jpg"
+ },
+ "2027-11-01": {
+  "buscar": "Jan van Eyck Adoration of the Mystic Lamb Ghent Altarpiece",
+  "autor_esperado": "Eyck",
+  "obra": "La adoracion del Cordero mistico",
+  "autor": "Jan van Eyck (1432)",
+  "museo": "Catedral de San Bavon, Gante",
+  "porque": "Mt 5,1-12a — Todos los Santos: la muchedumbre de todos los pueblos ante el Cordero."
+ },
+ "2027-11-07": {
+  "buscar": "James Tissot The Widow's Mite Brooklyn",
+  "autor_esperado": "Tissot",
+  "obra": "El obolo de la viuda",
+  "autor": "Joao Zeferino da Costa (1876)",
+  "museo": "Museo Nacional de Bellas Artes, Rio de Janeiro",
+  "porque": "Mc 12,38-44 — echo en el cepillo todo lo que tenia para vivir. Pintor brasileno: arte latinoamericano para una parroquia peruana.",
+  "archivo": "João Zeferino da Costa - Estudo para Óbolo da Viúva 5.jpg"
+ },
+ "2027-11-14": {
+  "buscar": "John Martin The Great Day of His Wrath",
+  "autor_esperado": "Martin",
+  "obra": "El gran dia de su ira",
+  "autor": "John Martin (1853)",
+  "museo": "Tate, Londres",
+  "porque": "Mc 13,24-32 — «El sol se oscurecera y las estrellas caeran del cielo»."
+ },
+ "2027-11-21": {
+  "buscar": "Christ Pantocrator Deesis mosaic Hagia Sophia",
+  "autor_esperado": "",
+  "obra": "Cristo Pantocrator",
+  "autor": "Mosaico bizantino (s. XIII)",
+  "museo": "Santa Sofia, Estambul",
+  "porque": "Jn 18,33-37 — Cristo Rey. «Mi reino no es de este mundo»: se le representa reinando, no juzgando."
+ },
+ "2027-11-28": {
+  "buscar": "Georges de La Tour Dream of Saint Joseph",
+  "autor_esperado": "La Tour",
+  "obra": "El sueno de san Jose",
+  "autor": "Georges de La Tour (1640)",
+  "museo": "Museo de Bellas Artes, Nantes",
+  "porque": "Lc 21,25-36 — tematica: Adviento. La vela en la noche y el aviso que llega mientras se duerme."
+ },
+ "2027-12-05": {
+  "buscar": "Mattia Preti Saint John the Baptist Preaching",
+  "autor_esperado": "Preti",
+  "obra": "La predicacion del Bautista",
+  "autor": "Mattia Preti (1665)",
+  "museo": "Museo de Bellas Artes, Houston",
+  "porque": "Lc 3,1-6 — «Preparad el camino del Senor»."
+ },
+ "2027-12-12": {
+  "buscar": "Tissot John the Baptist and the Pharisees Brooklyn",
+  "autor_esperado": "Tissot",
+  "obra": "San Juan bautizando",
+  "autor": "Nicolas Poussin (1635)",
+  "museo": "Getty Museum, Los Angeles",
+  "porque": "Lc 3,10-18 — «¿Que debemos hacer?». Juan responde y bautiza a los que acuden.",
+  "archivo": "Poussin - Saint John Baptizing in the River Jordan, about 1630s, 71.PA.58.jpg"
+ },
+ "2027-12-19": {
+  "buscar": "Pontormo Visitation Carmignano",
+  "autor_esperado": "Pontormo",
+  "obra": "La Visitacion",
+  "autor": "Jacopo Pontormo (1529)",
+  "museo": "Pieve di San Michele, Carmignano",
+  "porque": "Lc 1,39-45 — Maria visita a Isabel."
+ },
+ "2027-12-25": {
+  "buscar": "Gerard van Honthorst Adoration of the Shepherds",
+  "autor_esperado": "Honthorst",
+  "obra": "La adoracion de los pastores",
+  "autor": "Gerard van Honthorst (1622)",
+  "museo": "Galeria de los Uffizi, Florencia",
+  "porque": "Jn 1,1-18 — Natividad. Version distinta de la de La Tour del ano anterior."
+ },
+ "2027-12-26": {
+  "buscar": "Paolo Veronese Christ among the Doctors Prado",
+  "autor_esperado": "Veronese",
+  "obra": "Jesus entre los doctores",
+  "autor": "Paolo Veronese (1560)",
+  "museo": "Museo del Prado, Madrid",
+  "porque": "Lc 2,41-52 — Sagrada Familia: el Nino hallado en el templo tras tres dias."
+ }
+}

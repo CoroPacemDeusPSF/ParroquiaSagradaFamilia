@@ -11,7 +11,7 @@
 
     @file    img/liturgico/preview.html
     @brief   Revisión de los fondos litúrgicos, navegando domingo a domingo
-    @version v3.6.7r33
+    @version v3.6.7r39
 
     Por qué existe: mirar los .webp sueltos en el explorador no dice nada. Lo
     que importa es cómo queda el fondo CON LA TARJETA ENCIMA, que es donde se
@@ -296,7 +296,11 @@
       '<span><b>Celebración</b> ' + v.n + '</span>' +
       (v.e ? '<span><b>Especial</b> ' + v.e + '</span>' : '') +
       '<span><b>Evangelio</b> ' + (v.ev || '—') + '</span>' +
-      (MOTIVOS[k] ? '<span><b>Motivo</b> ' + MOTIVOS[k].es + '</span>' : '') +
+      (OBRAS[k]
+        ? '<span><b>Obra</b> ' + OBRAS[k].obra + ' — ' + OBRAS[k].autor + '</span>' +
+          '<span><b>Museo</b> ' + (OBRAS[k].museo || '—') + '</span>' +
+          (CREDITOS[k] ? '<span class="cat">' + CREDITOS[k].licencia + '</span>' : '')
+        : (MOTIVOS[k] ? '<span><b>Motivo</b> ' + MOTIVOS[k].es + '</span>' : '')) +
       '<span class="cat">' + (v.c || 'Verde') + ' · ' + v.t + ' · ciclo ' + (v.ci || '—') + '</span>';
 
     var g = velo(v.c);
@@ -343,12 +347,25 @@
      Se lee de motivos.json para poder revisar de un vistazo QUÉ objeto le
      tocó a cada domingo, que es justo donde estaban las repeticiones. Si el
      archivo no está, la ficha simplemente no muestra esa línea. */
+  /* Tres fuentes de ficha, por orden de preferencia:
+       obras.json     la obra de arte real asignada a ese domingo
+       creditos.json  la licencia comprobada al descargarla de Commons
+       motivos.json   la escena descrita, para los domingos aun sin obra
+     Cada una se pinta si esta; ninguna es obligatoria. */
   var rompeCache = '';
-  var MOTIVOS = {};
-  fetch('motivos.json')
-    .then(function (r) { return r.ok ? r.json() : {}; })
-    .then(function (m) { MOTIVOS = m; pinta(); })
-    .catch(function () {});
+  var MOTIVOS = {}, OBRAS = {}, CREDITOS = {};
+
+  function carga(archivo, destino) {
+    return fetch(archivo)
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (d) { destino(d); })
+      .catch(function () {});
+  }
+  Promise.all([
+    carga('motivos.json',  function (d) { MOTIVOS = d; }),
+    carga('obras.json',    function (d) { OBRAS = d; }),
+    carga('creditos.json', function (d) { CREDITOS = d; })
+  ]).then(pinta);
 
   /* ── Seguimiento del lote ──────────────────────────────────────────────
      Sondea progreso.json cada 3 s. Cuando termina, deja de sondear: no tiene
