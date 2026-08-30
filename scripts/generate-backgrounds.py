@@ -9,7 +9,7 @@
   @brief      Genera las dos ilustraciones de portada de un domingo
   @author     Renzo Núñez Berdejo
   @project    Cancionero Dominical
-  @version    v3.6.7r27
+  @version    v3.6.7r28
 
 ────────────────────────────────────────────────────────────────────────────
 
@@ -68,6 +68,15 @@ API_URL = "https://api.openai.com/v1/images/generations"
 # .get(clave, defecto) devolvia "" y la API respondia "The model '' does
 # not exist". Verificado en el run #2.
 DEFAULT_MODEL = os.environ.get("IMAGE_MODEL") or "gpt-image-1"
+
+# COSTE. gpt-image-1 cobra por calidad, y sin este parametro usa la alta.
+# Medido: 36 imagenes agotaron 5 USD de saldo, es decir ~0,14 USD cada una,
+# no los 0,04 que se habian estimado a partir de tablas de precios genericas.
+# Para un fondo oscuro, de poco detalle y que ademas se cubre con un velo,
+# pagar calidad alta es tirar el dinero. "medium" es el punto sensato.
+# Si alguna semana pidiera mas finura: IMAGE_QUALITY=high en las variables
+# del repositorio.
+DEFAULT_QUALITY = os.environ.get("IMAGE_QUALITY") or "medium"
 
 # Tamanos que admite el generador; se elige el mas cercano a cada destino.
 GEN_SIZE_LANDSCAPE = "1536x1024"   # 3:2  -> se recorta a 16:9
@@ -339,13 +348,16 @@ def prompt_mobile(week):
 
 # ── Llamada al generador ───────────────────────────────────────────────────
 
-def generate(prompt, size, model, api_key):
-    payload = json.dumps({
+def generate(prompt, size, model, api_key, quality=None):
+    cuerpo = {
         "model": model,
         "prompt": prompt,
         "size": size,
         "n": 1,
-    }).encode("utf-8")
+    }
+    if quality:
+        cuerpo["quality"] = quality
+    payload = json.dumps(cuerpo).encode("utf-8")
 
     req = urllib.request.Request(
         API_URL, data=payload,
@@ -360,12 +372,19 @@ def generate(prompt, size, model, api_key):
             body = json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8", "replace")[:600]
-        raise SystemExit(
-            "La API respondio HTTP %d.\n%s\n\n"
-            "Si el error menciona el modelo, ajusta la variable IMAGE_MODEL "
-            "del repositorio: el identificador cambia entre generaciones."
-            % (e.code, detail)
-        )
+        pista = ""
+        if "no credits" in detail or "insufficient_quota" in detail:
+            pista = ("\nSE ACABO EL SALDO de la API. Recarga en "
+                     "platform.openai.com y vuelve a lanzar: los domingos ya "
+                     "generados se saltan solos, asi que no se paga dos veces.")
+        elif "model" in detail:
+            pista = ("\nSi el error menciona el modelo, ajusta la variable "
+                     "IMAGE_MODEL del repositorio: el identificador cambia "
+                     "entre generaciones.")
+        elif "quality" in detail:
+            pista = ("\nSi el error menciona la calidad, ajusta IMAGE_QUALITY "
+                     "(low | medium | high | auto) o deja la variable vacia.")
+        raise SystemExit("La API respondio HTTP %d.\n%s%s" % (e.code, detail, pista))
 
     item = body["data"][0]
     if "b64_json" in item:
@@ -548,7 +567,7 @@ def run_batch(semanas, args):
                 print("        %s ya existe, se salta" % variant)
                 continue
             try:
-                raw = generate(prompts[variant], gen_size, args.model, api_key)
+                raw = generate(prompts[variant], gen_size, args.model, api_key, args.quality)
                 tmp = os.path.join(OUT_DIR, ".raw-%s.png" % variant)
                 with open(tmp, "wb") as f:
                     f.write(raw)
@@ -602,6 +621,8 @@ def main():
     ap.add_argument("--from-files", nargs=2, metavar=("APAISADA", "VERTICAL"),
                     help="probar el post-proceso con archivos locales, sin API")
     ap.add_argument("--model", default=DEFAULT_MODEL)
+    ap.add_argument("--quality", default=DEFAULT_QUALITY,
+                    help="low | medium | high | auto")
     args = ap.parse_args()
 
     # --week acepta un objeto (un domingo) o un array (lote). Asi el guion no
@@ -660,7 +681,7 @@ def main():
             if not api_key:
                 raise SystemExit("Falta OPENAI_API_KEY.")
             print("%s: generando %s ..." % (variant, gen_size))
-            raw = generate(prompts[variant], gen_size, args.model, api_key)
+            raw = generate(prompts[variant], gen_size, args.model, api_key, args.quality)
             tmp = os.path.join(OUT_DIR, ".raw-%s.png" % variant)
             with open(tmp, "wb") as f:
                 f.write(raw)

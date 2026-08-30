@@ -115,7 +115,16 @@ Ambos caminos están verificados: 2:3 → 0,4499 (9:20 es 0,4500) con la costura
 
 ### Coste
 
-Dos imágenes por semana, unos **0,08 USD semanales** — alrededor de **4 USD al año**.
+**Medido, no estimado.** 36 imágenes agotaron 5 USD de saldo con la calidad por defecto,
+que en `gpt-image-1` es la alta: unos **0,14 USD por imagen**. La estimación inicial de 0,04
+salía de tablas de precios genéricas y estaba mal por un factor de 3,5.
+
+Por eso el workflow pasa ahora `IMAGE_QUALITY=medium`: para un fondo oscuro, de poco detalle
+y que además se cubre con un velo, pagar calidad alta es tirar el dinero. Se puede subir a
+`high` desde las variables del repositorio si alguna semana lo pide.
+
+Si el saldo se acaba a mitad de un lote, los domingos ya generados **no se pierden**: el PR se
+abre igual con lo que salió, y al relanzar se saltan solos, así que no se paga dos veces.
 
 > GitHub desactiva los workflows programados en repositorios sin actividad durante 60 días.
 > Si el cancionero pasa dos meses sin commits, hay que reactivarlo desde la pestaña Actions.
