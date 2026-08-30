@@ -3,26 +3,29 @@
 Generador local de fondos liturgicos, contra ComfyUI en esta misma maquina.
 
   @file     scripts/generar-local.py
-  @version  v3.6.7r32
+  @version  v3.6.7r35
 
 Sustituye a generate-backgrounds.py (OpenAI) para el trabajo del dia a dia:
 aqui no se paga por imagen, asi que repetir un domingo hasta que quede bien
 cuesta segundos en vez de dinero. El de OpenAI se conserva para el workflow
 de GitHub, que no tiene GPU.
 
-── QUE CAMBIA RESPECTO AL ANTERIOR ────────────────────────────────────────
+── DE DONDE SALE CADA IMAGEN ──────────────────────────────────────────────
 
-1. El MOTIVO ya no lo elige el modelo. Viene escrito en img/liturgico/
-   motivos.json, un objeto por domingo sacado de su pericopa. Antes el modelo
-   decidia si un tema era "abstracto" y, cuando lo decidia, caia en el
-   Evangelio abierto o la cruz de madera: en el primer lote de 16 domingos
-   cada uno salio dos veces. Los difusores locales, ademas, ni siquiera
-   podrian recordar la pericopa a partir de la cita.
+1. La ESCENA viene escrita en img/liturgico/motivos.json, una por domingo,
+   sacada del Evangelio COMPLETO: lugar, hora, luz, figuras y accion.
 
-2. La COMPOSICION se impone explicitamente. El fallo del primer lote no era
-   solo el motivo repetido: los tres motores probados centraban el objeto, y
-   el centro es justo donde va la tarjeta liturgica. Ahora se pide el sujeto
-   a la derecha y las dos terceras partes izquierdas en sombra.
+   La version anterior daba solo un objeto suelto y funcionaba a medias.
+   Donde la linea nombraba un lugar salia un lugar; donde solo nombraba un
+   objeto, el modelo rellenaba con su comodin —mesa de madera, cuarto oscuro,
+   haz de luz— una y otra vez. El fallo era darle una frase y dejarle inventar
+   el 80% restante.
+
+2. HAY FIGURAS. Antes se prohibian las personas y los Evangelios narrativos
+   quedaban cojos. Se pintan al oleo barroco y no en fotorrealismo: un rostro
+   pintado no cae en el valle inquietante.
+
+3. La COMPOSICION se impone aparte de la escena, porque encima va la interfaz.
 
 ── ORDEN DE TRABAJO ───────────────────────────────────────────────────────
 
@@ -77,39 +80,50 @@ MOTORES = {
 
 # ── Prompt ────────────────────────────────────────────────────────────────
 
+# v3.6.7r35: pintura barroca CON FIGURAS. Se pide oleo y no fotorrealismo por
+# una razon practica ademas de estetica: un rostro pintado no cae en el valle
+# inquietante, que es donde fallan las caras generadas. Y es la tradicion en
+# que esta escrito el arte sacro desde hace cuatro siglos.
 ESTILO = (
-    "A sacred still life painted in the manner of a Baroque chiaroscuro oil "
-    "painting: aged varnish, fine craquelure, muted earth palette of deep "
-    "umber, olive black and old gold. Reverent, silent, cinematic."
+    "A sacred narrative painting in the manner of Caravaggio and Rembrandt: "
+    "tenebrism, a single dominant light source, deep transparent shadow, "
+    "aged varnish and fine craquelure, muted earth palette of deep umber, "
+    "olive black, oxblood and old gold. Faces and hands painted with the "
+    "gravity of a seventeenth century master. Reverent, human, cinematic."
 )
 
 # La composicion no es adorno: sobre estas ilustraciones se apoya la interfaz.
+# Con figuras hay que reservar sitio igual, pero sin partir la escena por la
+# mitad: la accion se lleva a la derecha y la izquierda queda como penumbra
+# habitada —arquitectura, paisaje, oscuridad— no como un vacio recortado.
 COMPOSICION = {
     "desktop": (
-        "COMPOSITION, follow exactly: place the subject in the RIGHT THIRD of "
-        "the frame. The left two thirds and the centre must stay almost black "
-        "— empty shadow, no detail, nothing to read. A single warm light "
-        "falls from the upper right and dies away before it reaches the "
-        "middle. Wide cinematic framing, generous empty space."
+        "COMPOSITION, follow exactly: stage the principal action in the RIGHT "
+        "HALF of a wide frame. The LEFT THIRD must fall away into deep, calm "
+        "shadow with no faces and no bright detail — let it be darkness, "
+        "distance or plain wall. The dominant light enters from the upper "
+        "right and does not reach the left edge. Wide cinematic framing."
     ),
     "mobile": (
-        "COMPOSITION, follow exactly: a tall narrow vertical frame. Place the "
-        "subject SMALL, in the UPPER portion, slightly right of centre. "
-        "Everything below the upper third dissolves into pure black empty "
-        "shadow with no detail at all. A single warm light from above."
+        "COMPOSITION, follow exactly: a tall narrow vertical frame. Stage the "
+        "figures and the action in the UPPER THIRD. Everything below the "
+        "midpoint sinks into deep empty shadow — floor, ground or darkness "
+        "with no detail and no faces. The dominant light comes from above."
     ),
 }
 
+# El texto sigue prohibido: en las pruebas se colaron marcas tipo escritura, y
+# un renglon inventado en un cancionero peruano canta a IA de inmediato.
 PROHIBIDO = (
-    "No people, no faces, no hands, no human figures of any kind. "
     "No lettering, no text, no writing, no numerals, no signature, no "
-    "watermark: any script must be an illegible suggestion of ink at most."
+    "watermark anywhere in the image: any script must be an illegible "
+    "suggestion of ink at most. No modern clothing or modern objects."
 )
 
 
-def prompt(motivo, variante):
-    return "%s\n\nSubject: %s.\n\n%s\n\n%s" % (
-        ESTILO, motivo, COMPOSICION[variante], PROHIBIDO)
+def prompt(escena, variante):
+    return "%s\n\nScene: %s\n\n%s\n\n%s" % (
+        ESTILO, escena, COMPOSICION[variante], PROHIBIDO)
 
 
 # ── Grafo de ComfyUI ──────────────────────────────────────────────────────
@@ -280,7 +294,7 @@ def main():
 
         t0 = time.time()
         try:
-            im = trae(encola(grafo(m, prompt(motivos[clave]["motivo"], variante),
+            im = trae(encola(grafo(m, prompt(motivos[clave]["escena"], variante),
                                    w, h, semilla)))
             info = acaba(im, variante, ruta)
             seg = time.time() - t0
@@ -296,11 +310,25 @@ def main():
             print("%3d/%-3d  %s %-8s FALLO: %s" % (
                 i, len(tareas), clave, variante, str(e)[:120]), flush=True)
 
+        # La estimacion se hace POR VARIANTE y no con la media global: una
+        # vertical tiene 2,3 Mpx contra 1,3 de una apaisada y tarda un tercio
+        # mas. Promediarlas juntas daba un tiempo restante demasiado optimista
+        # justo cuando quedan solo verticales.
         hechas = estado["hechas"] + len(estado["fallos"])
         if hechas:
-            spi = (time.time() - t_ini) / hechas
-            estado["seg_por_imagen"] = round(spi, 1)
-            estado["faltan_min"] = round(spi * (len(tareas) - hechas) / 60, 1)
+            estado["seg_por_imagen"] = round((time.time() - t_ini) / hechas, 1)
+            medias, faltan_seg = {}, 0.0
+            for v in args.variantes:
+                t = [x["seg"] for x in estado["hechas_lista"] if x["variante"] == v]
+                medias[v] = round(sum(t) / len(t), 1) if t else None
+            # Para una variante que aun no ha empezado se usa la que si tiene
+            # datos: es mejor estimacion que ninguna.
+            respaldo = next((m for m in medias.values() if m), 0)
+            pendientes = tareas[i:]
+            for v, _ in pendientes:
+                faltan_seg += medias.get(v) or respaldo
+            estado["seg_por_variante"] = medias
+            estado["faltan_min"] = round(faltan_seg / 60, 1)
         escribe_progreso(estado)
 
     estado["en_curso"] = None
