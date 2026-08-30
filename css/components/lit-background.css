@@ -1,0 +1,185 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/lit-background.css
+     @brief      Fondo de portada que cambia cada semana según el color litúrgico
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.6.7r20
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   lit-background.css — Portada litúrgica dinámica
+   ============================================================================
+
+   La portada deja de tener un verde fijo y pasa a repintarse cada domingo
+   según el color litúrgico de la semana. El dato ya existía: cada uno de los
+   171 domingos de window.LITURGICAL_DATA (módulo 21) trae el campo `c` con
+   Verde, Blanco, Morado, Rojo o Rosa — que es exactamente el sistema de la
+   Iglesia: verde en Ordinario, morado en Adviento y Cuaresma, blanco en
+   Navidad, Pascua y fiestas, rojo en Pentecostés y mártires, y rosa en los
+   domingos Gaudete y Lætare.
+
+   ── TRES CAPAS ────────────────────────────────────────────────────────────
+
+     1. BASE — degradado del color de la semana. Sale de redefinir los tokens
+        --theme-bg-cover-* que .ceremony.dominical .ceremony-cover ya consumía.
+        No hace falta tocar esa regla: se aprovecha el mismo mecanismo que usa
+        el Modo Novios para repintar la portada sin duplicar CSS.
+        Esta capa es el SUELO: funciona sin red, sin imágenes y sin coste.
+
+     2. IMAGEN — la ilustración de la semana, en ::before. El módulo 36 solo
+        define --lit-bg-image si la imagen carga de verdad; si no existe, la
+        variable se queda sin valor, la capa no se pinta y queda la base.
+        Ningún fallo de imagen puede romper la portada.
+
+     3. VELO (scrim) — en ::after, teñido con el color litúrgico. NO es
+        decorativo: sin él, el texto crema sobre un cielo claro deja de
+        cumplir contraste. Texto sobre imagen es el fallo de accesibilidad
+        más común de la web justamente por saltarse este paso. El velo es más
+        denso arriba y abajo, que es donde caen el título y la lit-card.
+
+   Los tres se apilan bajo el contenido: .ceremony-cover ya trae
+   position:relative y overflow:hidden, así que los pseudoelementos quedan
+   recortados y los hijos suben con z-index.
+
+   ORDEN EN EL BUNDLE: este archivo va ANTES de novios-mode.css a propósito.
+   El Modo Novios también redefine --theme-bg-cover-* y debe seguir ganando.
+   ============================================================================ */
+
+/* ── Paletas por color litúrgico ──────────────────────────────────────────
+   Cada paleta mantiene el mismo esqueleto que el verde original: cuatro
+   paradas de oscuro a medio y un halo radial inferior. Todas se quedan en
+   rangos oscuros para que el texto crema del encabezado siga legible SIN
+   depender del velo — el velo es refuerzo, no muleta. */
+
+body[data-lit-color="verde"] {
+  --theme-bg-cover-stop-1: #0E1A0C;
+  --theme-bg-cover-stop-2: #1A2E14;
+  --theme-bg-cover-stop-3: #2A4A20;
+  --theme-bg-cover-stop-4: #1A2E14;
+  --theme-bg-cover-radial: rgba(42, 74, 32, 0.5);
+  --lit-scrim-tint: 14, 26, 12;
+}
+
+body[data-lit-color="morado"] {
+  --theme-bg-cover-stop-1: #140C1E;
+  --theme-bg-cover-stop-2: #241636;
+  --theme-bg-cover-stop-3: #3A2456;
+  --theme-bg-cover-stop-4: #241636;
+  --theme-bg-cover-radial: rgba(58, 36, 86, 0.5);
+  --lit-scrim-tint: 20, 12, 30;
+}
+
+body[data-lit-color="blanco"] {
+  --theme-bg-cover-stop-1: #1A1408;
+  --theme-bg-cover-stop-2: #2E2410;
+  --theme-bg-cover-stop-3: #4A3A18;
+  --theme-bg-cover-stop-4: #2E2410;
+  --theme-bg-cover-radial: rgba(200, 168, 90, 0.28);
+  --lit-scrim-tint: 26, 20, 8;
+}
+
+body[data-lit-color="rojo"] {
+  --theme-bg-cover-stop-1: #1A0808;
+  --theme-bg-cover-stop-2: #340E12;
+  --theme-bg-cover-stop-3: #561A20;
+  --theme-bg-cover-stop-4: #340E12;
+  --theme-bg-cover-radial: rgba(86, 26, 32, 0.55);
+  --lit-scrim-tint: 26, 8, 8;
+}
+
+body[data-lit-color="rosa"] {
+  --theme-bg-cover-stop-1: #1C1014;
+  --theme-bg-cover-stop-2: #341E28;
+  --theme-bg-cover-stop-3: #563442;
+  --theme-bg-cover-stop-4: #341E28;
+  --theme-bg-cover-radial: rgba(86, 52, 66, 0.5);
+  --lit-scrim-tint: 28, 16, 20;
+}
+
+/* El valor de reserva va en :root, NO en una regla body[data-lit-color] que
+   se apunte a sí misma: `--x: var(--x, ...)` es autorreferencial, el valor
+   queda inválido en tiempo de cómputo y la variable se vacía. Al tener la
+   misma especificidad que las paletas y venir después, arrasaba con ellas y
+   el velo desaparecía. Verificado en navegador. */
+:root {
+  --lit-scrim-tint: 14, 26, 12;
+}
+
+/* ── Capa 2: imagen de la semana ─────────────────────────────────────────── */
+
+.ceremony.dominical .ceremony-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--lit-bg-image, none);
+  background-size: cover;
+  background-position: center 28%;
+  background-repeat: no-repeat;
+  /* Aparece con una disolvencia corta para que no dé un salto brusco cuando
+     la imagen termina de descargar. El módulo 36 añade .lit-bg-ready. */
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.ceremony.dominical .ceremony-cover.lit-bg-ready::before {
+  opacity: 1;
+}
+
+/* ── Capa 3: velo teñido ─────────────────────────────────────────────────
+   Solo se pinta cuando hay imagen: sobre el degradado base sobra.
+   Más denso en los extremos, que es donde viven el título y la lit-card, y
+   algo más translúcido en la franja central para que la ilustración respire. */
+
+.ceremony.dominical .ceremony-cover.lit-bg-ready::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--lit-scrim-tint), 0.72) 0%,
+      rgba(var(--lit-scrim-tint), 0.42) 28%,
+      rgba(var(--lit-scrim-tint), 0.38) 52%,
+      rgba(var(--lit-scrim-tint), 0.74) 86%,
+      rgba(var(--lit-scrim-tint), 0.93) 100%
+    );
+}
+
+/* Calibrado sobre la ilustración real de Santa Rosa, cuya franja superior
+   mide 16/255 de luminancia — ya es oscura de por sí. Un velo pensado para
+   una foto clara (0,9 arriba) borraba la imagen entera. Estos valores dejan
+   respirar la ilustración y mantienen el contraste por encima del 4,5:1 que
+   pide WCAG para texto normal; está medido en navegador, no estimado.
+   Si algún domingo llega una imagen clara, el velo solo no basta: la
+   disciplina está en el prompt de generación, que debe pedir siempre clave
+   baja y espacio negativo oscuro donde cae el texto. */
+
+/* El contenido de la portada por encima de las dos capas. */
+.ceremony.dominical .ceremony-cover > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Modo Novios ─────────────────────────────────────────────────────────
+   La portada de los novios tiene su propia identidad (fondo claro, paleta
+   sepia). Nada de imagen litúrgica ni velo ahí. */
+body.novios-mode .ceremony.dominical .ceremony-cover::before,
+body.novios-mode .ceremony.dominical .ceremony-cover::after {
+  display: none;
+}
+
+/* ── Movimiento reducido ─────────────────────────────────────────────────
+   Sin disolvencia: la imagen aparece ya puesta. */
+@media (prefers-reduced-motion: reduce) {
+  .ceremony.dominical .ceremony-cover::before {
+    transition: none;
+  }
+}

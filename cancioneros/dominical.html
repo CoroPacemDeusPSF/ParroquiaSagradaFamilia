@@ -50,7 +50,7 @@
 <meta name="twitter:image" content="https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia/img/og-dominical.png?v=361">
 <meta name="description" content="Cancionero del Coro Pacem Deus — Cantos litúrgicos y de bodas con acordes, contexto y referencias bíblicas. Parroquia de la Sagrada Familia.">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Pinyon+Script&family=Proza+Libre:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r19">
+<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r20">
 <!-- flatpickr (date picker) — cargado desde cdnjs. v3.6.0r3 reemplazó
      el rodillo custom buggy por esta librería madura (~30KB, MIT). -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
@@ -455,7 +455,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.6.7r19</span>
+    <span class="cancionero-version">v3.6.7r20</span>
     <p class="ceremony-eyebrow ceremony-eyebrow--script">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -556,30 +556,14 @@
 
 <!-- AI Agent -->
 <button class="ai-fab" id="ai-fab" data-action="ai-panel-toggle" aria-label="Asistente litúrgico">
-  <!-- v3.6.7r19: silueta de pastor (San José con su cayado), de perfil y en
-       trazo, sustituyendo al icono anterior de tubos de órgano. Dibujo:
-       cayado con voluta, cabeza de perfil barbada con la nariz insinuada,
-       túnica larga, pliegue del manto y los brazos al frente. El grosor de
-       trazo lo fija ai-agent.css por contexto (FAB 24px vs header 14px), para
-       que la línea no se afine al escalar. -->
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M6.4 22.7V4.2a2.3 2.3 0 0 0-4.6 0v1.7"/>
-    <path d="M13.5 3.3c1.5 0 2.5.9 2.7 2.2l.2.9.9.9-.8.5.2.8-.6.3c0 1.2-.4 2.1-1.2 2.6l-2 .4c-1.6-.3-2.4-1.4-2.5-3.1l-.1-2.4c0-1.9 1.3-3.1 3.2-3.1z"/>
-    <path d="M12.6 12c-2 .4-3.2 1.9-3.4 4.1l-.5 6.6h9.7l-.6-7c-.2-2.1-1.4-3.4-3.3-3.7"/>
-    <path d="M15.2 12.2l1.2 10.5"/>
-    <path d="M9.5 16.6c2.1.6 4.2.6 6.3 0"/>
-  </svg>
+  <!-- v3.6.7r20: el dibujo original de Renzo, aplicado como mascara CSS.
+       Se usa mask-image y no <img> para que el trazo herede el color del
+       tema (background-color: currentColor) igual que hacia el SVG. -->
+  <span class="pastor-icon" aria-hidden="true"></span>
 </button>
 <div class="ai-panel" id="ai-panel">
   <div class="ai-header">
-    <!-- Mismo pastor que el FAB, para que el panel y el botón sean el mismo signo. -->
-    <div class="ai-header-icon"><svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6.4 22.7V4.2a2.3 2.3 0 0 0-4.6 0v1.7"/>
-      <path d="M13.5 3.3c1.5 0 2.5.9 2.7 2.2l.2.9.9.9-.8.5.2.8-.6.3c0 1.2-.4 2.1-1.2 2.6l-2 .4c-1.6-.3-2.4-1.4-2.5-3.1l-.1-2.4c0-1.9 1.3-3.1 3.2-3.1z"/>
-      <path d="M12.6 12c-2 .4-3.2 1.9-3.4 4.1l-.5 6.6h9.7l-.6-7c-.2-2.1-1.4-3.4-3.3-3.7"/>
-      <path d="M15.2 12.2l1.2 10.5"/>
-      <path d="M9.5 16.6c2.1.6 4.2.6 6.3 0"/>
-    </svg></div>
+    <div class="ai-header-icon"><span class="pastor-icon" aria-hidden="true"></span></div>
     <div class="ai-header-text">
       <div class="ai-header-title">Asistente litúrgico</div>
       <div class="ai-header-sub">Coro Pacem Deus</div>
@@ -614,6 +598,8 @@
 <script src="../js/modules/21-liturgical-card.js?v=3.6.7r18"></script>
 
 <script src="../js/modules/22-effects-emanation.js?v=3.6.7r15"></script>
+<!-- 36: portada litúrgica dinámica. DESPUÉS del 21, que publica window.LITURGICAL_DATA. -->
+<script src="../js/modules/36-liturgical-background.js?v=3.6.7r20"></script>
 
 <script src="../js/modules/23-setlist-edge-panel.js?v=3.6.7r10"></script>
 <script src="../js/modules/24-search.js?v=3.2.44r5"></script>
