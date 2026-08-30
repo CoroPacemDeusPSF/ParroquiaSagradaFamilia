@@ -11,7 +11,7 @@
 
     @file    img/liturgico/preview.html
     @brief   Revisión de los fondos litúrgicos, navegando domingo a domingo
-    @version v3.6.7r27
+    @version v3.6.7r28
 
     Por qué existe: mirar los .webp sueltos en el explorador no dice nada. Lo
     que importa es cómo queda el fondo CON LA TARJETA ENCIMA, que es donde se
@@ -22,6 +22,10 @@
 
     Funciona abriéndola desde un servidor local (python -m http.server) o desde
     el sitio publicado. Con file:// el navegador bloquea la carga del módulo.
+
+    El selector "Origen" permite mirar las imágenes de una rama de Pull Request
+    sin hacer checkout: se piden a raw.githubusercontent. Las ramas fondos/* se
+    descubren solas por la API de GitHub.
   ────────────────────────────────────────────────────────────────────────────
 -->
 <style>
@@ -45,6 +49,9 @@
   button:hover:not(:disabled){background:rgba(200,148,60,.25);color:#FFE4A0}
   button:disabled{opacity:.3;cursor:default}
   .contador{font-size:.75rem;color:#7d8a70;min-width:5.5rem;text-align:center}
+  .origen{display:flex;align-items:center;gap:6px}
+  .origen span{font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.12em;
+               text-transform:uppercase;color:var(--verde)}
   select{background:var(--panel);color:var(--crema);border:1px solid var(--borde);
          border-radius:3px;padding:.45rem .6rem;font-family:inherit;font-size:.8rem}
 
@@ -97,6 +104,12 @@
 <header>
   <h1>Fondos litúrgicos · revisión</h1>
   <select id="salto"></select>
+  <label class="origen">
+    <span>Origen</span>
+    <select id="origen">
+      <option value="">Carpeta local</option>
+    </select>
+  </label>
   <div class="nav">
     <button id="prev">◀ Anterior</button>
     <span class="contador" id="contador">—</span>
@@ -171,6 +184,43 @@
     sel.appendChild(o);
   });
 
+  /* De donde salen los .webp.
+     Las imagenes de un Pull Request viven en SU rama, no en main, asi que
+     mirando solo la carpeta local el lote entero seria invisible justo cuando
+     toca revisarlo. Con una rama seleccionada se piden a raw.githubusercontent,
+     que sirve cualquier rama sin necesidad de hacer checkout. */
+  var REPO = 'CoroPacemDeusPSF/ParroquiaSagradaFamilia';
+
+  function baseImagenes() {
+    var rama = document.getElementById('origen').value;
+    return rama
+      ? 'https://raw.githubusercontent.com/' + REPO + '/' + rama + '/img/liturgico/'
+      : '';
+  }
+
+  /* Las ramas de fondos se descubren solas: no hay que teclear nombres. */
+  function cargaRamas() {
+    var sel = document.getElementById('origen');
+    fetch('https://api.github.com/repos/' + REPO + '/branches?per_page=100')
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (ramas) {
+        ramas.filter(function (b) { return b.name.indexOf('fondos/') === 0; })
+             .forEach(function (b) {
+               var o = document.createElement('option');
+               o.value = b.name;
+               o.textContent = b.name.replace('fondos/', '');
+               sel.appendChild(o);
+             });
+        var guardada = null;
+        try { guardada = localStorage.getItem('pd-preview-origen'); } catch (e) {}
+        if (guardada && [].some.call(sel.options, function (o) { return o.value === guardada; })) {
+          sel.value = guardada;
+          pinta();
+        }
+      })
+      .catch(function () { /* sin red: se queda en carpeta local */ });
+  }
+
   function ponImagen(caja, url, elBg, elFalta) {
     var probe = new Image();
     probe.onload = function () {
@@ -212,9 +262,10 @@
     document.getElementById('card-d').innerHTML = tarjeta;
     document.getElementById('card-m').innerHTML = tarjeta;
 
-    ponImagen('desktop', k + '-desktop.webp',
+    var base = baseImagenes();
+    ponImagen('desktop', base + k + '-desktop.webp',
               document.getElementById('bg-d'), document.getElementById('falta-d'));
-    ponImagen('mobile', k + '-mobile.webp',
+    ponImagen('mobile', base + k + '-mobile.webp',
               document.getElementById('bg-m'), document.getElementById('falta-m'));
   }
 
@@ -226,12 +277,17 @@
   document.getElementById('prev').addEventListener('click', function () { mueve(-1); });
   document.getElementById('next').addEventListener('click', function () { mueve(1); });
   sel.addEventListener('change', function () { i = +sel.value; pinta(); });
+  document.getElementById('origen').addEventListener('change', function (e) {
+    try { localStorage.setItem('pd-preview-origen', e.target.value); } catch (err) {}
+    pinta();
+  });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft')  { mueve(-1); e.preventDefault(); }
     if (e.key === 'ArrowRight') { mueve(1);  e.preventDefault(); }
   });
 
   pinta();
+  cargaRamas();
 })();
 </script>
 </body>
