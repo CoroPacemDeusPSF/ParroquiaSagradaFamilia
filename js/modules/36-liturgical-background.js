@@ -6,7 +6,7 @@
  *   @brief      Pinta la portada según el color litúrgico y la ilustración de la semana
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r21
+ *   @version    v3.6.7r22
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -98,8 +98,14 @@
 
     var url = IMG_DIR + _key + '-' + variant + IMG_EXT;
     var probe = new Image();
+    var t0 = (window.performance && performance.now) ? performance.now() : 0;
 
     probe.onload = function () {
+      /* Si resolvió al instante venía de la caché del preload del <head>: en
+         ese caso el fundido sobra y solo retrasa lo que ya está listo. Se
+         reserva la disolvencia para cuando la imagen llega tarde de verdad. */
+      var dt = ((window.performance && performance.now) ? performance.now() : 0) - t0;
+      if (dt < 120) cover.classList.add('lit-bg-instant');
       /* URL absoluta: un url() relativo dentro de una custom property se
          resuelve contra la hoja de estilos que la consume, no contra el
          documento. probe.src ya viene resuelta. */
@@ -151,7 +157,11 @@
     }
   }
 
-  if (document.readyState === 'loading') {
+  /* No se espera a DOMContentLoaded: este script va DESPUÉS de la portada en el
+     HTML, así que .ceremony-cover ya existe aunque el documento siga
+     parseándose. Esperar solo servía para retrasar la imagen. Si aun así no
+     estuviera, se reintenta al terminar el parseo. */
+  if (!document.querySelector('.ceremony.dominical .ceremony-cover')) {
     document.addEventListener('DOMContentLoaded', apply);
   } else {
     apply();

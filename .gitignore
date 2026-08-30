@@ -1,0 +1,4 @@
+# Artefactos de los guiones de scripts/ — no se versionan.
+__pycache__/
+*.pyc
+semana.json

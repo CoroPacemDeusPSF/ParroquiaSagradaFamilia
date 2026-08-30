@@ -6,7 +6,7 @@
  *   @brief      Anima el tema del Evangelio: las letras caen del cielo una tras otra
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r21
+ *   @version    v3.6.7r22
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -53,7 +53,9 @@
 (function () {
   'use strict';
 
-  var STEP_MS   = 38;    // separación entre letra y letra
+  /* Solo informativo: el ritmo real lo fija el CSS de lit-card.css.
+     Se mantiene sincronizado a mano para que PdLitTheme.stepMs no mienta. */
+  var STEP_MS   = 46;    // separación entre letra y letra
   var MAX_CHARS = 120;   // por encima de esto no se anima
 
   function prefersReducedMotion() {

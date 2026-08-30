@@ -6,7 +6,7 @@
      @brief      Fondo de portada que cambia cada semana según el color litúrgico
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r20
+     @version    v3.6.7r22
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -125,7 +125,13 @@ body[data-lit-color="rosa"] {
   /* Aparece con una disolvencia corta para que no dé un salto brusco cuando
      la imagen termina de descargar. El módulo 36 añade .lit-bg-ready. */
   opacity: 0;
-  transition: opacity 900ms ease;
+  transition: opacity 420ms ease;
+}
+
+/* Imagen servida desde caché (preload del <head>): se pinta de una, sin
+   disolvencia. Fundir algo que ya está listo solo hace esperar al usuario. */
+.ceremony.dominical .ceremony-cover.lit-bg-instant::before {
+  transition: none;
 }
 
 .ceremony.dominical .ceremony-cover.lit-bg-ready::before {
