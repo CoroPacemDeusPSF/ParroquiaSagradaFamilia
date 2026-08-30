@@ -119,8 +119,9 @@ body[data-lit-color="rosa"] {
   pointer-events: none;
   background-image: var(--lit-bg-image, none);
   background-size: cover;
-  background-position: center 28%;
   background-repeat: no-repeat;
+  /* Por defecto, encuadre apaisado. El módulo 36 marca data-lit-variant. */
+  background-position: center 28%;
   /* Aparece con una disolvencia corta para que no dé un salto brusco cuando
      la imagen termina de descargar. El módulo 36 añade .lit-bg-ready. */
   opacity: 0;
@@ -129,6 +130,14 @@ body[data-lit-color="rosa"] {
 
 .ceremony.dominical .ceremony-cover.lit-bg-ready::before {
   opacity: 1;
+}
+
+/* La composición vertical lleva el retrato arriba a la derecha y se disuelve
+   antes de la mitad, así que se ancla ARRIBA: el recorte se come solo la parte
+   baja, que por diseño ya está vacía. Esto es lo que permite que un tablet en
+   vertical reutilice esta misma imagen sin necesidad de una tercera. */
+.ceremony.dominical .ceremony-cover[data-lit-variant="mobile"]::before {
+  background-position: center top;
 }
 
 /* ── Capa 3: velo teñido ─────────────────────────────────────────────────

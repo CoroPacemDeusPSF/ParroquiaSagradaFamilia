@@ -6,7 +6,7 @@
      @brief      Lit-card del Evangelio del domingo (cita bíblica, tema)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.3
+     @version    v3.6.7r21
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -27,6 +27,48 @@
 .lit-card .lit-gospel{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.08em;color:#B8A880}
 .lit-card .lit-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;border:1px solid rgba(200,148,60,.4);vertical-align:middle;margin-right:5px}
 .lit-card .lit-theme{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:.9rem;color:#D4C8A0;margin-top:6px}
+
+/* ── Caída de las letras (v3.6.7r21) ──────────────────────────────────────
+   La frase del Evangelio es lo único que cambia cada semana, así que se
+   compone al entrar: cada letra cae desde arriba, escalonada.
+
+   El troceo lo hace el módulo 37, que envuelve cada PALABRA en .lt-w y cada
+   letra en .lt-ch. La palabra es inline-block con nowrap para que la línea
+   siga rompiendo entre palabras y no por dentro de ellas: si solo se
+   trocearan letras, cada una sería una unidad de línea y el navegador
+   cortaría las palabras a la mitad.
+
+   Solo se animan transform y opacity, que son las dos propiedades que el
+   compositor resuelve sin repintar. Nada de will-change: serían ~45 capas
+   de GPU para una animación que dura menos de dos segundos. */
+.lit-card .lit-theme .lt-w{
+  display:inline-block;
+  white-space:nowrap;
+}
+
+.lit-card .lit-theme .lt-ch{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(-0.75em) rotate(-7deg);
+  animation:ltFall 620ms cubic-bezier(.22,1.15,.36,1) forwards;
+  animation-delay:calc(var(--i) * 38ms);
+}
+
+@keyframes ltFall{
+  0%  { opacity:0; transform:translateY(-0.75em) rotate(-7deg); }
+  55% { opacity:1; }
+  100%{ opacity:1; transform:translateY(0) rotate(0deg); }
+}
+
+/* Con movimiento reducido el módulo 37 ni siquiera trocea el texto, así que
+   esta regla es solo una red por si el DOM ya venía partido de antes. */
+@media (prefers-reduced-motion: reduce){
+  .lit-card .lit-theme .lt-ch{
+    animation:none;
+    opacity:1;
+    transform:none;
+  }
+}
 .lit-card .lit-loading{font-size:.65rem;color:rgba(200,148,60,.4);font-style:italic}
 .lit-card .lit-error{font-size:.65rem;color:rgba(200,148,60,.45);font-style:italic}
 

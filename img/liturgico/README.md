@@ -5,13 +5,18 @@ Ilustración de portada de cada domingo. La consume `js/modules/36-liturgical-ba
 ## Nombres de archivo
 
 ```
-AAAA-MM-DD.webp        ← escritorio, 1600 px de ancho
-AAAA-MM-DD@900.webp    ← móvil,      900 px de ancho
+AAAA-MM-DD-desktop.webp   ← marco apaisado, 16:9
+AAAA-MM-DD-mobile.webp    ← marco vertical, 9:20
 ```
 
 La fecha es la del **domingo**, no la del día en que se sube. El módulo 36 calcula el
-próximo domingo (o hoy, si hoy es domingo) y busca ese archivo. Elige la variante `@900`
-cuando `ancho_de_ventana × densidad ≤ 1000`.
+próximo domingo (o hoy, si hoy es domingo) y elige la variante por **orientación de la
+ventana**, no por ancho: marco vertical → `-mobile`, marco apaisado → `-desktop`. Por eso un
+tablet en vertical no necesita una tercera imagen. Al girar el dispositivo se reevalúa.
+
+Si falta la vertical, se intenta la apaisada antes de rendirse.
+
+**Las dos son composiciones independientes, no recortes la una de la otra.** Ver `PRESET.md`.
 
 **Si el archivo de una semana no existe no pasa nada:** el módulo lo detecta al precargar,
 no pinta la capa, y la portada se queda con el degradado del color litúrgico. No hay
@@ -33,8 +38,9 @@ luminancia— el contraste medido es **10,0:1** en el tema del Evangelio y **12,
 título; WCAG AA pide 4,5:1 y AAA 7:1. Una imagen clara hundiría eso, y el velo del CSS es
 un refuerzo, no una muleta: no puede rescatar un cielo a 240/255.
 
-El recorte es `background-size: cover` centrado al 28% de la altura, así que en móvil
-(vertical) se recortan los lados: **lo importante debe caer en la franja central**.
+El recorte es `background-size: cover`: la apaisada se ancla al 28% de la altura y la
+vertical arriba (`center top`), de modo que en la vertical el recorte se come solo la parte
+baja — que por diseño ya está vacía.
 
 ## Cómo se genera cada semana
 
@@ -48,6 +54,5 @@ Al variar solo el sujeto y mantener congelado el bloque de estilo, las 52 imáge
 se parecen entre sí y el sitio conserva una identidad. Si cada semana llega con un estilo
 distinto, la portada se vuelve un collage.
 
-Para pasar de un original a los dos WebP, el guion está en el historial de la sesión del
-30-ago-2026: recorte, redimensionado LANCZOS a 1600 y 900, y guardado en WebP calidad 82
-con `method=6`.
+El preset completo —estilo maestro, paleta, encuadres, prompts y control de calidad— está en
+**`PRESET.md`**, en esta misma carpeta.

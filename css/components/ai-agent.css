@@ -6,7 +6,7 @@
      @brief      Asistente AI litúrgico (panel flotante)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r20
+     @version    v3.6.7r21
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -34,12 +34,17 @@
   -webkit-mask:url(../../img/pastor-mask.png) no-repeat center/contain;
   mask:url(../../img/pastor-mask.png) no-repeat center/contain;
 }
-.ai-fab .pastor-icon{height:30px;width:25px}
+/* El pastor llena el circulo: anclado ABAJO, sin margen, y recortado por el
+   borde redondeado del propio FAB (overflow:clip). Arriba lo limita el
+   extremo del cayado, que es donde termina el dibujo. */
+.ai-fab{overflow:clip}  /* ya es position:fixed arriba: eso basta como bloque contenedor; ponerle relative aqui lo desanclaria de la esquina */
+.ai-fab .pastor-icon{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:48px;width:37px}
 .ai-panel{position:fixed;bottom:88px;right:24px;width:370px;max-width:calc(100vw - 32px);max-height:520px;background:#1A1F17;border:1px solid rgba(107,158,74,.25);border-radius:16px;z-index:9998;display:none;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5);overflow:hidden;font-family:'Cormorant Garamond',Georgia,serif}
 .ai-panel.open{display:flex}
 .ai-header{padding:14px 18px;background:#222F1E;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(107,158,74,.15)}
 .ai-header-icon{width:28px;height:28px;background:rgba(107,158,74,.15);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.ai-header-icon .pastor-icon{height:19px;width:16px;background-color:#8BAF78}
+.ai-header-icon{position:relative;overflow:clip}
+.ai-header-icon .pastor-icon{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:26px;width:20px;background-color:#8BAF78}
 .ai-header-text{flex:1}
 .ai-header-title{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.1em;color:#C8C0A8;text-transform:uppercase}
 .ai-header-sub{font-size:.7rem;color:#6B7A60;margin-top:1px}

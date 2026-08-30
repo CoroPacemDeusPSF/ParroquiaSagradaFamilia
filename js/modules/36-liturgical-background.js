@@ -6,7 +6,7 @@
  *   @brief      Pinta la portada según el color litúrgico y la ilustración de la semana
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r20
+ *   @version    v3.6.7r21
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -16,33 +16,41 @@
    ============================================================================
    Portada litúrgica dinámica.
 
-   Hace dos cosas y nada más:
-
      1. Lee el color litúrgico del próximo domingo desde window.LITURGICAL_DATA
-        (campo `c`, que ya venía en los 171 domingos) y lo escribe como
-        atributo data-lit-color en <body>. El CSS de lit-background.css se
-        encarga del resto redefiniendo los tokens de la portada.
+        (campo `c`, ya presente en los 171 domingos) y lo escribe como atributo
+        data-lit-color en <body>. El CSS hace el resto redefiniendo los tokens
+        de la portada.
 
-     2. Busca la ilustración de esa semana en img/liturgico/AAAA-MM-DD.webp.
-        Solo si CARGA de verdad define --lit-bg-image y marca la portada como
-        lista. Si no existe, no pasa absolutamente nada: queda el degradado.
+     2. Carga la ilustración de la semana, eligiendo entre dos composiciones
+        distintas —no dos recortes de la misma— y solo la aplica si carga.
 
-   POR QUÉ NO VIVE EN EL MÓDULO 21
-   El 21 ya calcula el próximo domingo y tiene los datos, pero su trabajo es
-   pintar la tarjeta del Evangelio. Mezclar aquí el fondo lo convertiría en
-   dos módulos en uno. El coste de separarlo es recalcular el domingo — cuatro
-   líneas — y a cambio cada archivo tiene una sola razón para cambiar.
+   ── POR QUÉ LA ELECCIÓN ES POR ORIENTACIÓN Y NO POR ANCHO ─────────────────
 
-   ORDEN DE CARGA: DESPUÉS del módulo 21, que es quien publica
-   window.LITURGICAL_DATA al final de su IIFE.
+   La primera versión elegía por ancho de ventana, y eso dejaba fuera un caso
+   real: un tablet en VERTICAL. Es ancho en píxeles —así que recibía la imagen
+   apaisada— pero su marco es alto y estrecho, de modo que `cover` recortaba
+   los lados y partía a la figura por la mitad.
 
-   FORMATO DE LAS IMÁGENES
-     • Ruta:   img/liturgico/AAAA-MM-DD.webp  (la fecha del domingo)
-     • Formato: WebP. Una ilustración en PNG son varios MB; en WebP baja a
-       200-300 KB. En un cancionero que se abre desde el móvil en misa eso
-       pesa más que la nitidez.
-     • Proporción: apaisada, ~16:9. Se recorta con background-size:cover
-       centrada al 28% de altura, así que lo importante debe caer arriba.
+   Lo que decide qué composición encaja no es el ancho, es la FORMA del marco:
+
+     • marco apaisado  → ilustración 16:9, con el sujeto a la derecha y el
+       centro despejado para la interfaz.
+     • marco vertical  → ilustración 9:20, con un retrato pequeño arriba a la
+       derecha que se disuelve antes de la mitad.
+
+   Un tablet en vertical es un marco vertical, y le sirve la segunda: al
+   anclarla arriba (background-position center top) el recorte se come solo la
+   parte baja, que por diseño ya está vacía. Por eso no hace falta una tercera
+   imagen.
+
+   ── FORMATO ───────────────────────────────────────────────────────────────
+     img/liturgico/AAAA-MM-DD-desktop.webp   apaisada 16:9
+     img/liturgico/AAAA-MM-DD-mobile.webp    vertical 9:20
+
+   Si el archivo de una semana no existe, la capa no se pinta y queda el
+   degradado del color litúrgico. Faltar es un estado normal, no un error.
+
+   ORDEN DE CARGA: DESPUÉS del módulo 21, que publica window.LITURGICAL_DATA.
    ============================================================================ */
 
 (function () {
@@ -51,14 +59,14 @@
   var IMG_DIR = '../img/liturgico/';
   var IMG_EXT = '.webp';
 
-  /* Normaliza el color del JSON a la clave que usa el CSS: sin tildes, en
-     minúscula y sin espacios. 'Verde' → 'verde', 'Morado' → 'morado'. */
+  var _key = null;
+  var _applied = null;   // variante ya aplicada, para no repetir trabajo
+
   function normalizeColor(raw) {
     if (!raw) return null;
     var s = String(raw).toLowerCase().trim();
     s = s.replace(/[áàä]/g, 'a').replace(/[éèë]/g, 'e').replace(/[íìï]/g, 'i')
          .replace(/[óòö]/g, 'o').replace(/[úùü]/g, 'u');
-    /* Sinónimos que aparecen en la tradición litúrgica. */
     if (s === 'violeta' || s === 'purpura' || s === 'morada') return 'morado';
     if (s === 'blanca' || s === 'dorado' || s === 'oro')      return 'blanco';
     if (s === 'roja' || s === 'encarnado')                    return 'rojo';
@@ -69,9 +77,6 @@
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
-  /* Mismo criterio que el resto del proyecto: hoy si hoy es domingo, si no
-     el próximo. Así el fondo cambia el mismo domingo por la mañana, no el
-     lunes siguiente. */
   function upcomingSundayKey() {
     var d = new Date();
     d.setHours(12, 0, 0, 0);
@@ -79,56 +84,71 @@
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
   }
 
+  /* Vertical = móvil y tablet en vertical. Apaisado = escritorio y cualquier
+     dispositivo girado. matchMedia se usa en vez de comparar innerWidth
+     porque es justamente la forma del marco lo que decide. */
+  function currentVariant() {
+    var portrait = window.matchMedia &&
+                   window.matchMedia('(orientation: portrait)').matches;
+    return portrait ? 'mobile' : 'desktop';
+  }
+
+  function loadVariant(cover, variant) {
+    if (_applied === variant) return;
+
+    var url = IMG_DIR + _key + '-' + variant + IMG_EXT;
+    var probe = new Image();
+
+    probe.onload = function () {
+      /* URL absoluta: un url() relativo dentro de una custom property se
+         resuelve contra la hoja de estilos que la consume, no contra el
+         documento. probe.src ya viene resuelta. */
+      cover.style.setProperty('--lit-bg-image', 'url("' + (probe.currentSrc || probe.src) + '")');
+      cover.setAttribute('data-lit-variant', variant);
+      cover.classList.add('lit-bg-ready');
+      _applied = variant;
+      console.log('[LitBg] Ilustración ' + variant + ' aplicada: ' + _key);
+    };
+
+    probe.onerror = function () {
+      /* Si falta la variante vertical se intenta la apaisada antes de
+         rendirse: peor encuadre, pero mejor que quedarse sin ilustración. */
+      if (variant === 'mobile') {
+        console.log('[LitBg] Sin variante vertical para ' + _key + ' — se prueba la apaisada.');
+        loadVariant(cover, 'desktop');
+        return;
+      }
+      console.log('[LitBg] Sin ilustración para ' + _key + ' — se usa el degradado.');
+    };
+
+    probe.src = url;
+  }
+
   function apply() {
     var data = window.LITURGICAL_DATA;
     var cover = document.querySelector('.ceremony.dominical .ceremony-cover');
     if (!cover) return;
 
-    var key = upcomingSundayKey();
-    var entry = (data && data[key]) || null;
+    _key = upcomingSundayKey();
+    var entry = (data && data[_key]) || null;
 
-    /* ── 1. Color litúrgico ─────────────────────────────────────────────
-       Si el domingo cae fuera del calendario local (después de 2028) o el
-       color no se reconoce, se deja 'verde': es el color del Tiempo
-       Ordinario, con diferencia el más frecuente del año, y además es el
-       que la portada tenía siempre. Degradar a lo de antes, nunca a nada. */
+    /* Fuera del calendario local o color desconocido: verde, que es el color
+       del Tiempo Ordinario y el que la portada tuvo siempre. Degradar a lo de
+       antes, nunca a nada. */
     var color = entry ? normalizeColor(entry.c) : null;
     document.body.setAttribute('data-lit-color', color || 'verde');
 
-    /* ── 2. Ilustración de la semana ────────────────────────────────────
-       Se precarga con un Image() en vez de asignar la URL directamente al
-       CSS: así, si el archivo no existe, no se llega a pintar un hueco ni
-       se ve un salto. La portada solo cambia cuando la imagen ya está
-       decodificada y lista. */
-    /* Dos anchos: el de 900px pesa menos de la mitad que el de 1600. En un
-       cancionero que se abre desde el móvil en misa, con datos y no wifi, eso
-       importa más que la nitidez. Se elige por ancho de ventana teniendo en
-       cuenta la densidad de pantalla, para que un móvil de gama alta no reciba
-       la imagen pequeña estirada. */
-    var dpr = window.devicePixelRatio || 1;
-    var needsLarge = (window.innerWidth * Math.min(dpr, 2)) > 1000;
-    var url = IMG_DIR + key + (needsLarge ? '' : '@900') + IMG_EXT;
-    var probe = new Image();
+    loadVariant(cover, currentVariant());
 
-    probe.onload = function () {
-      /* Se usa la URL ABSOLUTA que resolvió el propio Image(), no la relativa.
-         Un url() relativo dentro de una custom property se resuelve contra la
-         hoja de estilos que la consume, no contra el documento: con
-         '../img/...' el navegador pedía /css/img/... y la imagen no cargaba.
-         probe.src ya viene absoluta. Verificado en navegador. */
-      var resolved = probe.currentSrc || probe.src;
-      cover.style.setProperty('--lit-bg-image', 'url("' + resolved + '")');
-      cover.classList.add('lit-bg-ready');
-      console.log('[LitBg] Ilustración de la semana aplicada: ' + key);
-    };
-
-    probe.onerror = function () {
-      /* Silencioso a propósito: no tener ilustración esta semana es un
-         estado normal, no un error. Queda el degradado del color. */
-      console.log('[LitBg] Sin ilustración para ' + key + ' — se usa el degradado ' + (color || 'verde') + '.');
-    };
-
-    probe.src = url;
+    /* Al girar el dispositivo cambia la forma del marco y con ella la
+       composición que encaja. Se reevalúa; si la variante no cambió, la
+       guarda de _applied evita descargar nada. */
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(orientation: portrait)');
+      var onChange = function () { loadVariant(cover, currentVariant()); };
+      if (mq.addEventListener) mq.addEventListener('change', onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -137,10 +157,9 @@
     apply();
   }
 
-  /* API mínima, para poder previsualizar desde la consola sin esperar a que
-     llegue el domingo:  PdLitBg.preview('morado')  */
   window.PdLitBg = {
     apply: apply,
+    variant: currentVariant,
     preview: function (color) {
       document.body.setAttribute('data-lit-color', normalizeColor(color) || 'verde');
     }
