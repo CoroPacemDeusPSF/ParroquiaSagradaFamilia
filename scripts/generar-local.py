@@ -3,7 +3,7 @@
 Generador local de fondos liturgicos, contra ComfyUI en esta misma maquina.
 
   @file     scripts/generar-local.py
-  @version  v3.6.7r35
+  @version  v3.6.7r37
 
 Sustituye a generate-backgrounds.py (OpenAI) para el trabajo del dia a dia:
 aqui no se paga por imagen, asi que repetir un domingo hasta que quede bien
@@ -98,11 +98,14 @@ ESTILO = (
 # habitada —arquitectura, paisaje, oscuridad— no como un vacio recortado.
 COMPOSICION = {
     "desktop": (
-        "COMPOSITION, follow exactly: stage the principal action in the RIGHT "
-        "HALF of a wide frame. The LEFT THIRD must fall away into deep, calm "
-        "shadow with no faces and no bright detail — let it be darkness, "
-        "distance or plain wall. The dominant light enters from the upper "
-        "right and does not reach the left edge. Wide cinematic framing."
+        "COMPOSITION, follow exactly: this is a WIDE frame and the LEFT THIRD "
+        "OF IT MUST BE EMPTY. Place NO figure, no face and no lit object in "
+        "the left third: it holds only unbroken darkness, a plain shadowed "
+        "wall, or empty distance. Crowd every person and every incident into "
+        "the RIGHT HALF, grouped tightly. The single light source is high on "
+        "the right and falls off steeply, so the left edge of the canvas is "
+        "almost black. Think of a painting hung so its left side is in the "
+        "shadow of a doorway."
     ),
     "mobile": (
         "COMPOSITION, follow exactly: a tall narrow vertical frame. Stage the "
@@ -112,18 +115,54 @@ COMPOSICION = {
     ),
 }
 
+# ── QUIEN ES QUIEN (v3.6.7r36) ────────────────────────────────────────────
+#
+# En la primera prueba con figuras, Pilato salio identico a Cristo: pelo largo,
+# barba y tunica clara, sentado en su silla. La causa no fue el modelo sino la
+# escena que yo escribi: a Jesus le di sus rasgos (corona de espinas, manto
+# purpura) y a Pilato NINGUNO. El varon biblico por defecto de cualquier
+# generador es un hombre de pelo largo y barba con tunica, o sea su idea de
+# Cristo. Sin rasgos propios, todo hombre de la escena tiende a el.
+#
+# Confundir a Cristo con Pilato en la portada de una parroquia no es un fallo
+# estetico, asi que esto no se deja al azar de cada descripcion: va en TODOS
+# los prompts y prohibe explicitamente el parecido.
+FIGURAS = (
+    "FIGURES, follow exactly. If Christ appears, he is the ONLY figure with "
+    "long dark hair parted at the centre and a short dark beard, wearing a "
+    "seamless deep crimson tunic beneath a dark blue mantle, and he is always "
+    "the compositional and luminous centre. NO other figure may combine long "
+    "hair, a beard and robes of those colours — every other man must be "
+    "clearly distinguishable at a glance.\n"
+    "Romans (Pilate, soldiers, centurions) are clean-shaven with short "
+    "cropped hair, in armour or a white toga with a coloured border — never "
+    "bearded, never in a plain robe.\n"
+    "Pharisees, scribes and priests wear fringed prayer shawls and head "
+    "coverings, with long grey beards.\n"
+    "Peter is older and thickset, with short grey curly hair and a grey "
+    "beard; John is young and beardless. John the Baptist is gaunt and "
+    "weathered, in rough camel hair with a wide leather belt, hair matted "
+    "and wild — never in a woven robe. Labourers and the poor wear coarse "
+    "undyed wool, bare-legged, never crimson or blue."
+)
+
 # El texto sigue prohibido: en las pruebas se colaron marcas tipo escritura, y
 # un renglon inventado en un cancionero peruano canta a IA de inmediato.
 PROHIBIDO = (
     "No lettering, no text, no writing, no numerals, no signature, no "
     "watermark anywhere in the image: any script must be an illegible "
-    "suggestion of ink at most. No modern clothing or modern objects."
+    "suggestion of ink at most. No modern clothing or modern objects, no "
+    "anachronisms. Absolutely NO halo, NO nimbus, NO golden disc or ring of "
+    "light behind any head: the holy are set apart by light and bearing "
+    "alone. (Angels, where the scene names them, do have wings; no one else "
+    "does.) Include only the people the scene names — no extra soldiers or "
+    "bystanders invented to fill the frame."
 )
 
 
 def prompt(escena, variante):
-    return "%s\n\nScene: %s\n\n%s\n\n%s" % (
-        ESTILO, escena, COMPOSICION[variante], PROHIBIDO)
+    return "%s\n\nScene: %s\n\n%s\n\n%s\n\n%s" % (
+        ESTILO, escena, FIGURAS, COMPOSICION[variante], PROHIBIDO)
 
 
 # ── Grafo de ComfyUI ──────────────────────────────────────────────────────
@@ -218,18 +257,100 @@ def recorta(im, destino):
     return im.resize((dw, dh), Image.LANCZOS)
 
 
+# Zona sobre la que se apoya la interfaz, en fraccion del lienzo.
+ZONA_UI = {
+    "desktop": (0.00, 0.12, 0.40, 0.88),   # tercio izquierdo: la tarjeta
+    "mobile":  (0.00, 0.30, 1.00, 1.00),   # mitad inferior
+}
+P90_OBJETIVO = 55       # medido: los bodegones daban ~35 y se leian de sobra
+VELO_MAX = 0.80
+
+
+def mide(im, variante):
+    x0, y0, x1, y1 = ZONA_UI[variante]
+    c = im.crop((int(im.width * x0), int(im.height * y0),
+                 int(im.width * x1), int(im.height * y1)))
+    c = c.resize((max(1, c.width // 6), max(1, c.height // 6)), Image.BILINEAR)
+    v = sorted(luma(p) for p in c.getdata())
+    return v[len(v) // 2], v[int(len(v) * .90)]
+
+
+def apaga_zona_ui(im, variante):
+    """Oscurece con un degradado la zona donde se apoya la interfaz.
+
+    Se pide en el prompt que esa zona quede vacia y oscura, y la mayoria de las
+    veces se obedece: en las pruebas el percentil 90 bajo de 97 a 13 y de 49 a
+    19 solo con reforzar la instruccion. Pero no SIEMPRE: la misma instruccion
+    dejo el pretorio de Pilato en 111, porque una escena con guardias y
+    antorchas llena el cuadro por naturaleza.
+
+    Depender de que el modelo obedezca 73 veces seguidas no es un plan. Aqui se
+    mide lo que salio y se aplica solo el velo que falte, igual que hace la
+    portada del PDF. Una imagen que ya cumple no se toca.
+    """
+    _, p90 = mide(im, variante)
+    if p90 <= P90_OBJETIVO:
+        return im, 0.0
+
+    # El degradado tiene MESETA sobre toda la zona de la interfaz y solo
+    # despues se apaga. El primer intento decaia desde el borde mismo, asi
+    # que en el lado interior de la zona medida apenas oscurecia: el pretorio
+    # se quedo en 96 pese a un velo nominal de 0,50.
+    #
+    # Y el alfa no se calcula de una vez: la relacion entre alfa y el
+    # percentil resultante no es lineal, asi que se aplica, se vuelve a medir
+    # y se sube si hace falta. Tres pasadas bastan siempre.
+    negro = Image.new("RGB", im.size, (6, 8, 5))
+    alfa = min(VELO_MAX, 1.0 - (P90_OBJETIVO / p90))
+
+    for _ in range(3):
+        # La rampa se construye en una tira de un pixel y se estira: hacerlo
+        # pixel a pixel en Python sobre 1,3 Mpx cuesta segundos por imagen.
+        if variante == "desktop":
+            tira = Image.new("L", (im.width, 1))
+            px = tira.load()
+            meseta, fin = int(im.width * .38), int(im.width * .54)
+            for x in range(im.width):
+                if x <= meseta:
+                    k = 1.0
+                elif x >= fin:
+                    k = 0.0
+                else:
+                    k = 1.0 - (x - meseta) / float(fin - meseta)
+                px[x, 0] = int(255 * alfa * k ** 1.3)
+        else:
+            tira = Image.new("L", (1, im.height))
+            px = tira.load()
+            ini, meseta = int(im.height * .30), int(im.height * .50)
+            for y in range(im.height):
+                if y <= ini:
+                    k = 0.0
+                elif y >= meseta:
+                    k = 1.0
+                else:
+                    k = (y - ini) / float(meseta - ini)
+                px[0, y] = int(255 * alfa * k ** 0.9)
+
+        prueba = Image.composite(negro, im, tira.resize(im.size))
+        _, p90 = mide(prueba, variante)
+        if p90 <= P90_OBJETIVO or alfa >= VELO_MAX:
+            return prueba, alfa
+        alfa = min(VELO_MAX, alfa + (1.0 - alfa) * 0.5)
+
+    return prueba, alfa
+
+
 def acaba(im, variante, ruta):
     im = recorta(im, ENTREGA[variante])
+    im, alfa = apaga_zona_ui(im, variante)
     im.save(ruta, "WEBP", quality=WEBP_Q, method=6)
 
-    # Luz en la zona de la interfaz: izquierda y centro
-    caja = im.crop((0, int(im.height * .12), int(im.width * .62), int(im.height * .88)))
-    caja = caja.resize((max(1, caja.width // 6), max(1, caja.height // 6)), Image.BILINEAR)
-    vals = sorted(luma(p) for p in caja.getdata())
+    mediana, p90 = mide(im, variante)
     return {
         "kb": round(os.path.getsize(ruta) / 1024),
-        "mediana": round(vals[len(vals) // 2]),
-        "p90": round(vals[int(len(vals) * .90)]),
+        "mediana": round(mediana),
+        "p90": round(p90),
+        "velo": round(alfa, 2),
     }
 
 
@@ -301,9 +422,9 @@ def main():
             estado["hechas"] += 1
             estado["hechas_lista"].append(
                 {"clave": clave, "variante": variante, "seg": round(seg, 1), **info})
-            print("%3d/%-3d  %s %-8s %5.1fs  %4d KB  luz %3d/%3d" % (
+            print("%3d/%-3d  %s %-8s %5.1fs  %4d KB  luz %3d/%3d  velo %.2f" % (
                 i, len(tareas), clave, variante, seg, info["kb"],
-                info["mediana"], info["p90"]), flush=True)
+                info["mediana"], info["p90"], info["velo"]), flush=True)
         except Exception as e:
             estado["fallos"].append({"clave": clave, "variante": variante,
                                      "error": str(e)[:200]})
