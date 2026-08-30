@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.3
+     @version    v3.6.7r17
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -35,6 +35,34 @@
   transition: all 0.2s;
 }
 .chords-toggle:hover { background: rgba(67,160,71,0.08); }
+
+/* ── Referencias de YouTube al costado del toggle (v3.6.7r17) ──────────────
+   El instrumentista que está leyendo los acordes ya no tiene que subir hasta
+   el título del canto para abrir la referencia: se repite aquí mismo.
+
+   Dos condiciones para mostrarse, ambas necesarias:
+     1. Bloque de acordes abierto → .chords-toggle.open, clase que pone
+        window.toggleChords (módulo 06). El toggle en sí es público y siempre
+        visible (ver setlist.css), así que sin esta condición las referencias
+        asomarían con los acordes cerrados.
+     2. Modo Coro o Modo Bodas → mismo criterio que los botones de YouTube del
+        título del canto (ver rehearsal.css). El feligrés no los ve.
+
+   El markup lo genera el módulo 00 (renderChordsBlock) como hermano adyacente
+   del toggle. Va FUERA del <pre> a propósito: el editor de acordes (módulo 10)
+   toma pre.innerHTML como fuente editable y guardaría el botón dentro de
+   chords_html en Firebase. */
+.chords-refs { display: none; }
+
+body.rehearsal-mode .chords-toggle.open + .chords-refs,
+body.wedding-mode  .chords-toggle.open + .chords-refs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+}
+
 .chords-block { display: none; margin-top: 0.8rem; }
 .chords-block.open { display: block; }
 .chords-block pre {

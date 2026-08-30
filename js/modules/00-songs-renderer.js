@@ -6,7 +6,7 @@
  *   @brief      Renderiza las 111 cards del cancionero leyendo data/songs.json en runtime
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.5
+ *   @version    v3.6.7r17
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -198,15 +198,46 @@
   }
 
   /**
-   * Genera el HTML del bloque de acordes (chords-toggle + chords-block).
+   * Genera el HTML del bloque de acordes (chords-toggle + chords-refs + chords-block).
    * Solo se incluye si el canto tiene chords_html.
+   *
+   * v3.6.7r17 — REFERENCIAS DE YOUTUBE JUNTO AL TOGGLE
+   * El instrumentista que está leyendo los acordes tenía que volver a subir
+   * hasta el título del canto para abrir la referencia de YouTube. Ahora las
+   * mismas referencias se repiten al costado del botón "Ver / Ocultar acordes".
+   *
+   * Por qué aquí y no dentro del <pre>:
+   *   El título ♫ vive dentro del <pre>, y el editor de acordes (módulo 10)
+   *   toma `pre.innerHTML` como fuente editable — un botón inyectado ahí
+   *   terminaría guardado dentro de chords_html en Firebase. El <pre> también
+   *   es lo que imprime printChords (módulo 06). Por eso los botones van
+   *   FUERA del <pre>, como hermano del toggle.
+   *
+   * Visibilidad (ver chords.css): el contenedor solo se muestra con el bloque
+   * abierto (.chords-toggle.open) y solo en Modo Coro / Modo Bodas, igual que
+   * los botones de YouTube del título.
    */
   function renderChordsBlock(song) {
     if (!song.chords_html) return '';
     const did = song.did;
+
+    // Mismos botones que en el título: mismo SVG y mismas clases
+    // yt-play-btn--ref-N, para que el color por posición (1 rojo, 2 verde,
+    // 3 morado) coincida con el del índice y el encabezado del canto.
+    let refs = '';
+    const ytUrls = normalizeYoutube(song.youtube);
+    if (ytUrls.length) {
+      let btns = '';
+      ytUrls.forEach(function (url, idx) {
+        btns += renderYtBtn('youtube', did, url, idx + 1);
+      });
+      refs = '<span class="chords-refs" id="chords-refs-' + did + '">' + btns + '</span>';
+    }
+
     return (
       '<button class="chords-toggle" id="chords-toggle-' + did + '"' +
-      ' data-action="toggle-chords" data-target="' + did + '">Ver acordes &#9662;</button>\n' +
+      ' data-action="toggle-chords" data-target="' + did + '">Ver acordes &#9662;</button>' +
+      refs + '\n' +
       '        <div class="chords-block" id="chords-block-' + did + '">\n' +
       '          <pre>' + song.chords_html + '</pre>\n' +
       '        </div>\n      '

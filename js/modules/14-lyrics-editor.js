@@ -6,7 +6,7 @@
  *   @brief      Editor de letras con guardado en Firebase y normalización
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.7r17
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -275,6 +275,29 @@
   });
 
   // ── APPLY override to DOM ──
+  /* v3.6.7r17 — REEMPLAZA SOLO LA LETRA, NO TODO EL song-body.
+   *
+   * Antes esta función hacía `body.innerHTML = newHtml` y después volvía a
+   * colgar a mano una lista fija de elementos: ornamento, chords-toggle y
+   * chords-block. El problema es que esa lista era una allow-list: cualquier
+   * elemento del song-body que no estuviera enumerado ahí se destruía en
+   * silencio al aplicar un override de letra.
+   *
+   * Y eso pasó de verdad: al agregarse las referencias de YouTube al costado
+   * del toggle (span.chords-refs, módulo 00 v3.6.7r17), desaparecían en los
+   * ~32 cantos que tienen override de letra en Firebase — sin ningún error en
+   * consola, solo el elemento ausente. El síntoma no apuntaba a este módulo.
+   *
+   * Ahora se borran únicamente los nodos de la letra —los que están ANTES del
+   * ancla— y el resto del body queda intacto, sea lo que sea. Agregar un
+   * elemento nuevo al song-body ya no exige acordarse de venir a editar aquí.
+   *
+   * El ancla es el ornamento de cierre (último `.song-ornament`, porque puede
+   * haber ornamentos intermedios usados como separadores dentro de la letra) y,
+   * si el canto no tiene ornamento, el primer elemento del bloque de acordes.
+   * `lyricsTextToHtml` genera solo strophe/chorus, nunca el ornamento: por eso
+   * el ornamento se conserva y la letra nueva se inserta justo antes.
+   */
   function applyLyricsOverride(cpdId, text) {
     var card = document.querySelector('.song-card[data-chord-id="' + cpdId + '"]');
     if (!card) return;
@@ -283,16 +306,22 @@
 
     var newHtml = lyricsTextToHtml(text);
 
-    // Preserve the ornament, chords-toggle and chords-block
-    var ornament = body.querySelector('.song-ornament');
-    var chordsToggle = body.querySelector('.chords-toggle');
-    var chordsBlock  = body.querySelector('.chords-block');
+    var ornaments = body.querySelectorAll('.song-ornament');
+    var anchor = ornaments.length
+      ? ornaments[ornaments.length - 1]
+      : (body.querySelector('.chords-toggle') ||
+         body.querySelector('.chords-refs')   ||
+         body.querySelector('.chords-block'));
 
-    body.innerHTML = newHtml;
-
-    if (ornament)     body.appendChild(ornament);
-    if (chordsToggle) body.appendChild(chordsToggle);
-    if (chordsBlock)  body.appendChild(chordsBlock);
+    if (!anchor) {
+      // Canto sin ornamento ni bloque de acordes: la letra es todo el body.
+      body.innerHTML = newHtml;
+    } else {
+      while (body.firstChild && body.firstChild !== anchor) {
+        body.removeChild(body.firstChild);
+      }
+      anchor.insertAdjacentHTML('beforebegin', newHtml);
+    }
 
     console.log('[Lyrics] Override aplicado: ' + cpdId);
   }

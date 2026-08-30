@@ -6,7 +6,7 @@
  *   @brief      Expandir/colapsar todos los bloques de acordes (Modo Dev)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.7r17
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -37,10 +37,14 @@ function expandAllChords(btn) {
       // Abrir: usar toggleChords para respetar injectTransposeBar y decoración
       if (!block.classList.contains('open')) toggleChords(id, true);
     } else {
-      // Colapsar
-      block.classList.remove('open');
-      var tBtn = document.getElementById('chords-toggle-' + id);
-      if (tBtn) tBtn.textContent = 'Ver acordes ▾';
+      /* Colapsar — delegar en toggleChords en vez de manipular el DOM a mano.
+         v3.6.7r17: antes esta rama replicaba el cierre (quitar .open del bloque
+         + reescribir el texto del botón), así que cada estado nuevo del toggle
+         había que acordarse de duplicarlo aquí. Al agregarse la clase .open del
+         botón —la que muestra las referencias de YouTube al costado— esa copia
+         se habría desincronizado. Ahora el estado abierto/cerrado lo owna un
+         solo lugar: window.toggleChords (módulo 06). */
+      toggleChords(id);
     }
   });
 

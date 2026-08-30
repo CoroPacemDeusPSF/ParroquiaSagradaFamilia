@@ -6,7 +6,7 @@
  *   @brief      Bloque de acordes: toggle, transposición ±, fullscreen, imprimir, zoom
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r10
+ *   @version    v3.6.7r17
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -325,7 +325,15 @@
     if (!block) return;
     var opening = (forceOpen === true) ? true : !block.classList.contains('open');
     block.classList.toggle('open', opening);
-    if (btn) btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
+    if (btn) {
+      btn.textContent = opening ? 'Ocultar acordes ▴' : 'Ver acordes ▾';
+      /* v3.6.7r17: la clase .open en el toggle es lo que deja ver las
+         referencias de YouTube que están a su costado (span.chords-refs,
+         renderizado por el módulo 00). CSS: .chords-toggle.open + .chords-refs
+         Se marca sobre el botón —y no sobre el bloque— porque el selector
+         hermano adyacente solo puede mirar hacia adelante en el DOM. */
+      btn.classList.toggle('open', opening);
+    }
     if (opening) {
       window.injectTransposeBar(id);
       window.decorateChordBlock(block);
