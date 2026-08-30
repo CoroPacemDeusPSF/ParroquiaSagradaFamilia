@@ -3,7 +3,7 @@
 Generador local de fondos liturgicos, contra ComfyUI en esta misma maquina.
 
   @file     scripts/generar-local.py
-  @version  v3.6.7r37
+  @version  v3.6.7r38
 
 Sustituye a generate-backgrounds.py (OpenAI) para el trabajo del dia a dia:
 aqui no se paga por imagen, asi que repetir un domingo hasta que quede bien
@@ -356,11 +356,34 @@ def acaba(im, variante, ruta):
 
 # ── Progreso ──────────────────────────────────────────────────────────────
 
+_aviso_progreso = [False]
+
+
 def escribe_progreso(estado):
+    """Deja el estado en progreso.json. NUNCA interrumpe el lote.
+
+    El repositorio vive dentro de OneDrive, y el sincronizador abre los
+    archivos que ve cambiar. Este se reescribe cada 43 segundos, asi que
+    antes o despues coinciden: os.replace fallo con PermissionError a la
+    imagen 23 y se llevo por delante dos horas de trabajo.
+
+    Que un archivo de seguimiento tumbe la generacion es absurdo, asi que se
+    reintenta un poco y, si aun asi no se puede, se sigue adelante sin el.
+    Las imagenes ya estan en disco; el progreso es solo para mirar.
+    """
     tmp = PROGRESO + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(estado, f, ensure_ascii=False, indent=1)
-    os.replace(tmp, PROGRESO)     # atomico: el navegador nunca lee a medias
+    for intento in range(6):
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(estado, f, ensure_ascii=False, indent=1)
+            os.replace(tmp, PROGRESO)   # atomico: el navegador no lee a medias
+            return
+        except (PermissionError, OSError):
+            time.sleep(0.4 * (intento + 1))
+    if not _aviso_progreso[0]:
+        _aviso_progreso[0] = True
+        print("   (aviso: no se pudo escribir progreso.json — probablemente "
+              "OneDrive. El lote sigue; solo se resiente la barra.)", flush=True)
 
 
 # ── Principal ─────────────────────────────────────────────────────────────
