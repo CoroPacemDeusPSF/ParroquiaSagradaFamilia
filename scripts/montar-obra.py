@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r48
+  @version  v3.6.7r49
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -176,36 +176,47 @@ def monta(obra, variante):
         # pierde son bordes, no el asunto. Va a sangre.
         im = _veladura(cubre(obra, W, H))
     else:
-        # ── VERTICAL: AJUSTAR POR ANCHO, NO POR ALTO ──────────────────────
-        # El lienzo movil es 9:20. Cubrir con el ampliaba un cuadro apaisado
-        # hasta que solo quedaba una tira central del ancho: en el telefono no
-        # se leia como pintura sino como una mancha. Aqui se ajusta al ANCHO,
-        # de modo que la obra se ve entera de lado a lado, y lo que sobra de
-        # alto lo rellena ella misma desenfocada.
-        im = _veladura(cubre(obra, W, H).filter(
-            ImageFilter.GaussianBlur(W // 9)))
+        # ── MOVIL: AL MENOS LA MITAD DEL CUADRO, A TODA PANTALLA ─────────
+        # Este lienzo 9:20 ya quemo dos intentos, uno por cada extremo:
+        # cubrir a sangre dejaba de un cuadro apaisado una tira central (~30%
+        # visible: parecia una mancha), y encogerlo a una estampita en la
+        # franja superior lo ensenaba entero pero desperdiciaba la pantalla.
+        # Lo pedido es el punto medio: ver AL MENOS LA MITAD de la pintura,
+        # repartida por toda la pantalla segun la proporcion de cada obra.
+        #
+        #   - proporcion <= 0.9 (verticales y casi cuadradas): cubrir ya
+        #     ensena el 50% o mas -> a pantalla completa.
+        #   - apaisadas: se dibujan al DOBLE del ancho del lienzo. Recortar
+        #     un cuarto por cada lado deja visible justo la mitad, y la
+        #     altura resultante -el doble del ancho entre la proporcion-
+        #     reparte el cuadro por casi todo el visor. Los huecos los
+        #     rellena la propia obra desenfocada.
+        aspecto = obra.width / float(obra.height)
+        if aspecto <= 0.9:
+            im = _veladura(cubre(obra, W, H))
+        else:
+            im = _veladura(cubre(obra, W, H).filter(
+                ImageFilter.GaussianBlur(W // 9)))
 
-        # Medido en el sitio real a 375x812: el texto de la portada ocupa
-        # del 18% al 68% de la altura de la imagen (version, nombre del coro,
-        # titulo, parroquia, tarjeta y boton del salmo). Libre queda solo la
-        # franja superior, y ahi va la obra.
-        alto = int(H * 0.165)
-        ancho = max(1, int(obra.width * alto / float(obra.height)))
-        if ancho > W * 0.92:                # las muy apaisadas, por ancho
-            ancho = int(W * 0.92)
-            alto = max(1, int(obra.height * ancho / float(obra.width)))
-        pieza = _veladura(obra.resize((ancho, alto), Image.LANCZOS))
+            ancho = 2 * W                    # visible: W de 2W = la mitad
+            alto = max(1, int(ancho / aspecto))
+            pieza = _veladura(obra.resize((ancho, alto), Image.LANCZOS))
 
-        x, y = (W - ancho) // 2, int(H * 0.012)
-        # Mascara de bordes suaves: la obra se funde con su propio desenfoque
-        # en vez de quedar como un recorte pegado encima.
-        m = Image.new("L", (W, H), 0)
-        ImageDraw.Draw(m).rectangle(
-            [x + 6, y + 6, x + ancho - 6, y + alto - 6], fill=255)
-        m = m.filter(ImageFilter.GaussianBlur(max(6, ancho // 26)))
-        capa = Image.new("RGB", (W, H), FONDO)
-        capa.paste(pieza, (x, y))
-        im = Image.composite(capa, im, m)
+            # Centrada en el visor real del telefono: el ~74% superior del
+            # lienzo (lo de mas abajo lo recorta el navegador), medido en el
+            # sitio a 375x812. Nunca pegada al borde superior.
+            visor = int(H * 0.74)
+            x = -(ancho - W) // 2
+            y = max(int(H * 0.02), (visor - alto) // 2)
+
+            # Bordes superior e inferior fundidos contra el desenfoque, para
+            # que el corte del recorte no cruce la pantalla como una regla.
+            m = Image.new("L", (W, H), 0)
+            ImageDraw.Draw(m).rectangle([0, y + 10, W, y + alto - 10], fill=255)
+            m = m.filter(ImageFilter.GaussianBlur(W // 24))
+            capa = Image.new("RGB", (W, H), FONDO)
+            capa.paste(pieza, (x, y))
+            im = Image.composite(capa, im, m)
 
     # Vineta: los bordes se funden con el fondo de la portada en vez de
     # terminar en un canto recto contra el degradado liturgico.
