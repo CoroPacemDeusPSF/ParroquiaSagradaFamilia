@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r46
+  @version  v3.6.7r48
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -43,9 +43,9 @@ WEBP_Q = 86
 
 # Cuanto se apaga la obra al pasarla a fondo. Es el unico numero estetico del
 # guion, asi que vive aqui arriba y no enterrado en monta(). Se probaron tres
-# niveles sobre la portada real -0.32, 0.46 y 0.60- y se eligio 0.55: por
+# niveles sobre la portada real -0.32, 0.46 y 0.60- y se eligio 0.60: por
 # debajo la obra casi desaparece, por encima vuelve a competir con la tarjeta.
-BRILLO = 0.55
+BRILLO = 0.60
 
 # Licencias que permiten el uso sin condiciones. CC0 es tan libre como el
 # dominio publico: el Met libera asi y algunas de sus copias son las mejores.
@@ -139,6 +139,13 @@ def cubre(im, w, h):
                     (im.width - w) // 2 + w, (im.height - h) // 2 + h))
 
 
+def _veladura(im):
+    """Apaga y desatura para que la obra sea atmosfera y no protagonista."""
+    im = ImageEnhance.Color(im).enhance(0.62)
+    im = ImageEnhance.Contrast(im).enhance(0.86)
+    return ImageEnhance.Brightness(im).enhance(BRILLO)
+
+
 def monta(obra, variante):
     """La obra fundida en la portada como atmosfera, no como protagonista.
 
@@ -164,10 +171,41 @@ def monta(obra, variante):
     """
     W, H = ENTREGA[variante]
 
-    im = cubre(obra, W, H)
-    im = ImageEnhance.Color(im).enhance(0.62)        # algo desaturada
-    im = ImageEnhance.Contrast(im).enhance(0.86)     # sin negros duros
-    im = ImageEnhance.Brightness(im).enhance(BRILLO)
+    if variante == "desktop":
+        # 16:9 contra cuadros de 0,44 a 1,41: cubrir recorta poco y lo que se
+        # pierde son bordes, no el asunto. Va a sangre.
+        im = _veladura(cubre(obra, W, H))
+    else:
+        # ── VERTICAL: AJUSTAR POR ANCHO, NO POR ALTO ──────────────────────
+        # El lienzo movil es 9:20. Cubrir con el ampliaba un cuadro apaisado
+        # hasta que solo quedaba una tira central del ancho: en el telefono no
+        # se leia como pintura sino como una mancha. Aqui se ajusta al ANCHO,
+        # de modo que la obra se ve entera de lado a lado, y lo que sobra de
+        # alto lo rellena ella misma desenfocada.
+        im = _veladura(cubre(obra, W, H).filter(
+            ImageFilter.GaussianBlur(W // 9)))
+
+        # Medido en el sitio real a 375x812: el texto de la portada ocupa
+        # del 18% al 68% de la altura de la imagen (version, nombre del coro,
+        # titulo, parroquia, tarjeta y boton del salmo). Libre queda solo la
+        # franja superior, y ahi va la obra.
+        alto = int(H * 0.165)
+        ancho = max(1, int(obra.width * alto / float(obra.height)))
+        if ancho > W * 0.92:                # las muy apaisadas, por ancho
+            ancho = int(W * 0.92)
+            alto = max(1, int(obra.height * ancho / float(obra.width)))
+        pieza = _veladura(obra.resize((ancho, alto), Image.LANCZOS))
+
+        x, y = (W - ancho) // 2, int(H * 0.012)
+        # Mascara de bordes suaves: la obra se funde con su propio desenfoque
+        # en vez de quedar como un recorte pegado encima.
+        m = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(m).rectangle(
+            [x + 6, y + 6, x + ancho - 6, y + alto - 6], fill=255)
+        m = m.filter(ImageFilter.GaussianBlur(max(6, ancho // 26)))
+        capa = Image.new("RGB", (W, H), FONDO)
+        capa.paste(pieza, (x, y))
+        im = Image.composite(capa, im, m)
 
     # Vineta: los bordes se funden con el fondo de la portada en vez de
     # terminar en un canto recto contra el degradado liturgico.
@@ -186,7 +224,7 @@ def monta(obra, variante):
 # produccion: titulo, subtitulo, tarjeta liturgica y boton del salmo caen todos
 # entre el 25% y el 75% del ancho.
 ZONA_TEXTO = {"desktop": (0.24, 0.12, 0.76, 0.95),
-              "mobile":  (0.06, 0.30, 0.94, 0.92)}
+              "mobile":  (0.05, 0.17, 0.95, 0.70)}
 P90_OBJETIVO = 62
 VELO_MAX = 0.72
 
