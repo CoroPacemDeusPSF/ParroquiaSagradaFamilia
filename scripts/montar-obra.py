@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r41
+  @version  v3.6.7r42
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -168,12 +168,13 @@ def monta(obra, variante):
 
     # La obra completa, dentro de la zona que sobrevive a cualquier recorte.
     if variante == "desktop":
-        # Medido contra los dos recortes extremos del navegador: en pantalla
-        # ancha solo sobrevive el 59% central del ALTO, y en estrecha el 67%
-        # central del ANCHO. La obra se dimensiona para caber dentro de esa
-        # interseccion, de modo que se ve ENTERA en cualquier pantalla.
-        caja_w, caja_h = int(W * 0.38), int(H * 0.58)
-        centro_x = int(W * 0.65)          # a la derecha del texto centrado
+        # Medido en produccion: la capa usa background-position 50% 0%, o sea
+        # el recorte vertical va anclado ARRIBA, no centrado. En una pantalla
+        # ancha solo se ve el 58% SUPERIOR de la imagen; en una estrecha, el
+        # 67% central del ancho. La obra se coloca dentro de esa interseccion
+        # -arriba y algo a la derecha- para verse entera en cualquier pantalla.
+        caja_w, caja_h = int(W * 0.38), int(H * 0.48)
+        centro_x = int(W * 0.64)
     else:
         caja_w, caja_h = int(W * 0.80), int(H * 0.30)
         centro_x = W // 2
@@ -183,7 +184,7 @@ def monta(obra, variante):
     obra = obra.resize((ancho, alto), Image.LANCZOS)
 
     x = max(0, min(W - ancho, centro_x - ancho // 2))
-    y = (H - alto) // 2 if variante == "desktop" else int(H * 0.06)
+    y = int(H * 0.05) if variante == "desktop" else int(H * 0.06)
 
     # Sombra suave que despega la obra del fondo, sin trazar un borde.
     sombra = Image.new("L", (W, H), 0)
