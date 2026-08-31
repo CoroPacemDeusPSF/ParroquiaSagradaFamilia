@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r42
+  @version  v3.6.7r43
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -196,7 +196,63 @@ def monta(obra, variante):
     lienzo.paste(obra, (x, y))
     ImageDraw.Draw(lienzo).rectangle(
         [x - 1, y - 1, x + ancho, y + alto], outline=ORO, width=2)
-    return lienzo
+    return apaga_zona_texto(lienzo, variante)
+
+
+# Franja que ocupa el texto de la portada, en fraccion del lienzo. Medida en
+# produccion: titulo, subtitulo, tarjeta liturgica y boton del salmo caen todos
+# entre el 25% y el 75% del ancho.
+ZONA_TEXTO = {"desktop": (0.24, 0.14, 0.76, 0.94),
+              "mobile":  (0.06, 0.30, 0.94, 0.92)}
+P90_OBJETIVO = 62
+VELO_MAX = 0.72
+
+
+def apaga_zona_texto(im, variante):
+    """Oscurece la franja del texto lo justo para que se lea.
+
+    Se intento colocar la obra fuera del texto y no hay sitio: la interfaz
+    esta CENTRADA y ocupa la mitad del ancho, y la portada cambia de
+    proporcion entre 1,2 y 4,0 segun la pantalla, asi que la posicion relativa
+    entre cuadro y texto cambia con cada ventana. Ninguna colocacion fija vale
+    para todas.
+
+    Asi que se deja de perseguir la geometria y se ataca el sintoma, que es lo
+    unico estable: se mide cuanta luz hay bajo el texto y se aplica el velo
+    minimo que haga falta. Una obra ya oscura no se toca; una clara recibe un
+    velo suave y en degradado, que es como un scrim de portada de toda la vida.
+    """
+    x0, y0, x1, y1 = ZONA_TEXTO[variante]
+    caja = (int(im.width * x0), int(im.height * y0),
+            int(im.width * x1), int(im.height * y1))
+    negro = Image.new("RGB", im.size, (6, 8, 5))
+
+    def p90(imagen):
+        c = imagen.crop(caja)
+        c = c.resize((max(1, c.width // 6), max(1, c.height // 6)), Image.BILINEAR)
+        v = sorted(0.2126 * a + 0.7152 * b + 0.0722 * d for a, b, d in c.getdata())
+        return v[int(len(v) * 0.90)]
+
+    def con_velo(alfa):
+        m = Image.new("L", im.size, 0)
+        ImageDraw.Draw(m).rectangle(caja, fill=int(255 * alfa))
+        # Difuminar el borde del rectangulo convierte el velo en degradado, y
+        # asi no deja un canto recto atravesando la pintura.
+        return Image.composite(negro, im, m.filter(ImageFilter.GaussianBlur(im.width // 14)))
+
+    actual = p90(im)
+    if actual <= P90_OBJETIVO:
+        return im
+
+    # La relacion entre alfa y el percentil resultante no es lineal, asi que se
+    # aplica, se vuelve a medir y se sube si hace falta.
+    alfa = min(VELO_MAX, 1.0 - (P90_OBJETIVO / actual))
+    for _ in range(4):
+        salida = con_velo(alfa)
+        if p90(salida) <= P90_OBJETIVO or alfa >= VELO_MAX:
+            return salida
+        alfa = min(VELO_MAX, alfa + (1.0 - alfa) * 0.5)
+    return salida
 
 
 def main():
