@@ -6,7 +6,7 @@
      @brief      Fondo de portada que cambia cada semana según el color litúrgico
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r24
+     @version    v3.6.7r50
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -163,6 +163,11 @@ html.lit-boot[data-lit-boot-variant="mobile"] .ceremony.dominical .ceremony-cove
   background-position: center top;
 }
 
+/* v3.6.7r50: scrim rebajado a tinte. Desde que el fondo es obra real, la
+   imagen llega con su propio velo medido bajo el texto (montar-obra.py), asi
+   que mantener aqui una manta de 0,72-0,93 era apagarla dos veces: la parte
+   alta quedaba a ~17% de su luz. Este gradiente solo pone el tinte liturgico
+   y el fundido inferior hacia la lista de cantos. */
 html.lit-boot .ceremony.dominical .ceremony-cover::after {
   content: '';
   position: absolute;
@@ -172,11 +177,11 @@ html.lit-boot .ceremony.dominical .ceremony-cover::after {
   background:
     linear-gradient(
       180deg,
-      rgba(var(--lit-scrim-tint), 0.72) 0%,
-      rgba(var(--lit-scrim-tint), 0.42) 28%,
-      rgba(var(--lit-scrim-tint), 0.38) 52%,
-      rgba(var(--lit-scrim-tint), 0.74) 86%,
-      rgba(var(--lit-scrim-tint), 0.93) 100%
+      rgba(var(--lit-scrim-tint), 0.42) 0%,
+      rgba(var(--lit-scrim-tint), 0.20) 28%,
+      rgba(var(--lit-scrim-tint), 0.16) 52%,
+      rgba(var(--lit-scrim-tint), 0.48) 86%,
+      rgba(var(--lit-scrim-tint), 0.85) 100%
     );
 }
 
@@ -206,11 +211,11 @@ html.lit-boot .ceremony.dominical .ceremony-cover::after {
   background:
     linear-gradient(
       180deg,
-      rgba(var(--lit-scrim-tint), 0.72) 0%,
-      rgba(var(--lit-scrim-tint), 0.42) 28%,
-      rgba(var(--lit-scrim-tint), 0.38) 52%,
-      rgba(var(--lit-scrim-tint), 0.74) 86%,
-      rgba(var(--lit-scrim-tint), 0.93) 100%
+      rgba(var(--lit-scrim-tint), 0.42) 0%,
+      rgba(var(--lit-scrim-tint), 0.20) 28%,
+      rgba(var(--lit-scrim-tint), 0.16) 52%,
+      rgba(var(--lit-scrim-tint), 0.48) 86%,
+      rgba(var(--lit-scrim-tint), 0.85) 100%
     );
 }
 

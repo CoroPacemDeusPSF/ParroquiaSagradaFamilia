@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r49
+  @version  v3.6.7r50
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -41,11 +41,18 @@ FONDO = (10, 13, 9)
 ORO = (150, 116, 52)
 WEBP_Q = 86
 
-# Cuanto se apaga la obra al pasarla a fondo. Es el unico numero estetico del
-# guion, asi que vive aqui arriba y no enterrado en monta(). Se probaron tres
-# niveles sobre la portada real -0.32, 0.46 y 0.60- y se eligio 0.60: por
-# debajo la obra casi desaparece, por encima vuelve a competir con la tarjeta.
-BRILLO = 0.60
+# Cuanto se apaga la obra al pasarla a fondo. Vive aqui arriba y no enterrado
+# en monta().
+#
+# Historia de estos numeros: se empezo en brillo 0,46 y se fue subiendo por
+# tandas (0,55, 0,60) porque la obra se veia opaca. La causa real no era solo
+# el brillo: el sitio pintaba ENCIMA un scrim liturgico con alfas de 0,72 a
+# 0,93 en los extremos, y las dos capas se sumaban. En r50 el scrim CSS bajo a
+# tinte ligero y la legibilidad quedo a cargo del velo adaptativo de aqui
+# abajo, que mide cada imagen; a cambio la imagen de fabrica respira:
+BRILLO = 0.74
+SATURACION = 0.82      # antes 0,62: los colores se veian grises
+CONTRASTE = 0.95       # antes 0,86: casi natural, el lavado venia de aqui
 
 # Licencias que permiten el uso sin condiciones. CC0 es tan libre como el
 # dominio publico: el Met libera asi y algunas de sus copias son las mejores.
@@ -141,8 +148,8 @@ def cubre(im, w, h):
 
 def _veladura(im):
     """Apaga y desatura para que la obra sea atmosfera y no protagonista."""
-    im = ImageEnhance.Color(im).enhance(0.62)
-    im = ImageEnhance.Contrast(im).enhance(0.86)
+    im = ImageEnhance.Color(im).enhance(SATURACION)
+    im = ImageEnhance.Contrast(im).enhance(CONTRASTE)
     return ImageEnhance.Brightness(im).enhance(BRILLO)
 
 
@@ -236,7 +243,10 @@ def monta(obra, variante):
 # entre el 25% y el 75% del ancho.
 ZONA_TEXTO = {"desktop": (0.24, 0.12, 0.76, 0.95),
               "mobile":  (0.05, 0.17, 0.95, 0.70)}
-P90_OBJETIVO = 62
+# 72 y no 62: el scrim CSS aun anade ~0,16-0,20 de tinte en la franja central,
+# asi que el compuesto bajo la tarjeta queda igual que antes (~62). Medir aqui
+# la imagen sola con el objetivo antiguo seria velar dos veces lo mismo.
+P90_OBJETIVO = 72
 VELO_MAX = 0.72
 
 
