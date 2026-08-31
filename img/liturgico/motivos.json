@@ -1,394 +1,392 @@
 {
-  "_lee_esto": [
-    "La ESCENA que ilustra cada domingo, sacada del Evangelio COMPLETO.",
-    "",
-    "Primera version (v3.6.7r32): un objeto suelto por domingo. Funcionaba a",
-    "medias. Donde la linea nombraba un LUGAR ('piedra de rio a la orilla', 'la",
-    "era', 'bajo la retama') salia un lugar de verdad. Donde solo nombraba un",
-    "OBJETO, el modelo rellenaba el resto con su comodin: mesa de madera, cuarto",
-    "oscuro y haz de luz desde arriba a la derecha, una y otra vez.",
-    "",
-    "El problema era que yo le daba una frase y le dejaba inventar el 80%",
-    "restante. La periopa entera trae el sitio, la hora, el tiempo que hace, los",
-    "objetos que acompanan y lo que esta ocurriendo. Todo eso se escribe aqui.",
-    "",
-    "Segunda diferencia: AHORA HAY FIGURAS. Antes se prohibian las personas y por",
-    "eso los Evangelios narrativos quedaban cojos. Se pintan al modo del oleo",
-    "barroco, no en fotorrealismo: un rostro pintado no cae en el valle",
-    "inquietante y ademas es la tradicion del arte sacro.",
-    "",
-    "  clave   domingo AAAA-MM-DD",
-    "  ev      cita del Evangelio",
-    "  es      que se ve, en cristiano, para revisarlo de un vistazo",
-    "  escena  lo que recibe el generador: lugar, hora, luz, figuras y accion",
-    "",
-    "Para rehacer un domingo basta editar su 'escena' y regenerar solo ese."
-  ],
-
-  "2026-08-30": {
-    "ev": "Mt 16,21-27",
-    "es": "Camino de Cesarea: Pedro aparta a Jesus y lo reprende por anunciar la pasion",
-    "escena": "A stony road climbing out of the hills at late afternoon. Jesus has halted and turned; Peter has caught his sleeve and pulls him aside, protesting, his face urgent and afraid. The other disciples hang back down the road, uneasy in shadow. Low amber sun raking from the right, long shadows across the dust."
-  },
-  "2026-09-06": {
-    "ev": "Mt 18,15-20",
-    "es": "Correccion fraterna: dos o tres reunidos en una casa al anochecer",
-    "escena": "A small lamplit room in a village house at night. Three men sit close around a low table in quiet conference, one leaning in to speak gently to another, the third listening with his hands folded. A single oil lamp between them; the corners of the room fall away into darkness."
-  },
-  "2026-09-13": {
-    "ev": "Mt 18,21-35",
-    "es": "El siervo sin entranas agarra por el cuello a su companero en el patio del rey",
-    "escena": "The stone courtyard of a rich house at midday. A steward in a fine cloak has seized a poorer man by the throat and shoves him against a pillar, demanding a small debt; a torn ledger and scattered coins lie at their feet. Behind, half in shadow, the king watches from a doorway. Hard sunlight, sharp shadows."
-  },
-  "2026-09-20": {
-    "ev": "Mt 20,1-16",
-    "es": "Obreros de la vina: el pago a la hora undecima, los ultimos cobran primero",
-    "escena": "A vineyard at the end of the day. The steward stands at a trestle table counting a silver coin into the palm of a labourer who arrived last; behind him a line of tired workers, some who have laboured since dawn, murmur among themselves. Baskets of cut grapes at their feet. Deep orange evening light from the right, vines in silhouette."
-  },
-  "2026-09-27": {
-    "ev": "Mt 21,28-32",
-    "es": "Los dos hijos: uno dijo que no y fue a la vina, el otro dijo que si y no fue",
-    "escena": "Morning at the edge of a vineyard. An old father in a worn mantle stands at the gate, having just spoken; one son walks away from him into the rows with a hoe on his shoulder, sleeves already dirty. The other son lounges against the wall in clean clothes, looking off in another direction. Cool early light."
-  },
-  "2026-10-04": {
-    "ev": "Mt 21,33-43",
-    "es": "Vinadores homicidas: arrojan fuera de la vina al hijo del propietario",
-    "escena": "A walled vineyard with a stone watchtower and a winepress, under a bruised late sky. Rough tenants drag a young man toward the gate and cast him out onto the road; one still holds a club. A rejected squared stone lies among rubble at the tower's foot. Stormy light breaking low from the right."
-  },
-  "2026-10-11": {
-    "ev": "Mt 22,1-14",
-    "es": "Banquete de bodas: el rey ve al que no lleva traje de fiesta",
-    "escena": "A great hall at night, long tables crowded with guests brought in from the roads, cups and bread everywhere. The king has stopped before one man who sits in dusty travelling clothes among the feasters; servants pause behind him. Warm candlelight over the table, the far end of the hall lost in darkness."
-  },
-  "2026-10-18": {
-    "ev": "Mt 22,15-21",
-    "es": "Dad al Cesar: le muestran el denario en el atrio del templo",
-    "escena": "The portico of the temple, hard noon light between columns. Pharisees and Herodians press close around Jesus; one holds up a silver denarius between finger and thumb toward him. Jesus regards the coin without taking it. Onlookers watch from the shadow of the colonnade."
-  },
-  "2026-10-25": {
-    "ev": "Mt 22,34-40",
-    "es": "El mandamiento principal: un doctor de la ley pregunta y Jesus responde",
-    "escena": "A corner of the temple court in the afternoon. A scholar of the law stands before Jesus with a question, a scroll held loosely at his side; a knot of Pharisees waits behind him, arms folded. Jesus answers quietly, two fingers raised. Warm light slanting across worn flagstones."
-  },
-  "2026-11-01": {
-    "ev": "Mt 5,1-12a",
-    "es": "Todos los Santos: el sermon de la montana ante la muchedumbre",
-    "escena": "A grassy hillside above a lake at first light. Jesus is seated on the slope, speaking; his disciples sit close around him and beyond them a great multitude covers the hillside, listening, dissolving into the golden haze. Radiant dawn light from behind, figures rimmed in gold."
-  },
-  "2026-11-08": {
-    "ev": "Mt 25,1-13",
-    "es": "Las diez virgenes: las necias se quedan fuera a medianoche",
-    "escena": "Night before the closed door of a wedding house. Five young women with burning lamps pass inside through a spill of warm light; five others stand outside in the dark holding cold, empty lamps, one knocking at the shut door. The street beyond is black."
-  },
-  "2026-11-15": {
-    "ev": "Mt 25,14-30",
-    "es": "Los talentos: el siervo miedoso devuelve la bolsa que enterro",
-    "escena": "The hall of a returning master at evening. Two servants stand with heaps of gold coins spread on a table before them; a third kneels, holding out a single earth-stained bag, soil still on his hands, eyes down. A spade leans by the door. Lamplight from the right, the kneeling man half in shadow."
-  },
-  "2026-11-22": {
-    "ev": "Mt 25,31-46",
-    "es": "Cristo Rey: separa las ovejas de los cabritos ante todas las naciones",
-    "escena": "A vast dim plain under a sky of gathering glory. Christ stands enthroned on a simple stone seat, crowned and robed, one hand extended to his right where a quiet crowd gathers in light, the other toward his left where figures recede into shadow. Sheep and goats among them. Immense scale, low horizon."
-  },
-  "2026-11-29": {
-    "ev": "Mc 13,33-37",
-    "es": "Velad: el portero espera de noche el regreso del dueno de la casa",
-    "escena": "The gate of a courtyard house deep in the night. A servant stands wrapped in a mantle beside a hanging lantern, staring down the empty dark road, keeping watch. The house behind him is unlit and silent. Only the lantern and a sliver of moon give light."
-  },
-  "2026-12-06": {
-    "ev": "Mc 1,1-8",
-    "es": "Juan Bautista predica y bautiza en el Jordan",
-    "escena": "The bank of the Jordan in the morning. John, gaunt in camel hair with a leather belt, stands knee-deep in the river, arm raised as he preaches; people wade toward him and others crowd the shore waiting. Desert cliffs rise behind. Clear cool light, water catching the sky."
-  },
-  "2026-12-13": {
-    "ev": "Jn 1,6-8.19-28",
-    "es": "Interrogan a Juan: yo no soy el Mesias, soy la voz que clama",
-    "escena": "The riverbank at Bethany beyond the Jordan, overcast afternoon. A delegation of priests and Levites in fine robes stands facing John, one gesturing a question; John answers with an open hand, denying, and looks past them down the road. His followers watch from the water's edge."
-  },
-  "2026-12-20": {
-    "ev": "Lc 1,26-38",
-    "es": "La Anunciacion: el angel Gabriel ante Maria",
-    "escena": "A bare stone room in Nazareth. Mary has risen from her work, a spindle fallen beside her, and stands with her hands drawn to her breast; the angel Gabriel kneels before her, wings folded, one hand raised in greeting. White lilies in a clay jar. Light floods from the left as if the wall had opened."
-  },
-  "2026-12-25": {
-    "ev": "Jn 1,1-18",
-    "es": "Natividad: la Palabra se hizo carne y habito entre nosotros",
-    "escena": "A stable cut into rock, deep night. Mary kneels beside a manger where the newborn lies on straw, Joseph standing behind with a lamp; an ox and a donkey in the darkness beyond. All the light in the picture comes from the child himself, warm on the faces bent over him."
-  },
-  "2026-12-27": {
-    "ev": "Lc 2,22-40",
-    "es": "Presentacion en el templo: Simeon toma al Nino en brazos",
-    "escena": "The steps of the temple in the morning. Old Simeon holds the infant up in both arms, face lifted, tears in his eyes; Mary and Joseph stand close, Joseph carrying a small basket with two turtledoves. The prophetess Anna approaches from the side. Cool light down the great columns."
-  },
-
-  "2027-01-03": {
-    "ev": "Jn 1,1-18",
-    "es": "El Verbo puso su tienda entre nosotros; la luz brilla en las tinieblas",
-    "escena": "A camp of nomad tents on a dark plain at night, one tent glowing warmly from within, its flap open. A few figures move toward the light across the cold ground; the rest of the plain and the sky are almost black. The lit doorway is the only warmth in the picture."
-  },
-  "2027-01-10": {
-    "ev": "Mc 1,7-11",
-    "es": "Bautismo del Senor: se rasgan los cielos sobre el Jordan",
-    "escena": "The Jordan at dawn. Jesus stands waist-deep in the water, head bowed, as John pours the river over him from a shell; above them the clouds are torn open and light pours down in a shaft, a dove descending within it. People on the bank shield their eyes."
-  },
-  "2027-01-17": {
-    "ev": "Jn 1,35-42",
-    "es": "Venid y vereis: Andres lleva a Simon ante Jesus, que lo llama Cefas",
-    "escena": "The doorway of a low house at the end of the day. Andrew brings his brother Simon by the arm to Jesus, who stands in the threshold light looking steadily at the fisherman. Simon has stopped short, caught by the gaze. John the Baptist's other disciple waits behind. Warm interior glow, cold blue dusk outside."
-  },
-  "2027-01-24": {
-    "ev": "Mc 1,14-20",
-    "es": "Llamada de los pescadores: dejan las redes y siguen a Jesus",
-    "escena": "The shore of the lake of Galilee at first light. Simon and Andrew have dropped their net half-cast in the shallows and wade out toward Jesus, who stands on the beach and calls them; further along, James and John rise from mending nets in their father's boat. Pale gold morning on the water."
-  },
-  "2027-01-31": {
-    "ev": "Mc 1,21-28",
-    "es": "En la sinagoga de Cafarnaun: ensena con autoridad y expulsa un espiritu",
-    "escena": "The interior of a small synagogue on the sabbath. Jesus stands teaching from the reader's place; a man has fallen convulsing in the aisle and cries out, others drawing back in alarm around him. Elders on the stone benches half-rise. Hard light from a high window on Jesus, the crowd in shadow."
-  },
-  "2027-02-07": {
-    "ev": "Mc 1,29-39",
-    "es": "Cura a la suegra de Pedro y al alba se retira a orar en descampado",
-    "escena": "Before dawn on a bare hillside above a sleeping town. Jesus kneels alone in prayer, wrapped in a mantle, his back to the viewer, facing the first grey line of light on the horizon. The town below is dark but for one or two lamps. Vast quiet sky, the smallest of figures in a great emptiness."
-  },
-  "2027-02-14": {
-    "ev": "Mc 1,12-15",
-    "es": "Cuarenta dias en el desierto, entre las fieras y servido por los angeles",
-    "escena": "A wilderness of cracked rock and scoured ridges at dusk. Jesus sits alone against a boulder, gaunt and still; wild animals watch from the shadows at a distance, and two angels stand quietly behind him, one offering bread. Long violet shadows, a thin band of gold on the horizon."
-  },
-  "2027-02-21": {
-    "ev": "Mc 9,2-10",
-    "es": "La Transfiguracion en el monte alto ante Pedro, Santiago y Juan",
-    "escena": "A high bare summit under a torn sky. Jesus stands transfigured, his garments blindingly white, Moses and Elijah conversing with him on either side; the three disciples have fallen back on the rock, shielding their faces from the light. The whole picture is lit from the figure of Christ himself."
-  },
-  "2027-02-28": {
-    "ev": "Jn 2,13-25",
-    "es": "Purificacion del templo: vuelca las mesas de los cambistas",
-    "escena": "The outer court of the temple in uproar at midday. Jesus drives the traders out with a cord of knotted rope; a money-changer's table crashes over, coins spilling across the flagstones, doves beating out of an upset cage, sheep scattering. Merchants scramble for the money. Harsh light, violent shadows."
-  },
-  "2027-03-07": {
-    "ev": "Jn 3,14-21",
-    "es": "Nicodemo de noche; como Moises elevo la serpiente en el desierto",
-    "escena": "A rooftop in Jerusalem at night. Jesus sits by a single lamp in his crimson tunic and blue mantle, speaking; facing him leans Nicodemo — an elderly Pharisee with a long white beard, a fringed prayer shawl over a striped robe and an embroidered head covering — listening intently, hands on his knees. Beyond the parapet the dark city and a sky of stars. Everything else swallowed in night."
-  },
-  "2027-03-14": {
-    "ev": "Jn 12,20-33",
-    "es": "Unos griegos quieren ver a Jesus; si el grano de trigo no muere",
-    "escena": "A courtyard by the temple in the afternoon. Two Greek visitors in foreign dress speak with Philip, who turns toward Andrew; beyond them Jesus stands apart in a shaft of light, his face already elsewhere, as if listening to something above. Turned earth and a few grains of wheat at the threshold."
-  },
-  "2027-03-21": {
-    "ev": "Mc 14,1—15,47",
-    "es": "Domingo de Ramos: la entrada en Jerusalen entre palmas y mantos",
-    "escena": "The road down the Mount of Olives, mid-morning, the city walls beyond. Jesus rides a young donkey through a crowd that spreads cloaks on the road and waves cut palm branches; children run alongside, people lean from the roadside. Bright clear light, dust in the air, the walls of Jerusalem gold in the distance."
-  },
-  "2027-03-28": {
-    "ev": "Jn 20,1-9",
-    "es": "Pascua: Pedro y Juan corren al sepulcro y encuentran los lienzos",
-    "escena": "The mouth of a rock tomb at first light, the great stone rolled aside. John has stopped at the entrance and Peter stoops to enter; inside, the linen cloths lie collapsed on the empty slab with the face-cloth rolled apart. Dawn floods in from behind them, throwing their shadows into the tomb."
-  },
-  "2027-04-04": {
-    "ev": "Jn 20,19-31",
-    "es": "Tomas toca las llagas estando cerradas las puertas",
-    "escena": "A shuttered upper room, doors barred, eight days after. Jesus stands among the disciples and draws back his robe; Thomas leans in, hand outstretched toward the wound in his side, his face breaking. The others crowd close in the lamplight, the barred door behind them in darkness."
-  },
-  "2027-04-11": {
-    "ev": "Lc 24,35-48",
-    "es": "Se aparece a los once y come pez asado delante de ellos",
-    "escena": "The upper room at night. Jesus stands in the middle of the startled disciples, holding out a piece of grilled fish he has just taken from an earthen plate, showing them his hands. Some have shrunk back, one reaches toward him. Embers and a lamp light the group from below."
-  },
-  "2027-04-18": {
-    "ev": "Jn 10,11-18",
-    "es": "El Buen Pastor da la vida por sus ovejas y el asalariado huye",
-    "escena": "A hillside sheepfold at dusk. The shepherd stands in the gap of the dry-stone wall with his staff across the opening, his flock gathered behind him; he faces out toward the darkening slope where something moves among the rocks. A hired man is already running away down the hill. Last red light on the horizon."
-  },
-  "2027-04-25": {
-    "ev": "Jn 15,1-8",
-    "es": "Yo soy la vid: el vinador poda los sarmientos",
-    "escena": "An old vineyard in the cool of the morning. A vinedresser works among gnarled vines, pruning knife in hand, cut canes falling at his feet while heavy clusters hang on the branches he has spared. Mist still lying between the rows, low sun breaking through from the right."
-  },
-  "2027-05-02": {
-    "ev": "Jn 15,9-17",
-    "es": "Ya no os llamo siervos sino amigos; permaneced en mi amor",
-    "escena": "A table under a fig tree at the close of a warm evening. Jesus sits among his friends after a meal, speaking quietly, one hand resting on the shoulder of the man beside him; the others lean in, faces open. Bread, fruit and cups on the cloth. Low golden light through the leaves."
-  },
-  "2027-05-09": {
-    "ev": "Mc 16,15-20",
-    "es": "La Ascension: id al mundo entero, y fue llevado al cielo",
-    "escena": "A bare summit under a sky opening into light. The disciples stand and kneel in a loose ring, faces turned up, hands raised or shielding their eyes as Jesus rises from among them into a burst of radiance. Clouds far below the ridge, the world spread out beyond."
-  },
-  "2027-05-16": {
-    "ev": "Jn 15,26-27;16,12-15",
-    "es": "Pentecostes: el Espiritu de la verdad desciende sobre los reunidos",
-    "escena": "A closed upper room filled with sudden light. The apostles and Mary are gathered, some standing, some fallen to their knees, small tongues of flame resting above their heads; wind stirs their robes and the shutters. The light comes from above and from the flames themselves."
-  },
-  "2027-05-23": {
-    "ev": "Mt 28,16-20",
-    "es": "Santisima Trinidad: bautizadlos en el nombre del Padre, del Hijo y del Espiritu",
-    "escena": "A mountain in Galilee at daybreak. The eleven stand before Jesus, some bowed in worship, one still hesitant at the edge; Jesus speaks with both arms opened wide, sending them out. Behind him the sky is a vast opening of gold and cloud. Wide horizon, small figures against immensity."
-  },
-  "2027-05-30": {
-    "ev": "Mc 14,12-16.22-26",
-    "es": "Corpus Christi: en el cenaculo parte el pan y da el caliz",
-    "escena": "The upper room by lamplight. Jesus stands at the head of the table breaking a round loaf, the chased cup before him; the disciples are still, watching his hands. White linen, clay dishes, cups of wine. Warm light concentrated on the bread and the cup, the room dark beyond."
-  },
-  "2027-06-06": {
-    "ev": "Mc 3,20-35",
-    "es": "Un reino dividido; su madre y sus hermanos lo buscan fuera",
-    "escena": "A crowded house in a village, a press of people inside around Jesus who is speaking to scribes who have come down from Jerusalem. Through the open door, seen from within, his mother and relatives wait outside in the sunlit street, unable to reach him. Interior dim and packed, doorway blazing with light."
-  },
-  "2027-06-13": {
-    "ev": "Mc 4,26-34",
-    "es": "La semilla que crece sola y el grano de mostaza",
-    "escena": "The edge of a field toward evening. A farmer stands with an empty seed-bag looking over a crop grown tall without his knowing; beside the field a great mustard shrub spreads its branches, birds settling in it for the night. Long low light, the whole field turned amber."
-  },
-  "2027-06-20": {
-    "ev": "Mc 4,35-41",
-    "es": "Calma la tempestad en el lago: quien es este, que hasta el viento le obedece?",
-    "escena": "A small boat on the lake in a black squall. Waves break over the gunwale, the sail torn loose, disciples clinging and bailing in terror; Jesus has just risen from the stern, one hand lifted, and the water immediately around the boat has gone glassy and still. The storm tears away to the left, a hole of light opening above."
-  },
-  "2027-06-27": {
-    "ev": "Mc 5,21-43",
-    "es": "Talita kum: levanta a la hija de Jairo y manda que le den de comer",
-    "escena": "A small dim room in Jairus's house. Jesus, in crimson and blue, stands by a low bed holding the hand of a girl who has just opened her eyes and is sitting up. Her father Jairus — a synagogue official in a fringed prayer shawl and embroidered cap, grey-bearded — has fallen to his knees, and her mother stares with both hands to her mouth. Peter, James and John crowd the doorway behind. A bowl of food waits on a stool. One shuttered window lets in a blade of daylight."
-  },
-  "2027-07-04": {
-    "ev": "Mc 6,1-6",
-    "es": "En Nazaret: no es este el carpintero? Y no podia hacer alli milagros",
-    "escena": "The synagogue of a small town, midday. Jesus stands after speaking; the seated townsfolk mutter among themselves, some turned away, one gesturing dismissively toward the door as if to say they know his family. Faces sceptical and closed. Flat hard light, no warmth in it."
-  },
-  "2027-07-11": {
-    "ev": "Mc 6,7-13",
-    "es": "Los envia de dos en dos con un baston y nada mas",
-    "escena": "A dusty crossroads outside a village at morning. Pairs of disciples set out along diverging roads, each man with a staff and sandals and nothing else, looking back once toward Jesus who stands at the junction watching them go. Empty travelling bags left behind on the wall. Clear early light, long roads."
-  },
-  "2027-07-18": {
-    "ev": "Mc 6,30-34",
-    "es": "Venid a descansar; pero al verlos sintio compasion, ovejas sin pastor",
-    "escena": "A boat drawing in to a lonely shore where a great crowd has already gathered and is waiting on the slope. Jesus stands in the bow looking at them, the weary disciples at the oars behind him. Late afternoon light across the water and the hillside of people."
-  },
-  "2027-07-25": {
-    "ev": "Jn 6,1-15",
-    "es": "Multiplicacion de los panes: un muchacho trae cinco panes y dos peces",
-    "escena": "A grassy hillside above the lake, thousands seated in groups on the grass. A boy holds out a small woven basket with five barley loaves and two fish; Andrew presents him to Jesus, who has already begun to give thanks over them. Disciples wait with empty baskets. Broad afternoon light over the crowd."
-  },
-  "2027-08-01": {
-    "ev": "Jn 6,24-35",
-    "es": "Yo soy el pan de vida; nuestros padres comieron el mana",
-    "escena": "The shore at Capernaum in the morning. The crowd that crossed the lake in boats presses around Jesus, some arguing, one pointing back over the water; Jesus answers standing among them, unmoved. Beached boats behind, the lake pale and flat. Even morning light, no drama in the sky."
-  },
-  "2027-08-08": {
-    "ev": "Jn 6,41-51",
-    "es": "Murmuran los judios: yo soy el pan bajado del cielo",
-    "escena": "Inside the synagogue at Capernaum, close and shadowed. Jesus speaks from the middle of the floor; around him men lean together muttering, one shaking his head, faces sceptical and hard. A shaft of dusty light falls between them but touches only him."
-  },
-  "2027-08-15": {
-    "ev": "Lc 1,39-56",
-    "es": "Asuncion: la Visitacion y el canto del Magnificat",
-    "escena": "A doorway in the hill country of Judah, morning. Mary and Elizabeth have met and hold each other by the forearms, Elizabeth older and heavy with child, exclaiming; Mary's face is lifted in the beginning of a song. Zechariah watches silent from the shadow of the house. Warm light on the two women, hills beyond."
-  },
-  "2027-08-22": {
-    "ev": "Jn 6,60-69",
-    "es": "Muchos se marchan; Senor, a quien iremos?",
-    "escena": "A road leaving a village at dusk. Many followers are walking away in ones and twos, backs turned, dwindling into the blue distance; Jesus stands with the twelve, and Peter has stepped forward to answer him. The light is going. The empty road behind is the largest thing in the picture."
-  },
-  "2027-08-29": {
-    "ev": "Mc 7,1-8.14-15.21-23",
-    "es": "La tradicion de los mayores: lo que sale de dentro es lo que mancha",
-    "escena": "A courtyard where a meal is set out. Pharisees and scribes stand pointing at the disciples eating with unwashed hands; stone jars for ritual washing line the wall behind them. Jesus turns from the table to answer, calling the crowd nearer. Midday light, sharp and unflattering."
-  },
-  "2027-09-05": {
-    "ev": "Mc 7,31-37",
-    "es": "Effeta: cura al sordomudo apartandolo de la gente",
-    "escena": "A stony place aside from the road in the Decapolis. Jesus has drawn a deaf man apart from the crowd and stands close, touching the man's ears, his own face lifted in a sigh toward the sky; the man's eyes are wide, on the edge of hearing. The crowd waits at a distance behind. Clear open light."
-  },
-  "2027-09-12": {
-    "ev": "Mc 8,27-35",
-    "es": "En Cesarea de Filipo: tu eres el Mesias; el que quiera seguirme, cargue con su cruz",
-    "escena": "The road below the great rock face of Caesarea Philippi, spring water welling at its foot. Jesus has turned to face the disciples on the walk; Peter answers him, the others gathered close, one already troubled. Ancient carved niches in the cliff above them. Cool light in the shadow of the rock."
-  },
-  "2027-09-19": {
-    "ev": "Mc 9,30-37",
-    "es": "Discutian quien era el mayor; pone a un nino en medio de ellos",
-    "escena": "A room in Capernaum. Jesus sits and has set a small child in the middle of the circle of disciples, an arm around the child's shoulders; the men look at their hands or at each other, caught out, having argued on the road about who was greatest. Warm plain lamplight."
-  },
-  "2027-09-26": {
-    "ev": "Mc 9,38-43.45.47-48",
-    "es": "El que no esta contra nosotros; mejor una piedra de molino al cuello",
-    "escena": "A path above deep water at evening. John speaks earnestly to Jesus, gesturing back toward someone in the distance; Jesus answers, and beside the path a great millstone stands propped at the edge of the drop. Dark still water far below. Heavy, low light."
-  },
-  "2027-10-03": {
-    "ev": "Mc 10,2-16",
-    "es": "Lo que Dios unio; y dejad que los ninos se acerquen a mi",
-    "escena": "The edge of a village where the road runs on to Judea. Mothers press forward holding small children toward Jesus while the disciples try to wave them back; Jesus is already reaching down to take one child up, indignant with his own men. Warm dusty afternoon light, the crowd close."
-  },
-  "2027-10-10": {
-    "ev": "Mc 10,17-30",
-    "es": "El joven rico se marcha triste porque tenia muchos bienes",
-    "escena": "A road out of a town at midday. A well-dressed young man walks away with his head down, heavy with grief, his rich cloak bright against the dust; Jesus watches him go, the disciples silent behind. The distance between the two figures is the subject. Hard white light, short shadows."
-  },
-  "2027-10-17": {
-    "ev": "Mc 10,35-45",
-    "es": "Santiago y Juan piden los primeros puestos; el mayor sera servidor",
-    "escena": "A halt on the road to Jerusalem, late afternoon. Two brothers have drawn Jesus aside and speak to him with eager expectation; the other ten look on from behind, plainly indignant, one already stepping forward to object. A basin and a folded towel lie among the baggage on the ground. Long slanting light."
-  },
-  "2027-10-24": {
-    "ev": "Mc 10,46-52",
-    "es": "Bartimeo arroja el manto, salta y recobra la vista en Jerico",
-    "escena": "The gate of Jericho in a crowd. A blind beggar has thrown off his cloak and sprung to his feet, groping forward as people make way; Jesus has stopped in the middle of the road and turned toward him, calling. The discarded cloak and stick lie in the dust behind. Bright, dusty, jostling light."
-  },
-  "2027-10-31": {
-    "ev": "Mc 12,28-34",
-    "es": "Un escriba pregunta cual es el primer mandamiento y responde bien",
-    "escena": "A quiet corner of the temple courts, late in the day. A scribe stands close before Jesus in genuine conversation, nodding as he weighs the answer; others have drifted off, no longer daring to ask. Low warm light along the stones, long shadows of the columns."
-  },
-  "2027-11-01": {
-    "ev": "Mt 5,1-12a",
-    "es": "Todos los Santos: la muchedumbre inmensa de toda nacion y lengua",
-    "escena": "An immense multitude in white robes with palm branches, standing rank upon rank and receding into radiant light; the nearest faces are individual and calm, the rest dissolve into gold. Light comes from beyond them, above. No architecture, no ground line, only figures and glory."
-  },
-  "2027-11-07": {
-    "ev": "Mc 12,38-44",
-    "es": "El obolo de la viuda: echo todo lo que tenia para vivir",
-    "escena": "The temple treasury. A poor widow in a worn shawl drops two tiny coins into the great bronze chest; rich men in fine robes wait their turn behind her with heavy purses. Jesus sits opposite with the disciples, watching her, and has just spoken. Cool light from high windows, the widow small and alone in it."
-  },
-  "2027-11-14": {
-    "ev": "Mc 13,24-32",
-    "es": "El sol se oscurecera; aprended de la higuera",
-    "escena": "A ridge above Jerusalem under a sky of ruin, the sun a dull red disc and stars falling. In the foreground a fig branch has put out tender green leaves; Jesus sits with the disciples on the stones, pointing to it while the heavens darken behind. Strange coppery light over everything."
-  },
-  "2027-11-21": {
-    "ev": "Jn 18,33-37",
-    "es": "Cristo Rey ante Pilato: mi reino no es de este mundo",
-    "escena": "The praetorium at night, bare and cold. Pilate — a clean-shaven Roman governor with short cropped grey hair, in a white toga with a purple border — sits half-turned on a curule chair, questioning. Jesus stands before him bound, upright and quiet, long dark hair and short beard, a soldier's purple cloak thrown over his crimson tunic and a crown of thorns on his head. Roman guards in helmets stand in shadow at the edges. One high lamp, everything else dark stone."
-  },
-  "2027-11-28": {
-    "ev": "Lc 21,25-28.34-36",
-    "es": "Adviento: levantad la cabeza, se acerca vuestra liberacion",
-    "escena": "A stone watchtower on a headland before dawn, the sea below in turmoil and the stars unsteady. A watchman stands at the parapet with his head lifted toward the first thin line of light on the horizon, cloak snapping in the wind. Vast dark sky, a single fragile promise of daybreak."
-  },
-  "2027-12-05": {
-    "ev": "Lc 3,1-6",
-    "es": "Preparad el camino del Senor; todo valle sera rellenado",
-    "escena": "A mountain road being made straight, morning. Labourers break stone and level a pass with mattocks and baskets, a cleared line of road running away toward the desert; John preaches from a rise at the roadside to those who have stopped to listen. Cold clear light, dust hanging over the work."
-  },
-  "2027-12-12": {
-    "ev": "Lc 3,10-18",
-    "es": "Que debemos hacer? El que tenga dos tunicas que las reparta",
-    "escena": "A crowd at the riverside pressing questions on John. A man is handing his spare tunic to a poorer one beside him; a tax collector and a soldier wait their turn to ask. John answers with a raised hand, a winnowing fork planted in the ground beside him. Bright even daylight, faces earnest."
-  },
-  "2027-12-19": {
-    "ev": "Lc 1,39-45",
-    "es": "La Visitacion: la criatura salto de gozo en el vientre de Isabel",
-    "escena": "A hill-country doorway at midday. Elizabeth has hurried out and taken Mary's hands, her face astonished and joyful, one hand pressed to her own side; Mary, young and travel-stained, looks up at her. Water jars set down by the step. Steep golden hills behind, hard bright light."
-  },
-  "2027-12-25": {
-    "ev": "Jn 1,1-18",
-    "es": "Natividad del Senor: los pastores hallan al Nino en el pesebre",
-    "escena": "A stable at night, the door open to a hillside where a single low star burns. Shepherds have come in and kneel or stand with their staffs, caps in hand, looking down at the newborn in the manger; Mary sits beside him, Joseph at the door. All light rises from the child."
-  },
-  "2027-12-26": {
-    "ev": "Lc 2,41-52",
-    "es": "Sagrada Familia: hallan al Nino en el templo entre los doctores",
-    "escena": "A hall of the temple. A boy of twelve sits among grey-bearded doctors of the law who lean toward him, one with a scroll half-forgotten in his lap, arguing and astonished; at the edge of the group Mary and Joseph have just arrived, exhausted from three days of searching. Tall light from a high window."
-  }
+ "_lee_esto": [
+  "La ESCENA que ilustra cada domingo, sacada del Evangelio COMPLETO.",
+  "",
+  "Primera version (v3.6.7r32): un objeto suelto por domingo. Funcionaba a",
+  "medias. Donde la linea nombraba un LUGAR ('piedra de rio a la orilla', 'la",
+  "era', 'bajo la retama') salia un lugar de verdad. Donde solo nombraba un",
+  "OBJETO, el modelo rellenaba el resto con su comodin: mesa de madera, cuarto",
+  "oscuro y haz de luz desde arriba a la derecha, una y otra vez.",
+  "",
+  "El problema era que yo le daba una frase y le dejaba inventar el 80%",
+  "restante. La periopa entera trae el sitio, la hora, el tiempo que hace, los",
+  "objetos que acompanan y lo que esta ocurriendo. Todo eso se escribe aqui.",
+  "",
+  "Segunda diferencia: AHORA HAY FIGURAS. Antes se prohibian las personas y por",
+  "eso los Evangelios narrativos quedaban cojos. Se pintan al modo del oleo",
+  "barroco, no en fotorrealismo: un rostro pintado no cae en el valle",
+  "inquietante y ademas es la tradicion del arte sacro.",
+  "",
+  "  clave   domingo AAAA-MM-DD",
+  "  ev      cita del Evangelio",
+  "  es      que se ve, en cristiano, para revisarlo de un vistazo",
+  "  escena  lo que recibe el generador: lugar, hora, luz, figuras y accion",
+  "",
+  "Para rehacer un domingo basta editar su 'escena' y regenerar solo ese."
+ ],
+ "2026-08-30": {
+  "ev": "Mt 16,21-27",
+  "es": "Pedro se queda atras en el camino tras ser reprendido",
+  "escena": "A stony hill road at dusk, seen wide. On the RIGHT, lit by the last low sun, Jesus has turned away and walks on, his face set. On the LEFT, far back down the road and lit only by a shaft of the same dying light, Peter stands alone with one hand half raised, having just been rebuked. Between them the road and the hillside fall into total blackness — bare ground, nothing else, nobody else. The lower third is empty shadow."
+ },
+ "2026-09-06": {
+  "ev": "Mt 18,15-20",
+  "es": "Correccion fraterna: dos reunidos a un lado y el tercero llegando al otro",
+  "escena": "A dark stone room at night, seen wide. On the RIGHT, warmly lit by a single oil lamp on a ledge, two men sit close together on a bench, leaning in, one speaking low to the other with a hand on his forearm — reconciliation, not argument. On the LEFT, far across the room and lit by a second small lamp, a third man stands in a doorway, listening, turned toward them. Between the two groups the room falls away into complete blackness: an empty floor and a dark wall with nothing on it. The bottom of the frame is bare shadow."
+ },
+ "2026-09-13": {
+  "ev": "Mt 18,21-35",
+  "es": "El siervo sin entranas, y el rey mirando desde la puerta",
+  "escena": "A stone courtyard at night, seen wide. On the RIGHT, under a bracket torch, a steward in a fine cloak has seized a poorer man by the collar and pushes him against a pillar; a torn ledger lies at their feet. On the LEFT, framed in a small lit doorway far across the yard, the king watches in silence, alone. Between them the courtyard is pure blackness: empty flagstones and a blank dark wall, no figures at all. The lower third is empty shadow."
+ },
+ "2026-09-20": {
+  "ev": "Mt 20,1-16",
+  "es": "El pago de la hora undecima, y los de la manana murmurando",
+  "escena": "A vineyard at nightfall, seen wide. On the RIGHT, by lamplight at a trestle table, the steward places a single silver coin into the open hand of a young labourer who came at the last hour. On the LEFT, beside a second small lamp, two sunburnt workers who laboured since dawn stand together muttering, arms folded. Between them the vineyard is black — bare earth and vine stakes in darkness, nobody there. The lower third is empty shadow."
+ },
+ "2026-09-27": {
+  "ev": "Mt 21,28-32",
+  "es": "Los dos hijos: el que fue a la vina y el que se quedo",
+  "escena": "The edge of a vineyard at first light, seen wide. On the RIGHT, in clear morning light, a young man in a dirty work tunic walks into the vine rows with a hoe over his shoulder — the son who said no and went. On the LEFT, against a sunlit patch of wall, his brother lounges in clean clothes doing nothing, and beside him their old father stands watching. Between the two sides the vineyard falls into deep shade: empty rows, no figures. The lower third is empty shadow."
+ },
+ "2026-10-04": {
+  "ev": "Mt 21,33-43",
+  "es": "Vinadores homicidas: arrojan fuera de la vina al hijo del propietario",
+  "escena": "A walled vineyard with a stone watchtower and a winepress, under a bruised late sky. Rough tenants drag a young man toward the gate and cast him out onto the road; one still holds a club. A rejected squared stone lies among rubble at the tower's foot. Stormy light breaking low from the right."
+ },
+ "2026-10-11": {
+  "ev": "Mt 22,1-14",
+  "es": "Banquete de bodas: el rey ve al que no lleva traje de fiesta",
+  "escena": "A great hall at night, long tables crowded with guests brought in from the roads, cups and bread everywhere. The king has stopped before one man who sits in dusty travelling clothes among the feasters; servants pause behind him. Warm candlelight over the table, the far end of the hall lost in darkness."
+ },
+ "2026-10-18": {
+  "ev": "Mt 22,15-21",
+  "es": "Dad al Cesar: le muestran el denario en el atrio del templo",
+  "escena": "The portico of the temple, hard noon light between columns. Pharisees and Herodians press close around Jesus; one holds up a silver denarius between finger and thumb toward him. Jesus regards the coin without taking it. Onlookers watch from the shadow of the colonnade."
+ },
+ "2026-10-25": {
+  "ev": "Mt 22,34-40",
+  "es": "El mandamiento principal: un doctor de la ley pregunta y Jesus responde",
+  "escena": "A corner of the temple court in the afternoon. A scholar of the law stands before Jesus with a question, a scroll held loosely at his side; a knot of Pharisees waits behind him, arms folded. Jesus answers quietly, two fingers raised. Warm light slanting across worn flagstones."
+ },
+ "2026-11-01": {
+  "ev": "Mt 5,1-12a",
+  "es": "Todos los Santos: el sermon de la montana ante la muchedumbre",
+  "escena": "A grassy hillside above a lake at first light. Jesus is seated on the slope, speaking; his disciples sit close around him and beyond them a great multitude covers the hillside, listening, dissolving into the golden haze. Radiant dawn light from behind, figures rimmed in gold."
+ },
+ "2026-11-08": {
+  "ev": "Mt 25,1-13",
+  "es": "Las diez virgenes: las necias se quedan fuera a medianoche",
+  "escena": "Night before the closed door of a wedding house. Five young women with burning lamps pass inside through a spill of warm light; five others stand outside in the dark holding cold, empty lamps, one knocking at the shut door. The street beyond is black."
+ },
+ "2026-11-15": {
+  "ev": "Mt 25,14-30",
+  "es": "Los talentos: el siervo miedoso devuelve la bolsa que enterro",
+  "escena": "The hall of a returning master at evening. Two servants stand with heaps of gold coins spread on a table before them; a third kneels, holding out a single earth-stained bag, soil still on his hands, eyes down. A spade leans by the door. Lamplight from the right, the kneeling man half in shadow."
+ },
+ "2026-11-22": {
+  "ev": "Mt 25,31-46",
+  "es": "Cristo Rey: separa las ovejas de los cabritos ante todas las naciones",
+  "escena": "A vast dim plain under a sky of gathering glory. Christ stands enthroned on a simple stone seat, crowned and robed, one hand extended to his right where a quiet crowd gathers in light, the other toward his left where figures recede into shadow. Sheep and goats among them. Immense scale, low horizon."
+ },
+ "2026-11-29": {
+  "ev": "Mc 13,33-37",
+  "es": "Velad: el portero espera de noche el regreso del dueno de la casa",
+  "escena": "The gate of a courtyard house deep in the night. A servant stands wrapped in a mantle beside a hanging lantern, staring down the empty dark road, keeping watch. The house behind him is unlit and silent. Only the lantern and a sliver of moon give light."
+ },
+ "2026-12-06": {
+  "ev": "Mc 1,1-8",
+  "es": "Juan Bautista predica y bautiza en el Jordan",
+  "escena": "The bank of the Jordan in the morning. John, gaunt in camel hair with a leather belt, stands knee-deep in the river, arm raised as he preaches; people wade toward him and others crowd the shore waiting. Desert cliffs rise behind. Clear cool light, water catching the sky."
+ },
+ "2026-12-13": {
+  "ev": "Jn 1,6-8.19-28",
+  "es": "Interrogan a Juan: yo no soy el Mesias, soy la voz que clama",
+  "escena": "The riverbank at Bethany beyond the Jordan, overcast afternoon. A delegation of priests and Levites in fine robes stands facing John, one gesturing a question; John answers with an open hand, denying, and looks past them down the road. His followers watch from the water's edge."
+ },
+ "2026-12-20": {
+  "ev": "Lc 1,26-38",
+  "es": "La Anunciacion: el angel Gabriel ante Maria",
+  "escena": "A bare stone room in Nazareth. Mary has risen from her work, a spindle fallen beside her, and stands with her hands drawn to her breast; the angel Gabriel kneels before her, wings folded, one hand raised in greeting. White lilies in a clay jar. Light floods from the left as if the wall had opened."
+ },
+ "2026-12-25": {
+  "ev": "Jn 1,1-18",
+  "es": "Natividad: la Palabra se hizo carne y habito entre nosotros",
+  "escena": "A stable cut into rock, deep night. Mary kneels beside a manger where the newborn lies on straw, Joseph standing behind with a lamp; an ox and a donkey in the darkness beyond. All the light in the picture comes from the child himself, warm on the faces bent over him."
+ },
+ "2026-12-27": {
+  "ev": "Lc 2,22-40",
+  "es": "Presentacion en el templo: Simeon toma al Nino en brazos",
+  "escena": "The steps of the temple in the morning. Old Simeon holds the infant up in both arms, face lifted, tears in his eyes; Mary and Joseph stand close, Joseph carrying a small basket with two turtledoves. The prophetess Anna approaches from the side. Cool light down the great columns."
+ },
+ "2027-01-03": {
+  "ev": "Jn 1,1-18",
+  "es": "El Verbo puso su tienda entre nosotros; la luz brilla en las tinieblas",
+  "escena": "A camp of nomad tents on a dark plain at night, one tent glowing warmly from within, its flap open. A few figures move toward the light across the cold ground; the rest of the plain and the sky are almost black. The lit doorway is the only warmth in the picture."
+ },
+ "2027-01-10": {
+  "ev": "Mc 1,7-11",
+  "es": "Bautismo del Senor: se rasgan los cielos sobre el Jordan",
+  "escena": "The Jordan at dawn. Jesus stands waist-deep in the water, head bowed, as John pours the river over him from a shell; above them the clouds are torn open and light pours down in a shaft, a dove descending within it. People on the bank shield their eyes."
+ },
+ "2027-01-17": {
+  "ev": "Jn 1,35-42",
+  "es": "Venid y vereis: Andres lleva a Simon ante Jesus, que lo llama Cefas",
+  "escena": "The doorway of a low house at the end of the day. Andrew brings his brother Simon by the arm to Jesus, who stands in the threshold light looking steadily at the fisherman. Simon has stopped short, caught by the gaze. John the Baptist's other disciple waits behind. Warm interior glow, cold blue dusk outside."
+ },
+ "2027-01-24": {
+  "ev": "Mc 1,14-20",
+  "es": "Llamada de los pescadores: dejan las redes y siguen a Jesus",
+  "escena": "The shore of the lake of Galilee at first light. Simon and Andrew have dropped their net half-cast in the shallows and wade out toward Jesus, who stands on the beach and calls them; further along, James and John rise from mending nets in their father's boat. Pale gold morning on the water."
+ },
+ "2027-01-31": {
+  "ev": "Mc 1,21-28",
+  "es": "En la sinagoga de Cafarnaun: ensena con autoridad y expulsa un espiritu",
+  "escena": "The interior of a small synagogue on the sabbath. Jesus stands teaching from the reader's place; a man has fallen convulsing in the aisle and cries out, others drawing back in alarm around him. Elders on the stone benches half-rise. Hard light from a high window on Jesus, the crowd in shadow."
+ },
+ "2027-02-07": {
+  "ev": "Mc 1,29-39",
+  "es": "Cura a la suegra de Pedro y al alba se retira a orar en descampado",
+  "escena": "Before dawn on a bare hillside above a sleeping town. Jesus kneels alone in prayer, wrapped in a mantle, his back to the viewer, facing the first grey line of light on the horizon. The town below is dark but for one or two lamps. Vast quiet sky, the smallest of figures in a great emptiness."
+ },
+ "2027-02-14": {
+  "ev": "Mc 1,12-15",
+  "es": "Cuarenta dias en el desierto, entre las fieras y servido por los angeles",
+  "escena": "A wilderness of cracked rock and scoured ridges at dusk. Jesus sits alone against a boulder, gaunt and still; wild animals watch from the shadows at a distance, and two angels stand quietly behind him, one offering bread. Long violet shadows, a thin band of gold on the horizon."
+ },
+ "2027-02-21": {
+  "ev": "Mc 9,2-10",
+  "es": "La Transfiguracion en el monte alto ante Pedro, Santiago y Juan",
+  "escena": "A high bare summit under a torn sky. Jesus stands transfigured, his garments blindingly white, Moses and Elijah conversing with him on either side; the three disciples have fallen back on the rock, shielding their faces from the light. The whole picture is lit from the figure of Christ himself."
+ },
+ "2027-02-28": {
+  "ev": "Jn 2,13-25",
+  "es": "Purificacion del templo: vuelca las mesas de los cambistas",
+  "escena": "The outer court of the temple in uproar at midday. Jesus drives the traders out with a cord of knotted rope; a money-changer's table crashes over, coins spilling across the flagstones, doves beating out of an upset cage, sheep scattering. Merchants scramble for the money. Harsh light, violent shadows."
+ },
+ "2027-03-07": {
+  "ev": "Jn 3,14-21",
+  "es": "Nicodemo de noche; como Moises elevo la serpiente en el desierto",
+  "escena": "A rooftop in Jerusalem at night. Jesus sits by a single lamp in his crimson tunic and blue mantle, speaking; facing him leans Nicodemo — an elderly Pharisee with a long white beard, a fringed prayer shawl over a striped robe and an embroidered head covering — listening intently, hands on his knees. Beyond the parapet the dark city and a sky of stars. Everything else swallowed in night."
+ },
+ "2027-03-14": {
+  "ev": "Jn 12,20-33",
+  "es": "Unos griegos quieren ver a Jesus; si el grano de trigo no muere",
+  "escena": "A courtyard by the temple in the afternoon. Two Greek visitors in foreign dress speak with Philip, who turns toward Andrew; beyond them Jesus stands apart in a shaft of light, his face already elsewhere, as if listening to something above. Turned earth and a few grains of wheat at the threshold."
+ },
+ "2027-03-21": {
+  "ev": "Mc 14,1—15,47",
+  "es": "Domingo de Ramos: la entrada en Jerusalen entre palmas y mantos",
+  "escena": "The road down the Mount of Olives, mid-morning, the city walls beyond. Jesus rides a young donkey through a crowd that spreads cloaks on the road and waves cut palm branches; children run alongside, people lean from the roadside. Bright clear light, dust in the air, the walls of Jerusalem gold in the distance."
+ },
+ "2027-03-28": {
+  "ev": "Jn 20,1-9",
+  "es": "Pascua: Pedro y Juan corren al sepulcro y encuentran los lienzos",
+  "escena": "The mouth of a rock tomb at first light, the great stone rolled aside. John has stopped at the entrance and Peter stoops to enter; inside, the linen cloths lie collapsed on the empty slab with the face-cloth rolled apart. Dawn floods in from behind them, throwing their shadows into the tomb."
+ },
+ "2027-04-04": {
+  "ev": "Jn 20,19-31",
+  "es": "Tomas toca las llagas estando cerradas las puertas",
+  "escena": "A shuttered upper room, doors barred, eight days after. Jesus stands among the disciples and draws back his robe; Thomas leans in, hand outstretched toward the wound in his side, his face breaking. The others crowd close in the lamplight, the barred door behind them in darkness."
+ },
+ "2027-04-11": {
+  "ev": "Lc 24,35-48",
+  "es": "Se aparece a los once y come pez asado delante de ellos",
+  "escena": "The upper room at night. Jesus stands in the middle of the startled disciples, holding out a piece of grilled fish he has just taken from an earthen plate, showing them his hands. Some have shrunk back, one reaches toward him. Embers and a lamp light the group from below."
+ },
+ "2027-04-18": {
+  "ev": "Jn 10,11-18",
+  "es": "El Buen Pastor da la vida por sus ovejas y el asalariado huye",
+  "escena": "A hillside sheepfold at dusk. The shepherd stands in the gap of the dry-stone wall with his staff across the opening, his flock gathered behind him; he faces out toward the darkening slope where something moves among the rocks. A hired man is already running away down the hill. Last red light on the horizon."
+ },
+ "2027-04-25": {
+  "ev": "Jn 15,1-8",
+  "es": "Yo soy la vid: el vinador poda los sarmientos",
+  "escena": "An old vineyard in the cool of the morning. A vinedresser works among gnarled vines, pruning knife in hand, cut canes falling at his feet while heavy clusters hang on the branches he has spared. Mist still lying between the rows, low sun breaking through from the right."
+ },
+ "2027-05-02": {
+  "ev": "Jn 15,9-17",
+  "es": "Ya no os llamo siervos sino amigos; permaneced en mi amor",
+  "escena": "A table under a fig tree at the close of a warm evening. Jesus sits among his friends after a meal, speaking quietly, one hand resting on the shoulder of the man beside him; the others lean in, faces open. Bread, fruit and cups on the cloth. Low golden light through the leaves."
+ },
+ "2027-05-09": {
+  "ev": "Mc 16,15-20",
+  "es": "La Ascension: id al mundo entero, y fue llevado al cielo",
+  "escena": "A bare summit under a sky opening into light. The disciples stand and kneel in a loose ring, faces turned up, hands raised or shielding their eyes as Jesus rises from among them into a burst of radiance. Clouds far below the ridge, the world spread out beyond."
+ },
+ "2027-05-16": {
+  "ev": "Jn 15,26-27;16,12-15",
+  "es": "Pentecostes: el Espiritu de la verdad desciende sobre los reunidos",
+  "escena": "A closed upper room filled with sudden light. The apostles and Mary are gathered, some standing, some fallen to their knees, small tongues of flame resting above their heads; wind stirs their robes and the shutters. The light comes from above and from the flames themselves."
+ },
+ "2027-05-23": {
+  "ev": "Mt 28,16-20",
+  "es": "Santisima Trinidad: bautizadlos en el nombre del Padre, del Hijo y del Espiritu",
+  "escena": "A mountain in Galilee at daybreak. The eleven stand before Jesus, some bowed in worship, one still hesitant at the edge; Jesus speaks with both arms opened wide, sending them out. Behind him the sky is a vast opening of gold and cloud. Wide horizon, small figures against immensity."
+ },
+ "2027-05-30": {
+  "ev": "Mc 14,12-16.22-26",
+  "es": "Corpus Christi: en el cenaculo parte el pan y da el caliz",
+  "escena": "The upper room by lamplight. Jesus stands at the head of the table breaking a round loaf, the chased cup before him; the disciples are still, watching his hands. White linen, clay dishes, cups of wine. Warm light concentrated on the bread and the cup, the room dark beyond."
+ },
+ "2027-06-06": {
+  "ev": "Mc 3,20-35",
+  "es": "Un reino dividido; su madre y sus hermanos lo buscan fuera",
+  "escena": "A crowded house in a village, a press of people inside around Jesus who is speaking to scribes who have come down from Jerusalem. Through the open door, seen from within, his mother and relatives wait outside in the sunlit street, unable to reach him. Interior dim and packed, doorway blazing with light."
+ },
+ "2027-06-13": {
+  "ev": "Mc 4,26-34",
+  "es": "La semilla que crece sola y el grano de mostaza",
+  "escena": "The edge of a field toward evening. A farmer stands with an empty seed-bag looking over a crop grown tall without his knowing; beside the field a great mustard shrub spreads its branches, birds settling in it for the night. Long low light, the whole field turned amber."
+ },
+ "2027-06-20": {
+  "ev": "Mc 4,35-41",
+  "es": "Calma la tempestad en el lago: quien es este, que hasta el viento le obedece?",
+  "escena": "A small boat on the lake in a black squall. Waves break over the gunwale, the sail torn loose, disciples clinging and bailing in terror; Jesus has just risen from the stern, one hand lifted, and the water immediately around the boat has gone glassy and still. The storm tears away to the left, a hole of light opening above."
+ },
+ "2027-06-27": {
+  "ev": "Mc 5,21-43",
+  "es": "Talita kum: levanta a la hija de Jairo y manda que le den de comer",
+  "escena": "A small dim room in Jairus's house. Jesus, in crimson and blue, stands by a low bed holding the hand of a girl who has just opened her eyes and is sitting up. Her father Jairus — a synagogue official in a fringed prayer shawl and embroidered cap, grey-bearded — has fallen to his knees, and her mother stares with both hands to her mouth. Peter, James and John crowd the doorway behind. A bowl of food waits on a stool. One shuttered window lets in a blade of daylight."
+ },
+ "2027-07-04": {
+  "ev": "Mc 6,1-6",
+  "es": "En Nazaret: no es este el carpintero? Y no podia hacer alli milagros",
+  "escena": "The synagogue of a small town, midday. Jesus stands after speaking; the seated townsfolk mutter among themselves, some turned away, one gesturing dismissively toward the door as if to say they know his family. Faces sceptical and closed. Flat hard light, no warmth in it."
+ },
+ "2027-07-11": {
+  "ev": "Mc 6,7-13",
+  "es": "Los envia de dos en dos con un baston y nada mas",
+  "escena": "A dusty crossroads outside a village at morning. Pairs of disciples set out along diverging roads, each man with a staff and sandals and nothing else, looking back once toward Jesus who stands at the junction watching them go. Empty travelling bags left behind on the wall. Clear early light, long roads."
+ },
+ "2027-07-18": {
+  "ev": "Mc 6,30-34",
+  "es": "Venid a descansar; pero al verlos sintio compasion, ovejas sin pastor",
+  "escena": "A boat drawing in to a lonely shore where a great crowd has already gathered and is waiting on the slope. Jesus stands in the bow looking at them, the weary disciples at the oars behind him. Late afternoon light across the water and the hillside of people."
+ },
+ "2027-07-25": {
+  "ev": "Jn 6,1-15",
+  "es": "Multiplicacion de los panes: un muchacho trae cinco panes y dos peces",
+  "escena": "A grassy hillside above the lake, thousands seated in groups on the grass. A boy holds out a small woven basket with five barley loaves and two fish; Andrew presents him to Jesus, who has already begun to give thanks over them. Disciples wait with empty baskets. Broad afternoon light over the crowd."
+ },
+ "2027-08-01": {
+  "ev": "Jn 6,24-35",
+  "es": "Yo soy el pan de vida; nuestros padres comieron el mana",
+  "escena": "The shore at Capernaum in the morning. The crowd that crossed the lake in boats presses around Jesus, some arguing, one pointing back over the water; Jesus answers standing among them, unmoved. Beached boats behind, the lake pale and flat. Even morning light, no drama in the sky."
+ },
+ "2027-08-08": {
+  "ev": "Jn 6,41-51",
+  "es": "Murmuran los judios: yo soy el pan bajado del cielo",
+  "escena": "Inside the synagogue at Capernaum, close and shadowed. Jesus speaks from the middle of the floor; around him men lean together muttering, one shaking his head, faces sceptical and hard. A shaft of dusty light falls between them but touches only him."
+ },
+ "2027-08-15": {
+  "ev": "Lc 1,39-56",
+  "es": "Asuncion: la Visitacion y el canto del Magnificat",
+  "escena": "A doorway in the hill country of Judah, morning. Mary and Elizabeth have met and hold each other by the forearms, Elizabeth older and heavy with child, exclaiming; Mary's face is lifted in the beginning of a song. Zechariah watches silent from the shadow of the house. Warm light on the two women, hills beyond."
+ },
+ "2027-08-22": {
+  "ev": "Jn 6,60-69",
+  "es": "Muchos se marchan; Senor, a quien iremos?",
+  "escena": "A road leaving a village at dusk. Many followers are walking away in ones and twos, backs turned, dwindling into the blue distance; Jesus stands with the twelve, and Peter has stepped forward to answer him. The light is going. The empty road behind is the largest thing in the picture."
+ },
+ "2027-08-29": {
+  "ev": "Mc 7,1-8.14-15.21-23",
+  "es": "La tradicion de los mayores: lo que sale de dentro es lo que mancha",
+  "escena": "A courtyard where a meal is set out. Pharisees and scribes stand pointing at the disciples eating with unwashed hands; stone jars for ritual washing line the wall behind them. Jesus turns from the table to answer, calling the crowd nearer. Midday light, sharp and unflattering."
+ },
+ "2027-09-05": {
+  "ev": "Mc 7,31-37",
+  "es": "Effeta: cura al sordomudo apartandolo de la gente",
+  "escena": "A stony place aside from the road in the Decapolis. Jesus has drawn a deaf man apart from the crowd and stands close, touching the man's ears, his own face lifted in a sigh toward the sky; the man's eyes are wide, on the edge of hearing. The crowd waits at a distance behind. Clear open light."
+ },
+ "2027-09-12": {
+  "ev": "Mc 8,27-35",
+  "es": "En Cesarea de Filipo: tu eres el Mesias; el que quiera seguirme, cargue con su cruz",
+  "escena": "The road below the great rock face of Caesarea Philippi, spring water welling at its foot. Jesus has turned to face the disciples on the walk; Peter answers him, the others gathered close, one already troubled. Ancient carved niches in the cliff above them. Cool light in the shadow of the rock."
+ },
+ "2027-09-19": {
+  "ev": "Mc 9,30-37",
+  "es": "Discutian quien era el mayor; pone a un nino en medio de ellos",
+  "escena": "A room in Capernaum. Jesus sits and has set a small child in the middle of the circle of disciples, an arm around the child's shoulders; the men look at their hands or at each other, caught out, having argued on the road about who was greatest. Warm plain lamplight."
+ },
+ "2027-09-26": {
+  "ev": "Mc 9,38-43.45.47-48",
+  "es": "El que no esta contra nosotros; mejor una piedra de molino al cuello",
+  "escena": "A path above deep water at evening. John speaks earnestly to Jesus, gesturing back toward someone in the distance; Jesus answers, and beside the path a great millstone stands propped at the edge of the drop. Dark still water far below. Heavy, low light."
+ },
+ "2027-10-03": {
+  "ev": "Mc 10,2-16",
+  "es": "Lo que Dios unio; y dejad que los ninos se acerquen a mi",
+  "escena": "The edge of a village where the road runs on to Judea. Mothers press forward holding small children toward Jesus while the disciples try to wave them back; Jesus is already reaching down to take one child up, indignant with his own men. Warm dusty afternoon light, the crowd close."
+ },
+ "2027-10-10": {
+  "ev": "Mc 10,17-30",
+  "es": "El joven rico se marcha triste porque tenia muchos bienes",
+  "escena": "A road out of a town at midday. A well-dressed young man walks away with his head down, heavy with grief, his rich cloak bright against the dust; Jesus watches him go, the disciples silent behind. The distance between the two figures is the subject. Hard white light, short shadows."
+ },
+ "2027-10-17": {
+  "ev": "Mc 10,35-45",
+  "es": "Santiago y Juan piden los primeros puestos; el mayor sera servidor",
+  "escena": "A halt on the road to Jerusalem, late afternoon. Two brothers have drawn Jesus aside and speak to him with eager expectation; the other ten look on from behind, plainly indignant, one already stepping forward to object. A basin and a folded towel lie among the baggage on the ground. Long slanting light."
+ },
+ "2027-10-24": {
+  "ev": "Mc 10,46-52",
+  "es": "Bartimeo arroja el manto, salta y recobra la vista en Jerico",
+  "escena": "The gate of Jericho in a crowd. A blind beggar has thrown off his cloak and sprung to his feet, groping forward as people make way; Jesus has stopped in the middle of the road and turned toward him, calling. The discarded cloak and stick lie in the dust behind. Bright, dusty, jostling light."
+ },
+ "2027-10-31": {
+  "ev": "Mc 12,28-34",
+  "es": "Un escriba pregunta cual es el primer mandamiento y responde bien",
+  "escena": "A quiet corner of the temple courts, late in the day. A scribe stands close before Jesus in genuine conversation, nodding as he weighs the answer; others have drifted off, no longer daring to ask. Low warm light along the stones, long shadows of the columns."
+ },
+ "2027-11-01": {
+  "ev": "Mt 5,1-12a",
+  "es": "Todos los Santos: la muchedumbre inmensa de toda nacion y lengua",
+  "escena": "An immense multitude in white robes with palm branches, standing rank upon rank and receding into radiant light; the nearest faces are individual and calm, the rest dissolve into gold. Light comes from beyond them, above. No architecture, no ground line, only figures and glory."
+ },
+ "2027-11-07": {
+  "ev": "Mc 12,38-44",
+  "es": "El obolo de la viuda: echo todo lo que tenia para vivir",
+  "escena": "The temple treasury. A poor widow in a worn shawl drops two tiny coins into the great bronze chest; rich men in fine robes wait their turn behind her with heavy purses. Jesus sits opposite with the disciples, watching her, and has just spoken. Cool light from high windows, the widow small and alone in it."
+ },
+ "2027-11-14": {
+  "ev": "Mc 13,24-32",
+  "es": "El sol se oscurecera; aprended de la higuera",
+  "escena": "A ridge above Jerusalem under a sky of ruin, the sun a dull red disc and stars falling. In the foreground a fig branch has put out tender green leaves; Jesus sits with the disciples on the stones, pointing to it while the heavens darken behind. Strange coppery light over everything."
+ },
+ "2027-11-21": {
+  "ev": "Jn 18,33-37",
+  "es": "Cristo Rey ante Pilato: mi reino no es de este mundo",
+  "escena": "The praetorium at night, bare and cold. Pilate — a clean-shaven Roman governor with short cropped grey hair, in a white toga with a purple border — sits half-turned on a curule chair, questioning. Jesus stands before him bound, upright and quiet, long dark hair and short beard, a soldier's purple cloak thrown over his crimson tunic and a crown of thorns on his head. Roman guards in helmets stand in shadow at the edges. One high lamp, everything else dark stone."
+ },
+ "2027-11-28": {
+  "ev": "Lc 21,25-28.34-36",
+  "es": "Adviento: levantad la cabeza, se acerca vuestra liberacion",
+  "escena": "A stone watchtower on a headland before dawn, the sea below in turmoil and the stars unsteady. A watchman stands at the parapet with his head lifted toward the first thin line of light on the horizon, cloak snapping in the wind. Vast dark sky, a single fragile promise of daybreak."
+ },
+ "2027-12-05": {
+  "ev": "Lc 3,1-6",
+  "es": "Preparad el camino del Senor; todo valle sera rellenado",
+  "escena": "A mountain road being made straight, morning. Labourers break stone and level a pass with mattocks and baskets, a cleared line of road running away toward the desert; John preaches from a rise at the roadside to those who have stopped to listen. Cold clear light, dust hanging over the work."
+ },
+ "2027-12-12": {
+  "ev": "Lc 3,10-18",
+  "es": "Que debemos hacer? El que tenga dos tunicas que las reparta",
+  "escena": "A crowd at the riverside pressing questions on John. A man is handing his spare tunic to a poorer one beside him; a tax collector and a soldier wait their turn to ask. John answers with a raised hand, a winnowing fork planted in the ground beside him. Bright even daylight, faces earnest."
+ },
+ "2027-12-19": {
+  "ev": "Lc 1,39-45",
+  "es": "La Visitacion: la criatura salto de gozo en el vientre de Isabel",
+  "escena": "A hill-country doorway at midday. Elizabeth has hurried out and taken Mary's hands, her face astonished and joyful, one hand pressed to her own side; Mary, young and travel-stained, looks up at her. Water jars set down by the step. Steep golden hills behind, hard bright light."
+ },
+ "2027-12-25": {
+  "ev": "Jn 1,1-18",
+  "es": "Natividad del Senor: los pastores hallan al Nino en el pesebre",
+  "escena": "A stable at night, the door open to a hillside where a single low star burns. Shepherds have come in and kneel or stand with their staffs, caps in hand, looking down at the newborn in the manger; Mary sits beside him, Joseph at the door. All light rises from the child."
+ },
+ "2027-12-26": {
+  "ev": "Lc 2,41-52",
+  "es": "Sagrada Familia: hallan al Nino en el templo entre los doctores",
+  "escena": "A hall of the temple. A boy of twelve sits among grey-bearded doctors of the law who lean toward him, one with a scroll half-forgotten in his lap, arguing and astonished; at the edge of the group Mary and Joseph have just arrived, exhausted from three days of searching. Tall light from a high window."
+ }
 }

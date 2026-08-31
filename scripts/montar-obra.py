@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r43
+  @version  v3.6.7r46
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -40,6 +40,12 @@ ENTREGA = {"desktop": (1536, 864), "mobile": (1024, 2276)}
 FONDO = (10, 13, 9)
 ORO = (150, 116, 52)
 WEBP_Q = 86
+
+# Cuanto se apaga la obra al pasarla a fondo. Es el unico numero estetico del
+# guion, asi que vive aqui arriba y no enterrado en monta(). Se probaron tres
+# niveles sobre la portada real -0.32, 0.46 y 0.60- y se eligio 0.55: por
+# debajo la obra casi desaparece, por encima vuelve a competir con la tarjeta.
+BRILLO = 0.55
 
 # Licencias que permiten el uso sin condiciones. CC0 es tan libre como el
 # dominio publico: el Met libera asi y algunas de sus copias son las mejores.
@@ -134,75 +140,52 @@ def cubre(im, w, h):
 
 
 def monta(obra, variante):
-    """La obra entera sobre un fondo hecho con ella misma, desenfocado.
+    """La obra fundida en la portada como atmosfera, no como protagonista.
 
-    ── POR QUE NO UN MARCO SOBRE CAMPO LISO ──────────────────────────────
+    ── LO QUE SE INTENTO ANTES Y POR QUE SE DESCARTO ─────────────────────
 
-    El primer montaje ponia la lamina con filete dorado sobre negro liso. Se
-    medio en produccion y no funcionaba, por dos razones:
+    Primero se monto la obra como lamina con filete dorado sobre campo oscuro,
+    y despues se toco el CSS de la portada para reservarle la mitad derecha.
+    Lo segundo funcionaba en la medida —texto y cuadro dejaban de pisarse a
+    todas las anchuras— pero rompia el diseno: la portada del cancionero es
+    una columna centrada, y desplazarla para hacer hueco a una imagen es
+    doblar la pagina para que quepa el adorno. Al reves de como debe ser.
 
-      1. La interfaz del cancionero esta CENTRADA, no a la izquierda: la
-         tarjeta liturgica ocupa del 28% al 72% del ancho. Reservar el tercio
-         izquierdo era reservar donde no hay texto.
-      2. La portada cambia de proporcion entre 1,2 y 4,0 segun la pantalla, y
-         el navegador recorta con `cover`. En pantallas anchas se comia el
-         filete de arriba y abajo; en estrechas, el cuadro se salia por la
-         derecha. Un borde duro solo se ve entero en una proporcion.
+    ── LO QUE SE HACE AHORA ──────────────────────────────────────────────
 
-    Con una tarjeta que ocupa el 44% central no cabe una lamina grande sin
-    solaparse. Asi que el cuadro va DETRAS, como en cualquier portada, y la
-    legibilidad la da el velo que el sitio ya aplica.
+    La obra pasa al fondo de verdad: llena el lienzo, muy apagada y algo
+    desaturada, con una vineta que funde los bordes contra el color de la
+    portada. Se lee como una veladura, no como un cuadro colgado. El texto
+    vuelve al centro, donde siempre estuvo, y no hay nada que esquivar.
 
-    Para no recortar la obra, el fondo se hace con ella misma: una copia muy
-    ampliada, desenfocada y oscurecida rellena el lienzo entero, y encima va
-    la obra COMPLETA, sin cortar. Cualquier recorte del navegador se come
-    fondo, nunca pintura, y a cualquier proporcion parece intencionado.
+    Que la obra se recorte aqui ya no importa: a esta intensidad no se mira
+    como pintura sino como textura. El respeto por la obra estaba en no
+    mutilarla cuando era protagonista; de fondo, la exigencia es otra.
     """
     W, H = ENTREGA[variante]
 
-    # Fondo: la propia obra, desbordada, desenfocada y apagada.
-    fondo = cubre(obra, W, H).filter(ImageFilter.GaussianBlur(max(W, H) // 26))
-    fondo = ImageEnhance.Brightness(fondo).enhance(0.30)
-    fondo = ImageEnhance.Color(fondo).enhance(0.55)
-    lienzo = Image.blend(Image.new("RGB", (W, H), FONDO), fondo, 0.82)
+    im = cubre(obra, W, H)
+    im = ImageEnhance.Color(im).enhance(0.62)        # algo desaturada
+    im = ImageEnhance.Contrast(im).enhance(0.86)     # sin negros duros
+    im = ImageEnhance.Brightness(im).enhance(BRILLO)
 
-    # La obra completa, dentro de la zona que sobrevive a cualquier recorte.
-    if variante == "desktop":
-        # Medido en produccion: la capa usa background-position 50% 0%, o sea
-        # el recorte vertical va anclado ARRIBA, no centrado. En una pantalla
-        # ancha solo se ve el 58% SUPERIOR de la imagen; en una estrecha, el
-        # 67% central del ancho. La obra se coloca dentro de esa interseccion
-        # -arriba y algo a la derecha- para verse entera en cualquier pantalla.
-        caja_w, caja_h = int(W * 0.38), int(H * 0.48)
-        centro_x = int(W * 0.64)
-    else:
-        caja_w, caja_h = int(W * 0.80), int(H * 0.30)
-        centro_x = W // 2
+    # Vineta: los bordes se funden con el fondo de la portada en vez de
+    # terminar en un canto recto contra el degradado liturgico.
+    m = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(m).ellipse(
+        [-int(W * 0.16), -int(H * 0.26), int(W * 1.16), int(H * 1.26)], fill=255)
+    m = m.filter(ImageFilter.GaussianBlur(min(W, H) // 7))
+    im = Image.composite(im, Image.new("RGB", (W, H), FONDO), m)
 
-    k = min(caja_w / float(obra.width), caja_h / float(obra.height))
-    ancho, alto = int(obra.width * k), int(obra.height * k)
-    obra = obra.resize((ancho, alto), Image.LANCZOS)
-
-    x = max(0, min(W - ancho, centro_x - ancho // 2))
-    y = int(H * 0.05) if variante == "desktop" else int(H * 0.06)
-
-    # Sombra suave que despega la obra del fondo, sin trazar un borde.
-    sombra = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(sombra).rectangle(
-        [x - 14, y - 14, x + ancho + 14, y + alto + 14], fill=190)
-    lienzo = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), lienzo,
-                             sombra.filter(ImageFilter.GaussianBlur(22)))
-
-    lienzo.paste(obra, (x, y))
-    ImageDraw.Draw(lienzo).rectangle(
-        [x - 1, y - 1, x + ancho, y + alto], outline=ORO, width=2)
-    return apaga_zona_texto(lienzo, variante)
+    # Y por ultimo el mismo mecanismo de siempre: si aun queda demasiada luz
+    # bajo el texto, se le pone el velo justo que falte.
+    return apaga_zona_texto(im, variante)
 
 
 # Franja que ocupa el texto de la portada, en fraccion del lienzo. Medida en
 # produccion: titulo, subtitulo, tarjeta liturgica y boton del salmo caen todos
 # entre el 25% y el 75% del ancho.
-ZONA_TEXTO = {"desktop": (0.24, 0.14, 0.76, 0.94),
+ZONA_TEXTO = {"desktop": (0.24, 0.12, 0.76, 0.95),
               "mobile":  (0.06, 0.30, 0.94, 0.92)}
 P90_OBJETIVO = 62
 VELO_MAX = 0.72
