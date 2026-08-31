@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r39
+  @version  v3.6.7r41
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -28,7 +28,7 @@ licencia CC BY-SA. Aqui solo se descarga lo ya decidido, y se COMPRUEBA la
 licencia antes de guardar nada: si no es libre, se aborta ese domingo.
 """
 import io, json, os, re, sys, urllib.parse, urllib.request
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMG = os.path.join(RAIZ, "img", "liturgico")
@@ -125,36 +125,72 @@ def ficha(titulo_archivo):
     }
 
 
-def monta(obra, variante):
-    """La obra entera dentro del lienzo, dejando libre la zona de la interfaz."""
-    W, H = ENTREGA[variante]
-    lienzo = Image.new("RGB", (W, H), FONDO)
+def cubre(im, w, h):
+    """Escala y recorta como object-fit: cover."""
+    k = max(w / float(im.width), h / float(im.height))
+    im = im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))), Image.LANCZOS)
+    return im.crop(((im.width - w) // 2, (im.height - h) // 2,
+                    (im.width - w) // 2 + w, (im.height - h) // 2 + h))
 
+
+def monta(obra, variante):
+    """La obra entera sobre un fondo hecho con ella misma, desenfocado.
+
+    ── POR QUE NO UN MARCO SOBRE CAMPO LISO ──────────────────────────────
+
+    El primer montaje ponia la lamina con filete dorado sobre negro liso. Se
+    medio en produccion y no funcionaba, por dos razones:
+
+      1. La interfaz del cancionero esta CENTRADA, no a la izquierda: la
+         tarjeta liturgica ocupa del 28% al 72% del ancho. Reservar el tercio
+         izquierdo era reservar donde no hay texto.
+      2. La portada cambia de proporcion entre 1,2 y 4,0 segun la pantalla, y
+         el navegador recorta con `cover`. En pantallas anchas se comia el
+         filete de arriba y abajo; en estrechas, el cuadro se salia por la
+         derecha. Un borde duro solo se ve entero en una proporcion.
+
+    Con una tarjeta que ocupa el 44% central no cabe una lamina grande sin
+    solaparse. Asi que el cuadro va DETRAS, como en cualquier portada, y la
+    legibilidad la da el velo que el sitio ya aplica.
+
+    Para no recortar la obra, el fondo se hace con ella misma: una copia muy
+    ampliada, desenfocada y oscurecida rellena el lienzo entero, y encima va
+    la obra COMPLETA, sin cortar. Cualquier recorte del navegador se come
+    fondo, nunca pintura, y a cualquier proporcion parece intencionado.
+    """
+    W, H = ENTREGA[variante]
+
+    # Fondo: la propia obra, desbordada, desenfocada y apagada.
+    fondo = cubre(obra, W, H).filter(ImageFilter.GaussianBlur(max(W, H) // 26))
+    fondo = ImageEnhance.Brightness(fondo).enhance(0.30)
+    fondo = ImageEnhance.Color(fondo).enhance(0.55)
+    lienzo = Image.blend(Image.new("RGB", (W, H), FONDO), fondo, 0.82)
+
+    # La obra completa, dentro de la zona que sobrevive a cualquier recorte.
     if variante == "desktop":
-        # A la derecha: el tercio izquierdo queda para la tarjeta.
-        # El alto manda en los cuadros verticales, que son la mayoria, asi que
-        # se apura hasta el 88%: con 80% quedaban visiblemente pequenos.
-        caja_w, caja_h = int(W * 0.62), int(H * 0.88)
+        # Medido contra los dos recortes extremos del navegador: en pantalla
+        # ancha solo sobrevive el 59% central del ALTO, y en estrecha el 67%
+        # central del ANCHO. La obra se dimensiona para caber dentro de esa
+        # interseccion, de modo que se ve ENTERA en cualquier pantalla.
+        caja_w, caja_h = int(W * 0.38), int(H * 0.58)
+        centro_x = int(W * 0.65)          # a la derecha del texto centrado
     else:
-        # Arriba: en vertical la tarjeta se apoya hacia el 44% de la altura.
-        caja_w, caja_h = int(W * 0.88), int(H * 0.40)
+        caja_w, caja_h = int(W * 0.80), int(H * 0.30)
+        centro_x = W // 2
 
     k = min(caja_w / float(obra.width), caja_h / float(obra.height))
     ancho, alto = int(obra.width * k), int(obra.height * k)
     obra = obra.resize((ancho, alto), Image.LANCZOS)
 
-    if variante == "desktop":
-        x = W - ancho - int(W * 0.055)
-        y = (H - alto) // 2
-    else:
-        x = (W - ancho) // 2
-        y = int(H * 0.05) + (int(H * 0.38) - alto) // 2
+    x = max(0, min(W - ancho, centro_x - ancho // 2))
+    y = (H - alto) // 2 if variante == "desktop" else int(H * 0.06)
 
-    # Halo difuso detras: separa la lamina del fondo sin dibujar un marco duro.
-    halo = Image.new("RGB", (W, H), FONDO)
-    ImageDraw.Draw(halo).rectangle(
-        [x - 30, y - 30, x + ancho + 30, y + alto + 30], fill=(30, 34, 26))
-    lienzo = Image.blend(lienzo, halo.filter(ImageFilter.GaussianBlur(30)), 0.85)
+    # Sombra suave que despega la obra del fondo, sin trazar un borde.
+    sombra = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(sombra).rectangle(
+        [x - 14, y - 14, x + ancho + 14, y + alto + 14], fill=190)
+    lienzo = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), lienzo,
+                             sombra.filter(ImageFilter.GaussianBlur(22)))
 
     lienzo.paste(obra, (x, y))
     ImageDraw.Draw(lienzo).rectangle(
