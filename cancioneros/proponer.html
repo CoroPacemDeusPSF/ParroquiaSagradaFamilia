@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<!--
+  ────────────────────────────────────────────────────────────────────────────
+  Coro Pacem Deus — Parroquia Sagrada Familia
+  ────────────────────────────────────────────────────────────────────────────
+
+    @file       cancioneros/proponer.html
+    @brief      PROTOTIPO navegable del formulario "Proponer un canto" (sin
+                backend: no guarda nada, no toca Firebase). Se publica en
+                producción para revisarlo y depurarlo en la nube. La versión
+                definitiva compartirá el bundle CSS y los módulos del
+                cancionero; este archivo es autónomo a propósito.
+    @author     Renzo Núñez Berdejo
+    @project    Cancionero Dominical
+    @version    prototipo v0.2 (5-sep-2026): escritorio primero, inserción
+                entre bloques, reordenar arrastrando.
+
+  ────────────────────────────────────────────────────────────────────────────
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Proponer un canto – Coro Pacem Deus</title>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   Prototipo "Proponer un canto" — Coro Pacem Deus
+   Sistema visual del Cancionero Dominical: verde profundo + crema + dorado
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0E1A0C; --bg-top:#16261A;
+  --card:#FBF6EA; --card-border:rgba(200,148,60,0.18);
+  --cream-1:#FBF6E8; --cream-2:#F5EBD3; --line:#C8A36A;
+  --gold:#C8943C; --gold-deep:#B08030; --gold-bright:#D4A04A;
+  --gold-06:rgba(200,148,60,0.06); --gold-10:rgba(200,148,60,0.10);
+  --gold-14:rgba(200,148,60,0.14); --gold-18:rgba(200,148,60,0.18);
+  --gold-35:rgba(200,148,60,0.35); --gold-55:rgba(200,148,60,0.55);
+  --ink:#2A2620; --ink-2:#3D3530; --ink-soft:#5A5040; --ink-muted:#7A6E60;
+  --brown:#6B4226; --brown-soft:#7A5C3E;
+  --on-dark:#F5F0DC; --on-dark-soft:rgba(255,255,255,0.78); --bar-text:#A8C878;
+  --ok:#5C7A3A; --warn:#B45309; --bad:#A23B2E;
+  --rose:#E8C4BC; --rose-deep:#B88A82;
+  --field:#FFFCF4;
+  --f-display:'Cinzel',serif;
+  --f-elegant:'Cormorant Garamond',serif;
+  --f-class:'EB Garamond',serif;
+  --f-mono:ui-monospace,'Cascadia Mono',Consolas,monospace;
+  --dur:0.22s;
+  --shadow-card:0 4px 40px rgba(0,0,0,0.5);
+}
+@media (prefers-reduced-motion: reduce){
+  :root{ --dur:0.01ms; }
+  *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:#0E1A0C;
+  background-image:radial-gradient(ellipse 110% 55% at 50% 0%, #16261A 0%, #0E1A0C 72%);
+  background-attachment:fixed;
+  color:var(--on-dark);
+  font-family:var(--f-elegant);
+  font-size:16px;
+  line-height:1.5;
+  overflow-x:clip;
+  padding-bottom:5.5rem;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4{ margin:0; text-wrap:balance; font-weight:400; }
+p{ margin:0; }
+button{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--gold-deep); outline-offset:2px; border-radius:3px; }
+.on-dark :focus-visible,.pb-bar :focus-visible,.pb-ribbon :focus-visible,.pb-head :focus-visible,.pb-stepper :focus-visible{ outline-color:var(--gold-bright); }
+.sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* ── Columna ───────────────────────────────────────────────────────────── */
+/* Pensado para escritorio: 1180 px de columna de trabajo (referencia 1440×900).
+   Los pasos 1 y 5 usan una sub-columna centrada más estrecha. */
+.wrap{ max-width:1180px; margin:0 auto; padding:0 1.5rem; }
+.narrow{ max-width:760px; margin:0 auto; }
+.narrow-plus{ max-width:920px; margin:0 auto; }
+@media (max-width:760px){ .wrap{ padding:0 1rem; } }
+
+/* ═══ BARRA SUPERIOR ═══════════════════════════════════════════════════ */
+.pb-bar{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:.8rem;
+  padding:.6rem 1rem;
+  background:rgba(30,42,20,0.96);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(120,160,70,0.20);
+  font-family:var(--f-display);
+}
+.pb-bar::after{ content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px; background:var(--warn); }
+.pb-home{
+  display:flex; align-items:center; gap:.4rem;
+  color:var(--bar-text); text-decoration:none;
+  font-size:.68rem; letter-spacing:.22em; text-transform:uppercase;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+}
+.pb-spacer{ flex:1 1 auto; }
+.pb-chip{
+  display:inline-flex; align-items:center; gap:.4rem;
+  min-height:1.75rem; padding:.1rem .6rem .1rem .45rem;
+  background:none; border:1px solid rgba(232,192,112,0.55); border-radius:999px;
+  color:#E8C070; cursor:default; white-space:nowrap;
+  box-shadow:0 0 0 2px var(--warn);
+}
+.pb-chip svg{ width:.9rem; height:.9rem; display:block; flex-shrink:0; }
+.pb-chip-txt{ display:flex; flex-direction:column; align-items:flex-start; line-height:1.15; }
+.pb-chip-l{ font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; }
+.pb-chip-s{ font-family:var(--f-elegant); font-style:italic; font-size:.75rem; letter-spacing:0; text-transform:none; opacity:.85; }
+.pb-dot{ width:.4rem; height:.4rem; border-radius:50%; background:var(--gold); box-shadow:0 0 0 .2rem rgba(200,148,60,0.25); flex-shrink:0; }
+.pb-acc{ display:flex; align-items:center; gap:.45rem; }
+.pb-av{
+  width:1.75rem; height:1.75rem; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(160deg,#D4A04A,#B08030); color:#2A2620;
+  font-size:.68rem; letter-spacing:.04em; font-weight:600;
+}
+.pb-mail{ font-family:var(--f-elegant); font-size:.85rem; color:rgba(245,240,220,.6); white-space:nowrap; }
+@media (max-width:700px){
+  .pb-bar{ gap:.5rem; padding:.55rem .8rem; }
+  .pb-mail{ display:none; }
+  .pb-home{ font-size:.6rem; letter-spacing:.16em; }
+}
+@media (max-width:400px){ .pb-chip-s{ display:none; } }
+
+/* ═══ CINTA DE PROTOTIPO ═══════════════════════════════════════════════ */
+.pb-ribbon{
+  background:rgba(20,32,16,0.55);
+  border-bottom:1px solid var(--gold-18);
+}
+.pb-ribbon-in{
+  max-width:1180px; margin:0 auto; padding:.5rem 1.5rem;
+  display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
+}
+@media (max-width:760px){ .pb-ribbon-in{ padding:.5rem 1rem; } }
+.pb-ribbon-t{ font-family:var(--f-elegant); font-style:italic; font-size:.88rem; color:rgba(245,240,220,.55); flex:1 1 auto; min-width:0; }
+.pb-seg{ display:inline-flex; border:1px solid var(--gold-35); border-radius:999px; padding:2px; background:rgba(0,0,0,.2); flex-shrink:0; }
+.pb-seg button{
+  font-family:var(--f-display); font-size:.56rem; letter-spacing:.16em; text-transform:uppercase;
+  padding:.35rem .8rem; border:0; border-radius:999px; background:none; color:rgba(245,240,220,.6);
+  cursor:pointer; transition:background var(--dur) ease,color var(--dur) ease;
+}
+.pb-seg button[aria-pressed="true"]{ background:linear-gradient(160deg,var(--gold-bright),var(--gold)); color:#241C0C; }
+
+/* ═══ CABECERA DE PÁGINA ═══════════════════════════════════════════════ */
+.pb-head{ padding:1.8rem 0 .2rem; }
+.eyebrow{ font-family:var(--f-display); font-size:.6rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); opacity:.85; }
+.pb-head h1{ font-family:var(--f-elegant); font-size:2rem; line-height:1.15; color:var(--on-dark); margin:.35rem 0 .5rem; }
+.pb-head .lead{ font-family:var(--f-elegant); font-size:1.02rem; color:var(--on-dark-soft); max-width:44ch; }
+
+/* ═══ STEPPER ══════════════════════════════════════════════════════════ */
+.pb-stepper{ padding:1.4rem 0 1.1rem; }
+.stp{ display:flex; align-items:flex-start; }
+.stp-item{ flex:1 1 0; display:flex; flex-direction:column; align-items:center; gap:.4rem; position:relative; background:none; border:0; padding:0; cursor:default; }
+.stp-item.can{ cursor:pointer; }
+.stp-item::before,.stp-item::after{
+  content:''; position:absolute; top:.85rem; height:1px; background:var(--gold-35);
+}
+.stp-item::before{ left:0; right:50%; margin-right:.95rem; }
+.stp-item::after{ left:50%; right:0; margin-left:.95rem; }
+.stp-item:first-child::before,.stp-item:last-child::after{ display:none; }
+.stp-item.done::after,.stp-item.done::before,.stp-item.cur::before{ background:var(--gold); }
+.stp-node{
+  width:1.7rem; height:1.7rem; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--gold-55); color:rgba(245,240,220,.65);
+  font-family:var(--f-display); font-size:.68rem; background:rgba(14,26,12,.9);
+  transition:background var(--dur) ease,color var(--dur) ease,transform var(--dur) ease;
+}
+.stp-item.done .stp-node{ background:var(--gold-14); border-color:var(--gold); color:var(--gold-bright); }
+.stp-item.cur .stp-node{ background:linear-gradient(160deg,var(--gold-bright),var(--gold)); border-color:var(--gold-bright); color:#241C0C; transform:scale(1.12); }
+.stp-node svg{ width:.85rem; height:.85rem; }
+.stp-lbl{ font-family:var(--f-display); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(245,240,220,.5); text-align:center; transition:color var(--dur) ease; }
+.stp-item.cur .stp-lbl{ color:var(--gold-bright); }
+.stp-item.can:hover .stp-node{ border-color:var(--gold-bright); color:var(--gold-bright); }
+.stp-item.can:hover .stp-lbl{ color:var(--on-dark); }
+.stp-item.cur.can:hover .stp-node{ color:#241C0C; }
+.stp-now{ display:none; font-family:var(--f-elegant); font-style:italic; font-size:.92rem; color:var(--on-dark-soft); text-align:center; margin-top:.7rem; }
+@media (min-width:1000px){
+  .stp-lbl{ font-size:.62rem; letter-spacing:.16em; }
+  .stp-node{ width:1.85rem; height:1.85rem; font-size:.72rem; }
+  .stp-item::before,.stp-item::after{ top:.92rem; }
+}
+@media (max-width:559px){
+  .stp-lbl{ display:none; }
+  .stp-now{ display:block; }
+  .stp-node{ width:1.35rem; height:1.35rem; font-size:.6rem; }
+  .stp-item::before,.stp-item::after{ top:.67rem; }
+  .stp-item::before{ margin-right:.8rem; } .stp-item::after{ margin-left:.8rem; }
+}
+
+/* ═══ AYUDA DE ATAJOS ══════════════════════════════════════════════════ */
+.kb{ display:none; justify-content:flex-end; margin:-.5rem 0 .9rem; }
+@media (min-width:1000px){ .kb{ display:flex; } }
+.kb details{ max-width:26rem; }
+.kb summary{
+  list-style:none; cursor:pointer; text-align:right;
+  font-family:var(--f-display); font-size:.55rem; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(245,240,220,.42); transition:color var(--dur) ease;
+}
+.kb summary::-webkit-details-marker{ display:none; }
+.kb summary:hover{ color:var(--gold-bright); }
+.kb-body{
+  margin-top:.5rem; display:grid; gap:.32rem;
+  background:rgba(20,32,16,.6); border:1px solid var(--gold-18); border-radius:5px; padding:.65rem .85rem;
+}
+.kb-row{ display:flex; align-items:center; justify-content:flex-end; gap:.6rem;
+  font-family:var(--f-elegant); font-size:.93rem; color:rgba(245,240,220,.68); }
+.kb-row kbd{
+  font-family:var(--f-mono); font-size:.7rem; letter-spacing:.02em; white-space:nowrap;
+  background:rgba(200,148,60,.14); border:1px solid var(--gold-35); border-radius:3px;
+  padding:.12rem .4rem; color:var(--gold-bright);
+}
+
+/* ═══ FICHA ════════════════════════════════════════════════════════════ */
+.card{
+  position:relative; background:var(--card); border:1px solid var(--card-border);
+  border-radius:6px; box-shadow:var(--shadow-card);
+  padding:1.5rem 1.5rem 1.6rem 1.6rem; color:var(--ink-2);
+}
+.card::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:6px 0 0 6px; background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep)); }
+@media (max-width:559px){ .card{ padding:1.2rem 1.05rem 1.3rem 1.15rem; } }
+
+/* ── Banco de trabajo de dos columnas (pasos 2, 3 y 4) ────────────────── */
+.wk{ display:grid; gap:1.5rem; }
+.wk-side{ min-width:0; }
+.wk-main{ min-width:0; }
+.side-in{ min-width:0; }
+.side-t{ display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
+.side-t .lbl{ margin:0; }
+.side-t::after{ content:''; flex:1; height:1px; background:var(--gold-18); }
+@media (min-width:1000px){
+  .wk{ grid-template-columns:minmax(0,60fr) minmax(0,40fr); gap:1.75rem; align-items:stretch; }
+  .wk-side{ border-left:1px solid var(--gold-18); padding-left:1.6rem; }
+  .side-in{
+    position:sticky; top:4.2rem;
+    max-height:calc(100vh - 10rem); overflow:auto; overscroll-behavior:contain;
+    padding-right:.4rem;
+  }
+  .side-in::-webkit-scrollbar{ width:8px; }
+  .side-in::-webkit-scrollbar-thumb{ background:var(--gold-35); border-radius:8px; }
+  .side-in::-webkit-scrollbar-track{ background:transparent; }
+}
+.card-h{ font-family:var(--f-display); font-size:.95rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brown); }
+.card-sub{ font-family:var(--f-elegant); font-style:italic; font-size:1rem; color:var(--ink-muted); margin-top:.3rem; }
+.rule{ height:1px; background:var(--gold-18); margin:1.2rem 0; }
+
+/* ── Campos ────────────────────────────────────────────────────────────── */
+.fld{ margin-top:1.25rem; }
+.fld:first-of-type{ margin-top:1.1rem; }
+.lbl{ display:block; font-family:var(--f-display); font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:#8B6F47; margin-bottom:.4rem; }
+.hint{ font-family:var(--f-elegant); font-style:italic; font-size:.95rem; color:var(--ink-muted); margin-top:.35rem; }
+input[type=text],input[type=number],textarea,select{
+  width:100%; font-family:var(--f-class); font-size:1.05rem; color:var(--ink);
+  background:var(--field); border:1px solid var(--gold-35); border-radius:4px;
+  padding:.5rem .65rem; transition:border-color var(--dur) ease,box-shadow var(--dur) ease;
+}
+select{ font-family:var(--f-display); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; padding:.55rem .5rem; }
+textarea{ line-height:1.7; resize:vertical; }
+input:focus,textarea:focus,select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-18); }
+.row{ display:grid; gap:.7rem; }
+@media (min-width:560px){ .row.two{ grid-template-columns:2fr 1fr; } .row.half{ grid-template-columns:1fr 1fr; } }
+
+/* ── Chips y tiles ─────────────────────────────────────────────────────── */
+.chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
+.chip{
+  font-family:var(--f-display); font-size:.56rem; letter-spacing:.12em; text-transform:uppercase;
+  padding:.4rem .75rem; border:1px solid var(--gold-35); border-radius:999px;
+  background:rgba(255,255,255,.55); color:var(--brown-soft); cursor:pointer;
+  transition:background var(--dur) ease,border-color var(--dur) ease,color var(--dur) ease;
+}
+.chip:hover{ border-color:var(--gold); background:var(--gold-10); }
+.chip[aria-pressed="true"],.chip.on{ background:var(--gold-14); border-color:var(--gold); color:var(--brown); box-shadow:inset 0 0 0 1px var(--gold-35); }
+.chip.rose[aria-pressed="true"]{ background:rgba(232,196,188,.35); border-color:var(--rose-deep); color:#7A4A44; box-shadow:none; }
+.chip.mini{ font-size:.52rem; padding:.3rem .6rem; }
+.chip.fixed{ background:var(--gold-14); border-color:var(--gold); color:var(--brown); cursor:default; opacity:.9; }
+
+.mgrid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.4rem; }
+@media (min-width:560px){ .mgrid{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+.mchip{
+  font-family:var(--f-display); font-size:.56rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.6rem .5rem; border:1px solid var(--gold-35); border-radius:4px;
+  background:rgba(255,255,255,.55); color:var(--brown-soft); cursor:pointer; text-align:center;
+  line-height:1.3; transition:background var(--dur) ease,border-color var(--dur) ease;
+}
+.mchip:hover{ border-color:var(--gold); background:var(--gold-10); }
+.mchip[aria-pressed="true"]{ background:var(--gold-14); border-color:var(--gold-deep); color:var(--brown); box-shadow:inset 3px 0 0 var(--gold-deep); }
+.grp-eyebrow{ font-family:var(--f-display); font-size:.55rem; letter-spacing:.24em; text-transform:uppercase; color:var(--gold-deep); margin:1rem 0 .45rem; display:flex; align-items:center; gap:.5rem; }
+.grp-eyebrow::after{ content:''; flex:1; height:1px; background:var(--gold-18); }
+.grp-eyebrow.rose{ color:var(--rose-deep); }
+.grp-eyebrow.rose::after{ background:rgba(184,138,130,.3); }
+
+.tiles{ display:grid; gap:.55rem; }
+@media (min-width:560px){ .tiles.two{ grid-template-columns:1fr 1fr; } }
+.tile{
+  text-align:left; padding:.8rem .9rem; border:1px solid var(--gold-35); border-radius:5px;
+  background:rgba(255,255,255,.55); cursor:pointer; display:block; width:100%;
+  transition:background var(--dur) ease,border-color var(--dur) ease,box-shadow var(--dur) ease;
+}
+.tile:hover{ border-color:var(--gold); background:var(--gold-10); box-shadow:0 2px 14px rgba(90,70,25,.10); }
+.tile[aria-pressed="true"]{ background:var(--gold-14); border-color:var(--gold-deep); box-shadow:inset 3px 0 0 var(--gold-deep); }
+.tile-t{ display:flex; align-items:center; gap:.4rem; font-family:var(--f-display); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brown); }
+.tile-t svg{ width:.85rem; height:.85rem; opacity:0; color:var(--gold-deep); }
+.tile[aria-pressed="true"] .tile-t svg{ opacity:1; }
+.tile-d{ display:block; font-family:var(--f-elegant); font-style:italic; font-size:.92rem; line-height:1.3; color:var(--brown-soft); margin-top:.2rem; }
+
+/* ── Botones ───────────────────────────────────────────────────────────── */
+.btn{
+  font-family:var(--f-display); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
+  padding:.55rem 1.05rem; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center;
+  gap:.4rem; border:1px solid transparent; transition:background var(--dur) ease,border-color var(--dur) ease,opacity var(--dur) ease;
+}
+.btn svg{ width:.85rem; height:.85rem; flex-shrink:0; }
+.btn-gold{ background:linear-gradient(160deg,var(--gold-bright),var(--gold)); border-color:var(--gold-deep); color:#2A2005; }
+.btn-gold:hover{ background:var(--gold-deep); color:#FFFDF7; }
+.btn-line{ background:rgba(255,255,255,.5); border-color:var(--gold-55); color:var(--brown); }
+.btn-line:hover{ background:var(--gold-10); border-color:var(--gold-deep); }
+.btn-sage{ background:var(--ok); border-color:#4A6630; color:#F5F0DC; }
+.btn-sage:hover{ background:#4A6630; }
+.btn-ghost{ background:none; border-color:transparent; color:var(--brown-soft); padding:.35rem .5rem; }
+.btn-ghost:hover{ background:var(--gold-10); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; }
+.btn-sm{ font-size:.55rem; padding:.4rem .75rem; }
+.iconbtn{
+  width:1.85rem; height:1.85rem; border:1px solid var(--gold-35); border-radius:4px;
+  background:rgba(255,255,255,.6); color:var(--brown-soft); cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; padding:0;
+  transition:background var(--dur) ease,border-color var(--dur) ease,color var(--dur) ease;
+}
+.iconbtn svg{ width:.9rem; height:.9rem; }
+.iconbtn:hover{ border-color:var(--gold); background:var(--gold-10); color:var(--brown); }
+.iconbtn.danger:hover{ border-color:var(--bad); color:var(--bad); background:rgba(162,59,46,.08); }
+.iconbtn:disabled{ opacity:.3; cursor:not-allowed; }
+
+/* ── Avisos ────────────────────────────────────────────────────────────── */
+.note{ display:flex; gap:.55rem; padding:.7rem .85rem; border-radius:4px; font-family:var(--f-elegant); font-size:.97rem; line-height:1.4; margin-top:.55rem; }
+.note svg{ width:1rem; height:1rem; flex-shrink:0; margin-top:.15rem; }
+.note-warn{ background:rgba(180,83,9,.09); border-left:3px solid var(--warn); color:#7A4008; }
+.note-ok{ background:rgba(92,122,58,.10); border-left:3px solid var(--ok); color:#3E5426; }
+.note-bad{ background:rgba(162,59,46,.09); border-left:3px solid var(--bad); color:#7A2C22; }
+.note-info{ background:var(--gold-06); border-left:3px solid var(--gold); color:var(--brown-soft); }
+.note b{ font-weight:600; }
+.note .btn{ margin-top:.45rem; }
+
+/* ── Filas de YouTube ──────────────────────────────────────────────────── */
+.ytrow{ display:grid; grid-template-columns:minmax(0,1fr) 5.5rem auto; gap:.45rem; align-items:center; margin-bottom:.45rem; }
+.ytnorm{ grid-column:1/-1; font-family:var(--f-mono); font-size:.72rem; color:var(--ink-muted); word-break:break-all; padding-left:.15rem; }
+@media (max-width:479px){ .ytrow{ grid-template-columns:minmax(0,1fr) 4.6rem auto; } }
+
+/* ═══ PASO 2 — BLOQUES DE LETRA ════════════════════════════════════════ */
+.tools{ display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; padding:.5rem .6rem; background:var(--gold-06); border:1px solid var(--gold-18); border-radius:4px; margin-bottom:.6rem; }
+.tools .sep{ width:1px; align-self:stretch; background:var(--gold-35); margin:0 .2rem; }
+.blk{ border:1px solid var(--gold-35); border-radius:5px; background:rgba(255,255,255,.5); margin-bottom:.7rem; overflow:clip; transition:border-color var(--dur) ease,box-shadow var(--dur) ease; }
+.blk:hover{ border-color:var(--gold-55); box-shadow:0 2px 14px rgba(90,70,25,.10); }
+.blk:focus-within{ border-color:var(--gold); box-shadow:0 2px 14px rgba(90,70,25,.12); }
+.blk-h{ display:flex; align-items:center; gap:.4rem; padding:.45rem .5rem .45rem .45rem; background:var(--gold-06); border-bottom:1px solid var(--gold-18); flex-wrap:wrap; }
+.blk-t{ font-family:var(--f-display); font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brown); flex:1 1 auto; min-width:5rem; }
+
+/* ── Lista de bloques, insertador y arrastre ──────────────────────────── */
+#blocklist{ position:relative; }
+#blocklist > .blk{ margin-bottom:0; }
+.ins{ position:relative; height:1.7rem; display:flex; align-items:center; justify-content:center; gap:.3rem; }
+.ins::before{
+  content:''; position:absolute; left:0; right:0; top:50%; height:1px;
+  background:var(--gold-18); transition:background var(--dur) ease;
+}
+.ins:hover::before,.ins.open::before,.ins:focus-within::before{ background:var(--gold-55); }
+.ins-btn{
+  position:relative; width:1.45rem; height:1.45rem; padding:0; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--gold-35); background:var(--card); color:var(--gold-deep);
+  cursor:pointer; opacity:.32;
+  transition:opacity var(--dur) ease,background var(--dur) ease,border-color var(--dur) ease,transform var(--dur) ease;
+}
+.ins:hover .ins-btn,.ins.open .ins-btn,.ins-btn:focus-visible{
+  opacity:1; border-color:var(--gold); background:var(--gold-14); color:var(--brown); transform:scale(1.12);
+}
+.ins.open .ins-btn{ transform:scale(1.12) rotate(45deg); }
+.ins-btn svg{ width:.78rem; height:.78rem; }
+.ins-menu{ position:relative; display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; justify-content:center; background:var(--card); padding:0 .35rem; }
+.ins.open{ height:auto; padding:.35rem 0; }
+.blk-drag{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:1.35rem; height:1.6rem; padding:0; border:0; background:none;
+  color:var(--ink-muted); opacity:.5; cursor:grab; touch-action:none; flex-shrink:0;
+  transition:opacity var(--dur) ease,color var(--dur) ease;
+}
+.blk-drag:hover{ opacity:1; color:var(--brown); }
+.blk-drag:active{ cursor:grabbing; }
+.blk-drag svg{ width:1rem; height:1rem; display:block; pointer-events:none; }
+.blk.dragging{
+  position:fixed; z-index:150; margin:0; pointer-events:none;
+  opacity:.9; transform:scale(1.01); transform-origin:center;
+  border-color:var(--gold); background:var(--cream-1);
+  box-shadow:0 14px 38px rgba(0,0,0,.32);
+}
+.blk-spacer{ border:1px dashed var(--gold-35); border-radius:5px; background:var(--gold-06); }
+.drop-ind{
+  position:absolute; left:0; right:0; height:3px; margin-top:-1.5px; border-radius:3px;
+  background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright),var(--gold-deep));
+  box-shadow:0 0 0 3px rgba(200,148,60,.16); pointer-events:none; z-index:5;
+}
+.drop-ind::before,.drop-ind::after{
+  content:''; position:absolute; top:50%; width:.5rem; height:.5rem; margin-top:-.25rem;
+  border-radius:50%; background:var(--gold-deep);
+}
+.drop-ind::before{ left:-.15rem; } .drop-ind::after{ right:-.15rem; }
+body.dragging{ cursor:grabbing; user-select:none; -webkit-user-select:none; }
+body.dragging .ins{ visibility:hidden; }
+.blk.settled{ animation:settle .3s ease; }
+@keyframes settle{ from{ background:var(--gold-14); box-shadow:0 0 0 2px var(--gold-35);} to{ background:rgba(255,255,255,.5); box-shadow:none;} }
+.blk-acts{ display:flex; gap:.25rem; flex-shrink:0; }
+.blk-body{ padding:.6rem .7rem .7rem; }
+.blk-body textarea{ border:0; background:transparent; padding:.15rem 0; font-size:1.05rem; }
+.blk-body textarea:focus{ box-shadow:none; }
+.blk .chips{ padding:.5rem .7rem 0; }
+.blk.nota .blk-body textarea{ font-family:var(--f-elegant); font-style:italic; font-size:.98rem; }
+
+/* Panel de revisión */
+.rev-panel{ border:1px solid var(--gold-35); border-radius:5px; background:rgba(255,255,255,.55); overflow:clip; }
+.rev-head{ width:100%; display:flex; align-items:center; gap:.5rem; padding:.55rem .7rem; background:var(--gold-06); border:0; border-bottom:1px solid var(--gold-18); cursor:pointer; text-align:left; }
+.rev-head .lbl{ margin:0; flex:1; }
+.rev-head .cnt{ font-family:var(--f-display); font-size:.55rem; letter-spacing:.08em; color:#FFFDF7; background:var(--warn); border-radius:999px; padding:.1rem .45rem; }
+.rev-head .cnt.zero{ background:var(--ok); }
+.rev-head .caret{ width:.8rem; height:.8rem; color:var(--brown-soft); transition:transform var(--dur) ease; }
+.rev-panel.closed .caret{ transform:rotate(-90deg); }
+.rev-panel.closed .rev-body{ display:none; }
+.rev-body{ padding:.65rem .7rem .8rem; }
+.rev-head:hover{ background:var(--gold-10); }
+.side-in .rev-panel{ margin-top:1.1rem; }
+.chk{ display:flex; gap:.5rem; align-items:flex-start; padding:.4rem 0; border-bottom:1px dotted var(--gold-18); }
+.chk:last-child{ border-bottom:0; }
+.chk svg{ width:.95rem; height:.95rem; flex-shrink:0; margin-top:.15rem; }
+.chk-ok svg{ color:var(--ok); } .chk-warn svg{ color:var(--warn); } .chk-bad svg{ color:var(--bad); }
+.chk-txt{ font-family:var(--f-elegant); font-size:.94rem; line-height:1.35; color:var(--ink-soft); }
+.chk-txt b{ color:var(--ink); font-weight:600; }
+.sug{ border-left:2px solid var(--warn); background:rgba(180,83,9,.07); border-radius:0 3px 3px 0; padding:.45rem .55rem; margin-top:.4rem; }
+.sug-t{ font-family:var(--f-elegant); font-size:.92rem; color:#7A4008; line-height:1.35; }
+.sug-a{ display:flex; gap:.35rem; margin-top:.35rem; }
+
+/* ── Vista previa de letra ─────────────────────────────────────────────── */
+.prev-wrap{ margin-top:1.2rem; }
+.side-in > .prev-wrap:first-child{ margin-top:0; }
+.prev-box{ background:#FFFFFF; border:1px solid var(--gold-18); border-radius:4px; padding:1.1rem 1.2rem; }
+.strophe{ margin-bottom:1rem; }
+.strophe p{ font-family:var(--f-class); font-size:1.05rem; line-height:1.85; color:var(--ink); }
+.chorus{ padding:.8rem 1.1rem; margin:.9rem 0; border-left:3px solid var(--gold-55); background:var(--gold-06); border-radius:0 3px 3px 0; }
+.chorus p{ font-family:var(--f-class); font-style:italic; font-size:1.05rem; line-height:1.85; color:var(--ink-2); }
+.bridge{ padding:.6rem 1.1rem; margin:.9rem 0; border-left:2px dashed var(--gold-55); }
+.bridge p{ font-family:var(--f-class); font-size:1.05rem; line-height:1.85; color:var(--ink-2); }
+.songnote{ font-family:var(--f-display); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-deep); opacity:.9; margin:.5rem 0 .9rem; }
+.ornament{ text-align:center; font-size:.9rem; letter-spacing:.6em; color:var(--gold); opacity:.45; margin-top:1.2rem; }
+.instr{ text-align:center; padding:2rem 1rem 1.4rem; }
+.instr-i{ font-family:var(--f-elegant); font-size:3.2rem; line-height:1; color:var(--gold); opacity:.55; }
+.instr-t{ font-family:var(--f-display); font-size:.8rem; letter-spacing:.3em; text-transform:uppercase; color:var(--gold-deep); margin:.5rem 0 .3rem; }
+.instr-s{ font-family:var(--f-elegant); font-style:italic; font-size:.95rem; color:var(--ink-soft); opacity:.8; }
+
+/* ═══ PASO 3 — EDITOR DE ACORDES ═══════════════════════════════════════ */
+.sw{ display:flex; align-items:center; gap:.6rem; cursor:pointer; }
+.sw input{ position:absolute; opacity:0; width:1px; height:1px; }
+.sw-track{ position:relative; width:2.1rem; height:1.15rem; border-radius:999px; background:#D9CDB8; flex-shrink:0; transition:background var(--dur) ease; }
+.sw-track::after{ content:''; position:absolute; top:.1rem; left:.1rem; width:.95rem; height:.95rem; border-radius:50%; background:#FFFDF7; box-shadow:0 1px 3px rgba(60,45,20,.35); transition:transform var(--dur) ease; }
+.sw input:checked + .sw-track{ background:var(--gold-deep); }
+.sw input:checked + .sw-track::after{ transform:translateX(.95rem); }
+.sw input:focus-visible + .sw-track{ outline:2px solid var(--gold-deep); outline-offset:2px; }
+.sw-txt{ font-family:var(--f-display); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brown); }
+.cbx{ display:flex; align-items:flex-start; gap:.5rem; cursor:pointer; font-family:var(--f-elegant); font-size:.97rem; color:var(--ink-soft); }
+.cbx input{ margin:.25rem 0 0; accent-color:var(--gold-deep); }
+
+.keyrow{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:.45rem; }
+.keyname{ font-family:var(--f-mono); font-size:.95rem; color:var(--gold-deep); font-weight:700; background:var(--gold-06); border:1px solid var(--gold-18); border-radius:4px; padding:.5rem .6rem; text-align:center; }
+
+.ce{ position:relative; border:1px solid var(--gold-35); border-radius:4px; background:var(--field); overflow:hidden; }
+.ce:focus-within{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-18); }
+.ce-hl,.ce-ta{
+  font-family:var(--f-mono); font-size:.9rem; line-height:1.6; letter-spacing:0;
+  padding:.7rem .8rem; margin:0; border:0; white-space:pre; tab-size:4;
+  width:100%; height:22rem; overflow:auto; box-sizing:border-box; word-spacing:normal;
+}
+.ce-hl{ position:absolute; inset:0; pointer-events:none; color:var(--ink); overflow:hidden; }
+.ce-ta{ position:relative; background:transparent; color:transparent; caret-color:var(--ink); resize:vertical; display:block; }
+.ce-ta:focus{ outline:none; box-shadow:none; }
+.hl-ch{ color:#8B6516; font-weight:700; }
+.hl-eng{ color:var(--bad); font-weight:700; text-decoration:underline wavy var(--bad); text-underline-offset:3px; }
+.hl-unk{ color:var(--warn); text-decoration:underline dotted var(--warn); text-underline-offset:3px; }
+.hl-sec{ color:var(--ok); font-weight:700; }
+.hl-capo{ color:#7C3F00; font-weight:700; }
+.hl-warn{ color:var(--warn); font-weight:700; }
+details.help{ margin-top:.55rem; border:1px solid var(--gold-18); border-radius:4px; background:var(--gold-06); padding:.5rem .7rem; }
+details.help summary{ font-family:var(--f-display); font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brown); cursor:pointer; }
+details.help .hlp-body{ font-family:var(--f-elegant); font-size:.95rem; color:var(--ink-soft); margin-top:.5rem; line-height:1.5; }
+details.help code{ font-family:var(--f-mono); font-size:.82rem; background:rgba(255,255,255,.7); border:1px solid var(--gold-18); border-radius:3px; padding:0 .25rem; color:var(--brown); }
+
+/* ═══ SONG CARD (vista previa real) ════════════════════════════════════ */
+.sc{ border-radius:3px; overflow:hidden; background:#FFFFFF; border:1px solid var(--gold-18); box-shadow:0 6px 26px rgba(0,0,0,.28); }
+.sc-head{ position:relative; padding:1.1rem 1.1rem 1rem 1.4rem; background:linear-gradient(105deg,#14220E 0%,#1E3416 70%,#2A4A20 100%); display:flex; align-items:flex-end; gap:.9rem; }
+.sc-bar{ position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep)); }
+.sc-num{ font-family:var(--f-display); font-size:1.9rem; line-height:1; color:#A8D080; opacity:.92; flex-shrink:0; }
+.sc-htext{ flex:1; min-width:0; }
+.sc-moment{ font-family:var(--f-class); font-style:italic; font-size:.7rem; letter-spacing:.2em; color:#B0D888; margin-bottom:.15rem; }
+.sc-title{ font-family:var(--f-display); font-size:1.1rem; font-weight:600; line-height:1.25; color:#ECF4DC; display:flex; flex-wrap:wrap; align-items:center; column-gap:.4rem; row-gap:.25rem; }
+.sc-star{ color:var(--gold-bright); font-size:.75rem; }
+.sc-acts{ margin-left:auto; display:inline-flex; gap:.3rem; }
+.pbtn{ width:1.45rem; height:1.45rem; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; border:1px solid; background:none; cursor:pointer; padding:0; }
+.pbtn svg{ width:.7rem; height:.7rem; }
+.pbtn.g{ color:#7BC47F; border-color:rgba(123,196,127,.5); }
+.pbtn.r{ color:#FF5A4A; border-color:rgba(255,90,74,.5); }
+.pbtn.v{ color:#8BE08B; border-color:rgba(139,224,139,.5); }
+.pbtn.p{ color:#B98BE0; border-color:rgba(185,139,224,.5); }
+.sc-body{ padding:1.3rem 1.4rem 1.4rem; }
+.sc-ct{ font-family:var(--f-display); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:#43A047; background:none; border:1px solid rgba(67,160,71,.4); border-radius:2px; padding:.35rem .9rem; cursor:pointer; margin-top:1rem; }
+.sc-ct:hover{ background:rgba(67,160,71,.08); }
+.sc-chords{ display:none; margin-top:.8rem; }
+.sc-chords.open{ display:block; }
+.sc-chords pre{ font-family:var(--f-mono); font-size:.8rem; line-height:1.7; color:#2A2A2A; background:rgba(67,160,71,.05); border-left:3px solid #43A047; padding:.8rem 1rem; border-radius:0 2px 2px 0; white-space:pre; overflow-x:auto; margin:0; tab-size:4; }
+.chord{ color:var(--gold); font-weight:bold; }
+.chord-title{ display:block; font-family:var(--f-display); font-size:1rem; font-weight:700; color:var(--gold); letter-spacing:.08em; border-bottom:1px solid var(--gold-35); white-space:normal; margin-bottom:.35rem; }
+.chord-section{ display:block; font-family:var(--f-display); font-size:.66rem; font-weight:600; color:#43A047; letter-spacing:.14em; text-transform:uppercase; background:rgba(67,160,71,.07); border-left:2px solid #43A047; border-radius:0 2px 2px 0; padding:.1rem .5rem; white-space:normal; margin-top:.2rem; }
+.chord-capo{ display:inline-block; font-family:var(--f-display); font-size:.68rem; font-weight:700; color:#7C3F00; letter-spacing:.1em; background:rgba(200,148,60,.18); border:1.5px solid var(--gold-55); border-radius:20px; padding:.1rem .6rem; white-space:normal; margin-bottom:.2rem; }
+.chord-warn{ display:inline-block; font-family:var(--f-display); font-size:.66rem; font-weight:700; color:var(--warn); letter-spacing:.08em; white-space:normal; }
+/* Clases que produce el generador de songs.json (mismos nombres del cancionero) */
+.song-note{ font-family:var(--f-display); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-deep); opacity:.9; margin:.2rem 0 .9rem; }
+.song-ornament{ text-align:center; font-size:.9rem; letter-spacing:.6em; color:var(--gold); opacity:.45; margin-top:1.2rem; }
+.instrumental-notice{ text-align:center; padding:2rem 1rem 1.2rem; }
+.instrumental-icon{ font-family:var(--f-elegant); font-size:3.2rem; line-height:1; color:var(--gold); opacity:.55; }
+.instrumental-text{ font-family:var(--f-display); font-size:.8rem; letter-spacing:.3em; text-transform:uppercase; color:var(--gold-deep); margin:.5rem 0 .3rem; }
+.instrumental-sub{ font-family:var(--f-elegant); font-style:italic; font-size:.95rem; color:var(--ink-soft); opacity:.8; }
+code{ font-family:var(--f-mono); font-size:.82rem; background:rgba(255,255,255,.7); border:1px solid var(--gold-18); border-radius:3px; padding:0 .25rem; color:var(--brown); }
+.chip svg{ width:.7rem; height:.7rem; vertical-align:-2px; }
+.rev-head .caret svg,.back-a svg{ width:.8rem; height:.8rem; display:block; }
+.back-a svg{ display:inline-block; }
+.sc-cxt{ display:block; width:100%; padding:.65rem .8rem; font-family:var(--f-display); font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:#A0B890; background:#222F1E; border:1px solid rgba(107,158,74,.2); border-radius:4px; cursor:pointer; }
+.sc-cxt:hover{ background:#2A3926; color:#C0D8B0; }
+.sc-ctx{ display:none; padding:1.1rem 1.4rem; background:#FAFAF5; border:1px solid rgba(107,158,74,.2); border-radius:0 0 4px 4px; font-family:var(--f-elegant); font-size:.92rem; color:var(--ink-2); line-height:1.7; }
+.sc-ctx.open{ display:block; }
+.ctx-title{ text-align:center; font-family:var(--f-elegant); font-size:1.15rem; color:var(--gold-deep); margin:0 0 .8rem; }
+.ctx-section{ margin-bottom:.9rem; }
+.ctx-section:last-child{ margin-bottom:0; }
+.ctx-label{ font-family:var(--f-display); font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:.3rem; display:flex; align-items:center; gap:.4rem; }
+.ctx-label::before{ content:''; width:3px; height:.7rem; background:var(--gold-deep); border-radius:2px; flex-shrink:0; }
+.ctx-text{ padding-left:.85rem; }
+.ctx-text p{ margin:.35rem 0; }
+.ctx-ref{ font-style:italic; color:var(--gold-deep); }
+.ctx-verse{ display:block; margin:.5rem 0; padding:.5rem .85rem; background:var(--gold-06); border-left:2px solid var(--gold-55); border-radius:0 3px 3px 0; font-style:italic; color:var(--ink-soft); }
+.ctx-verse .ref{ display:block; text-align:right; font-style:normal; font-size:.85rem; color:var(--ink-muted); margin-top:.2rem; }
+.ctx-tags{ display:flex; flex-wrap:wrap; gap:.35rem; padding-left:.85rem; margin-top:.2rem; }
+.ctx-tag{ font-family:var(--f-display); font-size:.52rem; letter-spacing:.08em; padding:.2rem .6rem; border-radius:10px; border:1px solid; }
+.ctx-tag-momento{ color:var(--gold-deep); background:transparent; border-color:var(--gold-55); }
+.ctx-tag-tiempo{ color:var(--brown); background:#EFE3C8; border-color:var(--gold-35); }
+.prop-omit{ font-family:var(--f-elegant); font-style:italic; color:var(--ink-muted); text-align:center; padding:1.4rem .5rem; border:1px dashed var(--gold-35); border-radius:4px; }
+
+/* ═══ PASO 5 ═══════════════════════════════════════════════════════════ */
+.flow{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:stretch; margin-top:.6rem; }
+.flow-i{ flex:1 1 9rem; display:flex; gap:.5rem; align-items:flex-start; padding:.6rem .7rem; border:1px solid var(--gold-18); border-radius:4px; background:var(--gold-06); }
+.flow-i svg{ width:1rem; height:1rem; color:var(--gold-deep); flex-shrink:0; margin-top:.1rem; }
+.flow-i span{ font-family:var(--f-elegant); font-size:.94rem; line-height:1.3; color:var(--ink-soft); }
+.sysdata{ display:grid; gap:.35rem; margin-top:.7rem; }
+.sysdata div{ display:flex; justify-content:space-between; gap:1rem; font-family:var(--f-elegant); font-size:.94rem; color:var(--ink-muted); border-bottom:1px dotted var(--gold-18); padding-bottom:.25rem; }
+.sysdata b{ font-family:var(--f-mono); font-size:.82rem; font-weight:400; color:var(--ink-soft); }
+.sent{ text-align:center; padding:1.5rem .5rem; }
+.sent-i{ width:3rem; height:3rem; border-radius:50%; background:rgba(92,122,58,.14); color:var(--ok); display:inline-flex; align-items:center; justify-content:center; }
+.sent-i svg{ width:1.5rem; height:1.5rem; }
+.sent h3{ font-family:var(--f-elegant); font-size:1.5rem; color:var(--ink); margin:.7rem 0 .3rem; }
+.sent p{ font-family:var(--f-elegant); font-size:1rem; color:var(--ink-muted); max-width:34ch; margin:0 auto 1.1rem; }
+
+/* ═══ BARRA DE ACCIONES ════════════════════════════════════════════════ */
+.abar{
+  position:fixed; left:0; right:0; bottom:0; z-index:70;
+  background:linear-gradient(180deg,var(--cream-1),var(--cream-2));
+  border-top:1px solid var(--line); box-shadow:0 -6px 24px rgba(0,0,0,.35);
+}
+.abar-in{ max-width:1180px; margin:0 auto; padding:.7rem 1.5rem; display:flex; align-items:center; gap:.6rem; }
+@media (max-width:760px){ .abar-in{ padding:.7rem 1rem; } }
+.save{ display:flex; align-items:center; gap:.4rem; flex:1 1 auto; min-width:0; font-family:var(--f-elegant); font-style:italic; font-size:.92rem; color:var(--ink-muted); }
+.save-dot{ width:.45rem; height:.45rem; border-radius:50%; background:var(--ok); flex-shrink:0; }
+.save.saving .save-dot{ background:var(--gold); }
+.abar-btns{ display:flex; gap:.5rem; flex-shrink:0; }
+@media (max-width:479px){ .save{ font-size:.85rem; } .abar-in{ gap:.4rem; padding:.6rem .8rem; } .btn{ padding:.55rem .8rem; } }
+
+/* ═══ VISTA REVISOR ════════════════════════════════════════════════════ */
+.tabs{ display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:1.1rem; }
+.tab{
+  font-family:var(--f-display); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase;
+  padding:.5rem .85rem; border:1px solid var(--gold-35); border-radius:999px;
+  background:rgba(255,255,255,.5); color:var(--brown-soft); cursor:pointer;
+}
+.tab[aria-selected="true"]{ background:var(--gold-14); border-color:var(--gold-deep); color:var(--brown); }
+.plist{ display:grid; gap:.6rem; }
+.pitem{ display:flex; gap:.8rem; align-items:center; width:100%; text-align:left; padding:.8rem .9rem; border:1px solid var(--gold-35); border-radius:5px; background:rgba(255,255,255,.55); cursor:pointer; transition:border-color var(--dur) ease,background var(--dur) ease; }
+.pitem:hover{ border-color:var(--gold); background:var(--gold-10); }
+.pitem-m{ flex:1 1 auto; min-width:0; }
+.pitem-t{ font-family:var(--f-elegant); font-size:1.15rem; color:var(--ink); line-height:1.2; }
+.pitem-s{ font-family:var(--f-elegant); font-style:italic; font-size:.9rem; color:var(--ink-muted); margin-top:.15rem; }
+.pill{ display:inline-block; font-family:var(--f-display); font-size:.5rem; letter-spacing:.1em; text-transform:uppercase; padding:.2rem .55rem; border-radius:10px; border:1px solid var(--gold-55); color:var(--gold-deep); margin-right:.35rem; }
+.pill.rose{ border-color:var(--rose-deep); color:#8A5A54; }
+.dots{ display:flex; gap:.25rem; flex-shrink:0; }
+.dots i{ width:.5rem; height:.5rem; border-radius:50%; display:block; }
+.d-ok{ background:var(--ok); } .d-warn{ background:var(--warn); } .d-off{ background:#D5CBB6; }
+.back-a{ display:inline-flex; align-items:center; gap:.35rem; background:none; border:0; padding:.2rem 0; font-family:var(--f-display); font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brown-soft); cursor:pointer; margin-bottom:.9rem; }
+.back-a:hover{ color:var(--brown); }
+.msgbox{ border-left:3px solid var(--gold-55); background:var(--gold-06); padding:.7rem .9rem; border-radius:0 4px 4px 0; margin-top:1.1rem; }
+.msgbox .who{ font-family:var(--f-display); font-size:.55rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:.25rem; }
+.msgbox p{ font-family:var(--f-elegant); font-size:1rem; color:var(--ink-soft); font-style:italic; }
+
+/* ═══ MODAL ════════════════════════════════════════════════════════════ */
+.modal{ position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; padding:1rem; background:rgba(0,0,0,.72); }
+.modal.open{ display:flex; }
+.modal-box{ width:100%; max-width:640px; max-height:86vh; display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:6px; box-shadow:var(--shadow-card); overflow:hidden; }
+.modal-h{ display:flex; align-items:center; gap:.6rem; padding:.85rem 1rem; border-bottom:1px solid var(--gold-18); background:var(--gold-06); }
+.modal-h .lbl{ margin:0; flex:1; }
+.modal-b{ padding:.9rem 1rem; overflow:auto; }
+.modal-b pre{ font-family:var(--f-mono); font-size:.76rem; line-height:1.6; color:var(--ink-2); background:#FFFCF4; border:1px solid var(--gold-18); border-radius:4px; padding:.8rem; overflow:auto; max-height:46vh; margin:0; white-space:pre; }
+.modal-f{ display:flex; gap:.5rem; justify-content:flex-end; padding:.75rem 1rem; border-top:1px solid var(--gold-18); background:var(--cream-2); }
+.toast{ position:fixed; left:50%; bottom:5.5rem; transform:translateX(-50%) translateY(.6rem); z-index:300; background:rgba(200,148,60,.96); color:#241C0C; font-family:var(--f-display); font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; padding:.5rem 1.1rem; border-radius:20px; opacity:0; pointer-events:none; transition:opacity var(--dur) ease,transform var(--dur) ease; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.hidden{ display:none !important; }
+.fade-in{ animation:fadeIn var(--dur) ease; }
+@keyframes fadeIn{ from{ opacity:0; transform:translateY(-.3rem);} to{ opacity:1; transform:none;} }
+</style>
+<div class="pb-bar">
+  <span class="pb-home">← Coro Pacem Deus</span>
+  <span class="pb-spacer"></span>
+  <span class="pb-chip" title="Modo Coro con Edición activa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    <span class="pb-chip-txt"><span class="pb-chip-l">Coro</span><span class="pb-chip-s">Edición</span></span>
+    <span class="pb-dot" aria-hidden="true"></span>
+  </span>
+  <span class="pb-acc">
+    <span class="pb-av" aria-hidden="true">R</span>
+    <span class="pb-mail">renzo…@gmail.com</span>
+  </span>
+</div>
+
+<div class="pb-ribbon">
+  <div class="pb-ribbon-in">
+    <span class="pb-ribbon-t">Prototipo de diseño · v0 · datos de ejemplo</span>
+    <span class="pb-seg" role="group" aria-label="Vista del prototipo">
+      <button type="button" id="vw-form" data-act="view" data-v="form" aria-pressed="true">Formulario</button>
+      <button type="button" id="vw-rev" data-act="view" data-v="rev" aria-pressed="false">Revisor</button>
+    </span>
+  </div>
+</div>
+
+<!-- ══════════════ VISTA FORMULARIO ══════════════ -->
+<div id="view-form">
+  <div class="wrap">
+    <div class="pb-head">
+      <div class="eyebrow">Cancionero Dominical</div>
+      <h1>Proponer un canto</h1>
+      <p class="lead">Se guarda solo mientras escribes. Al enviarlo, el director lo revisa antes de publicarlo en el cancionero.</p>
+    </div>
+    <div class="pb-stepper">
+      <div class="stp" id="stepper" role="list"></div>
+      <div class="stp-now" id="stepnow"></div>
+    </div>
+    <div class="kb">
+      <details>
+        <summary>Atajos de teclado</summary>
+        <div class="kb-body">
+          <div class="kb-row"><span>Ir al paso siguiente</span><kbd>Ctrl + Enter</kbd></div>
+          <div class="kb-row"><span>Guardar borrador</span><kbd>Ctrl + S</kbd></div>
+          <div class="kb-row"><span>Mover el bloque de letra</span><kbd>Alt + ↑</kbd><kbd>Alt + ↓</kbd></div>
+          <div class="kb-row"><span>Cerrar el menú abierto</span><kbd>Esc</kbd></div>
+        </div>
+      </details>
+    </div>
+    <div id="stepbody"></div>
+    <div style="height:1.5rem"></div>
+  </div>
+</div>
+
+<!-- ══════════════ VISTA REVISOR ══════════════ -->
+<div id="view-rev" class="hidden">
+  <div class="wrap">
+    <div class="pb-head">
+      <div class="eyebrow">Coro Pacem Deus · Dirección</div>
+      <h1>Propuestas</h1>
+      <p class="lead">Cantos enviados por el coro. Revisa, devuelve con comentario o aprueba para la próxima publicación.</p>
+    </div>
+    <div style="height:.6rem"></div>
+    <div id="revbody" class="narrow-plus"></div>
+    <div style="height:1.5rem"></div>
+  </div>
+</div>
+
+<div class="abar" id="abar"><div class="abar-in" id="abar-in"></div></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box">
+    <div class="modal-h">
+      <span class="lbl" id="modal-title">Exportar aprobadas</span>
+      <button type="button" class="iconbtn" data-act="modal-close" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-b" id="modal-body"></div>
+    <div class="modal-f">
+      <button type="button" class="btn btn-line" data-act="modal-close">Cerrar</button>
+      <button type="button" class="btn btn-gold" data-act="copy-json">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════════
+   1. ICONOS (SVG inline, viewBox 0 0 24 24, stroke currentColor)
+   ═══════════════════════════════════════════════════════════════════════ */
+var P = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+var ICON = {
+  check:  P+'<polyline points="20 6 9 17 4 12"/></svg>',
+  plus:   P+'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  up:     P+'<polyline points="18 15 12 9 6 15"/></svg>',
+  down:   P+'<polyline points="6 9 12 15 18 9"/></svg>',
+  dup:    P+'<rect x="9" y="9" width="12" height="12" rx="1"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
+  trash:  P+'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+  play:   P+'<polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/></svg>',
+  eye:    P+'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  mic:    P+'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+  rings:  P+'<circle cx="9" cy="14" r="5"/><circle cx="15" cy="10" r="5"/></svg>',
+  book:   P+'<path d="M2 4h5a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-5a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>',
+  lock:   P+'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  warn:   P+'<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  x:      P+'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  caret:  P+'<polyline points="6 9 12 15 18 9"/></svg>',
+  left:   P+'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  star:   P+'<polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"/></svg>',
+  note:   P+'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  send:   P+'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  edit:   P+'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  drag:   P+'<circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg>',
+  calendar:P+'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  arrow:  P+'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  down2:  P+'<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>'
+};
+function ico(n){ return ICON[n] || ''; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   2. VOCABULARIOS DEL PROYECTO
+   ═══════════════════════════════════════════════════════════════════════ */
+var MOMENTOS_MISA = ['Entrada','Piedad','Gloria','Aleluya','Aclamación del Evangelio','Ofertorio','Santo','Cordero de Dios','Comunión','Acción de Gracias','Salida'];
+var MOMENTOS_OTROS = ['Exposición del Santísimo','✦ Momentos Especiales ✦','Adoración/Reflexión','Animación','Misa de Honras','Instrumentales'];
+var MOMENTOS_BODAS = ['Bodas'];
+
+var TIEMPOS = ['Todo el Año Litúrgico','Adviento','Navidad','Cuaresma','Semana Santa','Jueves Santo','Pascua','Pentecostés','Ordinario','Solemnidades','Corpus Christi','Santísima Trinidad','Sagrado Corazón','Fiestas marianas','Mes de mayo','Exequias y Fieles Difuntos','Bodas'];
+
+var MOMENTOS_CTX = ['Entrada','Acto penitencial','Gloria','Aleluya','Aclamación al Evangelio','Ofertorio','Santo','Cordero de Dios','Comunión','Acción de Gracias','Salida','Adoración','Adoración eucarística','Exposición del Santísimo','Animación','Misión','Reflexión','Misa de Honras','Cristo Rey','Confirmación','Fiestas marianas'];
+
+var USOS_BODAS = ['Entrada de la Novia','Rito Matrimonial','Firma del Pliego','Comunión','Salida de Novios','Fotografía'];
+
+var TITULOS = ['Ofrenda Mariana','Heme Aquí - M. Frisina','Verbum Panis','Maranatha','Pan de Vida Nueva','A Thousand Years','Anima Christi','Cantemos al Amor','Divino Manjar','Tantum Ergo','Ave María (Schubert)','Secuencia del Espíritu Santo','Esperando con María','Creo en Ti - M. Frisina','Aleluya — Kairoi','Cordero - Marco Frisina','Alabo Tu Bondad — Kairoi','Alma Mía, Alaba a Dios - M. Frisina','Marcha Nupcial - Félix Mendelssohn','Vamos, Cantad','Desde el Alba hasta el Ocaso','En Tu Nombre Echaré las Redes',"Can't Help Falling in Love",'Athair ar Neamh (Boda Princesa Sofía de Suecia)','Salve Regina','Tú Has Venido a la Orilla','Junto a Ti, María','Hosanna','Santo es el Señor','Cordero de Dios - Kairoi','El Señor es mi Pastor','Ven, Espíritu Santo','Canon de Pachelbel','Aleluya de Taizé','Jesús, Yo Confío en Ti','Madre de los Pobres','Un Solo Señor','Danos un Corazón','Alma Misionera','Envía Tu Espíritu','Gloria - M. Frisina','Ubi Caritas'];
+
+var TITULO_CPD = { 'ofrenda mariana':'cpd-062' };
+
+/* ═══════════════════════════════════════════════════════════════════════
+   3. ESTADO (datos de ejemplo cargados)
+   ═══════════════════════════════════════════════════════════════════════ */
+var CHORDS_DEMO = [
+'== INTRO ==',
+'DO  SOL  Lam  FA  DO  FA  DO  FA',
+'',
+'== ESTROFA 1 ==',
+'DO                           SOL',
+'Con María Te presentamos este pan, Señor.',
+'FA                               Lam',
+'Con María Te presentamos este vino, Señor.',
+'FA',
+'Con María Te presentamos',
+'   DO           RE          SOL',
+'nuestro corazón, recíbelo, recíbelo.',
+'',
+'== CORO ==',
+'FA              SOL',
+'Transfórmalo con Tu Santidad',
+'Lam             FA',
+'en Tu Cuerpo y Sangre real.',
+'DO        SOL         DO',
+'Transfórmalo y con el nuestro corazón.'
+].join('\n');
+
+var S = {
+  step: 1,
+  maxStep: 1,
+  tipo: 'canto',
+  titulo: 'Ofrenda Mariana',
+  momento: 'Ofertorio',
+  compositor: 'Eddy Pérez',
+  anio: '',
+  idioma: 'Español',
+  yt: [ { url:'https://youtu.be/9k2VqR1wUxg?t=12', t:'0:12' } ],
+  bloques: [
+    { tipo:'Nota', texto:'Tonalidad: DO (sin capo) · 4/4' },
+    { tipo:'Estrofa', texto:'Con María Te presentamos este pan, Señor.\nCon María Te presentamos este vino, Señor.\nCon María Te presentamos\nnuestro corazón, recíbelo, recíbelo. (bis)' },
+    { tipo:'Coro', texto:'Transfórmalo con Tu Santidad\nen Tu Cuerpo y Sangre real.\nTransfórmalo y con el nuestro corazón. (bis)' },
+    { tipo:'Estrofa', texto:'Con María te presentamos este pan, Señor.\nCon María Te presentamos este vino, Señor.\nCon María Te presentamos\nnuestra vida entera, recíbela, recíbela.' }
+  ],
+  ignorados: {},
+  acordes: { on:true, nota:'DO', alt:'', modo:'mayor', capo:0, ritmo:'4/4 moderado', porRevisar:false, texto:CHORDS_DEMO, normalizados:0 },
+  ctx: {
+    label:'Compositor',
+    compositor:'**Eddy Pérez**',
+    fundamento:'La «Ofrenda Mariana» presenta los dones del Ofertorio a través de la intercesión de María. En la tradición católica, María es la primera en ofrecer a Cristo al mundo (en la Presentación en el Templo, Lc 2,22-24), y es ella quien acompaña la ofrenda de su Hijo hasta la cruz (Jn 19,25). Al cantar este canto, la asamblea une su ofrenda a la de María.',
+    citas: ['Lc 2,22-24','Jn 19,25'],
+    versoTexto:'', versoRef:'',
+    tiempos:['Todo el Año Litúrgico'],
+    momentos:['Ofertorio','Fiestas marianas'],
+    nota:'',
+    bodasHabla:'', bodasAmor:'', bodasUsos:[],
+    extras:[]
+  },
+  mensaje:'',
+  enviado:false,
+  revPanelClosed:false
+};
+
+/* Estado de la vista Revisor */
+var PROPS = [
+  { id:'p1', title:'Ofrenda Mariana', moment:'Ofertorio', by:'renzo…@gmail.com', date:'5 de septiembre', estado:'revisar', live:true,
+    msg:'La letra viene del cuadernillo del coro; los acordes los saqué de oído en DO. Si prefieres otra tonalidad, avísame.', dots:['ok','warn','ok'] },
+  { id:'p2', title:'Tú Has Venido a la Orilla', moment:'Comunión', by:'aldo…@gmail.com', date:'3 de septiembre', estado:'revisar',
+    msg:'La subo sin acordes porque no los tengo escritos. La cantamos siempre en Comunión.', dots:['ok','off','warn'] },
+  { id:'p3', title:'Perfect — Ed Sheeran', moment:'Bodas', by:'nataly…@gmail.com', date:'28 de agosto', estado:'devuelta',
+    msg:'Es la canción que piden mucho los novios para la firma del pliego.', dots:['ok','ok','warn'],
+    comentario:'Falta el fundamento y el uso típico en bodas.' },
+  { id:'p4', title:'Salve Regina', moment:'Salida', by:'renzo…@gmail.com', date:'21 de agosto', estado:'aprobada', idioma:'Latín', dots:['ok','ok','ok'] },
+  { id:'p5', title:'Pan de Vida Nueva', moment:'Comunión', by:'aldo…@gmail.com', date:'14 de agosto', estado:'aprobada', dots:['ok','ok','ok'] },
+  { id:'p6', title:'Vamos, Cantad', moment:'Entrada', by:'renzo…@gmail.com', date:'9 de agosto', estado:'aprobada', dots:['ok','ok','ok'] }
+];
+var RV = { tab:'revisar', open:null, devolviendo:false, comentario:'' };
+var VIEW = 'form';
+
+/* ═══════════════════════════════════════════════════════════════════════
+   4. UTILIDADES
+   ═══════════════════════════════════════════════════════════════════════ */
+function el(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function norm(s){
+  return String(s||'').toLowerCase()
+    .replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i')
+    .replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n')
+    .replace(/[^a-z0-9]+/g,' ').replace(/^ | $/g,'');
+}
+function setPath(path, val){
+  var p = path.split('.'), o = S, i;
+  for(i=0;i<p.length-1;i++){ o = o[p[i]]; }
+  o[p[p.length-1]] = val;
+}
+function getPath(path){
+  var p = path.split('.'), o = S, i;
+  for(i=0;i<p.length;i++){ o = o[p[i]]; if(o===undefined) return undefined; }
+  return o;
+}
+function toast(msg){
+  var t = el('toast'); t.textContent = msg; t.className = 'toast show';
+  window.setTimeout(function(){ t.className = 'toast'; }, 1900);
+}
+function inline(s){
+  // **negrita** y _itálica_ dentro de texto ya escapado
+  return esc(s).replace(/\*\*([^*]+)\*\*/g,'<b>$1<\/b>').replace(/_([^_]+)_/g,'<em>$1<\/em>');
+}
+
+/* ── Guardado automático simulado ─────────────────────────────────────── */
+var savedAt = Date.now(), savingT = null;
+function markDirty(){
+  var s = el('save'); if(!s) return;
+  s.className = 'save saving';
+  s.innerHTML = '<span class="save-dot"></span><span id="save-txt">Guardando…</span>';
+  if(savingT) window.clearTimeout(savingT);
+  savingT = window.setTimeout(function(){ savedAt = Date.now(); paintSave(); }, 650);
+}
+function paintSave(){
+  var s = el('save'); if(!s) return;
+  var d = Math.round((Date.now()-savedAt)/1000), txt;
+  if(d < 5) txt = 'Borrador guardado hace un momento';
+  else if(d < 60) txt = 'Borrador guardado hace ' + d + ' s';
+  else txt = 'Borrador guardado hace ' + Math.round(d/60) + ' min';
+  s.className = 'save';
+  s.innerHTML = '<span class="save-dot"></span><span id="save-txt">' + txt + '</span>';
+}
+window.setInterval(function(){ if(el('save') && !savingT) paintSave(); }, 5000);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   5. MOTOR DE ACORDES — notación latina del proyecto
+   ═══════════════════════════════════════════════════════════════════════ */
+var ROOTS_LAT = ['SOL','DO','RE','MI','FA','LA','SI'];
+var CAP_LAT = { SOL:'Sol', DO:'Do', RE:'Re', MI:'Mi', FA:'Fa', LA:'La', SI:'Si' };
+var ENG2LAT = { C:'DO', D:'RE', E:'MI', F:'FA', G:'SOL', A:'LA', B:'SI' };
+var SUF_RE = /^(?:maj7|maj9|M7|sus4|sus2|sus|add9|add11|dim7|dim|aug|7\+|9\+|6\/9|13|11|9|7|6|5|4|2|\+|°)*$/;
+
+function splitBass(tok){
+  var i = tok.indexOf('/');
+  if(i > 0 && /^[A-Za-z]/.test(tok.slice(i+1))){
+    return { main: tok.slice(0,i), bass: tok.slice(i+1) };
+  }
+  return { main: tok, bass: null };
+}
+function parseCore(s){
+  // devuelve {kind:'latin'|'english', root, acc, minor, suf} o null
+  var up = s.toUpperCase(), r, rest, i;
+  for(i=0;i<ROOTS_LAT.length;i++){
+    r = ROOTS_LAT[i];
+    if(up.indexOf(r) === 0){
+      rest = s.slice(r.length);
+      var acc = '';
+      if(/^[#b]/i.test(rest)){ acc = rest.charAt(0) === '#' ? '#' : 'b'; rest = rest.slice(1); }
+      var minor = false;
+      if(/^m(?!aj)/i.test(rest)){ minor = true; rest = rest.slice(1); }
+      if(SUF_RE.test(rest)) return { kind:'latin', root:r, acc:acc, minor:minor, suf:rest };
+      return null;
+    }
+  }
+  if(/^[A-G]/.test(s)){
+    r = s.charAt(0); rest = s.slice(1);
+    var acc2 = '';
+    if(/^[#b]/.test(rest)){ acc2 = rest.charAt(0); rest = rest.slice(1); }
+    var min2 = false;
+    if(/^m(?!aj)/.test(rest)){ min2 = true; rest = rest.slice(1); }
+    if(SUF_RE.test(rest)) return { kind:'english', root:r, acc:acc2, minor:min2, suf:rest };
+  }
+  return null;
+}
+function classify(tok){
+  var sb = splitBass(tok), c = parseCore(sb.main);
+  if(!c) return { ok:false };
+  var b = null;
+  if(sb.bass){ b = parseCore(sb.bass); if(!b || b.minor || b.suf) return { ok:false }; }
+  return { ok:true, kind: (c.kind === 'english' || (b && b.kind === 'english')) ? 'english' : 'latin', core:c, bass:b };
+}
+function buildLat(c){
+  var root = c.kind === 'english' ? ENG2LAT[c.root] : c.root;
+  var base = c.minor ? CAP_LAT[root] : root;
+  return base + c.acc + (c.minor ? 'm' : '') + c.suf;
+}
+function buildBass(b){
+  var root = b.kind === 'english' ? ENG2LAT[b.root] : b.root;
+  return root + b.acc;
+}
+function normalizeToken(tok){
+  var r = classify(tok);
+  if(!r.ok) return tok;
+  return buildLat(r.core) + (r.bass ? '/' + buildBass(r.bass) : '');
+}
+function isSection(l){ return /^\s*(==|═══)/.test(l); }
+function isCapo(l){ return /^\s*\*.*\*\s*$/.test(l); }
+function isWarn(l){ return /^\s*⚠/.test(l); }
+function isChordLine(l){
+  if(!l || !l.trim() || isSection(l) || isCapo(l) || isWarn(l)) return false;
+  var toks = l.trim().split(/\s+/), okc = 0, i;
+  for(i=0;i<toks.length;i++){ if(classify(toks[i]).ok) okc++; }
+  return okc >= 1 && (okc / toks.length) >= 0.7;
+}
+/* Recorre las líneas de acordes y aplica fn a cada token. Cada acorde se
+   vuelve a colocar en su columna original siempre que quepa, para que la
+   alineación con la sílaba no se pierda al normalizar o convertir. */
+function mapChordLine(line, fn){
+  var re = /[^\s]+/g, m, buf = '';
+  while((m = re.exec(line)) !== null){
+    if(buf.length < m.index) buf += new Array(m.index - buf.length + 1).join(' ');
+    else if(buf.length) buf += ' ';
+    buf += fn(m[0]);
+  }
+  return buf;
+}
+function mapChordTokens(text, fn){
+  var lines = text.split('\n'), out = [], i;
+  for(i=0;i<lines.length;i++){
+    if(!isChordLine(lines[i])){ out.push(lines[i]); continue; }
+    out.push(mapChordLine(lines[i], fn));
+  }
+  return out.join('\n');
+}
+function chordStats(text){
+  var st = { eng:0, unk:0, ok:0, engTokens:{} };
+  var lines = text.split('\n'), i, j, toks, c;
+  for(i=0;i<lines.length;i++){
+    if(!isChordLine(lines[i])) continue;
+    toks = lines[i].trim().split(/\s+/);
+    for(j=0;j<toks.length;j++){
+      c = classify(toks[j]);
+      if(!c.ok) st.unk++;
+      else if(c.kind === 'english'){ st.eng++; st.engTokens[toks[j]] = 1; }
+      else st.ok++;
+    }
+  }
+  return st;
+}
+/* HTML del resaltado (mismo texto, con spans) */
+function highlightHTML(text){
+  var lines = text.split('\n'), out = [], i;
+  for(i=0;i<lines.length;i++){
+    var l = lines[i];
+    if(isSection(l)) out.push('<span class="hl-sec">' + esc(l) + '<\/span>');
+    else if(isCapo(l)) out.push('<span class="hl-capo">' + esc(l) + '<\/span>');
+    else if(isWarn(l)) out.push('<span class="hl-warn">' + esc(l) + '<\/span>');
+    else if(isChordLine(l)){
+      out.push(l.replace(/[^\s]+/g, function(t){
+        var c = classify(t), cls = !c.ok ? 'hl-unk' : (c.kind === 'english' ? 'hl-eng' : 'hl-ch');
+        return '<span class="' + cls + '">' + esc(t) + '<\/span>';
+      }));
+    }
+    else out.push(esc(l));
+  }
+  return out.join('\n') + '\n';
+}
+/* Nombre canónico de la tonalidad */
+function keyName(){
+  var a = S.acordes, root = a.nota + a.alt;
+  if(a.modo === 'menor') return CAP_LAT[a.nota] + a.alt + 'm';
+  return root;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   6. MOTOR DE REVISIÓN DE LETRA
+   ═══════════════════════════════════════════════════════════════════════ */
+var PRON = { 'tú':'Tú','tus':'Tus','tu':'Tu','te':'Te','ti':'Ti','él':'Él','sus':'Sus','su':'Su' };
+/* Rangos escritos con \u para que la expresión no dependa de la codificación
+   con la que el navegador lea este archivo. */
+var NOPAL = '[^A-Za-z0-9\\u00C0-\\u00FF]';
+var PRON_RE = new RegExp('(^|' + NOPAL + ')(tú|tus|tu|te|ti|él|sus|su)(?![A-Za-z0-9\\u00C0-\\u00FF])', 'g');
+
+function blockTitle(idx){
+  var n = 0, i;
+  for(i=0;i<=idx;i++){ if(S.bloques[i].tipo === 'Estrofa') n++; }
+  var b = S.bloques[idx];
+  return b.tipo === 'Estrofa' ? ('Estrofa ' + n) : b.tipo;
+}
+function scanPronouns(){
+  var out = [], bi, li, m;
+  for(bi=0;bi<S.bloques.length;bi++){
+    if(S.bloques[bi].tipo === 'Nota') continue;
+    var lines = S.bloques[bi].texto.split('\n');
+    for(li=0;li<lines.length;li++){
+      PRON_RE.lastIndex = 0;
+      while((m = PRON_RE.exec(lines[li])) !== null){
+        var ci = m.index + m[1].length, w = m[2];
+        var key = bi + ':' + li + ':' + ci;
+        if(S.ignorados[key]) continue;
+        var after = lines[li].slice(ci).split(/\s+/).slice(0,2).join(' ');
+        out.push({ key:key, bi:bi, li:li, ci:ci, w:w, sug:PRON[w], frag:after, donde: blockTitle(bi) + ' · verso ' + (li+1) });
+      }
+    }
+  }
+  return out;
+}
+function fixPronoun(item){
+  var lines = S.bloques[item.bi].texto.split('\n');
+  var l = lines[item.li];
+  if(l.substr(item.ci, item.w.length) === item.w){
+    lines[item.li] = l.slice(0, item.ci) + item.sug + l.slice(item.ci + item.w.length);
+    S.bloques[item.bi].texto = lines.join('\n');
+  }
+}
+function scanSigns(){
+  var out = [], bi, li;
+  for(bi=0;bi<S.bloques.length;bi++){
+    var lines = S.bloques[bi].texto.split('\n');
+    for(li=0;li<lines.length;li++){
+      var l = lines[li];
+      if(/\?/.test(l) && l.indexOf('¿') < 0) out.push(blockTitle(bi) + ' · verso ' + (li+1) + ': falta «¿»');
+      if(/!/.test(l) && l.indexOf('¡') < 0) out.push(blockTitle(bi) + ' · verso ' + (li+1) + ': falta «¡»');
+    }
+  }
+  return out;
+}
+function scanSpaces(){
+  var out = [], bi, li;
+  for(bi=0;bi<S.bloques.length;bi++){
+    var lines = S.bloques[bi].texto.split('\n');
+    for(li=0;li<lines.length;li++){
+      if(/ {2,}/.test(lines[li])) out.push(blockTitle(bi) + ' · verso ' + (li+1) + ': espacios dobles');
+      else if(lines[li].trim() === '' && li < lines.length-1 && li > 0) out.push(blockTitle(bi) + ': línea vacía en medio del bloque');
+    }
+  }
+  return out;
+}
+function limpiarEspacios(){
+  var bi;
+  for(bi=0;bi<S.bloques.length;bi++){
+    var lines = S.bloques[bi].texto.split('\n'), keep = [], li;
+    for(li=0;li<lines.length;li++){
+      var l = lines[li].replace(/ {2,}/g,' ').replace(/\s+$/,'');
+      if(l.trim() === '' && li > 0 && li < lines.length-1) continue;
+      keep.push(l);
+    }
+    S.bloques[bi].texto = keep.join('\n');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   7. YOUTUBE
+   ═══════════════════════════════════════════════════════════════════════ */
+function ytId(url){
+  if(!url) return '';
+  var m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : '';
+}
+function secs(t){
+  if(!t) return 0;
+  var p = String(t).split(':');
+  if(p.length === 2) return (parseInt(p[0],10)||0) * 60 + (parseInt(p[1],10)||0);
+  return parseInt(p[0],10) || 0;
+}
+function ytNorm(r){
+  var id = ytId(r.url);
+  if(!id) return '';
+  var s = secs(r.t);
+  return 'https://youtu.be/' + id + (s ? '?t=' + s : '');
+}
+function ytList(){
+  var out = [], i, u;
+  for(i=0;i<S.yt.length;i++){ u = ytNorm(S.yt[i]); if(u) out.push(u); }
+  return out;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   8. GENERADORES DE HTML DEL CANCIONERO (lo que guardaría songs.json)
+   ═══════════════════════════════════════════════════════════════════════ */
+function bodyHTML(){
+  if(S.tipo === 'instrumental'){
+    var nota = S.bloques.length && S.bloques[0].tipo === 'Nota' ? S.bloques[0].texto : '';
+    return '<div class="instrumental-notice"><div class="instrumental-icon">♪<\/div>' +
+           '<p class="instrumental-text">Pieza instrumental<\/p>' +
+           '<p class="instrumental-sub">Sin letra, escuchar referencia en YouTube<\/p>' +
+           (nota ? '<p class="instrumental-sub">' + inline(nota) + '<\/p>' : '') + '<\/div>' +
+           '<div class="song-ornament">✦ ✦ ✦<\/div>';
+  }
+  var out = [], i;
+  for(i=0;i<S.bloques.length;i++){
+    var b = S.bloques[i], lines = b.texto.split('\n'), ps = [], j;
+    for(j=0;j<lines.length;j++){ if(lines[j].trim()) ps.push(inline(lines[j])); }
+    if(!ps.length) continue;
+    if(b.tipo === 'Nota'){ out.push('<p class="song-note">' + ps.join(' ') + '<\/p>'); continue; }
+    var cls = b.tipo === 'Coro' ? 'chorus' : (b.tipo === 'Puente' ? 'bridge' : 'strophe');
+    out.push('<div class="' + cls + '"><p>' + ps.join('<br>') + '<\/p><\/div>');
+  }
+  out.push('<div class="song-ornament">✦ ✦ ✦<\/div>');
+  return out.join('\n');
+}
+function chordsHTML(){
+  if(!S.acordes.on || !S.acordes.texto.trim()) return '';
+  var head = '<b class="chord-title">♫ ' + esc(S.titulo) + (S.compositor ? ' — ' + esc(S.compositor) : '') + '<\/b>\n';
+  var badge = '<b class="chord-capo">TONALIDAD: ' + esc(keyName()) + (S.acordes.capo ? ' · CAPO +' + S.acordes.capo : '') + '<\/b>\n';
+  if(S.acordes.porRevisar) badge += '<b class="chord-warn">⚠ Acordes por revisar<\/b>\n';
+  var lines = S.acordes.texto.split('\n'), out = [], i;
+  for(i=0;i<lines.length;i++){
+    var l = lines[i];
+    if(isSection(l)){
+      out.push('<b class="chord-section">═══ ' + esc(l.replace(/[=═\s]+$/,'').replace(/^[=═\s]+/,'')) + ' ═══<\/b>');
+    } else if(isCapo(l)){
+      out.push('<b class="chord-capo">' + esc(l.replace(/^\s*\*|\*\s*$/g,'').trim()) + '<\/b>');
+    } else if(isWarn(l)){
+      out.push('<b class="chord-warn">' + esc(l) + '<\/b>');
+    } else if(isChordLine(l)){
+      out.push(l.replace(/[^\s]+/g, function(t){ return '<span class="chord">' + esc(t) + '<\/span>'; }));
+    } else {
+      out.push(esc(l));
+    }
+  }
+  return head + badge + out.join('\n');
+}
+function contextHTML(){
+  var c = S.ctx, out = [];
+  out.push('<p class="ctx-title">' + esc(S.titulo) + '<\/p>');
+  if(c.compositor.trim()){
+    out.push('<div class="ctx-section"><div class="ctx-label">' + esc(c.label) + '<\/div>' +
+             '<div class="ctx-text"><p>' + inline(c.compositor) + '<\/p><\/div><\/div>');
+  }
+  if(c.fundamento.trim() || c.versoTexto.trim()){
+    var t = inline(c.fundamento);
+    var i;
+    for(i=0;i<c.citas.length;i++){
+      t = t.split(esc(c.citas[i])).join('<span class="ctx-ref">' + esc(c.citas[i]) + '<\/span>');
+    }
+    var verse = c.versoTexto.trim()
+      ? '<span class="ctx-verse">«' + esc(c.versoTexto) + '»<span class="ref">— ' + esc(c.versoRef) + '<\/span><\/span>' : '';
+    out.push('<div class="ctx-section"><div class="ctx-label">Fundamento bíblico<\/div>' +
+             '<div class="ctx-text"><p>' + t + '<\/p>' + verse + '<\/div><\/div>');
+  }
+  var i2, ex;
+  for(i2=0;i2<c.extras.length;i2++){
+    ex = c.extras[i2];
+    if(!ex.label.trim() && !ex.texto.trim()) continue;
+    out.push('<div class="ctx-section"><div class="ctx-label">' + esc(ex.label) + '<\/div>' +
+             '<div class="ctx-text"><p>' + inline(ex.texto) + '<\/p><\/div><\/div>');
+  }
+  if(S.momento === 'Bodas'){
+    if(c.bodasHabla.trim()) out.push('<div class="ctx-section"><div class="ctx-label">De qué habla esta canción<\/div><div class="ctx-text"><p>' + inline(c.bodasHabla) + '<\/p><\/div><\/div>');
+    if(c.bodasAmor.trim()) out.push('<div class="ctx-section"><div class="ctx-label">Conexión con el amor y la unión<\/div><div class="ctx-text"><p>' + inline(c.bodasAmor) + '<\/p><\/div><\/div>');
+    if(c.bodasUsos.length){
+      out.push('<div class="ctx-section"><div class="ctx-label">Uso típico en bodas<\/div><div class="ctx-tags">' +
+        c.bodasUsos.map(function(u){ return '<span class="ctx-tag ctx-tag-momento">' + esc(u) + '<\/span>'; }).join('') + '<\/div><\/div>');
+    }
+  }
+  if(c.nota.trim()){
+    out.push('<div class="ctx-section"><div class="ctx-label">Nota litúrgica<\/div><div class="ctx-text"><p>' + inline(c.nota) + '<\/p><\/div><\/div>');
+  }
+  var moms = c.momentos.slice(0), tags = [];
+  if(moms.indexOf(S.momento) < 0) moms.unshift(S.momento);
+  moms.forEach(function(m){ tags.push('<span class="ctx-tag ctx-tag-momento">' + esc(m) + '<\/span>'); });
+  c.tiempos.forEach(function(t){ tags.push('<span class="ctx-tag ctx-tag-tiempo">' + esc(t) + '<\/span>'); });
+  if(tags.length){
+    out.push('<div class="ctx-section"><div class="ctx-label">Tiempos y momentos litúrgicos<\/div><div class="ctx-tags">' + tags.join('') + '<\/div><\/div>');
+  }
+  return out.join('\n');
+}
+function songJSON(){
+  return {
+    cpd: 'cpd-160',
+    did: 'd160',
+    title: S.titulo,
+    moment: S.momento,
+    youtube: ytList()[0] || '',
+    body_html: bodyHTML(),
+    chords_html: chordsHTML(),
+    context_html: contextHTML()
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   9. LISTA DE COMPROBACIÓN
+   ═══════════════════════════════════════════════════════════════════════ */
+function tituloDuplicado(){
+  var n = norm(S.titulo), i;
+  if(!n) return null;
+  for(i=0;i<TITULOS.length;i++){ if(norm(TITULOS[i]) === n) return TITULOS[i]; }
+  return null;
+}
+function checklist(){
+  var dup = tituloDuplicado(), pron = scanPronouns(), st = chordStats(S.acordes.texto);
+  var hayLetra = false, i;
+  for(i=0;i<S.bloques.length;i++){ if(S.bloques[i].tipo !== 'Nota' && S.bloques[i].texto.trim()) hayLetra = true; }
+  var list = [];
+  list.push({ s: dup ? 'warn':'ok', t:'Título único', d: dup ? 'Coincide con «' + dup + '»' : '«' + S.titulo + '» no existe todavía' });
+  list.push({ s: S.momento ? 'ok':'bad', t:'Momento elegido', d: S.momento || 'Sin elegir' });
+  if(S.tipo === 'instrumental') list.push({ s:'ok', t:'Pieza instrumental', d:'Se publica con el aviso de pieza sin letra' });
+  else list.push({ s: hayLetra ? 'ok':'bad', t:'Letra completa', d: hayLetra ? S.bloques.length + ' bloques' : 'Aún no hay versos' });
+  list.push({ s: pron.length ? 'warn':'ok', t:'Pronombres a Dios revisados', d: pron.length ? pron.length + (pron.length === 1 ? ' sugerencia pendiente' : ' sugerencias pendientes') : 'Sin sugerencias pendientes' });
+  if(S.acordes.on){
+    list.push({ s: (st.eng || st.unk) ? 'warn':'ok', t:'Acordes válidos',
+      d: S.acordes.normalizados + ' normalizados, ' + st.eng + ' en notación inglesa' + (st.unk ? ', ' + st.unk + ' sin reconocer' : '') });
+  } else {
+    list.push({ s:'ok', t:'Sin acordes', d:'Se publica solo con letra' });
+  }
+  list.push({ s: S.ctx.tiempos.length ? 'ok':'bad', t:'Al menos un tiempo litúrgico', d: S.ctx.tiempos.length ? S.ctx.tiempos.join(' · ') : 'Ninguno elegido' });
+  list.push({ s: S.ctx.fundamento.trim() ? 'ok':'warn', t:'Fundamento bíblico presente', d: S.ctx.fundamento.trim() ? S.ctx.citas.length + ' citas' : 'Vacío' });
+  list.push({ s: ytList().length ? 'ok':'warn', t:'Referencia en YouTube', d: ytList().length ? ytList().length + ' referencia(s)' : 'Recomendado, no obligatorio' });
+  return list;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   10. STEPPER
+   ═══════════════════════════════════════════════════════════════════════ */
+var PASOS = ['Identidad','Letra','Acordes','Contexto','Revisión'];
+function renderStepper(){
+  var h = [], i;
+  for(i=1;i<=5;i++){
+    var cls = 'stp-item' + (i === S.step ? ' cur' : '') + (i < S.step ? ' done' : '') + (i <= S.maxStep ? ' can' : '');
+    h.push('<button type="button" class="' + cls + '" role="listitem" data-act="jump" data-v="' + i + '"' +
+      (i <= S.maxStep ? '' : ' disabled') + ' aria-current="' + (i === S.step ? 'step' : 'false') + '">' +
+      '<span class="stp-node">' + (i < S.step ? ico('check') : i) + '<\/span>' +
+      '<span class="stp-lbl">' + PASOS[i-1] + '<\/span><\/button>');
+  }
+  el('stepper').innerHTML = h.join('');
+  el('stepnow').textContent = 'Paso ' + S.step + ' de 5 · ' + PASOS[S.step-1];
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   11. PASO 1 — IDENTIDAD
+   ═══════════════════════════════════════════════════════════════════════ */
+function momentGroup(title, arr, cls){
+  var h = ['<div class="grp-eyebrow' + (cls || '') + '">' + esc(title) + '<\/div><div class="mgrid">'], i;
+  for(i=0;i<arr.length;i++){
+    h.push('<button type="button" class="mchip" data-act="momento" data-v="' + esc(arr[i]) + '" aria-pressed="' + (S.momento === arr[i]) + '">' + esc(arr[i]) + '<\/button>');
+  }
+  h.push('<\/div>');
+  return h.join('');
+}
+function ytRows(){
+  var h = [], i;
+  for(i=0;i<S.yt.length;i++){
+    var u = ytNorm(S.yt[i]);
+    h.push('<div class="ytrow">' +
+      '<input type="text" data-model="yt.' + i + '.url" value="' + esc(S.yt[i].url) + '" placeholder="https://youtu.be/…" aria-label="Enlace ' + (i+1) + '">' +
+      '<input type="text" data-model="yt.' + i + '.t" value="' + esc(S.yt[i].t) + '" placeholder="mm:ss" aria-label="Empieza en (mm:ss)">' +
+      '<button type="button" class="iconbtn danger" data-act="yt-del" data-v="' + i + '" aria-label="Quitar referencia">' + ico('trash') + '<\/button>' +
+      '<div class="ytnorm" id="ytn-' + i + '">' + (u ? esc(u) : 'Pega el enlace para ver la URL normalizada') + '<\/div>' +
+    '<\/div>');
+  }
+  return h.join('');
+}
+function step1(){
+  var dup = tituloDuplicado();
+  var h = [];
+  h.push('<div class="narrow"><div class="card fade-in">');
+  h.push('<div class="card-h">Identidad del canto</div>');
+  h.push('<p class="card-sub">Lo que identifica la pieza en el cancionero: cómo se llama y en qué momento de la misa se canta.</p>');
+
+  h.push('<div class="fld"><span class="lbl">Tipo de pieza</span><div class="tiles two">');
+  h.push('<button type="button" class="tile" data-act="tipo" data-v="canto" aria-pressed="' + (S.tipo === 'canto') + '">' +
+    '<span class="tile-t">' + ico('check') + 'Canto con letra<\/span>' +
+    '<span class="tile-d">Estrofas y coros. Puede llevar acordes.<\/span><\/button>');
+  h.push('<button type="button" class="tile" data-act="tipo" data-v="instrumental" aria-pressed="' + (S.tipo === 'instrumental') + '">' +
+    '<span class="tile-t">' + ico('check') + 'Pieza instrumental<\/span>' +
+    '<span class="tile-d">Sin letra: se muestra el aviso de pieza instrumental y la referencia en YouTube.<\/span><\/button>');
+  h.push('<\/div><\/div>');
+
+  h.push('<div class="fld"><label class="lbl" for="f-titulo">Título <span aria-hidden="true">·<\/span> obligatorio<\/label>' +
+    '<input type="text" id="f-titulo" data-model="titulo" value="' + esc(S.titulo) + '" placeholder="Nombre del canto">' +
+    '<div id="dupwarn">' + dupWarnHTML(dup) + '<\/div><\/div>');
+
+  h.push('<div class="fld"><span class="lbl">Momento litúrgico <span aria-hidden="true">·<\/span> obligatorio<\/span>');
+  h.push(momentGroup('Misa', MOMENTOS_MISA));
+  h.push(momentGroup('Otros momentos', MOMENTOS_OTROS));
+  h.push(momentGroup('Bodas', MOMENTOS_BODAS, ' rose'));
+  h.push('<\/div>');
+
+  h.push('<div class="rule"></div>');
+  h.push('<div class="row two">' +
+    '<div><label class="lbl" for="f-comp">Compositor / autor<\/label><input type="text" id="f-comp" data-model="compositor" value="' + esc(S.compositor) + '" placeholder="Nombre"><\/div>' +
+    '<div><label class="lbl" for="f-anio">Año<\/label><input type="text" id="f-anio" data-model="anio" value="' + esc(S.anio) + '" placeholder="1998" inputmode="numeric"><\/div>' +
+    '<\/div><p class="hint">Si no se sabe, déjalo vacío. Nunca inventes un autor.</p>');
+
+  h.push('<div class="fld"><span class="lbl">Referencias en YouTube<\/span>' + ytRows());
+  if(S.yt.length < 3){
+    h.push('<button type="button" class="btn btn-line btn-sm" data-act="yt-add">' + ico('plus') + 'Añadir otra referencia<\/button>');
+  }
+  h.push('<p class="hint">El cancionero muestra hasta tres botones de referencia: rojo, verde y morado.</p><\/div>');
+
+  h.push('<div class="fld"><span class="lbl">Idioma de la letra<\/span><div class="chips">');
+  ['Español','Latín','Inglés','Otro'].forEach(function(x){
+    h.push('<button type="button" class="chip" data-act="idioma" data-v="' + x + '" aria-pressed="' + (S.idioma === x) + '">' + x + '<\/button>');
+  });
+  h.push('<\/div><p class="hint">Sirve para decidir las itálicas de la letra y para orientar al revisor.</p><\/div>');
+  h.push('<\/div><\/div>');
+  return h.join('');
+}
+function dupWarnHTML(dup){
+  if(!dup) return '';
+  var cpd = TITULO_CPD[norm(dup)] || 'cpd-062';
+  return '<div class="note note-warn">' + ico('warn') + '<div>Ya existe un canto con este título (' + esc(cpd) + '). ' +
+    'Si es otra versión, añade el compositor al título: «' + esc(dup) + ' - ' + esc(S.compositor || 'E. Pérez') + '».' +
+    '<br><button type="button" class="btn btn-line btn-sm" data-act="add-comp">Añadir compositor al título<\/button><\/div><\/div>';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   12. PASO 2 — LETRA
+   ═══════════════════════════════════════════════════════════════════════ */
+var TIPOS_BLOQUE = ['Estrofa','Coro','Puente','Nota'];
+function step2(){
+  if(S.tipo === 'instrumental') return step2Instrumental();
+  var h = [];
+  h.push('<div class="card fade-in">');
+  h.push('<div class="wk">');
+
+  /* ── Columna izquierda: editor ── */
+  h.push('<div class="wk-main">');
+  h.push('<div class="card-h">Letra</div>');
+  h.push('<p class="card-sub">Bloques en el orden en que se cantan. Una línea por verso; el ornamento final lo pone el sistema.</p>');
+  h.push('<div style="height:1rem"></div>');
+  h.push('<div class="tools">');
+  ['(bis)','(x2)','(x3)'].forEach(function(x){
+    h.push('<button type="button" class="chip mini" data-act="ins" data-v="' + esc(x) + '">' + esc(x) + '<\/button>');
+  });
+  h.push('<button type="button" class="chip mini" data-act="ins-coro">Coro abreviado…<\/button>');
+  h.push('<span class="sep"></span>');
+  h.push('<button type="button" class="chip mini" data-act="ital"><em>Itálica<\/em><\/button>');
+  h.push('<\/div>');
+  h.push('<div id="blocklist">' + blocksHTML() + '<\/div>');
+  h.push('<p class="hint">Arrastra un bloque por el asa para reordenarlo, o pulsa <b>+<\/b> entre dos bloques para insertar uno nuevo.</p>');
+  h.push('<\/div>');
+
+  /* ── Columna derecha: vista previa fija + revisión ── */
+  h.push('<div class="wk-side"><div class="side-in">');
+  h.push('<div class="prev-wrap"><div class="side-t"><span class="lbl">Así se verá<\/span><\/div>' +
+         '<div class="prev-box" id="prev2">' + bodyHTML() + '<\/div><\/div>');
+  h.push('<div id="revpanel">' + revPanelHTML() + '<\/div>');
+  h.push('<\/div><\/div>');
+
+  h.push('<\/div><\/div>');
+  return h.join('');
+}
+/* Insertador entre bloques: línea dorada tenue con un "+" centrado. */
+function insHTML(pos){
+  return '<div class="ins" data-ins="' + pos + '">' +
+    '<button type="button" class="ins-btn" data-act="ins-open" data-v="' + pos + '" aria-expanded="false" ' +
+    'aria-label="Añadir un bloque en esta posición" title="Añadir un bloque aquí">' + ico('plus') + '<\/button><\/div>';
+}
+function insMenuHTML(pos){
+  var h = ['<span class="ins-menu">'], i;
+  for(i=0;i<TIPOS_BLOQUE.length;i++){
+    h.push('<button type="button" class="chip mini" data-act="ins-do" data-v="' + pos + '|' + TIPOS_BLOQUE[i] + '">' + TIPOS_BLOQUE[i] + '<\/button>');
+  }
+  h.push('<\/span>');
+  return h.join('');
+}
+function blocksHTML(){
+  var h = [], i;
+  for(i=0;i<S.bloques.length;i++){
+    var b = S.bloques[i];
+    h.push(insHTML(i));
+    h.push('<div class="blk' + (b.tipo === 'Nota' ? ' nota' : '') + '" data-idx="' + i + '">');
+    h.push('<div class="blk-h">' +
+      '<button type="button" class="blk-drag" data-drag="' + i + '" aria-label="Arrastrar para reordenar ' + esc(blockTitle(i)) + '" title="Arrastra para reordenar (o Alt + flechas)">' + ico('drag') + '<\/button>' +
+      '<span class="blk-t">' + esc(blockTitle(i)) + '<\/span><span class="blk-acts">' +
+      '<button type="button" class="iconbtn" data-act="blk-up" data-v="' + i + '" aria-label="Subir bloque"' + (i === 0 ? ' disabled' : '') + '>' + ico('up') + '<\/button>' +
+      '<button type="button" class="iconbtn" data-act="blk-down" data-v="' + i + '" aria-label="Bajar bloque"' + (i === S.bloques.length-1 ? ' disabled' : '') + '>' + ico('down') + '<\/button>' +
+      '<button type="button" class="iconbtn" data-act="blk-dup" data-v="' + i + '" aria-label="Duplicar bloque">' + ico('dup') + '<\/button>' +
+      '<button type="button" class="iconbtn danger" data-act="blk-del" data-v="' + i + '" aria-label="Eliminar bloque"' + (S.bloques.length === 1 ? ' disabled' : '') + '>' + ico('trash') + '<\/button>' +
+      '<\/span><\/div>');
+    h.push('<div class="chips">');
+    TIPOS_BLOQUE.forEach(function(t){
+      h.push('<button type="button" class="chip mini" data-act="blk-tipo" data-v="' + i + '|' + t + '" aria-pressed="' + (b.tipo === t) + '">' + t + '<\/button>');
+    });
+    h.push('<\/div>');
+    var ph = b.tipo === 'Nota' ? 'Tonalidad: MIm (+3) · 3/4' : 'Con María Te presentamos este pan, Señor.\nCon María Te presentamos este vino, Señor.';
+    var rows = Math.max(2, b.texto.split('\n').length);
+    h.push('<div class="blk-body"><textarea data-model="bloques.' + i + '.texto" data-lyr="1" rows="' + rows + '" placeholder="' + esc(ph) + '" aria-label="Texto de ' + esc(blockTitle(i)) + '">' + esc(b.texto) + '<\/textarea><\/div>');
+    h.push('<\/div>');
+  }
+  h.push(insHTML(S.bloques.length));
+  return h.join('');
+}
+/* Re-render solo de la lista de bloques (conserva el desplazamiento y la
+   vista previa fija). focusIdx enfoca el textarea de ese bloque. */
+function renderBlocks(focusIdx){
+  var box = el('blocklist');
+  if(!box){ renderStep(); return; }
+  INS_OPEN = null;
+  box.innerHTML = blocksHTML();
+  updateLyrics();
+  if(typeof focusIdx === 'number'){
+    var ta = box.querySelector('textarea[data-model="bloques.' + focusIdx + '.texto"]');
+    if(ta){ ta.focus(); activeTA = ta; }
+  }
+}
+function settle(idx){
+  var box = el('blocklist'); if(!box) return;
+  var b = box.querySelector('.blk[data-idx="' + idx + '"]');
+  if(b) b.classList.add('settled');
+}
+function moveBlock(i, d){
+  var j = i + d;
+  if(j < 0 || j >= S.bloques.length) return;
+  var b = S.bloques[i]; S.bloques[i] = S.bloques[j]; S.bloques[j] = b;
+  renderBlocks(j); settle(j); markDirty();
+}
+
+/* ── Insertador entre bloques ─────────────────────────────────────────── */
+var INS_OPEN = null;
+function closeIns(){
+  if(INS_OPEN === null) return;
+  var box = el('blocklist');
+  if(box){
+    var open = box.querySelector('.ins.open');
+    if(open){
+      open.classList.remove('open');
+      var m = open.querySelector('.ins-menu');
+      if(m) m.parentNode.removeChild(m);
+      var btn = open.querySelector('.ins-btn');
+      if(btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  }
+  INS_OPEN = null;
+}
+function openIns(pos){
+  var box = el('blocklist'); if(!box) return;
+  if(INS_OPEN === pos){ closeIns(); return; }
+  closeIns();
+  var row = box.querySelector('.ins[data-ins="' + pos + '"]');
+  if(!row) return;
+  row.classList.add('open');
+  row.insertAdjacentHTML('beforeend', insMenuHTML(pos));
+  var btn = row.querySelector('.ins-btn');
+  if(btn) btn.setAttribute('aria-expanded', 'true');
+  INS_OPEN = pos;
+  var first = row.querySelector('.ins-menu .chip');
+  if(first) first.focus();
+}
+function insertBlock(pos, tipo){
+  S.bloques.splice(pos, 0, { tipo:tipo, texto:'' });
+  renderBlocks(pos); settle(pos); markDirty();
+}
+function revPanelHTML(){
+  var pron = scanPronouns(), signs = scanSigns(), sp = scanSpaces();
+  var total = pron.length + signs.length + sp.length;
+  var h = [];
+  h.push('<div class="rev-panel' + (S.revPanelClosed ? ' closed' : '') + '">');
+  h.push('<button type="button" class="rev-head" data-act="rev-toggle"><span class="lbl">Revisión automática<\/span>' +
+    '<span class="cnt' + (total ? '' : ' zero') + '">' + total + '<\/span><span class="caret">' + ico('caret') + '<\/span><\/button>');
+  h.push('<div class="rev-body">');
+
+  h.push('<div class="chk ' + (pron.length ? 'chk-warn' : 'chk-ok') + '">' + (pron.length ? ico('warn') : ico('check')) +
+    '<div class="chk-txt"><b>Pronombres a Dios<\/b><br>' + (pron.length ? pron.length + ' por revisar. Es una sugerencia: a veces «tu» no se refiere a Dios.' : 'Sin observaciones.') + '<\/div><\/div>');
+  var i;
+  for(i=0;i<pron.length;i++){
+    h.push('<div class="sug"><div class="sug-t">' + esc(pron[i].donde) + ': «' + esc(pron[i].frag) + '» → ¿«' +
+      esc(pron[i].frag.replace(pron[i].w, pron[i].sug)) + '»?<\/div><div class="sug-a">' +
+      '<button type="button" class="btn btn-line btn-sm" data-act="pron-fix" data-v="' + esc(pron[i].key) + '">Corregir<\/button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-act="pron-skip" data-v="' + esc(pron[i].key) + '">Omitir<\/button><\/div><\/div>');
+  }
+  if(pron.length > 1) h.push('<div class="sug-a" style="margin-top:.45rem"><button type="button" class="btn btn-line btn-sm" data-act="pron-all">Corregir todo<\/button><\/div>');
+
+  h.push('<div class="chk ' + (signs.length ? 'chk-warn' : 'chk-ok') + '">' + (signs.length ? ico('warn') : ico('check')) +
+    '<div class="chk-txt"><b>Signos de apertura<\/b><br>' + (signs.length ? esc(signs.join('; ')) : 'Sin observaciones.') + '<\/div><\/div>');
+
+  h.push('<div class="chk ' + (sp.length ? 'chk-warn' : 'chk-ok') + '">' + (sp.length ? ico('warn') : ico('check')) +
+    '<div class="chk-txt"><b>Espacios y líneas vacías<\/b><br>' + (sp.length ? esc(sp.join('; ')) : 'Sin observaciones.') + '<\/div><\/div>');
+  if(sp.length) h.push('<div class="sug-a" style="margin-top:.45rem"><button type="button" class="btn btn-line btn-sm" data-act="limpiar">Limpiar espacios<\/button><\/div>');
+
+  h.push('<\/div><\/div>');
+  return h.join('');
+}
+function step2Instrumental(){
+  var nota = (S.bloques.length && S.bloques[0].tipo === 'Nota') ? S.bloques[0].texto : '';
+  return '<div class="narrow"><div class="card fade-in"><div class="card-h">Letra</div>' +
+    '<p class="card-sub">Esta pieza se publicará sin letra. Así se verá en el cancionero:</p>' +
+    '<div class="prev-box" style="margin-top:1rem"><div class="instr"><div class="instr-i">♪<\/div>' +
+    '<p class="instr-t">Pieza instrumental<\/p><p class="instr-s">Sin letra, escuchar referencia en YouTube<\/p>' +
+    (nota ? '<p class="instr-s">' + inline(nota) + '<\/p>' : '') + '<\/div><\/div>' +
+    '<div class="fld"><label class="lbl" for="f-inota">Nota (opcional)<\/label>' +
+    '<input type="text" id="f-inota" data-act="inota" value="' + esc(nota) + '" placeholder="Intérprete o arreglo">' +
+    '<p class="hint">Por ejemplo: «Arreglo para violín y órgano · Coro Pacem Deus».<\/p><\/div><\/div><\/div>';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   13. PASO 3 — ACORDES
+   ═══════════════════════════════════════════════════════════════════════ */
+function step3(){
+  var a = S.acordes, h = [];
+  if(!a.on){
+    return '<div class="narrow"><div class="card fade-in"><div class="card-h">Acordes</div>' +
+      '<p class="card-sub">Opcional. Se publican como el bloque «Ver acordes» del cancionero.</p>' +
+      '<div class="fld"><label class="sw"><input type="checkbox" id="ch-on" data-act="ch-on"><span class="sw-track"></span><span class="sw-txt">Este canto lleva acordes<\/span><\/label><\/div>' +
+      '<div class="note note-info">' + ico('book') + '<div>Se publicará solo con letra. Los acordes pueden añadirse después con el editor del cancionero.<\/div><\/div>' +
+      '<\/div><\/div>';
+  }
+  h.push('<div class="card fade-in"><div class="wk"><div class="wk-main">');
+  h.push('<div class="card-h">Acordes</div>');
+  h.push('<p class="card-sub">Opcional. Se publican como el bloque «Ver acordes» del cancionero.</p>');
+  h.push('<div class="fld"><label class="sw"><input type="checkbox" id="ch-on" data-act="ch-on"' + (a.on ? ' checked' : '') + '><span class="sw-track"></span><span class="sw-txt">Este canto lleva acordes<\/span><\/label><\/div>');
+
+  h.push('<div class="rule"></div>');
+  h.push('<div class="fld"><span class="lbl">Tonalidad<\/span><div class="keyrow">');
+  h.push('<select data-act="ch-nota" aria-label="Nota">' + ['DO','RE','MI','FA','SOL','LA','SI'].map(function(n){
+    return '<option value="' + n + '"' + (a.nota === n ? ' selected' : '') + '>' + n + '<\/option>'; }).join('') + '<\/select>');
+  h.push('<select data-act="ch-alt" aria-label="Alteración">' +
+    '<option value=""' + (a.alt === '' ? ' selected' : '') + '>natural<\/option>' +
+    '<option value="#"' + (a.alt === '#' ? ' selected' : '') + '>sostenido #<\/option>' +
+    '<option value="b"' + (a.alt === 'b' ? ' selected' : '') + '>bemol b<\/option><\/select>');
+  h.push('<select data-act="ch-modo" aria-label="Modo">' +
+    '<option value="mayor"' + (a.modo === 'mayor' ? ' selected' : '') + '>Mayor<\/option>' +
+    '<option value="menor"' + (a.modo === 'menor' ? ' selected' : '') + '>menor<\/option><\/select>');
+  h.push('<\/div><div class="keyname" style="margin-top:.45rem">' + esc(keyName()) + '<\/div><\/div>');
+
+  h.push('<div class="row half"><div><label class="lbl" for="f-capo">Capo<\/label><select id="f-capo" data-act="ch-capo">');
+  for(var c=0;c<=7;c++){ h.push('<option value="' + c + '"' + (a.capo === c ? ' selected' : '') + '>' + (c === 0 ? 'sin capo' : '+' + c) + '<\/option>'); }
+  h.push('<\/select><\/div><div><label class="lbl" for="f-ritmo">Ritmo / compás<\/label><input type="text" id="f-ritmo" data-model="acordes.ritmo" value="' + esc(a.ritmo) + '" placeholder="4/4 moderado"><\/div><\/div>');
+
+  h.push('<div class="fld"><label class="cbx"><input type="checkbox" data-act="ch-rev"' + (a.porRevisar ? ' checked' : '') + '><span>Acordes por revisar <em>(añade el aviso ⚠ en la publicación)<\/em><\/span><\/label><\/div>');
+
+  h.push('<div class="rule"></div>');
+  h.push('<div class="fld"><span class="lbl">Editor de acordes<\/span>');
+  h.push('<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem">' +
+    '<button type="button" class="btn btn-line btn-sm" data-act="ch-import">' + ico('down2') + 'Importar la letra<\/button>' +
+    '<button type="button" class="btn btn-line btn-sm" data-act="ch-norm">Normalizar notación<\/button><\/div>');
+  h.push('<p class="hint" style="margin:0 0 .5rem">Escribe los acordes en la línea de arriba, alineados con la sílaba donde cambian.</p>');
+  h.push('<div class="ce"><div class="ce-hl" id="ce-hl" aria-hidden="true"><\/div>' +
+    '<textarea class="ce-ta" id="ce-ta" wrap="off" spellcheck="false" data-model="acordes.texto" aria-label="Editor de acordes">' + esc(a.texto) + '<\/textarea><\/div>');
+  h.push('<div id="ch-msgs">' + chordMsgsHTML() + '<\/div>');
+  h.push('<details class="help"><summary>Cómo se escribe</summary><div class="hlp-body">' +
+    '<p><code>== SECCIÓN ==<\/code> abre una sección (INTRO, ESTROFA 1, CORO, PUENTE).<\/p>' +
+    '<p>Una línea que solo contiene acordes se pinta como acordes.<\/p>' +
+    '<p><code>* CAPO +3 *<\/code> para la cejilla y <code>⚠ texto<\/code> para un aviso.<\/p>' +
+    '<p>Notación latina: mayores en MAYÚSCULAS (<code>DO<\/code>, <code>RE7<\/code>, <code>SOL#<\/code>, <code>SIb<\/code>, <code>DO7+<\/code>), ' +
+    'menores capitalizadas con m (<code>Dom<\/code>, <code>Rem7<\/code>, <code>Fa#m<\/code>) y el bajo siempre en mayúsculas (<code>Lam/SOL<\/code>).<\/p>' +
+    '<\/div><\/details><\/div>');
+  h.push('<\/div>');
+
+  h.push('<div class="wk-side"><div class="side-in">');
+  h.push('<div class="prev-wrap"><div class="side-t"><span class="lbl">Así se verá<\/span><\/div>' +
+    '<div class="sc-chords open"><pre id="prev3">' + chordsHTML() + '<\/pre><\/div><\/div>');
+  h.push('<\/div><\/div>');
+
+  h.push('<\/div><\/div>');
+  return h.join('');
+}
+function chordMsgsHTML(){
+  var st = chordStats(S.acordes.texto), h = [], k, engs = [];
+  for(k in st.engTokens){ if(st.engTokens.hasOwnProperty(k)) engs.push(k); }
+  if(S.acordes.normalizados){
+    h.push('<div class="note note-ok">' + ico('check') + '<div>' + S.acordes.normalizados + ' acordes normalizados a la notación del proyecto.<\/div><\/div>');
+  }
+  if(st.eng){
+    h.push('<div class="note note-bad">' + ico('warn') + '<div><b>Notación inglesa<\/b>: usa DO, RE, MI… (C = DO, D = RE, E = MI, F = FA, G = SOL, A = LA, B = SI).<br>' +
+      'Detectados: ' + esc(engs.slice(0,8).join(', ')) + (engs.length > 8 ? '…' : '') +
+      '<br><button type="button" class="btn btn-line btn-sm" data-act="ch-eng">Convertir a latina<\/button><\/div><\/div>');
+  }
+  if(st.unk){
+    h.push('<div class="note note-warn">' + ico('warn') + '<div>' + st.unk + ' token(s) en líneas de acordes no se reconocen como acorde. Revísalos: aparecen subrayados en ámbar.<\/div><\/div>');
+  }
+  if(!st.eng && !st.unk && !S.acordes.normalizados){
+    h.push('<div class="note note-ok">' + ico('check') + '<div>' + st.ok + ' acordes en notación latina correcta.<\/div><\/div>');
+  }
+  return h.join('');
+}
+function importarLetra(){
+  var out = [], n = 0, i;
+  for(i=0;i<S.bloques.length;i++){
+    var b = S.bloques[i];
+    if(b.tipo === 'Nota') continue;
+    if(b.tipo === 'Estrofa'){ n++; out.push('== ESTROFA ' + n + ' =='); }
+    else out.push('== ' + b.tipo.toUpperCase() + ' ==');
+    var lines = b.texto.split('\n'), j;
+    for(j=0;j<lines.length;j++){ if(lines[j].trim()){ out.push(''); out.push(lines[j]); } }
+    out.push('');
+  }
+  S.acordes.texto = out.join('\n').replace(/\n+$/,'\n');
+}
+function syncCE(){
+  var ta = el('ce-ta'), hl = el('ce-hl');
+  if(!ta || !hl) return;
+  hl.innerHTML = highlightHTML(ta.value);
+  hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   14. PASO 4 — CONTEXTO
+   ═══════════════════════════════════════════════════════════════════════ */
+function chipList(arr, act, sel, cls){
+  var h = ['<div class="chips">'], i;
+  for(i=0;i<arr.length;i++){
+    var on = sel.indexOf(arr[i]) >= 0;
+    h.push('<button type="button" class="chip' + (cls ? ' ' + cls : '') + '" data-act="' + act + '" data-v="' + esc(arr[i]) + '" aria-pressed="' + on + '">' + esc(arr[i]) + '<\/button>');
+  }
+  h.push('<\/div>');
+  return h.join('');
+}
+function step4(){
+  var c = S.ctx, h = [];
+  h.push('<div class="card fade-in"><div class="wk"><div class="wk-main">');
+  h.push('<div class="card-h">Contexto litúrgico</div>');
+  h.push('<p class="card-sub">Es lo que se despliega al tocar «Contexto» en el cancionero: quién lo compuso, en qué se apoya y cuándo se canta.</p>');
+
+  h.push('<div class="fld"><span class="lbl">Compositor / intérprete<\/span>');
+  h.push('<div class="chips" style="margin-bottom:.45rem">' +
+    '<button type="button" class="chip mini" data-act="ctx-label" data-v="Compositor" aria-pressed="' + (c.label === 'Compositor') + '">Compositor<\/button>' +
+    '<button type="button" class="chip mini" data-act="ctx-label" data-v="Compositora" aria-pressed="' + (c.label === 'Compositora') + '">Compositora<\/button><\/div>');
+  h.push('<textarea rows="2" data-model="ctx.compositor" placeholder="**Nombre** (año)">' + esc(c.compositor) + '<\/textarea>');
+  h.push('<p class="hint">Admite <b>**negrita**<\/b> y <em>_itálica_<\/em>.<\/p><\/div>');
+
+  h.push('<div class="fld"><label class="lbl" for="f-fund">Fundamento bíblico<\/label>' +
+    '<textarea id="f-fund" rows="6" data-model="ctx.fundamento" placeholder="En qué pasaje se apoya el canto y qué celebra la asamblea al cantarlo.">' + esc(c.fundamento) + '<\/textarea><\/div>');
+
+  h.push('<div class="fld"><span class="lbl">Citas<\/span><div class="chips" id="citas">');
+  var i;
+  for(i=0;i<c.citas.length;i++){
+    h.push('<button type="button" class="chip on" data-act="cita-ins" data-v="' + i + '" title="Insertar al final del texto">' + esc(c.citas[i]) +
+      ' <span data-act="cita-del" data-v="' + i + '" aria-label="Quitar">×<\/span><\/button>');
+  }
+  h.push('<\/div><div class="row two" style="margin-top:.5rem"><input type="text" id="f-cita" placeholder="Lc 1,38" aria-label="Añadir cita">' +
+    '<button type="button" class="btn btn-line btn-sm" data-act="cita-add">' + ico('plus') + 'Añadir cita<\/button><\/div>' +
+    '<div id="cita-msg"></div><p class="hint">Formato: libro abreviado + capítulo,versículos. Al pulsar un chip se inserta al final del texto.<\/p><\/div>');
+
+  h.push('<div class="fld"><span class="lbl">Versículo destacado (opcional)<\/span>' +
+    '<textarea rows="2" data-model="ctx.versoTexto" placeholder="He aquí la esclava del Señor; hágase en mí según Tu palabra.">' + esc(c.versoTexto) + '<\/textarea>' +
+    '<input type="text" style="margin-top:.4rem" data-model="ctx.versoRef" value="' + esc(c.versoRef) + '" placeholder="Lc 1,38" aria-label="Referencia del versículo"><\/div>');
+
+  h.push('<div class="rule"></div>');
+  h.push('<div class="fld"><span class="lbl">Tiempos litúrgicos<\/span>' + chipList(TIEMPOS,'ctx-tiempo',c.tiempos) +
+    '<p class="hint">Antes se usaban «Tiempo Pascual», «Universal», «Tiempo Ordinario»; ahora hay una sola forma por tiempo.<\/p><\/div>');
+
+  h.push('<div class="fld"><span class="lbl">Momentos<\/span><div class="chips" style="margin-bottom:.4rem">' +
+    '<span class="chip fixed">' + esc(S.momento) + ' ' + ico('lock') + '<\/span><\/div>' +
+    chipList(MOMENTOS_CTX.filter(function(m){ return m !== S.momento; }),'ctx-momento',c.momentos) + '<\/div>');
+
+  h.push('<div class="fld"><label class="lbl" for="f-notalit">Nota litúrgica (opcional)<\/label>' +
+    '<textarea id="f-notalit" rows="2" data-model="ctx.nota" placeholder="Se canta despacio; la asamblea repite el coro.">' + esc(c.nota) + '<\/textarea><\/div>');
+
+  if(S.momento === 'Bodas'){
+    h.push('<div class="fade-in">');
+    h.push('<div class="grp-eyebrow rose">Bodas<\/div>');
+    h.push('<div class="fld"><label class="lbl" for="f-bh">De qué habla esta canción<\/label>' +
+      '<textarea id="f-bh" rows="3" data-model="ctx.bodasHabla" placeholder="El sentido del texto en una o dos frases.">' + esc(c.bodasHabla) + '<\/textarea><\/div>');
+    h.push('<div class="fld"><label class="lbl" for="f-ba">Conexión con el amor y la unión<\/label>' +
+      '<textarea id="f-ba" rows="3" data-model="ctx.bodasAmor" placeholder="Por qué encaja en la celebración del matrimonio.">' + esc(c.bodasAmor) + '<\/textarea><\/div>');
+    h.push('<div class="fld"><span class="lbl">Uso típico en bodas<\/span>' + chipList(USOS_BODAS,'ctx-uso',c.bodasUsos,'rose') + '<\/div>');
+    h.push('<\/div>');
+  }
+
+  h.push('<div class="rule"></div><div class="fld"><span class="lbl">Otras secciones<\/span>');
+  for(i=0;i<c.extras.length;i++){
+    h.push('<div class="blk"><div class="blk-h"><span class="blk-t">Sección propia<\/span><span class="blk-acts">' +
+      '<button type="button" class="iconbtn danger" data-act="ex-del" data-v="' + i + '" aria-label="Eliminar sección">' + ico('trash') + '<\/button><\/span><\/div>' +
+      '<div class="blk-body"><input type="text" data-model="ctx.extras.' + i + '.label" value="' + esc(c.extras[i].label) + '" placeholder="Origen y traducción" style="font-family:var(--f-display);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase">' +
+      '<textarea rows="3" style="margin-top:.4rem" data-model="ctx.extras.' + i + '.texto" placeholder="Texto de la sección">' + esc(c.extras[i].texto) + '<\/textarea><\/div><\/div>');
+  }
+  h.push('<button type="button" class="btn btn-line btn-sm" data-act="ex-add">' + ico('plus') + 'Añadir sección propia<\/button>' +
+    '<p class="hint">Por ejemplo: «Origen y traducción», «Estructura musical», «Catecismo de la Iglesia Católica».<\/p><\/div>');
+  h.push('<\/div>');
+
+  h.push('<div class="wk-side"><div class="side-in">');
+  h.push('<div class="prev-wrap"><div class="side-t"><span class="lbl">Así se verá<\/span><\/div>' +
+    '<div class="sc-ctx open" id="prev4">' + contextHTML() + '<\/div><\/div>');
+  h.push('<\/div><\/div>');
+
+  h.push('<\/div><\/div>');
+  return h.join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   15. VISTA PREVIA COMO SONG-CARD DEL CANCIONERO
+   ═══════════════════════════════════════════════════════════════════════ */
+function songCard(opts){
+  opts = opts || {};
+  var refs = ytList(), cols = ['r','v','p'], h = [], i;
+  var cuerpo = opts.body || bodyHTML();
+  var acordes = opts.chords === undefined ? chordsHTML() : opts.chords;
+  var contexto = opts.context === undefined ? contextHTML() : opts.context;
+  var titulo = opts.title || S.titulo;
+  var momento = opts.moment || S.momento;
+
+  h.push('<div class="sc"><div class="sc-head"><span class="sc-bar"></span>');
+  h.push('<div class="sc-num">160<\/div><div class="sc-htext">');
+  h.push('<div class="sc-moment">' + esc(momento) + '<\/div>');
+  h.push('<div class="sc-title"><span>' + esc(titulo) + '<\/span><span class="sc-star" title="Nuevo">✦<\/span><span class="sc-acts">');
+  if(acordes) h.push('<button type="button" class="pbtn g" data-act="sc-chords" aria-label="Ver acordes">' + ico('note') + '<\/button>');
+  for(i=0;i<refs.length && i<3;i++){
+    h.push('<button type="button" class="pbtn ' + cols[i] + '" data-act="noop" aria-label="Referencia ' + (i+1) + '">' + ico('play') + '<\/button>');
+  }
+  h.push('<\/span><\/div><\/div><\/div>');
+  h.push('<div class="sc-body">' + cuerpo);
+  if(acordes){
+    h.push('<button type="button" class="sc-ct" data-act="sc-chords">Ver acordes ▾<\/button>');
+    h.push('<div class="sc-chords" id="sc-chords"><pre>' + acordes + '<\/pre><\/div>');
+  }
+  h.push('<\/div>');
+  if(contexto){
+    h.push('<button type="button" class="sc-cxt" data-act="sc-ctx">Contexto<\/button>');
+    h.push('<div class="sc-ctx" id="sc-ctx">' + contexto + '<\/div>');
+  }
+  h.push('<\/div>');
+  return h.join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   16. PASO 5 — REVISIÓN Y ENVÍO
+   ═══════════════════════════════════════════════════════════════════════ */
+function step5(){
+  if(S.enviado){
+    return '<div class="narrow"><div class="card fade-in"><div class="sent"><span class="sent-i">' + ico('check') + '<\/span>' +
+      '<h3>Enviado<\/h3><p>El director recibirá tu propuesta «' + esc(S.titulo) + '».<\/p>' +
+      '<button type="button" class="btn btn-gold" data-act="otro">' + ico('plus') + 'Proponer otro canto<\/button><\/div><\/div><\/div>';
+  }
+  var cl = checklist(), h = [], i;
+  h.push('<div class="narrow-plus"><div class="card fade-in"><div class="card-h">Revisión y envío</div>');
+  h.push('<p class="card-sub">Última mirada antes de que el director lo reciba.</p>');
+
+  h.push('<div class="fld"><span class="lbl">Lista de comprobación<\/span>');
+  for(i=0;i<cl.length;i++){
+    var st = cl[i].s;
+    h.push('<div class="chk chk-' + st + '">' + (st === 'ok' ? ico('check') : (st === 'warn' ? ico('warn') : ico('x'))) +
+      '<div class="chk-txt"><b>' + esc(cl[i].t) + '<\/b> — ' + esc(cl[i].d) + '<\/div><\/div>');
+  }
+  h.push('<\/div>');
+
+  h.push('<div class="prev-wrap"><span class="lbl">Así se verá en el cancionero<\/span>' + songCard() + '<\/div>');
+
+  h.push('<div class="fld"><label class="lbl" for="f-msg">Mensaje para el revisor (opcional)<\/label>' +
+    '<textarea id="f-msg" rows="3" data-model="mensaje" placeholder="Cuéntale al director lo que debe saber: de dónde sacaste la letra, si los acordes son tuyos…">' + esc(S.mensaje) + '<\/textarea><\/div>');
+
+  h.push('<div class="rule"></div><div class="fld"><span class="lbl">Qué pasa después<\/span><div class="flow">' +
+    '<div class="flow-i">' + ico('eye') + '<span>El director lo revisa<\/span><\/div>' +
+    '<div class="flow-i">' + ico('book') + '<span>Se publica en el cancionero<\/span><\/div>' +
+    '<div class="flow-i">' + ico('star') + '<span>Aparece con la estrella de nuevo durante 60 días<\/span><\/div><\/div>');
+  h.push('<div class="sysdata">' +
+    '<div><span>Identificador<\/span><b>cpd-160<\/b><\/div>' +
+    '<div><span>Fecha de alta<\/span><b>5 set 2026<\/b><\/div>' +
+    '<div><span>Posición<\/span><b>' + esc(S.momento) + ' · alfabética por título<\/b><\/div><\/div>');
+  h.push('<p class="hint">Estos datos los asigna el sistema al publicar; no se editan aquí.<\/p><\/div>');
+  h.push('<\/div><\/div>');
+  return h.join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   17. BARRA DE ACCIONES
+   ═══════════════════════════════════════════════════════════════════════ */
+function renderActionBar(){
+  var box = el('abar-in');
+  if(VIEW === 'rev'){
+    if(RV.open){
+      box.innerHTML = '<span class="save" id="save-rv"><span class="save-dot"></span>Decisión del director<\/span>' +
+        '<span class="abar-btns">' +
+        '<button type="button" class="btn btn-line" data-act="rv-devolver">Devolver con comentario<\/button>' +
+        '<button type="button" class="btn btn-sage" data-act="rv-aprobar">' + ico('check') + 'Aprobar<\/button><\/span>';
+      el('abar').classList.remove('hidden');
+    } else {
+      el('abar').classList.add('hidden');
+    }
+    return;
+  }
+  el('abar').classList.remove('hidden');
+  var btns;
+  if(S.enviado){
+    btns = '<button type="button" class="btn btn-line" data-act="view" data-v="rev">Ver como revisor<\/button>';
+  } else if(S.step < 5){
+    btns = '<button type="button" class="btn btn-line" data-act="prev"' + (S.step === 1 ? ' disabled' : '') + '>Anterior<\/button>' +
+           '<button type="button" class="btn btn-gold" data-act="next">Siguiente' + ico('arrow') + '<\/button>';
+  } else {
+    btns = '<button type="button" class="btn btn-line" data-act="draft">Guardar borrador<\/button>' +
+           '<button type="button" class="btn btn-sage" data-act="send">' + ico('send') + 'Enviar a revisión<\/button>';
+  }
+  box.innerHTML = '<span class="save" id="save"><span class="save-dot"></span><span id="save-txt">Borrador guardado hace un momento</span></span>' +
+    '<span class="abar-btns">' + btns + '<\/span>';
+  paintSave();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   18. VISTA REVISOR
+   ═══════════════════════════════════════════════════════════════════════ */
+function countBy(e){ var n = 0, i; for(i=0;i<PROPS.length;i++){ if(PROPS[i].estado === e) n++; } return n; }
+function findProp(id){ var i; for(i=0;i<PROPS.length;i++){ if(PROPS[i].id === id) return PROPS[i]; } return null; }
+function renderRev(){
+  var h = [];
+  if(RV.open){ h.push(revDetail()); }
+  else{
+    h.push('<div class="tabs" role="tablist">');
+    [['revisar','Por revisar'],['devuelta','Devueltas'],['aprobada','Aprobadas']].forEach(function(t){
+      h.push('<button type="button" class="tab" role="tab" data-act="rv-tab" data-v="' + t[0] + '" aria-selected="' + (RV.tab === t[0]) + '">' + t[1] + ' (' + countBy(t[0]) + ')<\/button>');
+    });
+    h.push('<\/div>');
+    h.push('<div class="card"><div class="plist">');
+    var any = false, i;
+    for(i=0;i<PROPS.length;i++){
+      var p = PROPS[i];
+      if(p.estado !== RV.tab) continue;
+      any = true;
+      h.push('<button type="button" class="pitem" data-act="rv-open" data-v="' + p.id + '">' +
+        '<span class="pitem-m"><span class="pitem-t">' + esc(p.title) + '<\/span>' +
+        '<span class="pitem-s"><span class="pill' + (p.moment === 'Bodas' ? ' rose' : '') + '">' + esc(p.moment) + '<\/span>' +
+        esc(p.by) + ' · ' + esc(p.date) + (p.idioma ? ' · ' + esc(p.idioma) : '') + '<\/span><\/span>' +
+        '<span class="dots" title="letra · acordes · contexto">' + p.dots.map(function(d){ return '<i class="d-' + d + '"></i>'; }).join('') + '<\/span><\/button>');
+    }
+    if(!any) h.push('<p class="hint" style="text-align:center;padding:1.5rem 0">No hay propuestas en esta pestaña.<\/p>');
+    h.push('<\/div>');
+    if(RV.tab === 'aprobada'){
+      h.push('<div class="rule"></div><button type="button" class="btn btn-gold btn-sm" data-act="export">Exportar aprobadas (JSON)<\/button>' +
+        '<p class="hint">Las aprobadas se incorporan al cancionero en la siguiente publicación (Claude las ordena y asigna su identificador).<\/p>');
+    }
+    h.push('<\/div>');
+  }
+  el('revbody').innerHTML = h.join('');
+  renderActionBar();
+}
+function revDetail(){
+  var p = findProp(RV.open), h = [];
+  h.push('<button type="button" class="back-a" data-act="rv-back">' + ico('left') + 'Volver a propuestas<\/button>');
+  h.push('<div class="card"><div class="card-h">' + esc(p.title) + '<\/div>');
+  h.push('<p class="card-sub"><span class="pill' + (p.moment === 'Bodas' ? ' rose' : '') + '">' + esc(p.moment) + '<\/span> ' + esc(p.by) + ' · ' + esc(p.date) + '<\/p>');
+  h.push('<div class="prev-wrap">');
+  if(p.live){
+    h.push(songCard());
+  } else {
+    h.push(songCard({
+      title: p.title, moment: p.moment,
+      body: '<p class="prop-omit">Vista previa parcial en el prototipo: la letra enviada por el proponente se muestra aquí con el estilo del cancionero.</p><div class="song-ornament">✦ ✦ ✦</div>',
+      chords: p.dots[1] === 'off' ? '' : '<b class="chord-title">♫ ' + esc(p.title) + '<\/b>\n<b class="chord-capo">TONALIDAD: por confirmar<\/b>\n<b class="chord-section">═══ ESTROFA 1 ═══<\/b>\n<span class="chord">DO<\/span>      <span class="chord">SOL<\/span>\n(acordes de la propuesta)',
+      context: p.estado === 'devuelta'
+        ? '<p class="ctx-title">' + esc(p.title) + '<\/p><div class="ctx-section"><div class="ctx-label">Fundamento bíblico<\/div><div class="ctx-text"><p><em>Sin completar.<\/em><\/p><\/div><\/div>'
+        : '<p class="ctx-title">' + esc(p.title) + '<\/p><div class="ctx-section"><div class="ctx-label">Tiempos y momentos litúrgicos<\/div><div class="ctx-tags"><span class="ctx-tag ctx-tag-momento">' + esc(p.moment) + '<\/span><span class="ctx-tag ctx-tag-tiempo">Todo el Año Litúrgico<\/span><\/div><\/div>'
+    }));
+  }
+  h.push('<\/div>');
+  if(p.msg) h.push('<div class="msgbox"><div class="who">Mensaje del proponente<\/div><p>' + esc(p.msg) + '<\/p><\/div>');
+  if(p.estado === 'devuelta' && p.comentario){
+    h.push('<div class="note note-warn" style="margin-top:.8rem">' + ico('warn') + '<div><b>Devuelta<\/b> — ' + esc(p.comentario) + '<\/div><\/div>');
+  }
+  if(p.estado === 'aprobada'){
+    h.push('<div class="note note-ok" style="margin-top:.8rem">' + ico('check') + '<div>Aprobada. Entra en la próxima publicación del cancionero.<\/div><\/div>');
+  }
+  if(RV.devolviendo){
+    h.push('<div class="fld"><label class="lbl" for="f-dev">Comentario para el proponente<\/label>' +
+      '<textarea id="f-dev" rows="3" placeholder="Qué falta o qué hay que corregir">' + esc(RV.comentario) + '<\/textarea>' +
+      '<div style="display:flex;gap:.5rem;margin-top:.5rem">' +
+      '<button type="button" class="btn btn-line btn-sm" data-act="rv-dev-cancel">Cancelar<\/button>' +
+      '<button type="button" class="btn btn-line btn-sm" data-act="rv-dev-ok">Devolver la propuesta<\/button><\/div><\/div>');
+  }
+  h.push('<\/div>');
+  return h.join('');
+}
+function openExport(){
+  var j = songJSON();
+  el('modal-title').textContent = 'Exportar aprobadas · canto de ejemplo';
+  el('modal-body').innerHTML = '<p class="hint" style="margin:0 0 .6rem">Los tres HTML tal como los guarda <code>songs.json<\/code>.<\/p>' +
+    '<pre id="json-pre">' + esc(JSON.stringify(j, null, 2)) + '<\/pre>';
+  el('modal').classList.add('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   19. RENDER PRINCIPAL
+   ═══════════════════════════════════════════════════════════════════════ */
+function renderStep(){
+  INS_OPEN = null;
+  var html = S.step === 1 ? step1() : S.step === 2 ? step2() : S.step === 3 ? step3() : S.step === 4 ? step4() : step5();
+  el('stepbody').innerHTML = html;
+  if(S.step === 3 && S.acordes.on) syncCE();
+  autosize();
+}
+function autosize(){
+  var tas = el('stepbody').querySelectorAll('textarea[data-lyr]'), i;
+  for(i=0;i<tas.length;i++){ tas[i].rows = Math.max(2, tas[i].value.split('\n').length); }
+}
+function renderAll(){
+  renderStepper(); renderStep(); renderActionBar();
+}
+function goStep(n){
+  if(n < 1 || n > 5) return;
+  S.step = n;
+  if(n > S.maxStep) S.maxStep = n;
+  renderAll();
+  var y = el('stepbody').getBoundingClientRect().top + window.pageYOffset - 150;
+  window.scrollTo(0, Math.max(0, y));
+}
+function setView(v){
+  VIEW = v;
+  el('vw-form').setAttribute('aria-pressed', v === 'form');
+  el('vw-rev').setAttribute('aria-pressed', v === 'rev');
+  el('view-form').className = v === 'form' ? '' : 'hidden';
+  el('view-rev').className = v === 'rev' ? '' : 'hidden';
+  if(v === 'rev'){ RV.open = null; RV.devolviendo = false; renderRev(); }
+  else renderAll();
+  window.scrollTo(0, 0);
+}
+
+/* ── Actualizaciones puntuales (sin re-render completo) ───────────────── */
+function updateLyrics(){
+  var rp = el('revpanel'); if(rp) rp.innerHTML = revPanelHTML();
+  var pv = el('prev2'); if(pv) pv.innerHTML = bodyHTML();
+}
+function updateChords(){
+  syncCE();
+  var m = el('ch-msgs'); if(m) m.innerHTML = chordMsgsHTML();
+  var p = el('prev3'); if(p) p.innerHTML = chordsHTML();
+}
+function updateCtx(){ var p = el('prev4'); if(p) p.innerHTML = contextHTML(); }
+function updateYt(i){
+  var n = el('ytn-' + i); if(!n) return;
+  var u = ytNorm(S.yt[i]);
+  n.textContent = u ? u : 'Pega el enlace para ver la URL normalizada';
+}
+function updateDup(){ var d = el('dupwarn'); if(d) d.innerHTML = dupWarnHTML(tituloDuplicado()); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   20. EDICIÓN DE TEXTO EN EL PASO 2
+   ═══════════════════════════════════════════════════════════════════════ */
+var activeTA = null;
+function currentTA(){
+  var a = document.activeElement;
+  if(a && a.tagName === 'TEXTAREA' && a.getAttribute('data-lyr')) return a;
+  return activeTA;
+}
+function pushTA(ta){
+  setPath(ta.getAttribute('data-model'), ta.value);
+  ta.rows = Math.max(2, ta.value.split('\n').length);
+  updateLyrics(); markDirty();
+}
+function insLineEnd(txt){
+  var ta = currentTA(); if(!ta) return;
+  var v = ta.value, pos = ta.selectionStart, end = v.indexOf('\n', pos);
+  if(end < 0) end = v.length;
+  ta.value = v.slice(0, end) + ' ' + txt + v.slice(end);
+  ta.selectionStart = ta.selectionEnd = end + txt.length + 1;
+  ta.focus(); pushTA(ta);
+}
+function insCoroAbrev(){
+  var ta = currentTA(); if(!ta) return;
+  var last = null, i;
+  for(i=0;i<S.bloques.length;i++){ if(S.bloques[i].tipo === 'Coro') last = S.bloques[i]; }
+  if(!last){ toast('No hay un bloque de Coro todavía'); return; }
+  var first = last.texto.split('\n')[0] || '';
+  var v = ta.value, pos = ta.selectionStart, end = v.indexOf('\n', pos);
+  if(end < 0) end = v.length;
+  var add = '\n' + first.replace(/\s*\(bis\)\s*$/,'') + '…';
+  ta.value = v.slice(0, end) + add + v.slice(end);
+  ta.selectionStart = ta.selectionEnd = end + add.length;
+  ta.focus(); pushTA(ta);
+}
+function wrapItalic(){
+  var ta = currentTA(); if(!ta) return;
+  var s = ta.selectionStart, e = ta.selectionEnd;
+  if(s === e){ toast('Selecciona primero el texto'); return; }
+  var v = ta.value;
+  ta.value = v.slice(0, s) + '_' + v.slice(s, e) + '_' + v.slice(e);
+  ta.selectionStart = s; ta.selectionEnd = e + 2;
+  ta.focus(); pushTA(ta);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   21. EVENTOS
+   ═══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('input', function(e){
+  var t = e.target, m = t.getAttribute && t.getAttribute('data-model');
+  if(t.getAttribute && t.getAttribute('data-act') === 'inota'){
+    if(!S.bloques.length || S.bloques[0].tipo !== 'Nota') S.bloques.unshift({ tipo:'Nota', texto:'' });
+    S.bloques[0].texto = t.value;
+    var box = el('stepbody').querySelector('.instr');
+    if(box){
+      var subs = box.querySelectorAll('.instr-s');
+      if(subs.length > 1) subs[1].innerHTML = inline(t.value);
+      else if(t.value) box.insertAdjacentHTML('beforeend', '<p class="instr-s">' + inline(t.value) + '<\/p>');
+    }
+    markDirty(); return;
+  }
+  if(!m) return;
+  setPath(m, t.value);
+  markDirty();
+  if(m === 'titulo') updateDup();
+  else if(m.indexOf('yt.') === 0) updateYt(parseInt(m.split('.')[1], 10));
+  else if(m.indexOf('bloques.') === 0){ t.rows = Math.max(2, t.value.split('\n').length); updateLyrics(); }
+  else if(m === 'acordes.texto') updateChords();
+  else if(m.indexOf('ctx.') === 0) updateCtx();
+});
+document.addEventListener('change', function(e){
+  var t = e.target, a = t.getAttribute && t.getAttribute('data-act');
+  if(!a) return;
+  if(a === 'ch-on'){ S.acordes.on = t.checked; renderStep(); markDirty(); }
+  else if(a === 'ch-nota'){ S.acordes.nota = t.value; renderStep(); markDirty(); }
+  else if(a === 'ch-alt'){ S.acordes.alt = t.value; renderStep(); markDirty(); }
+  else if(a === 'ch-modo'){ S.acordes.modo = t.value; renderStep(); markDirty(); }
+  else if(a === 'ch-capo'){ S.acordes.capo = parseInt(t.value, 10); renderStep(); markDirty(); }
+  else if(a === 'ch-rev'){ S.acordes.porRevisar = t.checked; updateChords(); markDirty(); }
+});
+document.addEventListener('focusin', function(e){
+  if(e.target.tagName === 'TEXTAREA' && e.target.getAttribute('data-lyr')) activeTA = e.target;
+});
+document.addEventListener('mousedown', function(e){
+  var b = e.target.closest ? e.target.closest('.tools .chip') : null;
+  if(b) e.preventDefault();
+});
+document.addEventListener('scroll', function(e){
+  if(e.target && e.target.id === 'ce-ta'){
+    var hl = el('ce-hl');
+    if(hl){ hl.scrollTop = e.target.scrollTop; hl.scrollLeft = e.target.scrollLeft; }
+  }
+}, true);
+document.addEventListener('blur', function(e){
+  if(e.target && e.target.id === 'ce-ta') normalizar(true);
+}, true);
+
+function normalizar(silencioso){
+  var count = 0;
+  S.acordes.texto = mapChordTokens(S.acordes.texto, function(t){
+    var n = normalizeToken(t); if(n !== t) count++; return n;
+  });
+  S.acordes.normalizados = count;
+  var ta = el('ce-ta'); if(ta) ta.value = S.acordes.texto;
+  updateChords();
+  if(!silencioso) toast(count ? count + ' acordes normalizados' : 'Nada que normalizar');
+}
+function convertirIngles(){
+  var count = 0;
+  S.acordes.texto = mapChordTokens(S.acordes.texto, function(t){
+    var c = classify(t);
+    if(!c.ok || c.kind !== 'english') return t;
+    count++;
+    return buildLat(c.core) + (c.bass ? '/' + buildBass(c.bass) : '');
+  });
+  var ta = el('ce-ta'); if(ta) ta.value = S.acordes.texto;
+  updateChords();
+  toast(count + ' acordes convertidos a notación latina');
+}
+
+document.addEventListener('click', function(e){
+  var n = e.target.closest ? e.target.closest('[data-act]') : null;
+  if(!n) return;
+  var a = n.getAttribute('data-act'), v = n.getAttribute('data-v'), i;
+  switch(a){
+    /* ── Navegación ── */
+    case 'view': setView(v); return;
+    case 'next': goStep(S.step + 1); return;
+    case 'prev': goStep(S.step - 1); return;
+    case 'jump': goStep(parseInt(v, 10)); return;
+    case 'noop': return;
+
+    /* ── Paso 1 ── */
+    case 'tipo':
+      S.tipo = v;
+      if(v === 'instrumental' && (!S.bloques.length || S.bloques[0].tipo !== 'Nota')) S.bloques.unshift({ tipo:'Nota', texto:'' });
+      renderStep(); markDirty(); return;
+    case 'momento': S.momento = v; renderStep(); markDirty(); return;
+    case 'idioma': S.idioma = v; renderStep(); markDirty(); return;
+    case 'add-comp':
+      if(S.compositor && S.titulo.indexOf(S.compositor) < 0) S.titulo = S.titulo + ' - ' + S.compositor;
+      renderStep(); markDirty(); return;
+    case 'yt-add': if(S.yt.length < 3){ S.yt.push({ url:'', t:'' }); renderStep(); markDirty(); } return;
+    case 'yt-del': S.yt.splice(parseInt(v, 10), 1); renderStep(); markDirty(); return;
+
+    /* ── Paso 2 ── */
+    case 'blk-add': insertBlock(S.bloques.length, 'Estrofa'); return;
+    case 'ins-open': openIns(parseInt(v, 10)); return;
+    case 'ins-do': var ip = v.split('|'); insertBlock(parseInt(ip[0], 10), ip[1]); return;
+    case 'blk-del': if(S.bloques.length > 1){ S.bloques.splice(parseInt(v, 10), 1); renderBlocks(); markDirty(); } return;
+    case 'blk-dup': i = parseInt(v, 10); S.bloques.splice(i + 1, 0, { tipo:S.bloques[i].tipo, texto:S.bloques[i].texto }); renderBlocks(i + 1); settle(i + 1); markDirty(); return;
+    case 'blk-up': moveBlock(parseInt(v, 10), -1); return;
+    case 'blk-down': moveBlock(parseInt(v, 10), 1); return;
+    case 'blk-tipo': var pr = v.split('|'); S.bloques[parseInt(pr[0], 10)].tipo = pr[1]; renderBlocks(); markDirty(); return;
+    case 'ins': insLineEnd(v); return;
+    case 'ins-coro': insCoroAbrev(); return;
+    case 'ital': wrapItalic(); return;
+    case 'rev-toggle': S.revPanelClosed = !S.revPanelClosed; el('revpanel').innerHTML = revPanelHTML(); return;
+    case 'pron-fix':
+      var ps = scanPronouns();
+      for(i=0;i<ps.length;i++){ if(ps[i].key === v){ fixPronoun(ps[i]); break; } }
+      renderBlocks(); markDirty(); return;
+    case 'pron-skip': S.ignorados[v] = 1; el('revpanel').innerHTML = revPanelHTML(); return;
+    case 'pron-all':
+      var all = scanPronouns();
+      for(i=all.length-1;i>=0;i--) fixPronoun(all[i]);
+      renderBlocks(); markDirty(); return;
+    case 'limpiar': limpiarEspacios(); renderBlocks(); markDirty(); return;
+
+    /* ── Paso 3 ── */
+    case 'ch-import': importarLetra(); renderStep(); markDirty(); toast('Letra importada al editor'); return;
+    case 'ch-norm': normalizar(false); markDirty(); return;
+    case 'ch-eng': convertirIngles(); markDirty(); return;
+
+    /* ── Paso 4 ── */
+    case 'ctx-label': S.ctx.label = v; renderStep(); markDirty(); return;
+    case 'ctx-tiempo': toggleIn(S.ctx.tiempos, v); renderStep(); markDirty(); return;
+    case 'ctx-momento': toggleIn(S.ctx.momentos, v); renderStep(); markDirty(); return;
+    case 'ctx-uso': toggleIn(S.ctx.bodasUsos, v); renderStep(); markDirty(); return;
+    case 'cita-add': addCita(); return;
+    case 'cita-del': e.stopPropagation(); S.ctx.citas.splice(parseInt(v, 10), 1); renderStep(); markDirty(); return;
+    case 'cita-ins':
+      S.ctx.fundamento = S.ctx.fundamento.replace(/\s*$/, '') + ' (' + S.ctx.citas[parseInt(v, 10)] + ')';
+      renderStep(); markDirty(); return;
+    case 'ex-add': S.ctx.extras.push({ label:'Origen y traducción', texto:'' }); renderStep(); markDirty(); return;
+    case 'ex-del': S.ctx.extras.splice(parseInt(v, 10), 1); renderStep(); markDirty(); return;
+
+    /* ── Paso 5 ── */
+    case 'sc-chords': var sc = el('sc-chords'); if(sc) sc.classList.toggle('open'); return;
+    case 'sc-ctx': var sx = el('sc-ctx'); if(sx) sx.classList.toggle('open'); return;
+    case 'draft': markDirty(); toast('Borrador guardado'); return;
+    case 'send': S.enviado = true; PROPS[0].estado = 'revisar'; renderAll(); window.scrollTo(0, 0); return;
+    case 'otro': location.reload(); return;
+
+    /* ── Revisor ── */
+    case 'rv-tab': RV.tab = v; renderRev(); return;
+    case 'rv-open': RV.open = v; RV.devolviendo = false; renderRev(); window.scrollTo(0, 0); return;
+    case 'rv-back': RV.open = null; RV.devolviendo = false; renderRev(); return;
+    case 'rv-devolver': RV.devolviendo = true; renderRev(); return;
+    case 'rv-dev-cancel': RV.devolviendo = false; renderRev(); return;
+    case 'rv-dev-ok':
+      var ta2 = el('f-dev'), p = findProp(RV.open);
+      p.comentario = (ta2 && ta2.value.trim()) ? ta2.value.trim() : 'Devuelta sin comentario.';
+      p.estado = 'devuelta'; RV.tab = 'devuelta'; RV.open = null; RV.devolviendo = false;
+      renderRev(); toast('Propuesta devuelta'); return;
+    case 'rv-aprobar':
+      var pa = findProp(RV.open);
+      pa.estado = 'aprobada'; RV.tab = 'aprobada'; RV.open = null;
+      renderRev(); toast('Propuesta aprobada'); return;
+    case 'export': openExport(); return;
+    case 'modal-close': el('modal').classList.remove('open'); return;
+    case 'copy-json': copyJSON(); return;
+  }
+});
+function toggleIn(arr, v){
+  var i = arr.indexOf(v);
+  if(i >= 0) arr.splice(i, 1); else arr.push(v);
+}
+function addCita(){
+  var inp = el('f-cita'), msg = el('cita-msg');
+  if(!inp) return;
+  var val = inp.value.trim();
+  if(!val){ inp.focus(); return; }
+  if(!/^[1-3]?\s?[A-ZÁÉÍÓÚ][A-Za-zÁÉÍÓÚáéíóúñ]{1,4}\.?\s\d{1,3},\s?\d[\d.\-–,\s]*$/.test(val)){
+    msg.innerHTML = '<div class="note note-warn">' + ico('warn') + '<div>Formato esperado: libro abreviado + capítulo,versículos. Por ejemplo <b>Lc 1,38<\/b> o <b>1 Cor 13,4-7<\/b>. Se guardará igual.<\/div><\/div>';
+  } else { msg.innerHTML = ''; }
+  S.ctx.citas.push(val);
+  renderStep(); markDirty();
+}
+function copyJSON(){
+  var pre = el('json-pre');
+  if(!pre) return;
+  var txt = pre.textContent;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ toast('JSON copiado'); }, function(){ legacyCopy(pre); });
+    } else legacyCopy(pre);
+  }catch(err){ legacyCopy(pre); }
+}
+function legacyCopy(pre){
+  try{
+    var r = document.createRange(); r.selectNodeContents(pre);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    document.execCommand('copy'); sel.removeAllRanges();
+    toast('JSON copiado');
+  }catch(err){ toast('Selecciona y copia manualmente'); }
+}
+el('modal').addEventListener('click', function(e){ if(e.target === el('modal')) el('modal').classList.remove('open'); });
+
+/* ═══════════════════════════════════════════════════════════════════════
+   22. ARRASTRE DE BLOQUES CON EL RATÓN (eventos de puntero)
+   El bloque se eleva y sigue al cursor; una línea dorada marca dónde caerá.
+   Los botones subir/bajar y Alt+flechas siguen funcionando como alternativa.
+   ═══════════════════════════════════════════════════════════════════════ */
+var DRAG = null;
+
+function dragStart(){
+  var d = DRAG, blk = d.blk, list = d.list;
+  var r = blk.getBoundingClientRect();
+  d.offX = d.startX - r.left;
+  d.offY = d.startY - r.top;
+
+  /* Hueco del mismo alto: la geometría de la lista no cambia durante el arrastre */
+  var sp = document.createElement('div');
+  sp.className = 'blk-spacer';
+  sp.style.height = r.height + 'px';
+  list.insertBefore(sp, blk);
+  d.sp = sp;
+
+  document.body.classList.add('dragging');
+  blk.classList.add('dragging');
+  blk.style.width = r.width + 'px';
+  blk.style.left = r.left + 'px';
+  blk.style.top = r.top + 'px';
+
+  var lr = list.getBoundingClientRect(), others = list.querySelectorAll('.blk'), i, br;
+  d.slots = [];
+  for(i=0;i<others.length;i++){
+    if(others[i] === blk) continue;
+    br = others[i].getBoundingClientRect();
+    d.slots.push({ top:br.top - lr.top, bottom:br.bottom - lr.top, mid:(br.top + br.bottom)/2 - lr.top });
+  }
+  var ind = document.createElement('div');
+  ind.className = 'drop-ind';
+  list.appendChild(ind);
+  d.ind = ind;
+  d.active = true;
+  d.target = d.from;
+}
+function dragMove(e){
+  var d = DRAG, lr = d.list.getBoundingClientRect();
+  d.blk.style.left = (e.clientX - d.offX) + 'px';
+  d.blk.style.top  = (e.clientY - d.offY) + 'px';
+
+  var py = e.clientY - lr.top, k = 0, y;
+  while(k < d.slots.length && py > d.slots[k].mid) k++;
+  d.target = k;
+  if(!d.slots.length) y = 0;
+  else if(k === 0) y = d.slots[0].top - 12;
+  else if(k >= d.slots.length) y = d.slots[d.slots.length-1].bottom + 12;
+  else y = (d.slots[k-1].bottom + d.slots[k].top) / 2;
+  d.ind.style.top = y + 'px';
+
+  var m = 90;
+  if(e.clientY < m) window.scrollBy(0, -14);
+  else if(e.clientY > window.innerHeight - m) window.scrollBy(0, 14);
+}
+function dragEnd(){
+  var d = DRAG;
+  DRAG = null;
+  if(!d) return;
+  try{ if(d.h.releasePointerCapture) d.h.releasePointerCapture(d.pid); }catch(err){}
+  if(!d.active) return;
+  document.body.classList.remove('dragging');
+  d.blk.classList.remove('dragging');
+  d.blk.style.width = ''; d.blk.style.left = ''; d.blk.style.top = '';
+  if(d.sp && d.sp.parentNode) d.sp.parentNode.removeChild(d.sp);
+  if(d.ind && d.ind.parentNode) d.ind.parentNode.removeChild(d.ind);
+  var to = d.target;
+  if(to === null || to === undefined || to === d.from){ renderBlocks(); return; }
+  var moved = S.bloques.splice(d.from, 1)[0];
+  S.bloques.splice(to, 0, moved);
+  renderBlocks(); settle(to); markDirty();
+}
+document.addEventListener('pointerdown', function(e){
+  if(INS_OPEN !== null && !(e.target.closest && e.target.closest('.ins'))) closeIns();
+  var h = e.target.closest ? e.target.closest('.blk-drag') : null;
+  if(!h) return;
+  if(e.button !== undefined && e.button !== 0) return;
+  var blk = h.closest('.blk'), list = el('blocklist');
+  if(!blk || !list || S.bloques.length < 2) return;
+  e.preventDefault();
+  DRAG = { h:h, blk:blk, list:list, pid:e.pointerId, from:parseInt(blk.getAttribute('data-idx'), 10),
+           startX:e.clientX, startY:e.clientY, active:false, target:null };
+  try{ h.setPointerCapture(e.pointerId); }catch(err){}
+});
+document.addEventListener('pointermove', function(e){
+  if(!DRAG) return;
+  if(!DRAG.active){
+    if(Math.abs(e.clientY - DRAG.startY) < 4 && Math.abs(e.clientX - DRAG.startX) < 4) return;
+    dragStart();
+  }
+  e.preventDefault();
+  dragMove(e);
+});
+document.addEventListener('pointerup', dragEnd);
+document.addEventListener('pointercancel', dragEnd);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   23. ATAJOS DE TECLADO (escritorio)
+   ═══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    if(el('modal').classList.contains('open')){ el('modal').classList.remove('open'); return; }
+    if(INS_OPEN !== null){ closeIns(); return; }
+  }
+  var ctrl = e.ctrlKey || e.metaKey;
+  if(ctrl && e.key === 'Enter'){
+    if(VIEW === 'form' && !S.enviado && S.step < 5){ e.preventDefault(); goStep(S.step + 1); }
+    return;
+  }
+  if(ctrl && (e.key === 's' || e.key === 'S')){
+    e.preventDefault();
+    if(VIEW === 'form'){ markDirty(); toast('Borrador guardado'); }
+    return;
+  }
+  if(e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')){
+    var a = document.activeElement;
+    var blk = (a && a.closest) ? a.closest('#blocklist .blk') : null;
+    if(!blk) return;
+    e.preventDefault();
+    moveBlock(parseInt(blk.getAttribute('data-idx'), 10), e.key === 'ArrowUp' ? -1 : 1);
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   24. ARRANQUE
+   ═══════════════════════════════════════════════════════════════════════ */
+S.maxStep = 5;
+renderAll();
+})();
+</script>
+
+
+</body>
+</html>
