@@ -35,13 +35,14 @@
         admins y dentro la clave ihLzgmElwcRUvJrHRZOUOuMJoMF2 con valor
         true (booleano, no el texto "true").
 
-     2. Segundo administrador (aldocardenas1209@gmail.com): esa cuenta
-        debe iniciar sesión UNA vez en el cancionero (chip de modos →
-        "Iniciar sesión"; verá "Esta cuenta no tiene permisos", es lo
-        esperado). Luego Console → Authentication → Users: copiar el
-        UID que aparece junto a ese correo y crear /admins/<ese UID>: true.
-        Desde ese momento tiene exactamente los mismos permisos que Renzo.
-        Para revocarlos, borrar el nodo.
+     2. Segundo administrador: Aldo Cárdenas (aldocardenas1209@gmail.com),
+        UID pctXGNX3oiRQ9XSni54tC7e9fWR2 (leído en Authentication → Users
+        el 5 de septiembre de 2026, tras su primer inicio de sesión).
+        Crear /admins/pctXGNX3oiRQ9XSni54tC7e9fWR2: true. Desde ese momento
+        tiene exactamente los mismos permisos que Renzo. Para revocarlos,
+        borrar el nodo. Para un tercer administrador: la cuenta inicia
+        sesión una vez, se copia su UID de Authentication → Users y se
+        crea su nodo; nunca hace falta tocar estas reglas.
 
      3. Console → Realtime Database → Reglas → pegar este archivo
         completo (los comentarios /* */ y // son válidos en Firebase;
