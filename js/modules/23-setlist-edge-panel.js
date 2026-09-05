@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r10
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -25,7 +25,7 @@
 
 /* ═══════════════════════════════════════════════════
    SETLIST EDGE PANEL — Coro Pacem Deus
-   Visible: Modo Coro | Editable: Modo Dev
+   Visible: Modo Coro | Editable: Modo Coro + Edición
    Firebase: /setlist/{yyyy-mm-dd}/{slot-id}
 ═══════════════════════════════════════════════════ */
 (function() {
@@ -371,7 +371,7 @@
       var now = Date.now();
       if (now - (saveSlot._lastWarn || 0) > 4000) {
         saveSlot._lastWarn = now;
-        alert('No se pudo guardar en la nube. Verifica que estés en Modo Dev con sesión iniciada (vuelve a entrar a Modo Dev).');
+        alert('No se pudo guardar en la nube. Verifica que la sesión esté iniciada y que el modo Edición esté activo.');
       }
     });
   }

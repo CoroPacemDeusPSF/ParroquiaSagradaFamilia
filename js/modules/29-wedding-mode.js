@@ -3,10 +3,11 @@
  * ────────────────────────────────────────────────────────────────────────────
  *
  *   @file       js/modules/29-wedding-mode.js
- *   @brief      Modo Bodas: activación con 5 clicks invisibles en el contador de cantos
+ *   @brief      Modo Bodas: activación desde el selector de modos, sello de
+ *               ingreso y degradación sin sesión del director
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.3.0r7
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -14,42 +15,44 @@
 /* ============================================================================
    29-wedding-mode.js  —  Modo Bodas (paralelo al Modo Coro)
    ============================================================================
-   ACTIVACIÓN
-     5 clicks en el contador de cantos (.index-song-counter .counter-number).
-     Sin feedback visual al click — el contador NO debe parecer interactivo.
-     Tras el 5to click se reproduce el "Sello Bodas" (animación de entrada con
-     corazones y paleta rosa perlado) y body recibe la clase 'wedding-mode'.
+   ACTIVACIÓN (v3.6.8)
+     Ya no hay gesto secreto de 5 clics en el contador de cantos. El Modo
+     Bodas se activa desde el selector de modos de la barra superior (módulo
+     34), que antes de llamar aquí exige sesión iniciada y comprueba que la
+     cuenta sea administradora.
+
+     activate({ seal: true })  → sello "Modo Bodas" y luego aplica el modo.
+                                 Entrada desde el modo Pública.
+     activate({ seal: false }) → aplica el modo directamente. Paso desde Coro.
+
+   MODO PRIVADO
+     A diferencia del Modo Coro, Bodas es solo para el director: muestra los
+     datos de los eventos contratados. Por eso la restauración tras recargar
+     es condicional: se aplica de inmediato para no parpadear, pero si
+     AuthGate.isAdmin() no lo confirma, el modo se DEGRADA a Pública.
 
    MUTUAMENTE EXCLUSIVO CON MODO CORO
-     Activar wedding-mode desactiva rehearsal-mode (y viceversa, gestionado por
-     el módulo 05). El módulo 11-dev-mode permite ahora activar Dev desde
-     CUALQUIERA de los dos modos especiales — el setlist a debuggear se infiere
-     del modo padre activo.
+     Activar wedding-mode desactiva rehearsal-mode (y viceversa, gestionado
+     por el módulo 05). El modo Edición (módulo 11) es una capa que se apoya
+     en cualquiera de los dos.
 
    PERSISTENCIA
      Igual que rehearsal-mode: localStorage 'pdMode' = 'bodas' | 'bodas+dev'.
-     Recuperación en page reload manejada igual que el módulo 05.
+     La clase 'dev-mode' NO se restaura aquí: la restaura el módulo 11 tras
+     validar la sesión de administrador.
 
-   ANIMACIÓN COMPARTIDA
-     Reusa window.playModeIntro() que expone el módulo 05. Solo cambia el
-     overlay activado: en lugar de #rehearsal-intro (sello dorado con cruz),
-     activamos #wedding-intro (sello rosa con anillos entrelazados). El módulo
-     05 no toca nuestro overlay; tenemos lógica propia de fade in/out.
+   ANIMACIÓN
+     Overlay propio #wedding-intro (sello rosa con anillos entrelazados), con
+     su lógica de fade in/out. Expuesta como window.playWeddingIntro porque el
+     módulo 28 (Modo Novios) la reutiliza.
 
-   ORDEN DE CARGA: posición 29 — después de 05-rehearsal-mode (depende de
-   playModeIntro y del flujo de pdMode en localStorage).
+   ORDEN DE CARGA: posición 29 — después de 05-rehearsal-mode y 35-firebase-auth.
    ============================================================================ */
 
 (function() {
   'use strict';
 
-  // ── CONSTANTES DE ACTIVACIÓN ──────────────────────────────────────────
-  var CLICKS_NEEDED = 5;
-  var CLICK_WINDOW  = 2000; // ms — ventana para acumular clicks consecutivos
-
   // ── ESTADO INTERNO ────────────────────────────────────────────────────
-  var clicks = 0;
-  var clickTimer = null;
   var active = false;
 
   // ── HELPERS DE OVERLAY DEL SELLO BODAS ────────────────────────────────
@@ -78,13 +81,23 @@
     }, 2000);
   }
 
-  // Expuesta globalmente para que el módulo 11-dev-mode pueda usarla cuando
-  // el dev se activa estando en wedding-mode (mantiene paleta consistente).
+  // Expuesta globalmente: el módulo 28 (Modo Novios) reutiliza este sello.
   window.playWeddingIntro = playWeddingIntro;
 
   // ── ACTIVAR / DESACTIVAR ──────────────────────────────────────────────
-  function activateWedding() {
-    if (active) return;
+  /**
+   * Activa el Modo Bodas.
+   *
+   * @param  {Object}  [opts]        Opciones.
+   * @param  {boolean} [opts.seal]   false para entrar sin sello. Por defecto
+   *                                 true (entrada desde el modo Pública).
+   * @return {Promise}               Resuelve cuando el modo quedó aplicado.
+   */
+  function activateWedding(opts) {
+    if (active) return Promise.resolve();
+    opts = opts || {};
+    var seal = opts.seal !== false;
+
     active = true;
 
     // ── Mutex con Modo Coro ──
@@ -95,7 +108,7 @@
     // ya oculta el panel visualmente, pero hay que limpiar el estado interno
     // del módulo SL para que no quede inconsistente:
     //   1. Forzar close() del panel.
-    //   2. Forzar unpin (el pin del SL es exclusivo del Modo Coro/Dev).
+    //   2. Forzar unpin (el pin del SL es exclusivo del Modo Coro/Edición).
     if (window.SL) {
       if (typeof window.SL.close === 'function') {
         window.SL.close();
@@ -111,24 +124,20 @@
     if (document.body.classList.contains('rehearsal-mode')) {
       document.body.classList.remove('rehearsal-mode');
       document.body.classList.remove('dev-mode');
-      // Ocultar el badge del Modo Coro
-      var coroBadge = document.getElementById('rehearsal-badge');
-      if (coroBadge) coroBadge.classList.remove('active');
     }
 
-    playWeddingIntro('Modo<br>Bodas', function() {
-      document.body.classList.add('wedding-mode');
-      // Mostrar badge bodas (si existe el elemento)
-      var weddingBadge = document.getElementById('wedding-badge');
-      if (weddingBadge) {
-        weddingBadge.classList.add('active', 'entrance');
-        // Quitar la clase entrance al final de la animación
-        setTimeout(function() {
-          weddingBadge.classList.remove('entrance');
-        }, 800);
+    return new Promise(function(resolve) {
+      function apply() {
+        document.body.classList.add('wedding-mode');
+        try { localStorage.setItem('pdMode', 'bodas'); } catch (e) {}
+        console.log('[Bodas] Modo Bodas activado');
+        resolve();
       }
-      try { localStorage.setItem('pdMode', 'bodas'); } catch (e) {}
-      console.log('[Bodas] Modo Bodas activado');
+      if (seal) {
+        playWeddingIntro('Modo<br>Bodas', apply);
+      } else {
+        apply();
+      }
     });
   }
 
@@ -137,9 +146,6 @@
     active = false;
     document.body.classList.remove('wedding-mode');
     document.body.classList.remove('dev-mode');
-
-    var weddingBadge = document.getElementById('wedding-badge');
-    if (weddingBadge) weddingBadge.classList.remove('active');
 
     // Cerrar panel de bodas si estaba abierto (lo expone el módulo 30)
     if (window.SLB && typeof window.SLB.close === 'function') {
@@ -154,96 +160,68 @@
     console.log('[Bodas] Modo Bodas desactivado');
   }
 
-  // Step-down desde Dev Bodas → Bodas (mantiene wedding-mode, quita dev-mode).
-  // Espejo de deactivateDevOnly del módulo 05 para coherencia de UX.
-  function deactivateDevOnly() {
-    document.body.classList.remove('dev-mode');
+  /**
+   * Abre el diálogo de confirmación de salida. Lo llama el selector de modos
+   * cuando el usuario elige la fila "Pública" estando en Modo Bodas.
+   */
+  function requestExit() {
     var confirmDialog = document.getElementById('wedding-confirm');
-    if (confirmDialog) confirmDialog.classList.remove('open');
-    if (window.SLB && typeof window.SLB.close === 'function') {
-      window.SLB.close();
-    }
-    try { localStorage.setItem('pdMode', 'bodas'); } catch (e) {}
-    console.log('[Bodas] Modo Dev desactivado, vuelta a Bodas');
+    var confirmText   = document.getElementById('wedding-confirm-text');
+    if (confirmText) confirmText.textContent = '¿Salir del modo Bodas?';
+    if (confirmDialog) confirmDialog.classList.add('open');
   }
 
   // ── RESTAURAR ESTADO TRAS PAGE LOAD ───────────────────────────────────
-  // Si el usuario tenía 'pdMode' = 'bodas' guardado, restauramos el modo
-  // sin animación (igual que el módulo 05 hace para 'coro').
+  // Dos fases deliberadas:
+  //   1. INMEDIATA: aplicar la clase en cuanto corre este módulo (en
+  //      DOMContentLoaded, como siempre). El módulo 30 registra su init en
+  //      el mismo evento pero DESPUÉS, así que ya ve body.wedding-mode; de
+  //      eso depende la auto-apertura del panel pineado. Sin esperar a nada.
+  //   2. ASÍNCRONA: comprobar la sesión. Bodas es privado; si la cuenta no es
+  //      administradora (o no hay sesión), el modo se degrada a Pública.
   function restoreWeddingMode() {
+    var saved = null;
     try {
-      var saved = localStorage.getItem('pdMode');
-      if (saved === 'bodas' || saved === 'bodas+dev') {
-        active = true;
-        document.body.classList.add('wedding-mode');
-        var weddingBadge = document.getElementById('wedding-badge');
-        if (weddingBadge) weddingBadge.classList.add('active');
-        if (saved === 'bodas+dev') {
-          document.body.classList.add('dev-mode');
-        }
-      }
-    } catch (e) {}
-  }
-
-  // ── LISTENER: 5 CLICKS EN EL CONTADOR ─────────────────────────────────
-  // El contador es .index-song-counter — está dentro de #dominical-index.
-  // El número en sí está en .counter-number, pero tomamos el contenedor
-  // entero como objetivo del click para mejor UX (más área tap-able).
-  // CRÍTICO: NO debe haber feedback visual ni cursor:pointer; el comando
-  // debe parecer "invisible" para que solo Renzo (o quien sepa) lo conozca.
-  function handleCounterClick(e) {
-    // Permitir solo si NO estamos ya en wedding-mode (evita re-activar).
-    if (document.body.classList.contains('wedding-mode')) return;
-
-    clicks++;
-    if (clickTimer) clearTimeout(clickTimer);
-    clickTimer = setTimeout(function() { clicks = 0; }, CLICK_WINDOW);
-
-    if (clicks >= CLICKS_NEEDED) {
-      clicks = 0;
-      activateWedding();
+      saved = localStorage.getItem('pdMode');
+    } catch (e) {
+      return;
     }
+    if (saved !== 'bodas' && saved !== 'bodas+dev') return;
+
+    active = true;
+    document.body.classList.add('wedding-mode');
+    // La clase 'dev-mode' NO se restaura aquí: es el módulo 11 quien la
+    // añade, y solo si AuthGate.isAdmin() confirma la sesión.
+
+    function degrade() {
+      deactivateWedding();
+      console.log('[Bodas] Sin sesión del director: Modo Bodas no restaurado');
+    }
+
+    if (!window.AuthGate || typeof window.AuthGate.isAdmin !== 'function') {
+      degrade();
+      return;
+    }
+
+    window.AuthGate.isAdmin().then(function(ok) {
+      if (!ok) degrade();
+    }).catch(function() {
+      degrade();
+    });
   }
 
-  // Delegación: el contador se renderiza en runtime por buildIndex (módulo 15),
-  // así que escuchamos en document y filtramos por el contenedor.
-  document.addEventListener('click', function(e) {
-    var counter = e.target.closest('.index-song-counter');
-    if (counter) handleCounterClick(e);
-  });
-
-  // ── BADGE BODAS: TAP PARA SALIR ───────────────────────────────────────
-  // Mismo flujo que Modo Coro: tap en badge abre dialog "¿Salir del modo
-  // Bodas?". Confirmar = deactivateWedding. Cancelar = cerrar dialog.
-  function bindBadgeAndConfirm() {
-    var badge         = document.getElementById('wedding-badge');
+  // ── DIÁLOGO DE CONFIRMACIÓN DE SALIDA ─────────────────────────────────
+  // Confirmar sale del Modo Bodas por completo (incluido Edición). El paso
+  // Edición → Bodas lo hace el interruptor del selector, no este diálogo.
+  function bindConfirm() {
     var confirmDialog = document.getElementById('wedding-confirm');
-    var confirmText   = document.getElementById('wedding-confirm-text');
     var yesBtn        = document.getElementById('wedding-confirm-yes');
     var noBtn         = document.getElementById('wedding-confirm-no');
 
-    if (badge && confirmDialog) {
-      badge.addEventListener('click', function() {
-        // El texto del dialog cambia según el sub-modo activo.
-        // Coherencia con el comportamiento del módulo 05 (dominical).
-        var isDev = document.body.classList.contains('dev-mode');
-        if (confirmText) {
-          confirmText.textContent = isDev
-            ? '¿Salir del modo Dev?'
-            : '¿Salir del modo Bodas?';
-        }
-        confirmDialog.classList.add('open');
-      });
-    }
     if (yesBtn) {
       yesBtn.addEventListener('click', function() {
         if (confirmDialog) confirmDialog.classList.remove('open');
-        // Step-down: Dev Bodas → Bodas. Bodas → Normal.
-        if (document.body.classList.contains('dev-mode')) {
-          deactivateDevOnly();
-        } else {
-          deactivateWedding();
-        }
+        deactivateWedding();
       });
     }
     if (noBtn) {
@@ -265,20 +243,20 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       restoreWeddingMode();
-      bindBadgeAndConfirm();
+      bindConfirm();
     });
   } else {
     restoreWeddingMode();
-    bindBadgeAndConfirm();
+    bindConfirm();
   }
 
   // ── API PÚBLICA ───────────────────────────────────────────────────────
-  // Expuesta para que otros módulos (ej. 11-dev-mode) puedan consultar/
-  // controlar el estado del modo bodas.
+  // La consumen el selector de modos (34) y el módulo 05 (mutex).
   window.WeddingMode = {
-    activate:   activateWedding,
-    deactivate: deactivateWedding,
-    isActive:   function() { return active; }
+    activate:    activateWedding,
+    deactivate:  deactivateWedding,
+    requestExit: requestExit,
+    isActive:    function() { return active; }
   };
 
 })();

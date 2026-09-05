@@ -6,7 +6,7 @@
      @brief      Card individual de cada canto (header, body, ornamentos)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r1
+     @version    v3.6.8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -290,8 +290,9 @@
 }
 
 /* ── Botón "+ Agregar al SetList" ──
-   Solo visible en Modo Coro porque agregar al SetList es una acción
-   exclusiva del director del coro. Visualmente más prominente que el
+   Solo visible con sesión de escritura (Coro + Edición, o Bodas) porque
+   agregar al SetList es una acción exclusiva del director del coro.
+   Visualmente más prominente que el
    botón compartir (un poco más grande y con mayor opacidad de reposo)
    para destacar como "acción primaria del director" en cada canto. */
 .add-setlist-btn {
@@ -310,8 +311,11 @@
   transition: opacity 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
   -webkit-tap-highlight-color: transparent;
 }
-body.rehearsal-mode .add-setlist-btn,
-body.wedding-mode  .add-setlist-btn { display: inline-flex; }
+/* v3.6.8: el "+" exige sesión de escritura. En Coro sin Edición el corista
+   ya no ve un botón cuyo guardado iba a fallar. En Bodas la sesión está
+   garantizada por el selector de modos. */
+body.rehearsal-mode.dev-mode .add-setlist-btn,
+body.wedding-mode .add-setlist-btn { display: inline-flex; }
 .add-setlist-btn:hover {
   opacity: 1;
   background-color: rgba(200, 148, 60, 0.15);

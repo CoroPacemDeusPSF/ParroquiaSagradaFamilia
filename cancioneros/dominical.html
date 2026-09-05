@@ -103,7 +103,7 @@
   }catch(e){/* si algo falla aquí, el módulo 36 hace su trabajo igual */}
 })();
 </script>
-<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.7r50">
+<link rel="stylesheet" href="../css/dominical.bundle.css?v=3.6.8">
 <!-- flatpickr (date picker) — cargado desde cdnjs. v3.6.0r3 reemplazó
      el rodillo custom buggy por esta librería madura (~30KB, MIT). -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
@@ -147,36 +147,6 @@
       </span>
     </div>
   </div>
-  <button id="rehearsal-badge" title="Modo Coro activo — toca para salir">
-    <!-- Ícono micrófono (Modo Coro) -->
-    <svg class="badge-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-      <line x1="12" y1="19" x2="12" y2="23"/>
-      <line x1="8" y1="23" x2="16" y2="23"/>
-    </svg>
-    <!-- Ícono terminal </> (Modo Dev) -->
-    <svg class="badge-dev is-hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="16 18 22 12 16 6"/>
-      <polyline points="8 6 2 12 8 18"/>
-    </svg>
-  </button>
-  <!-- ══ Badge Modo Bodas (paralelo al rehearsal-badge) ══
-       Aparece solo cuando body.wedding-mode está activo (CSS lo controla).
-       Tap muestra el dialog de confirmación de salida (módulo 29). -->
-  <button id="wedding-badge" title="Modo Bodas activo — toca para salir">
-    <!-- Ícono anillos entrelazados (Modo Bodas) -->
-    <svg class="badge-rings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="9" cy="14" r="5"/>
-      <circle cx="15" cy="10" r="5"/>
-    </svg>
-    <!-- Ícono terminal </> (Modo Dev sobre Bodas) -->
-    <svg class="badge-dev is-hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="16 18 22 12 16 6"/>
-      <polyline points="8 6 2 12 8 18"/>
-    </svg>
-  </button>
-
   <!-- ══ Badge Modo Novios ══════════════════════════════════════════════
        Vista limpia para que los novios revisen el cancionero antes de
        la boda (referencias YouTube + letras + acordes), sin los controles
@@ -198,6 +168,142 @@
       <circle cx="12" cy="14" r="6"/>
       <path d="M9 8 L12 4 L15 8"/>
     </svg>
+  </div>
+  <!-- ══ SELECTOR DE MODOS (v3.6.8) ══════════════════════════════════════
+       Sustituye a los tres gestos secretos de 5 clics (ícono de iglesia,
+       línea de versión y contador de cantos) y a los badges de Modo Coro y
+       Modo Bodas: este chip es ahora el único indicador de modo.
+
+       El chip muestra el modo activo; el menú permite cambiarlo. El bloque
+       de cuenta gobierna la sesión del director y la capa de Edición. Toda
+       la lógica vive en el módulo 34; aquí solo el markup. -->
+  <!-- El estado por defecto (is-publico) viaja en el markup: sin él, entre el
+       primer pintado y DOMContentLoaded el chip se vería sin icono — y en
+       móvil, donde el texto está oculto, completamente vacío. El módulo 34 lo
+       sobrescribe con el modo real en cuanto arranca. -->
+  <div class="pd-mode is-publico" id="pd-mode">
+    <button id="pd-mode-btn" class="pd-mode-btn" type="button"
+            aria-haspopup="dialog" aria-expanded="false" aria-controls="pd-mode-menu"
+            title="Modo del cancionero">
+      <!-- Libro abierto (modo Pública) -->
+      <span class="pd-mode-ico pd-mode-ico-publico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 4h5a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/>
+          <path d="M22 4h-5a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/>
+        </svg>
+      </span>
+      <!-- Micrófono (Modo Coro) -->
+      <span class="pd-mode-ico pd-mode-ico-coro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </span>
+      <!-- Anillos entrelazados (Modo Bodas) -->
+      <span class="pd-mode-ico pd-mode-ico-bodas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="14" r="5"/>
+          <circle cx="15" cy="10" r="5"/>
+        </svg>
+      </span>
+      <span class="pd-mode-txt">
+        <span class="pd-mode-label">Pública</span>
+        <span class="pd-mode-sub"></span>
+      </span>
+      <span class="pd-mode-dot" aria-hidden="true"></span>
+    </button>
+
+    <!-- role="dialog" y no role="menu": ARIA solo admite menuitem/group/
+         separator dentro de un menú, y este panel contiene además el bloque
+         de cuenta (botones y un interruptor). Como diálogo, todo su contenido
+         se expone correctamente. Las tres filas de modo van en su propio
+         radiogroup. -->
+    <div id="pd-mode-menu" class="pd-mode-menu" role="dialog" aria-label="Modo del cancionero" data-session="none">
+      <div class="pd-mode-menu-head">Modo del cancionero</div>
+
+      <div class="pd-mode-group" role="radiogroup" aria-label="Modos del cancionero">
+        <button type="button" class="pd-mode-item" role="radio" aria-checked="true" data-mode="publico">
+          <svg class="pd-mode-item-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 4h5a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/>
+            <path d="M22 4h-5a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/>
+          </svg>
+          <span class="pd-mode-item-txt">
+            <span class="pd-mode-item-name">Pública</span>
+            <span class="pd-mode-item-desc">Letras, contexto y calendario litúrgico</span>
+          </span>
+          <svg class="pd-mode-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+
+        <button type="button" class="pd-mode-item" role="radio" aria-checked="false" data-mode="coro">
+          <svg class="pd-mode-item-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <span class="pd-mode-item-txt">
+            <span class="pd-mode-item-name">Coro</span>
+            <span class="pd-mode-item-desc">Referencias, transposición y SetList del domingo</span>
+          </span>
+          <svg class="pd-mode-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+
+        <button type="button" class="pd-mode-item pd-mode-item-locked" role="radio" aria-checked="false" data-mode="bodas">
+          <svg class="pd-mode-item-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="14" r="5"/>
+            <circle cx="15" cy="10" r="5"/>
+          </svg>
+          <span class="pd-mode-item-txt">
+            <span class="pd-mode-item-name">Bodas</span>
+            <!-- Región viva: aquí aparece "Conectando…" mientras se comprueba
+                 la sesión, y la fecha del evento cuando hay uno activo. -->
+            <span class="pd-mode-item-desc" id="pd-mode-bodas-desc" aria-live="polite">SetList de bodas. Solo el director</span>
+          </span>
+          <svg class="pd-mode-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="11" width="16" height="10" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+          </svg>
+          <svg class="pd-mode-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="pd-mode-sep"></div>
+
+      <div class="pd-mode-account">
+        <!-- Visible con data-session="none" -->
+        <button type="button" class="pd-mode-login" data-act="login">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="11" width="16" height="10" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+          </svg>
+          <span>Iniciar sesión</span>
+        </button>
+        <p class="pd-mode-hint">Solo el director necesita iniciar sesión</p>
+
+        <!-- Visible con data-session="user" o "admin" -->
+        <div class="pd-mode-user"><span class="pd-mode-user-email"></span></div>
+        <label class="pd-mode-switch" for="pd-mode-edit">
+          <input type="checkbox" id="pd-mode-edit" role="switch" aria-checked="false">
+          <span class="pd-mode-switch-track" aria-hidden="true"></span>
+          <span class="pd-mode-switch-txt">Edición</span>
+        </label>
+        <p class="pd-mode-noperm" aria-live="polite">Esta cuenta no tiene permisos</p>
+        <button type="button" class="pd-mode-logout" data-act="logout">Cerrar sesión</button>
+        <div class="pd-mode-logout-confirm">
+          <span>¿Cerrar sesión?</span>
+          <button type="button" data-act="logout-yes">Sí</button>
+          <button type="button" data-act="logout-no">No</button>
+        </div>
+      </div>
+    </div>
   </div>
   <button class="pd-hamburger" id="pd-hamburger" aria-label="Menú">
     <span></span><span></span><span></span>
@@ -383,7 +489,7 @@
     <div class="sl-header-title">SetList Actual</div>
   </div>
   <div class="sl-slots" id="sl-slots"></div>
-  <!-- Toolbar inferior del SetList: Limpiar (solo Modo Dev) + PDF (siempre).
+  <!-- Toolbar inferior del SetList: Limpiar (solo en Edición) + PDF (siempre).
        Layout horizontal con flex para que ambos convivan en una sola línea, lo
        que es importante en móviles donde el alto del panel es limitado. -->
   <div class="sl-toolbar">
@@ -508,7 +614,7 @@
 
   <div class="ceremony-cover">
     <div class="ceremony-icon" id="pd-coro-trigger"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4L12 24v32h40V24L32 4z"/><line x1="32" y1="4" x2="32" y2="18"/><line x1="26" y1="12" x2="38" y2="12"/><rect x="24" y="38" width="16" height="18" rx="8"/><path d="M12 56h40"/></svg></div>
-    <span class="cancionero-version">v3.6.7r50</span>
+    <span class="cancionero-version">v3.6.8</span>
     <p class="ceremony-eyebrow ceremony-eyebrow--script">Coro Pacem Deus</p>
     <h2 class="ceremony-title">Cancionero Dominical</h2>
     <p class="ceremony-date">Parroquia de la Sagrada Familia</p>
@@ -562,7 +668,7 @@
 
 <script src="../js/modules/04-exit-confirm.js?v=3.2.44r5"></script>
 
-<script src="../js/modules/05-rehearsal-mode.js?v=3.6.7r10"></script>
+<script src="../js/modules/05-rehearsal-mode.js?v=3.6.8"></script>
 
 
 <script src="../js/modules/06-chords-toggle-transpose.js?v=3.6.7r17"></script>
@@ -580,14 +686,16 @@
 <script src="../js/modules/10-chord-editor.js?v=3.2.44r5"></script>
 
 
-<!-- v3.6.7: Firebase Auth con Google Sign-In. Reemplaza al PIN de
-     Modo Dev. Carga lazy (SDK Firebase solo se descarga cuando el
-     usuario hace una acción que requiere auth). -->
-<script src="../js/modules/35-firebase-auth.js?v=3.6.7r10"></script>
-<script src="../js/modules/11-dev-mode.js?v=3.6.7r10"></script>
+<!-- v3.6.7: Firebase Auth con Google Sign-In. Reemplazó al PIN.
+     Carga lazy (el SDK Firebase solo se descarga cuando el usuario hace
+     una acción que requiere sesión).
+     v3.6.8: además comprueba permisos de administrador (AuthGate.isAdmin),
+     de lo que dependen el Modo Bodas y la capa de Edición. -->
+<script src="../js/modules/35-firebase-auth.js?v=3.6.8"></script>
+<script src="../js/modules/11-dev-mode.js?v=3.6.8"></script>
 
 <script src="../js/modules/12-chord-fullscreen-fit.js?v=3.2.46r20"></script>
-<script src="../js/modules/12d-fullscreen-diag.js?v=3.2.46r20"></script>
+<script src="../js/modules/12d-fullscreen-diag.js?v=3.6.8"></script>
 
 
 
@@ -656,7 +764,7 @@
 <!-- 37: caida de las letras del tema del Evangelio. Despues del 21. -->
 <script src="../js/modules/37-lit-theme-animation.js?v=3.6.7r22"></script>
 
-<script src="../js/modules/23-setlist-edge-panel.js?v=3.6.7r10"></script>
+<script src="../js/modules/23-setlist-edge-panel.js?v=3.6.8"></script>
 <script src="../js/modules/24-search.js?v=3.2.44r5"></script>
 <script src="../js/modules/25-event-delegation.js?v=3.6.7r19"></script>
 <script src="../js/modules/26b-cinzel-font.js?v=3.2.44r5"></script>
@@ -669,11 +777,11 @@
      29 depende de window.playModeIntro (módulo 05). 30 es paralelo al 23.
      Ambos deben cargar después de los módulos del Modo Coro para que la
      mutex y la restoración de estado funcionen correctamente. -->
-<script src="../js/modules/29-wedding-mode.js?v=3.3.0r7"></script>
+<script src="../js/modules/29-wedding-mode.js?v=3.6.8"></script>
 <!-- v3.6.0r2: módulo 31 ANTES del 30 para que el flag window.PD_NOVIOS_MODE
      esté seteado cuando el 30 elige su backend storage (Firebase o localStorage). -->
 <script src="../js/modules/31-setlist-novios.js?v=3.6.6r5"></script>
-<script src="../js/modules/30-setlist-bodas.js?v=3.6.7r10"></script>
+<script src="../js/modules/30-setlist-bodas.js?v=3.6.8"></script>
 <!-- v3.6.6: PDF Bodas — módulo 32 (orquestador) y 33 (importador).
      32 reusa PDFBuilder (módulo 26e) para generar el PDF; 33 lee
      metadata embebida y escribe a Firebase. 33 depende de window.SLB
@@ -681,10 +789,17 @@
 <script src="../js/modules/32-setlist-bodas-pdf.js?v=3.6.6r6"></script>
 <script src="../js/modules/33-pdf-import.js?v=3.6.6r4"></script>
 
+<!-- ══ SELECTOR DE MODOS (v3.6.8) ══
+     Sustituye a los tres gestos de 5 clics (iglesia, versión, contador).
+     Carga después de 05/11/29/30/33 (consume RehearsalMode, DevMode,
+     WeddingMode, AuthGate y SLB) y ANTES del 28, que en Modo Novios limpia
+     las clases de modo al final. -->
+<script src="../js/modules/34-mode-switcher.js?v=3.6.8"></script>
+
 <!-- ══ MODO NOVIOS (v3.5.0) ══
      Activación vía URL params (?modo=novios&pin=CPD2026), SIN localStorage.
      Carga AL FINAL para poder revertir activamente cualquier modo persistido
      que los módulos 05/29 hayan aplicado al body cuando un novio llega con
      su link especial. Mutex implícita: si Modo Novios se activa, los demás
      modos se limpian. Ver comentarios completos en 28-novios-mode.js. -->
-<script src="../js/modules/28-novios-mode.js?v=3.6.0r6"></script>
+<script src="../js/modules/28-novios-mode.js?v=3.6.8"></script>

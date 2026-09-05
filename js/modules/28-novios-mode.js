@@ -6,7 +6,7 @@
  *   @brief      Modo Novios: vista limpia para novios — activación vía URL
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r6
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -131,21 +131,15 @@
     var classesToRemove = [
       'rehearsal-mode',  // Modo Coro (módulo 05)
       'wedding-mode',    // Modo Bodas (módulo 29)
-      'dev-mode'         // Modo Dev (módulo 11)
+      'dev-mode'         // capa de Edición (módulo 11)
     ];
     classesToRemove.forEach(function(cls) {
       document.body.classList.remove(cls);
     });
 
-    // También desactivar visualmente los badges de los otros modos. Los
-    // módulos 05 y 29 agregan la clase 'active' a sus respectivos badges
-    // al restaurar el modo desde localStorage. Si no removemos esa clase,
-    // los badges seguirían visibles encima de nuestro Modo Novios.
-    var badgeIds = ['rehearsal-badge', 'wedding-badge'];
-    badgeIds.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.classList.remove('active', 'entrance');
-    });
+    // v3.6.8: ya no hay badges de Modo Coro ni de Modo Bodas que apagar. El
+    // único indicador de modo es el chip del selector (módulo 34), y
+    // novios-mode.css lo oculta por completo con body.novios-mode #pd-mode.
   }
 
   /**

@@ -3,10 +3,10 @@
    ────────────────────────────────────────────────────────────────────────────
 
      @file       css/components/wedding-mode.css
-     @brief      Estilos del Modo Bodas: badge con anillos, sello rosa, dialog
+     @brief      Estilos del Modo Bodas: paleta rosa perlada, sello y diálogo
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r10
+     @version    v3.6.8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -29,10 +29,13 @@
    para no contaminar el resto del proyecto. Solo el Modo Bodas la usa.
 
    COMPONENTES:
-     #wedding-badge         — Badge flotante (tap = salir). Símil a #rehearsal-badge.
      #wedding-confirm       — Dialog "¿Salir del Modo Bodas?". Símil a #rehearsal-confirm.
      #wedding-intro         — Overlay del sello bodas. Símil a #rehearsal-intro.
      .wi-seal, .wi-ring-*   — Animación del sello (corazones + anillos).
+
+   v3.6.8: el badge flotante desapareció junto con el gesto de los 5 clics. El
+   modo se activa desde el selector de la barra superior (mode-switcher.css),
+   que reutiliza esta paleta rosa para el chip y su punto de estado.
    ============================================================================ */
 
 :root {
@@ -55,61 +58,6 @@
   --wm-strawberry:        #E8595E; /* fresa medio */
   --wm-strawberry-deep:   #B83340; /* fresa intenso para gradiente */
   --wm-strawberry-bright: #FFE0DC; /* destello cremoso para perlado */
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   BADGE BODAS — flotante, tap para salir
-   ════════════════════════════════════════════════════════════════════
-   Posición y comportamiento idénticos al rehearsal-badge — coexisten
-   en el mismo nav (visualmente excluyentes vía body classes).
-   ════════════════════════════════════════════════════════════════════ */
-#wedding-badge {
-  display: none;
-  align-items: center;
-  gap: 0.4rem;
-  margin-left: 0.6rem;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-}
-#wedding-badge.active { display: flex; }
-
-/* En Dev Mode (cuando ya estás en bodas+dev), el badge cambia ícono y color */
-body.dev-mode #wedding-badge svg { background: #B45309; }
-body.dev-mode #wedding-badge .badge-rings { display: none; }
-body.dev-mode #wedding-badge .badge-dev   { display: block !important; }
-
-#wedding-badge svg {
-  width: 22px; height: 22px;
-  color: #fff;
-  /* Gradiente radial: brillo perlado en la esquina superior-izquierda
-     simulando reflejo de luz sobre la "perla" del badge. El centro queda
-     en el rosa-base y los bordes en rosa-deep para dar volumen 3D al
-     pequeño círculo del badge en lugar del color plano original. */
-  background: radial-gradient(circle at 30% 25%,
-    var(--wm-pearl-shimmer) 0%,
-    var(--wm-rose)          35%,
-    var(--wm-rose-deep)     90%
-  );
-  border-radius: 50%;
-  padding: 3px;
-  transition: background 0.3s;
-
-  /* Pulse rosa para coherencia visual con el rehearsal-badge dorado */
-  box-shadow: 0 0 0 0 rgba(184, 138, 130, 0.7);
-  animation: weddingPulse 1.4s ease-in-out infinite;
-}
-@keyframes weddingPulse {
-  0%   { box-shadow: 0 0 0 0    rgba(184, 138, 130, 0.7); }
-  70%  { box-shadow: 0 0 0 8px  rgba(184, 138, 130, 0);   }
-  100% { box-shadow: 0 0 0 0    rgba(184, 138, 130, 0);   }
-}
-
-/* Animación de entrada del badge — reusamos el mismo keyframe del rehearsal */
-#wedding-badge.entrance {
-  animation: badgeEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-             weddingPulse 1.4s ease-in-out 0.7s infinite;
 }
 
 /* ════════════════════════════════════════════════════════════════════

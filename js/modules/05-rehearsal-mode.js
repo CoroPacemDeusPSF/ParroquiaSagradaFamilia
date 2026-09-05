@@ -3,10 +3,11 @@
  * ────────────────────────────────────────────────────────────────────────────
  *
  *   @file       js/modules/05-rehearsal-mode.js
- *   @brief      Modo Coro: 5-clicks en ícono iglesia, animación de ingreso, badge
+ *   @brief      Modo Coro: activación desde el selector de modos, sello de
+ *               ingreso y diálogo de salida
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r10
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -14,45 +15,60 @@
 /* ============================================================================
    05-rehearsal-mode.js
    ============================================================================
-   Modo Coro (rehearsal mode) — activación y animación
+   Modo Coro (rehearsal mode) — activación, animación y salida
 
-   5 clicks en el ícono de iglesia → animación Sello Litúrgico → body.rehearsal-mode.
+   ACTIVACIÓN (v3.6.8)
+     Ya no hay gesto secreto de 5 clics en el ícono de iglesia. El Modo Coro
+     se activa desde el selector de modos de la barra superior (módulo 34),
+     que llama a RehearsalMode.activate().
 
-   ORDEN DE CARGA: posición 5 de 24 (orden DOM original).
-   El orden importa: este script puede depender de globals definidos por
-   scripts anteriores y/o ser dependencia de scripts posteriores.
+     activate({ seal: true })  → reproduce el sello litúrgico y luego aplica
+                                 el modo. Se usa al venir del modo Pública.
+     activate({ seal: false }) → aplica el modo directamente, sin sello. Se
+                                 usa al pasar de Bodas a Coro (no venimos de
+                                 Pública, el sello sobraría).
+
+   SALIDA
+     requestExit() abre el diálogo #rehearsal-confirm. Confirmar sale del modo
+     completo, incluido Edición: el paso Edición → Coro lo gestiona el módulo
+     11 con su propio interruptor, no este diálogo.
+
+   MUTEX CON MODO BODAS
+     Los dos modos especiales son excluyentes. activate() desactiva Bodas si
+     estaba activo; el módulo 29 hace lo simétrico.
+
+   PERSISTENCIA
+     localStorage 'pdMode' = 'coro' | 'coro+dev'. La restauración de esta
+     clase es SÍNCRONA al parsear: evita el parpadeo de arranque y garantiza
+     que el módulo 23 vea body.rehearsal-mode en su init (de eso depende la
+     auto-apertura del panel pineado del SetList). La restauración de
+     'dev-mode', que sí depende de la sesión, la hace el módulo 11.
+
+   ORDEN DE CARGA: posición 5. Define window.playModeIntro, que consumen los
+   módulos 28 y 29, y window.RehearsalMode, que consume el selector (34).
    ============================================================================ */
 
 // ── REHEARSAL MODE ────────────────────────────────
 (function() {
-  var CLICKS_NEEDED = 5;
-  var CLICK_WINDOW  = 2000; // ms
-  var clicks = 0, timer = null;
   var active = false;
 
-  // The secret trigger: 5 clicks on the ceremony cover icon
-  document.addEventListener('click', function(e) {
-    var icon = e.target.closest('#pd-coro-trigger');
-    if (!icon) return;
-    clicks++;
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(function() { clicks = 0; }, CLICK_WINDOW);
-    if (clicks >= CLICKS_NEEDED) {
-      clicks = 0;
-      if (!active) activateRehearsal();
-    }
-  });
-
-  function activateRehearsal() {
-    active = true;
+  /**
+   * Activa el Modo Coro.
+   *
+   * @param  {Object}  [opts]        Opciones.
+   * @param  {boolean} [opts.seal]   false para entrar sin sello. Por defecto
+   *                                 true (entrada desde el modo Pública).
+   * @return {Promise}               Resuelve cuando el modo quedó aplicado.
+   */
+  function activateRehearsal(opts) {
+    opts = opts || {};
+    var seal = opts.seal !== false;
 
     // Mutex con Modo Bodas (módulo 29): si está activo, lo desactivamos
     // primero para evitar que ambos modos especiales coexistan. El módulo
     // 29 hace lo mismo en su activateWedding(). Cierre simétrico.
     if (document.body.classList.contains('wedding-mode')) {
       document.body.classList.remove('wedding-mode');
-      var weddingBadge = document.getElementById('wedding-badge');
-      if (weddingBadge) weddingBadge.classList.remove('active');
       if (window.SLB && typeof window.SLB.close === 'function') {
         window.SLB.close();
       }
@@ -63,19 +79,26 @@
       }
     }
 
-    playRehearsalIntro(function() {
-      document.body.classList.add('rehearsal-mode');
-      var badge = document.getElementById('rehearsal-badge');
-      badge.classList.add('active', 'entrance');
-      badge.addEventListener('animationend', function() {
-        badge.classList.remove('entrance');
-      }, { once: true });
-      try { localStorage.setItem('pdMode', 'coro'); } catch(e) {}
+    active = true;
+
+    return new Promise(function(resolve) {
+      function apply() {
+        document.body.classList.add('rehearsal-mode');
+        try { localStorage.setItem('pdMode', 'coro'); } catch(e) {}
+        console.log('[Coro] Modo Coro activado');
+        resolve();
+      }
+      if (seal) {
+        playRehearsalIntro(apply);
+      } else {
+        apply();
+      }
     });
   }
 
   // ── INTRO ANIMATION (sello) ──────
-  // Generic version — acepta cualquier label HTML. Usada por Modo Coro y Modo Dev.
+  // Generic version — acepta cualquier label HTML. Usada por el Modo Coro y,
+  // a través de window.playModeIntro, por otros módulos.
   window.playModeIntro = function(label, onDone) {
     var overlay = document.getElementById('rehearsal-intro');
     var labelEl = overlay.querySelector('.ri-seal-label');
@@ -101,19 +124,21 @@
     active = false;
     document.body.classList.remove('dev-mode');
     document.body.classList.remove('rehearsal-mode');
-    document.getElementById('rehearsal-badge').classList.remove('active');
     document.getElementById('rehearsal-confirm').classList.remove('open');
     // Close edge panel if open
     if (window.SL) window.SL.close();
     try { localStorage.removeItem('pdMode'); } catch(e) {}
+    console.log('[Coro] Modo Coro desactivado');
   }
 
-  function deactivateDevOnly() {
-    document.body.classList.remove('dev-mode');
-    document.getElementById('rehearsal-confirm').classList.remove('open');
-    // Close edge panel if open (will reopen as Coro-only, tab stays)
-    if (window.SL) window.SL.close();
-    try { localStorage.setItem('pdMode', 'coro'); } catch(e) {}
+  /**
+   * Abre el diálogo de confirmación de salida. Lo llama el selector de modos
+   * cuando el usuario elige la fila "Pública" estando en Modo Coro.
+   */
+  function requestExit() {
+    var text = document.querySelector('#rehearsal-confirm p');
+    if (text) text.textContent = '¿Salir del modo Coro?';
+    document.getElementById('rehearsal-confirm').classList.add('open');
   }
 
   // ── RESTORE MODE ON PAGE LOAD (silent, no animation) ──
@@ -123,7 +148,8 @@
   //
   // Valores válidos de pdMode:
   //   'coro'       → restaurar Modo Coro
-  //   'coro+dev'   → restaurar Modo Coro + Dev
+  //   'coro+dev'   → restaurar Modo Coro (el módulo 11 añade Edición si hay
+  //                   sesión de administrador)
   //   'bodas'      → manejado por el módulo 29
   //   'bodas+dev'  → manejado por el módulo 29
   //   'dev'        → legacy, se interpreta como 'coro+dev' (para compatibilidad
@@ -137,30 +163,19 @@
 
       active = true;
       document.body.classList.add('rehearsal-mode');
-      document.getElementById('rehearsal-badge').classList.add('active');
       // v3.6.7r10: la restauración de dev-mode ya NO se hace aquí (permitía
       // "guardar" sin sesión Firebase → las reglas rechazaban en silencio y la
       // UI fingía éxito). El módulo 11 restaura dev-mode tras validar la sesión
-      // con AuthGate.ensureReady().
+      // con AuthGate.isAdmin().
       console.log('[Mode] Restaurado: ' + saved);
     } catch(e) {}
   })();
 
-  // Badge click → show confirm dialog (mensaje según modo activo)
-  document.getElementById('rehearsal-badge').addEventListener('click', function() {
-    var isDevMode = document.body.classList.contains('dev-mode');
-    document.querySelector('#rehearsal-confirm p').textContent =
-      isDevMode ? '¿Salir del modo Dev?' : '¿Salir del modo Coro?';
-    document.getElementById('rehearsal-confirm').classList.add('open');
-  });
-
-  // Confirm yes → step down: Dev→Coro, or Coro→Normal
+  // ── DIÁLOGO DE CONFIRMACIÓN DE SALIDA ──
+  // Confirmar sale del Modo Coro por completo (incluido Edición). El paso
+  // Edición → Coro lo hace el interruptor del selector, no este diálogo.
   document.getElementById('confirm-yes').addEventListener('click', function() {
-    if (document.body.classList.contains('dev-mode')) {
-      deactivateDevOnly();
-    } else {
-      deactivateRehearsal();
-    }
+    deactivateRehearsal();
   });
   document.getElementById('confirm-no').addEventListener('click', function() {
     document.getElementById('rehearsal-confirm').classList.remove('open');
@@ -169,4 +184,12 @@
   document.getElementById('rehearsal-confirm').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
   });
+
+  // ── API PÚBLICA ───────────────────────────────────────────────────────
+  window.RehearsalMode = {
+    activate:   activateRehearsal,
+    deactivate: deactivateRehearsal,
+    requestExit: requestExit,
+    isActive:   function() { return active; }
+  };
 })();

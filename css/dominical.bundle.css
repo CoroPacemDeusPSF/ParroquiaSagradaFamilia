@@ -6,7 +6,7 @@
      @brief      Orquestador CSS del cancionero dominical (importa todos los módulos en orden de cascada)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0
+     @version    v3.6.8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -65,14 +65,14 @@
 
 /* ─── Componentes de contenido del cancionero ─────────────────────────────── */
 @import url('components/index.css?v=3.6.2');
-@import url('components/song-card.css?v=3.6.5');
+@import url('components/song-card.css?v=3.6.8');
 @import url('components/chords.css?v=3.6.7r17');
 @import url('components/context.css?v=3.5.2');
 
 /* ─── Componentes interactivos (modos especiales) ─────────────────────────── */
-@import url('components/rehearsal.css?v=3.6.3');
+@import url('components/rehearsal.css?v=3.6.8');
 @import url('components/editor.css?v=3.6.3');
-@import url('components/setlist.css?v=3.6.7r18');
+@import url('components/setlist.css?v=3.6.8');
 @import url('components/pdf-overlays.css?v=3.6.3');
 @import url('components/chord-diag.css?v=3.6.2');
 
@@ -88,14 +88,18 @@
    Cargan después de rehearsal.css y setlist.css para que sus estilos puedan
    coexistir con los del dominical sin interferencia (clases prefijadas .slb-*
    y selectores body.wedding-mode evitan colisiones).                        */
-@import url('components/wedding-mode.css?v=3.3.0r10');
+@import url('components/wedding-mode.css?v=3.6.8');
 @import url('components/setlist-bodas.css?v=3.6.6r6');
+/* Selector de modos (v3.6.8) — chip y menú de la barra superior. Va después
+   de wedding-mode.css porque consume su paleta rosa (--wm-*) para el estado
+   Bodas, y antes de novios-mode.css para que este pueda ocultarlo. */
+@import url('components/mode-switcher.css?v=3.6.8');
 /* Modo Novios — vista limpia para que los novios revisen el cancionero
    antes de la boda. Activado vía URL (?modo=novios&pin=CPD2026). Importado
    AL FINAL de los componentes para que sus reglas !important tengan máxima
    especificidad y puedan ocultar correctamente los controles de los modos
    anteriores (rehearsal-mode, wedding-mode, etc.). */
-@import url('components/novios-mode.css?v=3.6.6r7');
+@import url('components/novios-mode.css?v=3.6.8');
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.6.3');

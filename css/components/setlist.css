@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r18
+     @version    v3.6.8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -240,7 +240,7 @@ body.dev-mode .sl-remove { display: block; }
 /* ── Toolbar inferior del SetList (Borrar Todo + Imprimir) ──
    Layout flex horizontal para que ambos botones quepan en una sola línea.
    En Modo Coro/Público solo se ve "Imprimir" (que ocupa el ancho completo).
-   En Modo Dev se ven los dos lado a lado. */
+   Con la capa de Edición activa se ven los dos lado a lado. */
 .sl-toolbar {
   display: flex;
   gap: 0.4rem;
@@ -522,7 +522,7 @@ body.dev-mode .sl-clear { display: block; }
 }
 .sl-dialog-cancel:hover { background: rgba(136,136,136,0.1); }
 
-/* ── "+" button in index (Dev mode only) ── */
+/* ── "+" del índice ── */
 .idx-add-btn {
   display: none;
   background: none;
@@ -540,7 +540,11 @@ body.dev-mode .sl-clear { display: block; }
   transition: all 0.15s;
 }
 .idx-add-btn:hover { background: rgba(200,148,60,0.15); }
-body.dev-mode .idx-add-btn { display: inline-flex; }
+/* v3.6.8: mismo criterio que el "+" de la ficha (song-card.css). Son la misma
+   acción en dos superficies; si una se muestra y la otra no, el director ve el
+   botón en la ficha y no lo encuentra en el índice. */
+body.rehearsal-mode.dev-mode .idx-add-btn,
+body.wedding-mode .idx-add-btn { display: inline-flex; }
 
 /* Nota: las reglas de `.song-add-btn` (botón "+" legacy inyectado en los
    títulos por el SetList) fueron eliminadas en v3.2.46 — ahora el botón

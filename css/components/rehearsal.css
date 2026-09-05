@@ -3,54 +3,24 @@
    ────────────────────────────────────────────────────────────────────────────
 
      @file       css/components/rehearsal.css
-     @brief      Modo Coro: animación de ingreso, badge, controles del director
+     @brief      Modo Coro: animación de ingreso, diálogo de salida, controles
+                 del director
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.3.0r1
+     @version    v3.6.8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
 /* ============================================================================
    rehearsal.css — Modo Coro (rehearsal mode)
    ============================================================================
-   Activación con 5 clicks en el ícono de iglesia. Animación "Sello Litúrgico"
-   de entrada, badge persistente con micrófono SVG, transformaciones del UI
-   cuando body.rehearsal-mode está activo.
+   Animación "Sello Litúrgico" de entrada, diálogo de confirmación de salida y
+   transformaciones del UI cuando body.rehearsal-mode está activo.
+
+   v3.6.8: el badge flotante desapareció junto con el gesto de los 5 clics. El
+   modo se activa desde el selector de la barra superior (mode-switcher.css) y
+   ese chip es ahora el único indicador de modo.
    ============================================================================ */
-
-/* ── REHEARSAL MODE ── */
-#rehearsal-badge {
-  display: none;
-  align-items: center;
-  gap: 0.4rem;
-  margin-left: 0.6rem;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-}
-#rehearsal-badge.active { display: flex; }
-/* Badge en Dev Mode: ícono y color distintos */
-body.dev-mode #rehearsal-badge svg { background: #B45309; }
-body.dev-mode #rehearsal-badge .badge-mic { display: none; }
-body.dev-mode #rehearsal-badge .badge-dev { display: block !important; }
-
-#rehearsal-badge svg {
-  width: 22px; height: 22px;
-  color: #fff;
-  background: #7C3AED;
-  border-radius: 50%;
-  padding: 3px;
-  transition: background 0.3s;
-
-  box-shadow: 0 0 0 0 rgba(124,58,237,0.7);
-  animation: rehearsalPulse 1.4s ease-in-out infinite;
-}
-@keyframes rehearsalPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(124,58,237,0.7); }
-  70%  { box-shadow: 0 0 0 8px rgba(124,58,237,0); }
-  100% { box-shadow: 0 0 0 0 rgba(124,58,237,0); }
-}
 
 .yt-play-btn {
   display: none;
@@ -246,17 +216,6 @@ body.wedding-mode  .yt-play-btn[href*="youtu"] { display: inline-flex; }
   animation: riReveal 0.4s ease-out 1s forwards;
 }
 @keyframes riReveal { from { opacity: 0; } to { opacity: 1; } }
-
-/* Badge entrance */
-@keyframes badgeEntrance {
-  0%   { transform: scale(0) rotate(-90deg); opacity: 0; }
-  50%  { transform: scale(1.5) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 20px rgba(232,192,64,0.9)); }
-  70%  { transform: scale(0.9) rotate(-5deg); }
-  100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0 transparent); }
-}
-#rehearsal-badge.entrance {
-  animation: badgeEntrance 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
-}
 
 /* ── JESUS QUOTE ── */
 .jesus-quote {

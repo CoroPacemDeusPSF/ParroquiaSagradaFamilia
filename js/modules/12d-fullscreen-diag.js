@@ -6,7 +6,7 @@
  *   @brief      Botón "Diag" + modo grabación de eventos para fullscreen-fit
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46r20
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -141,7 +141,7 @@
     var btn = document.createElement('button');
     btn.type      = 'button';
     btn.className = DIAG_BTN_CLASS;
-    btn.title     = 'Diagnóstico fullscreen (Modo Dev)';
+    btn.title     = 'Diagnóstico fullscreen (Edición)';
     btn.setAttribute('aria-label', 'Diagnóstico fullscreen');
     btn.innerHTML = DIAG_ICON_SVG + '<span>Diag</span>';
 

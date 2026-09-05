@@ -1,0 +1,645 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/components/mode-switcher.css
+     @brief      Selector de modos de la barra superior: chip de estado, menú
+                 de modos, bloque de cuenta e interruptor de Edición
+     @author     Renzo Núñez Berdejo
+     @project    Cancionero Dominical
+     @version    v3.6.8
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ============================================================================
+   mode-switcher.css — Selector de modos
+   ============================================================================
+   ANATOMÍA
+
+     #pd-mode                  contenedor posicionado (ancla del menú)
+       #pd-mode-btn            chip: icono + etiqueta + punto de estado
+         .pd-mode-ico-*        tres iconos; el CSS muestra el del modo activo
+         .pd-mode-txt          etiqueta y subtítulo (oculto en móvil)
+         .pd-mode-dot          punto de color del modo (dorado / rosa)
+       #pd-mode-menu           panel desplegable (role="dialog")
+         .pd-mode-group        radiogroup con las filas de modo
+           .pd-mode-item       una fila por modo (Pública, Coro, Bodas)
+         .pd-mode-account      bloque de sesión + interruptor de Edición
+
+   DOS PALETAS
+     El chip vive DENTRO de la barra superior, así que consume los tokens
+     --theme-back-bar-* y cambia con el tema de la página. El menú es una
+     superficie propia que flota sobre el contenido: usa la paleta crema y
+     dorada del proyecto, la misma de auth-modal.css, con sus valores
+     literales para que no dependa del tema de la barra.
+
+   ESTADOS DEL CHIP
+     #pd-mode.is-publico | .is-coro | .is-bodas   modo activo
+     #pd-mode.is-edit                             capa de Edición activa
+
+   ESTADOS DEL MENÚ
+     .open                       desplegado
+     .busy                       acción asíncrona en curso (filas inertes)
+     [data-session="none"]       botón de iniciar sesión
+     [data-session="user"]       correo + aviso de falta de permisos
+     [data-session="admin"]      correo + interruptor de Edición
+     .pd-mode-account.asking     confirmación de cierre de sesión
+   ============================================================================ */
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   CONTENEDOR
+   ════════════════════════════════════════════════════════════════════════ */
+/* Sin position propia a propósito: el bloque contenedor del menú es
+   #pd-back-bar (sticky, y por tanto posicionado). Así el menú se alinea con
+   el borde interior de la barra en vez de colgar del chip, y su `top: 100%`
+   lo deja justo debajo de la barra completa. */
+.pd-mode {
+  flex-shrink: 0;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   CHIP
+   ════════════════════════════════════════════════════════════════════════
+   Píldora de la misma altura que .pd-search-btn (1.75rem) para que la barra
+   mantenga una sola línea óptica de controles.
+   ════════════════════════════════════════════════════════════════════════ */
+.pd-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  /* min-height y no height: en Modo Bodas el chip lleva una segunda línea
+     con la fecha del evento y no debe recortarla. */
+  min-height: 1.75rem;
+  padding: 0 0.6rem 0 0.45rem;
+  background: none;
+  border: 1px solid var(--theme-back-bar-icon-border);
+  border-radius: var(--radius-pill);
+  color: var(--theme-back-bar-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s var(--easing-default),
+              color 0.2s var(--easing-default),
+              box-shadow 0.2s var(--easing-default);
+}
+
+.pd-mode-btn:hover,
+.pd-mode-btn:focus-visible {
+  border-color: var(--theme-back-bar-icon-hover-border);
+  color: var(--theme-back-bar-text-hover);
+}
+.pd-mode-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Iconos: solo se ve el del modo activo ─────────────────────────────── */
+.pd-mode-ico {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pd-mode-ico svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  display: block;
+}
+#pd-mode.is-publico .pd-mode-ico-publico,
+#pd-mode.is-coro    .pd-mode-ico-coro,
+#pd-mode.is-bodas   .pd-mode-ico-bodas {
+  display: inline-flex;
+}
+
+/* ── Etiqueta y subtítulo ──────────────────────────────────────────────── */
+.pd-mode-txt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.1;
+  min-width: 0;
+}
+
+/* Cinzel explícito: los <button> no heredan la familia de #pd-back-bar
+   (regla del agente de usuario), igual que en .confirm-btns o .auth-modal-*. */
+.pd-mode-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Subtítulo: "fecha · novios" del evento de bodas activo. Solo tiene sentido
+   en Modo Bodas y solo cuando el módulo 34 le ha puesto texto. */
+.pd-mode-sub {
+  display: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: none;
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+#pd-mode.is-bodas .pd-mode-sub:not(:empty) { display: block; }
+
+/* ── Punto de estado ───────────────────────────────────────────────────── */
+.pd-mode-dot {
+  display: none;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+#pd-mode.is-coro .pd-mode-dot {
+  display: block;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 0.2rem rgba(200, 148, 60, 0.25);
+}
+#pd-mode.is-bodas .pd-mode-dot {
+  display: block;
+  background: var(--wm-rose);
+  box-shadow: 0 0 0 0.2rem rgba(232, 196, 188, 0.25);
+}
+
+/* ── Color del chip según el modo ──────────────────────────────────────── */
+#pd-mode.is-coro .pd-mode-btn {
+  border-color: rgba(232, 192, 112, 0.55);
+  color: #E8C070;
+}
+#pd-mode.is-coro .pd-mode-btn:hover,
+#pd-mode.is-coro .pd-mode-btn:focus-visible {
+  border-color: rgba(232, 192, 112, 0.9);
+}
+#pd-mode.is-bodas .pd-mode-btn {
+  border-color: var(--wm-rose-deep);
+  color: var(--wm-rose);
+}
+#pd-mode.is-bodas .pd-mode-btn:hover,
+#pd-mode.is-bodas .pd-mode-btn:focus-visible {
+  border-color: var(--wm-rose);
+}
+
+/* Capa de Edición: anillo ámbar alrededor del chip. Mismo color que la
+   franja bajo la barra, para que se lean como una sola señal. */
+#pd-mode.is-edit .pd-mode-btn {
+  box-shadow: 0 0 0 2px var(--color-warning);
+}
+
+/* ── Animación al cambiar de modo ──────────────────────────────────────── */
+@keyframes pdModeChipIn {
+  from { transform: scale(0.9); }
+  to   { transform: scale(1); }
+}
+/* Duración por token (--duration-slow = 0.4s): tokens.css la reduce a 0.01ms
+   cuando el usuario pide movimiento reducido, y este salto de escala es
+   justamente el tipo de animación al que apunta esa preferencia. */
+.pd-mode-btn.changed {
+  animation: pdModeChipIn var(--duration-slow) var(--easing-bounce);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   FRANJA DE EDICIÓN
+   ════════════════════════════════════════════════════════════════════════
+   Recordatorio permanente de que la sesión puede escribir. #pd-back-bar es
+   sticky (posicionado), así que el pseudo-elemento se ancla a la barra y
+   viaja con ella.
+   ════════════════════════════════════════════════════════════════════════ */
+body.dev-mode #pd-back-bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: var(--color-warning);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   MENÚ
+   ════════════════════════════════════════════════════════════════════════ */
+.pd-mode-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 1.5rem;
+  width: 17rem;
+  max-width: calc(100vw - 1.5rem);
+  z-index: 100002;
+  background: linear-gradient(160deg, #FBF6E8 0%, #F5EBD3 100%);
+  border: 1px solid #C8A36A;
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35),
+              0 0 0 1px rgba(200, 163, 106, 0.2);
+  padding-bottom: 0.2rem;
+  /* clip, no hidden: recorta el fondo de las filas en las esquinas
+     redondeadas sin crear un contexto de desplazamiento. */
+  overflow: clip;
+  text-align: left;
+}
+.pd-mode-menu.open {
+  display: block;
+  animation: pdModeMenuIn var(--duration-fast) var(--easing-out);
+}
+
+@keyframes pdModeMenuIn {
+  from { opacity: 0; transform: translateY(-0.25rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Sin font-family: es un <div> y hereda la Cinzel de #pd-back-bar. La
+   declaración explícita solo hace falta en <button> y <label>, que no
+   heredan la familia por la hoja del agente de usuario. */
+.pd-mode-menu-head {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #7A5C3E;
+  padding: 0.7rem 0.9rem 0.3rem;
+}
+
+
+/* ── Filas de modo ─────────────────────────────────────────────────────── */
+.pd-mode-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  color: #5A3D1F;
+  transition: background 0.15s var(--easing-default);
+}
+.pd-mode-item:hover  { background: rgba(200, 148, 60, 0.10); }
+/* Dorado profundo y no --color-accent: sobre la crema del menú el dorado
+   claro se queda en 2,5:1, por debajo del 3:1 que exige un indicador de
+   foco. Sobre la barra oscura (el chip) sí contrasta y allí no cambia. */
+.pd-mode-item:focus-visible {
+  outline: 2px solid var(--color-accent-deep);
+  outline-offset: -2px;
+  background: rgba(200, 148, 60, 0.10);
+}
+
+.pd-mode-item-ico {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: #8B6F47;
+}
+
+.pd-mode-item-txt {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pd-mode-item-name {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6B4226;
+}
+
+.pd-mode-item-desc {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  line-height: 1.25;
+  color: #7A5C3E;
+  margin-top: 0.1rem;
+}
+
+/* Fila marcada: barra dorada a la izquierda y palomita a la derecha. */
+.pd-mode-item[aria-checked="true"] {
+  box-shadow: inset 3px 0 0 var(--color-accent-deep);
+  background: rgba(200, 148, 60, 0.07);
+}
+
+/* La palomita y el candado reservan su hueco siempre (opacidad, no display):
+   si aparecieran y desaparecieran, el bloque de texto de la fila cambiaría de
+   ancho y las descripciones se recompondrían al cambiar de modo. */
+.pd-mode-check {
+  display: inline-flex;
+  opacity: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+  color: var(--color-accent-deep);
+}
+.pd-mode-item[aria-checked="true"] .pd-mode-check { opacity: 1; }
+
+/* Candado de la fila privada. Se apaga cuando el modo ya está activo: ahí
+   manda la palomita. */
+.pd-mode-item-locked .pd-mode-lock {
+  display: inline-flex;
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  color: #A08858;
+}
+.pd-mode-item-locked[aria-checked="true"] .pd-mode-lock { opacity: 0; }
+
+/* Acción asíncrona en curso: el menú entero se congela salvo el control en
+   curso. El bloque de cuenta también: el login y el interruptor de Edición
+   lanzan acciones tan lentas como las filas. */
+.pd-mode-menu.busy .pd-mode-item,
+.pd-mode-menu.busy .pd-mode-login,
+.pd-mode-menu.busy .pd-mode-switch,
+.pd-mode-menu.busy .pd-mode-logout {
+  pointer-events: none;
+}
+.pd-mode-menu.busy .pd-mode-item,
+.pd-mode-menu.busy .pd-mode-switch,
+.pd-mode-menu.busy .pd-mode-logout {
+  opacity: 0.6;
+}
+/* El control que lanzó la acción se queda a plena vista: es el que anuncia
+   "Conectando…". */
+.pd-mode-menu.busy .pd-mode-item.is-busy { opacity: 1; }
+
+
+/* ── Separador ─────────────────────────────────────────────────────────── */
+.pd-mode-sep {
+  height: 1px;
+  background: rgba(200, 148, 60, 0.45);
+  margin: 0.35rem 0.9rem 0.1rem;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   BLOQUE DE CUENTA
+   ════════════════════════════════════════════════════════════════════════
+   Qué se ve depende de #pd-mode-menu[data-session]. Todo con display, sin
+   visibility: los elementos ocultos no ocupan sitio ni reciben el foco.
+   ════════════════════════════════════════════════════════════════════════ */
+.pd-mode-account {
+  padding: 0.6rem 0.9rem 0.8rem;
+}
+
+/* Por defecto todo oculto; cada estado enciende lo suyo. */
+.pd-mode-login,
+.pd-mode-hint,
+.pd-mode-user,
+.pd-mode-switch,
+.pd-mode-noperm,
+.pd-mode-logout,
+.pd-mode-logout-confirm {
+  display: none;
+}
+
+.pd-mode-menu[data-session="none"] .pd-mode-login { display: flex; }
+.pd-mode-menu[data-session="none"] .pd-mode-hint  { display: block; }
+
+.pd-mode-menu[data-session="user"]  .pd-mode-user,
+.pd-mode-menu[data-session="admin"] .pd-mode-user   { display: block; }
+.pd-mode-menu[data-session="user"]  .pd-mode-noperm { display: block; }
+.pd-mode-menu[data-session="admin"] .pd-mode-switch { display: flex; }
+
+.pd-mode-menu[data-session="user"]  .pd-mode-account:not(.asking) .pd-mode-logout,
+.pd-mode-menu[data-session="admin"] .pd-mode-account:not(.asking) .pd-mode-logout {
+  display: inline-block;
+}
+.pd-mode-menu[data-session="user"]  .pd-mode-account.asking .pd-mode-logout-confirm,
+.pd-mode-menu[data-session="admin"] .pd-mode-account.asking .pd-mode-logout-confirm {
+  display: flex;
+}
+
+
+/* ── Iniciar sesión ────────────────────────────────────────────────────── */
+.pd-mode-login {
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid #C8A36A;
+  border-radius: 4px;
+  color: #6B4226;
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s var(--easing-default),
+              border-color 0.2s var(--easing-default);
+}
+.pd-mode-login:hover {
+  background: rgba(200, 148, 60, 0.16);
+  border-color: #B08030;
+}
+.pd-mode-login svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* Anillo de foco propio para los botones del bloque de cuenta: sin esto caen
+   en el del navegador, ajeno a la paleta del menú. */
+.pd-mode-login:focus-visible,
+.pd-mode-logout:focus-visible,
+.pd-mode-logout-confirm button:focus-visible {
+  outline: 2px solid var(--color-accent-deep);
+  outline-offset: 2px;
+}
+
+.pd-mode-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: #7A5C3E;
+  margin-top: 0.4rem;
+}
+
+
+/* ── Sesión iniciada ───────────────────────────────────────────────────── */
+.pd-mode-user {
+  margin-bottom: 0.5rem;
+}
+.pd-mode-user-email {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: #5A3D1F;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-mode-noperm {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: var(--color-warning);
+  margin-bottom: 0.5rem;
+}
+
+
+/* ── Interruptor de Edición ────────────────────────────────────────────── */
+.pd-mode-switch {
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  margin-bottom: 0.6rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* El input real queda fuera de la vista pero sigue siendo el control: recibe
+   foco, responde a la barra espaciadora y lo anuncian los lectores. */
+.pd-mode-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.pd-mode-switch-track {
+  position: relative;
+  display: block;
+  width: 2.1rem;
+  height: 1.15rem;
+  border-radius: var(--radius-pill);
+  background: #D9CDB8;
+  flex-shrink: 0;
+  transition: background 0.2s var(--easing-default);
+}
+.pd-mode-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 0.1rem;
+  left: 0.1rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  background: #FFFDF7;
+  box-shadow: 0 1px 3px rgba(60, 45, 20, 0.35);
+  transition: transform var(--duration-base) var(--easing-bounce);
+}
+.pd-mode-switch input:checked + .pd-mode-switch-track {
+  background: var(--color-warning);
+}
+.pd-mode-switch input:checked + .pd-mode-switch-track::after {
+  transform: translateX(0.95rem);
+}
+.pd-mode-switch input:focus-visible + .pd-mode-switch-track {
+  outline: 2px solid var(--color-accent-deep);
+  outline-offset: 2px;
+}
+
+.pd-mode-switch-txt {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6B4226;
+}
+
+
+/* ── Cerrar sesión ─────────────────────────────────────────────────────── */
+/* Es un control accionable en Cinzel a 0.58rem: el marrón claro del resto de
+   notas no llegaba al 4,5:1 sobre la crema. */
+.pd-mode-logout {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: #6B4226;
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s var(--easing-default);
+}
+.pd-mode-logout:hover { color: #5A3D1F; }
+
+.pd-mode-logout-confirm {
+  align-items: center;
+  gap: 0.4rem;
+}
+.pd-mode-logout-confirm span {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #5A3D1F;
+  margin-right: 0.1rem;
+}
+.pd-mode-logout-confirm button {
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s var(--easing-default);
+}
+.pd-mode-logout-confirm button[data-act="logout-yes"] {
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent-deep);
+  color: #FFFDF7;
+}
+.pd-mode-logout-confirm button[data-act="logout-yes"]:hover {
+  background: var(--color-accent-deep);
+}
+.pd-mode-logout-confirm button[data-act="logout-no"] {
+  background: transparent;
+  border: 1px solid rgba(200, 163, 106, 0.7);
+  color: #6B4226;
+}
+.pd-mode-logout-confirm button[data-act="logout-no"]:hover {
+  background: rgba(200, 148, 60, 0.12);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   MÓVIL
+   ════════════════════════════════════════════════════════════════════════
+   Mismo corte que .pd-hamburger en nav.css. El chip se reduce a un círculo
+   del tamaño del botón de búsqueda y el punto pasa a la esquina.
+   ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .pd-mode-txt { display: none; }
+
+  .pd-mode-btn {
+    position: relative;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    justify-content: center;
+    gap: 0;
+  }
+
+  #pd-mode.is-coro .pd-mode-dot,
+  #pd-mode.is-bodas .pd-mode-dot {
+    position: absolute;
+    top: -0.1rem;
+    right: -0.1rem;
+    box-shadow: none;
+  }
+}
+
+/* El margen interior de #pd-back-bar solo baja a 0.8rem por debajo de 480px
+   (lit-card.css). El menú se alinea con ese margen exactamente en el mismo
+   corte: entre 481 y 767px conserva el right: 1.5rem de escritorio. */
+@media (max-width: 480px) {
+  .pd-mode-menu { right: 0.8rem; }
+}

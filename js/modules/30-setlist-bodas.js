@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r10
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -708,11 +708,11 @@
     }
 
     /* v3.6.6r3: Botón "Importar PDF" en Modo Bodas.
-       Antes solo aparecía en Modo Dev, pero el flujo natural de uso es:
-       los novios envían el PDF que generaron con sus selecciones, Renzo
-       lo importa para tener el SetList en Firebase. Ese flujo no requiere
-       Modo Dev — es trabajo regular del director de coro armando bodas
-       futuras desde el panel de Bodas.
+       Antes solo aparecía con la capa de Edición, pero el flujo natural de
+       uso es: los novios envían el PDF que generaron con sus selecciones,
+       Renzo lo importa para tener el SetList en Firebase. Ese flujo no
+       requiere Edición — es trabajo regular del director de coro armando
+       bodas futuras desde el panel de Bodas.
 
        Solo aparece si:
        - Modo Bodas activo (wedding-mode)
@@ -898,7 +898,7 @@
       var now = Date.now();
       if (now - (saveSlot._lastWarn || 0) > 4000) {
         saveSlot._lastWarn = now;
-        alert('No se pudo guardar en la nube. Verifica que estés en Modo Dev con sesión iniciada.');
+        alert('No se pudo guardar en la nube. Verifica que la sesión del director esté iniciada.');
       }
     });
   }
@@ -1539,6 +1539,11 @@
 
   // ── API PÚBLICA ───────────────────────────────────────────────────────
   window.SLB = {
+    /* v3.6.8: lectura mínima del evento activo para el selector de modos
+       (módulo 34), que muestra "fecha · novios" en el chip y en la fila
+       Bodas del menú. Solo lectura: no expone ni muta el setlist. */
+    getEventInfo: function() { return { date: currentDate, novios: noviosNombres }; },
+
     open:           openPanel,
     // close: cierre forzoso (ignora pin). Usado por el módulo 29 al
     // desactivar wedding-mode. Para cierre que respete el pin, usar

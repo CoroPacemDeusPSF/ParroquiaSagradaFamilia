@@ -3,11 +3,12 @@
  * ────────────────────────────────────────────────────────────────────────────
  *
  *   @file       js/modules/35-firebase-auth.js
- *   @brief      Autenticación con Google Sign-In. Solo Renzo escribe a
- *               Firebase; las reglas validan auth.uid === Renzo's UID.
+ *   @brief      Autenticación con Google Sign-In y comprobación de
+ *               administrador. Solo el director escribe a Firebase; las
+ *               reglas validan auth.uid contra la lista de administradores.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r10
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -42,11 +43,19 @@
    API PÚBLICA
      window.AuthGate = {
        requireAuth(cb)      → Si autenticado, ejecuta cb. Si no, prompt login → ejecuta cb.
+       ensureReady()        → Carga el SDK y resuelve con el usuario actual (o null). Sin modal.
        isAuthenticated()    → boolean, lectura síncrona del estado
+       isAdmin()            → Promise<boolean>. ¿La sesión actual puede escribir?
        getCurrentUser()     → { uid, email, displayName, photoURL } | null
        signOut()            → Cierra sesión
        onAuthChange(cb)     → Suscribe a cambios; cb recibe el user (o null)
+       promptLogin(msg)     → Abre el modal de login sin envolver ninguna acción
      }
+
+   ADMINISTRADORES (v3.6.8)
+     El selector de modos necesita distinguir "hay sesión" de "esta sesión
+     puede escribir". isAdmin() consulta /admins/{uid} en la base de datos y,
+     mientras ese nodo no exista, cae en una lista de respaldo en código.
 
    DEPENDENCIAS
      - SDK Firebase v10+ desde CDN (cargado lazily al primer requireAuth)
@@ -75,6 +84,12 @@
   /* Indicadores de URL para el interceptor de fetch.
      Cualquier request a estos hosts recibirá el idToken automáticamente. */
   var FIREBASE_HOST = 'firebaseio.com';
+
+  /* Lista de respaldo. La fuente de verdad será /admins/{uid} en la base de
+     datos (reglas r52). Hasta que ese nodo exista, la lectura devuelve 401 y
+     se usa esta lista. Cuando exista, la base manda. */
+  var ADMIN_UIDS_FALLBACK = ['ihLzgmElwcRUvJrHRZOUOuMJoMF2'];
+  var _adminCache = {}; // uid → boolean
 
   /* ──────────────────────────────────────────────────────────────────────
      ESTADO
@@ -359,12 +374,62 @@
 
   /* ensureReady: carga el SDK y espera la primera resolución de auth. Resuelve
      con el usuario actual (o null). NO muestra modal. Lo usa el módulo 11 para
-     restaurar Modo Dev SOLO si hay una sesión Firebase válida. */
+     restaurar la capa de Edición SOLO si hay una sesión Firebase válida. */
   function ensureReady() {
     return loadFirebaseSDK().then(function () {
       return _firstAuthPromise;
     }).then(function () {
       return _currentUser || null;
+    });
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────
+     COMPROBACIÓN DE ADMINISTRADOR (v3.6.8)
+     ──────────────────────────────────────────────────────────────────────
+     "Hay sesión" y "esta sesión puede escribir" son cosas distintas: con
+     Google Sign-In cualquier persona con una cuenta de Google puede iniciar
+     sesión, pero solo los UID autorizados pasan las reglas de la base.
+
+     El selector de modos (módulo 34) y el modo Edición (módulo 11) usan esta
+     comprobación para no ofrecer controles cuyo guardado iba a fallar.
+
+     Fuente de verdad prevista: el nodo /admins/{uid} de la base de datos.
+     Mientras no exista, la lectura responde 401 y caemos en la lista de
+     respaldo del código. Cuando exista, la base manda.
+
+     El resultado se cachea por UID; la caché se vacía en cada cambio de
+     sesión (notifyAuthChange).
+     ────────────────────────────────────────────────────────────────────── */
+  function isAdmin() {
+    return ensureReady().then(function (user) {
+      if (!user) return false;
+
+      var uid = user.uid;
+      if (Object.prototype.hasOwnProperty.call(_adminCache, uid)) {
+        return _adminCache[uid];
+      }
+
+      /* El interceptor de fetch añade ?auth=TOKEN automáticamente. */
+      return window.fetch(FIREBASE_CONFIG.databaseURL + '/admins/' + uid + '.json')
+        .then(function (r) {
+          if (!r.ok) {
+            /* 401/403/404: el nodo aún no existe o no es legible.
+               Respaldo: lista en código. */
+            return ADMIN_UIDS_FALLBACK.indexOf(uid) !== -1;
+          }
+          return r.json().then(function (value) {
+            /* Un 200 con null significa "no está en la lista". */
+            return value === true;
+          });
+        })
+        .catch(function () {
+          /* Error de red: respaldo. */
+          return ADMIN_UIDS_FALLBACK.indexOf(uid) !== -1;
+        })
+        .then(function (ok) {
+          _adminCache[uid] = ok;
+          return ok;
+        });
     });
   }
 
@@ -379,6 +444,9 @@
   }
 
   function notifyAuthChange(user) {
+    /* v3.6.8: la sesión cambió (login, logout o refresco de token). La caché
+       de administradores deja de ser válida. */
+    _adminCache = {};
     _authChangeListeners.forEach(function (cb) {
       try { cb(user); } catch (e) { console.warn('[Auth] listener error:', e); }
     });
@@ -414,6 +482,10 @@
     requireAuth:       requireAuth,
     ensureReady:       ensureReady,
     isAuthenticated:   function () { return _currentUser !== null; },
+
+    /* v3.6.8: ¿la sesión actual puede escribir? Promise<boolean>. */
+    isAdmin:           isAdmin,
+
     getCurrentUser:    function () {
       if (!_currentUser) return null;
       return {
@@ -426,9 +498,15 @@
     signOut:           logout,
     onAuthChange:      onAuthChange,
 
-    /* Login directo sin requerir cb (útil para botones explícitos) */
+    /* Login directo sin requerir cb (útil para botones explícitos).
+       Igual que requireAuth, ESPERA _firstAuthPromise antes de decidir: la
+       sesión persistida en indexedDB se restaura de forma asíncrona y sin esa
+       espera _currentUser siempre sería null aquí, de modo que el director
+       con sesión válida recibiría un popup de Google innecesario. */
     promptLogin: function (message) {
       return loadFirebaseSDK().then(function () {
+        return _firstAuthPromise;
+      }).then(function () {
         if (_currentUser) return _currentUser;
         return showLoginModal(message);
       });

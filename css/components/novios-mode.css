@@ -6,7 +6,7 @@
  *   @brief      Modo Novios — vista limpia con paleta cremoso/dorado/marrón
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.0r6
+ *   @version    v3.6.8
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -82,9 +82,11 @@ body.novios-mode .slb-picker-cell {
   display: none !important;
 }
 
-/* ── 1.2 Triggers y badges de modos especiales ────────────────────────── */
-body.novios-mode #rehearsal-badge,
-body.novios-mode #wedding-badge,
+/* ── 1.2 Selector de modos y sellos de ingreso ────────────────────────── */
+/* v3.6.8: los badges de Coro y Bodas se sustituyeron por el selector de la
+   barra superior. Los novios no eligen modo: llegan por su enlace y el
+   módulo 28 limpia cualquier otro modo, así que el selector sobra. */
+body.novios-mode #pd-mode,
 body.novios-mode #rehearsal-intro,
 body.novios-mode #wedding-intro {
   display: none !important;
