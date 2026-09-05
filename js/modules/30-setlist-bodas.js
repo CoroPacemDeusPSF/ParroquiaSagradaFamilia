@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.8
+ *   @version    v3.6.8r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -60,6 +60,24 @@
      para escribir. Si está vacío, no ocupa espacio (no muestra línea).
      Persiste en Firebase como /setlist-bodas/{fecha}/_meta/novios.
 
+   CARGA CONDICIONADA (v3.6.8r1)
+     Hasta v3.6.8 el módulo pedía datos a Firebase en cuanto cargaba la
+     página, para cualquier visitante. Funcionaba solo porque la lectura de
+     /setlist-bodas era pública. Al cerrarla a administradores, esas peticiones
+     pasan a devolver 401 y el feligrés cargaría el cancionero disparando
+     errores que no le corresponden.
+
+     Desde v3.6.8r1 la única puerta de carga es ensureData(). Solo lee cuando
+     el backend es localStorage (Modo Novios, que nunca toca la red) o cuando
+     el body ya está en wedding-mode Y AuthGate.isAdmin() confirma una sesión
+     con permiso de escritura. En modo Pública o Coro no sale ninguna petición.
+     Un MutationObserver sobre la clase del body vuelve a llamar a ensureData()
+     cuando se entra a Modo Bodas durante la sesión.
+
+     Además, las lecturas comprueban response.ok: un 401 ya no se parsea como
+     JSON vacío. Se marca sessionError y el panel dice "Sesión expirada" en vez
+     de mostrar un setlist en blanco, que se confundiría con datos perdidos.
+
    ORDEN DE CARGA: posición 30 — después del módulo 29-wedding-mode.js
    ============================================================================ */
 
@@ -111,7 +129,18 @@
 
       loadAll: function(dateKey) {
         return fetch(FIREBASE_URL + FB_BASE + '/' + dateKey + '.json')
-          .then(function(r) { return r.json(); });
+          .then(function(r) {
+            // v3.6.8r1: con la lectura cerrada a administradores, un 401 llega
+            // con cuerpo de error. Parsearlo como JSON haría que el panel se
+            // viera vacío, indistinguible de "se borró la boda". Lo lanzamos
+            // con el status para que el caller lo reporte como sesión expirada.
+            if (!r.ok) {
+              var e = new Error('HTTP ' + r.status);
+              e.status = r.status;
+              throw e;
+            }
+            return r.json();
+          });
       },
 
       saveSlot: function(dateKey, slotId, data) {
@@ -159,7 +188,17 @@
 
       listDates: function() {
         return fetch(FIREBASE_URL + FB_BASE + '.json?shallow=true')
-          .then(function(r) { return r.json(); })
+          .then(function(r) {
+            // v3.6.8r1: mismo motivo que en loadAll. Un 401 sin comprobar
+            // devolvería una lista de fechas vacía y el picker parecería
+            // decir que no hay ninguna boda guardada.
+            if (!r.ok) {
+              var e = new Error('HTTP ' + r.status);
+              e.status = r.status;
+              throw e;
+            }
+            return r.json();
+          })
           .then(function(data) {
             return data ? Object.keys(data) : [];
           });
@@ -382,6 +421,16 @@
   // Vistas del panel: 'main' (slots) | 'date-picker' | 'novios-edit'
   var currentView = 'main';
 
+  /* v3.6.8r1 — Estado de la carga condicionada (ver ensureData).
+     · dataLoaded:    ya se cargaron fechas/setlist en esta entrada al modo.
+     · loadingPromise: carga en curso, para no lanzar dos a la vez.
+     · sessionError:  la última lectura de Firebase falló por sesión o red.
+                      El panel lo muestra como "Sesión expirada" en vez de
+                      dejar la vista vacía, que parecería pérdida de datos. */
+  var dataLoaded    = false;
+  var loadingPromise = null;
+  var sessionError  = false;
+
   // ── ELEMENTOS DEL DOM ─────────────────────────────────────────────────
   var panel, overlay, tab, slotsEl, headerEl, footerEl;
   var dialogOverlay, dialogSongEl, dialogSlotsEl;
@@ -471,6 +520,19 @@
         '</svg>' +
       '</button>';
 
+    /* v3.6.8r1: la lectura falló (401/403 o red). Va ANTES de la rama
+       !currentDate para que el usuario no lea "Selecciona una fecha" cuando
+       el problema real es que la sesión caducó. Sin botón "Elegir fecha":
+       la lista de fechas tampoco se pudo leer. Reutiliza .slb-header-empty. */
+    if (sessionError) {
+      headerEl.innerHTML =
+        pinBtn +
+        '<div class="slb-header-title">Setlist de Boda<\/div>' +
+        '<div class="slb-header-empty">Sesión expirada. Vuelve a iniciar sesión desde el selector de modos.<\/div>';
+      updatePinUI();
+      return;
+    }
+
     if (!currentDate) {
       // Sin fecha seleccionada: mostrar invitación a elegir/crear
       headerEl.innerHTML =
@@ -547,6 +609,13 @@
   // ── RENDER DE SLOTS ───────────────────────────────────────────────────
   function renderSlots() {
     if (!slotsEl) return;
+    // v3.6.8r1: con sesión caída no hay nada fiable que pintar; el mensaje
+    // vive en el header (misma forma que la rama sin fecha).
+    if (sessionError) {
+      slotsEl.innerHTML = '';
+      if (footerEl) footerEl.innerHTML = '';
+      return;
+    }
     if (!currentDate) {
       // Sin fecha: panel vacío con mensaje (el header se encarga del CTA)
       slotsEl.innerHTML = '';
@@ -811,6 +880,18 @@
     renderSlots();
   }
 
+  /* v3.6.8r1: ¿este error de lectura significa "sesión caída"?
+     Solo aplica al backend Firebase — en Modo Novios (localStorage) las
+     Promises nunca rechazan por permisos. Se marca ante 401/403 (regla
+     denegada) y también ante errores sin status (fallo de red o de parseo):
+     en todos esos casos NO sabemos qué hay guardado, y mostrar el panel
+     vacío haría creer al director que perdió la boda. */
+  function isSessionFailure(err) {
+    if (storage.mode !== 'firebase') return false;
+    if (!err || typeof err.status === 'undefined') return true;
+    return err.status === 401 || err.status === 403;
+  }
+
   // ── LOAD (vía capa storage) ───────────────────────────────────────────
   // El nombre 'loadFromFirebase' se mantiene por compatibilidad histórica,
   // pero ahora delega en la capa storage que puede ser Firebase o
@@ -826,6 +907,7 @@
     }
     storage.loadAll(dateKey)
       .then(function(data) {
+        sessionError = false; // v3.6.8r1: lectura correcta, sesión sana
         setlistData = {};
         enabledOptionals = [];
         noviosNombres = '';
@@ -873,6 +955,8 @@
       })
       .catch(function(err) {
         console.warn('[SLB] Firebase load error:', err.message);
+        // v3.6.8r1: distinguir "sin datos" de "sin sesión" antes de repintar.
+        if (isSessionFailure(err)) sessionError = true;
         renderHeader();
         renderSlots();
       });
@@ -1110,6 +1194,7 @@
   function loadAvailableDates() {
     return storage.listDates()
       .then(function(dates) {
+        sessionError = false; // v3.6.8r1: lectura correcta, sesión sana
         availableDates = dates.filter(function(k) {
           // Validar formato YYYY-MM-DD para defenderse de claves corruptas
           return /^\d{4}-\d{2}-\d{2}$/.test(k);
@@ -1119,6 +1204,12 @@
       .catch(function(err) {
         console.warn('[SLB] List error:', err.message);
         availableDates = [];
+        // v3.6.8r1: una lista vacía por 401 no debe parecer "no hay bodas".
+        if (isSessionFailure(err)) {
+          sessionError = true;
+          renderHeader();
+          renderSlots();
+        }
       });
   }
 
@@ -1289,6 +1380,14 @@
     // mientras el panel está abierto (no tiene sentido que ambos compitan).
     var slnEdge = document.getElementById('sln-edge');
     if (slnEdge) slnEdge.classList.add('sln-edge-hidden');
+
+    // v3.6.8r1: con la sesión caída no hay lista de fechas fiable, así que no
+    // se pre-selecciona nada; solo se pinta el aviso de sesión expirada.
+    if (sessionError) {
+      renderHeader();
+      renderSlots();
+      return;
+    }
 
     // Si no hay fecha activa pero hay disponibles, pre-seleccionar la
     // más cercana a hoy (la primera futura, o la última si todas son pasadas).
@@ -1470,21 +1569,18 @@
     openAddDialog(cpd, title, moment);
   }
 
-  // ── INIT ──────────────────────────────────────────────────────────────
-  function init() {
-    bindElements();
-    if (!panel) {
-      console.warn('[SLB] Panel DOM no encontrado — markup faltante');
-      return;
-    }
-
+  // ── CARGA DE DATOS (v3.6.8r1) ─────────────────────────────────────────
+  // Antes vivía dentro de init(). Se separó para que la carga deje de estar
+  // atada al arranque de la página y pase por ensureData(), que decide si el
+  // visitante tiene derecho a leer /setlist-bodas.
+  function loadInitialData() {
     // Restaurar fecha activa de la sesión anterior (si existe).
     // Sin esto, currentDate quedaba null tras refresh y el usuario tenía que
     // re-seleccionar la fecha cada vez. Bug histórico v3.3.0r4 — corregido r5.
     var savedDate = null;
     try { savedDate = localStorage.getItem('pdSlbDate'); } catch (e) {}
 
-    loadAvailableDates().then(function() {
+    return loadAvailableDates().then(function() {
       // Si había una fecha guardada Y existe en Firebase, la cargamos
       // automáticamente. Si la fecha guardada ya no tiene setlist (alguien
       // la borró), limpiamos la persistencia y dejamos que el usuario elija.
@@ -1492,8 +1588,9 @@
         currentDate = savedDate;
         loadFromFirebase(savedDate);
       } else {
-        if (savedDate) {
-          // La fecha guardada ya no existe — limpiar
+        if (savedDate && !sessionError) {
+          // La fecha guardada ya no existe — limpiar. Si la lectura falló por
+          // sesión (v3.6.8r1) NO borramos: la fecha puede seguir en Firebase.
           try { localStorage.removeItem('pdSlbDate'); } catch (e) {}
         }
         renderHeader();
@@ -1502,7 +1599,61 @@
       // Restaurar pin después del render (necesita el botón ya en DOM).
       // Si el pin estaba activo y wedding-mode también, el panel se abre auto.
       restorePinState();
+      dataLoaded = true;
     });
+  }
+
+  /* v3.6.8r1 — Puerta única de carga.
+     Devuelve una Promise; resuelve con false cuando decide no leer nada.
+     Reglas:
+       · Modo Novios (localStorage): carga siempre, no hay red ni permisos.
+       · Modo Bodas (Firebase): exige body.wedding-mode Y AuthGate.isAdmin().
+       · Cualquier otro caso (Pública, Coro): ni una sola petición. */
+  function ensureData() {
+    if (loadingPromise) return loadingPromise;
+
+    function done(p) {
+      loadingPromise = p.then(function(v) {
+        loadingPromise = null;
+        return v;
+      }, function(err) {
+        loadingPromise = null;
+        throw err;
+      });
+      return loadingPromise;
+    }
+
+    if (storage.mode !== 'firebase') {
+      // Modo Novios: el borrador vive en este dispositivo, no hay a quién pedir
+      // permiso. No se consulta AuthGate para no cargar el SDK sin necesidad.
+      return done(loadInitialData());
+    }
+
+    if (!document.body.classList.contains('wedding-mode')) {
+      return Promise.resolve(false);
+    }
+
+    if (!window.AuthGate || typeof window.AuthGate.isAdmin !== 'function') {
+      // Sin AuthGate no podemos afirmar que la sesión pueda leer: no pedimos.
+      return Promise.resolve(false);
+    }
+
+    return done(window.AuthGate.isAdmin().then(function(ok) {
+      if (!ok) return false;
+      return loadInitialData();
+    }));
+  }
+
+  // ── INIT DE INTERFAZ ──────────────────────────────────────────────────
+  // Corre en DOMContentLoaded para todo visitante: enlaza el DOM y los
+  // listeners del panel. NO hace ninguna petición por sí mismo — la carga
+  // la decide ensureData().
+  function initUI() {
+    bindElements();
+    if (!panel) {
+      console.warn('[SLB] Panel DOM no encontrado — markup faltante');
+      return;
+    }
 
     // Click outside del dialog cierra
     if (dialogOverlay) {
@@ -1529,12 +1680,34 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && isOpen) closePanel();
     });
+
+    // Cubre Modo Novios y la restauración de Modo Bodas persistida (el módulo
+    // 29 ya aplicó body.wedding-mode antes de que corra este init).
+    ensureData();
+
+    /* Entradas y salidas de Modo Bodas durante la sesión (selector de modos,
+       módulo 34). Mismo patrón que los módulos 23 y 34. Guardamos el estado
+       anterior para reaccionar solo a las transiciones. */
+    var wasWedding = document.body.classList.contains('wedding-mode');
+    new MutationObserver(function() {
+      var isWedding = document.body.classList.contains('wedding-mode');
+      if (isWedding === wasWedding) return;
+      wasWedding = isWedding;
+      if (isWedding) {
+        ensureData();
+      } else {
+        // Al salir, la próxima entrada vuelve a cargar. No hace falta vaciar
+        // el estado en memoria: forceClosePanel ya cerró el panel y
+        // loadInitialData lo repuebla.
+        dataLoaded = false;
+      }
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', initUI);
   } else {
-    init();
+    initUI();
   }
 
   // ── API PÚBLICA ───────────────────────────────────────────────────────
@@ -1543,6 +1716,9 @@
        (módulo 34), que muestra "fecha · novios" en el chip y en la fila
        Bodas del menú. Solo lectura: no expone ni muta el setlist. */
     getEventInfo: function() { return { date: currentDate, novios: noviosNombres }; },
+
+    /* v3.6.8r1: fuerza la puerta de carga (solo lee si Novios o Bodas+admin). */
+    reload:         ensureData,
 
     open:           openPanel,
     // close: cierre forzoso (ignora pin). Usado por el módulo 29 al
