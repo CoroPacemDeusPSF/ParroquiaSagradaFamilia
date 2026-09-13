@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.7r50
+  @version  v3.6.8r2
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -218,12 +218,20 @@ def monta(obra, variante):
 
             # Bordes superior e inferior fundidos contra el desenfoque, para
             # que el corte del recorte no cruce la pantalla como una regla.
-            m = Image.new("L", (W, H), 0)
-            ImageDraw.Draw(m).rectangle([0, y + 10, W, y + alto - 10], fill=255)
-            m = m.filter(ImageFilter.GaussianBlur(W // 24))
-            capa = Image.new("RGB", (W, H), FONDO)
-            capa.paste(pieza, (x, y))
-            im = Image.composite(capa, im, m)
+            # v3.6.8r2: la franja nitida lleva su PROPIO degradado de
+            # transparencia arriba y abajo y se pega sobre el desenfoque. Antes
+            # se pegaba sobre campo liso y se fundia con una mascara difuminada:
+            # en el borde exacto de la franja quedaba un escalon, invisible en
+            # oleos oscuros pero una regla en imagenes de cielo claro.
+            visible = pieza.crop((-x, 0, -x + W, alto))
+            rampa = max(1, int(alto * 0.22))
+            fila = []
+            for i in range(alto):
+                t = min(1.0, i / float(rampa), (alto - 1 - i) / float(rampa))
+                fila.append(int(255 * t * t * (3 - 2 * t)))   # smoothstep
+            alfa = Image.new("L", (1, alto))
+            alfa.putdata(fila)
+            im.paste(visible, (0, y), alfa.resize((W, alto)))
 
     # Vineta: los bordes se funden con el fondo de la portada en vez de
     # terminar en un canto recto contra el degradado liturgico.
@@ -312,7 +320,16 @@ def main():
             print("%s  sin obra asignada" % clave)
             continue
         try:
-            d = ficha(resuelve(entrada))
+            if entrada.get("local"):
+                # v3.6.8r2: imagen propia elegida por Renzo (no viene de
+                # Commons). Ruta relativa a la raiz del repo; no hay licencia
+                # que comprobar porque la imagen es del coro.
+                ruta_local = os.path.join(RAIZ, entrada["local"])
+                d = {"imagen": Image.open(ruta_local).convert("RGB"),
+                     "licencia": entrada.get("licencia", "propia"),
+                     "archivo": entrada["local"], "pagina": ""}
+            else:
+                d = ficha(resuelve(entrada))
         except Exception as e:
             fallos.append((clave, entrada["obra"], str(e)[:150]))
             print("%s  ABORTADO: %s" % (clave, str(e)[:110]))
