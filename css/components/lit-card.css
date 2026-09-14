@@ -6,7 +6,7 @@
      @brief      Lit-card del Evangelio del domingo (cita bíblica, tema)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r24
+     @version    v3.6.8r5
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -26,7 +26,12 @@
 .lit-card .lit-divider{width:50px;height:1px;background:rgba(200,148,60,.35);margin:0 auto 10px}
 .lit-card .lit-gospel{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.08em;color:#B8A880}
 .lit-card .lit-color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;border:1px solid rgba(200,148,60,.4);vertical-align:middle;margin-right:5px}
-.lit-card .lit-theme{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:.9rem;color:#D4C8A0;margin-top:6px}
+/* v3.6.8r5: .9rem -> 1.25rem. Con el mismo tamaño nominal la frase se veía al
+   71% del título: Cinzel dibuja sus minúsculas como versalitas de 0,60 em y la
+   Cormorant itálica tiene una altura x de solo 0,40 em (medido en los TTF de
+   Google Fonts). 0,85 x 0,60 / 0,40 = 1,26rem iguala la altura visible de las
+   minúsculas de ambas líneas. line-height 1.3 para las frases de 2-3 líneas. */
+.lit-card .lit-theme{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:1.25rem;line-height:1.3;color:#D4C8A0;margin-top:6px}
 
 /* ── Caída de las letras (v3.6.7r21) ──────────────────────────────────────
    La frase del Evangelio es lo único que cambia cada semana, así que se
