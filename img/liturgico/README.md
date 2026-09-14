@@ -2,6 +2,22 @@
 
 Ilustración de portada de cada domingo. La consume `js/modules/36-liturgical-background.js`.
 
+## Pipeline vigente: obras reales con `montar-obra.py`
+
+Desde v3.6.7r50 las imágenes **no se generan con IA**: se montan **obras de arte reales de dominio
+público** (o CC0), curadas a mano en `obras.json` (una por domingo, con su `porque` litúrgico), sobre
+campo oscuro, como una lámina en una sala en penumbra. `scripts/montar-obra.py` descarga la obra
+decidida, **comprueba la licencia antes de guardar** (si no es libre, aborta ese domingo), la monta
+en las dos proporciones y escribe `creditos.json`.
+
+Desde **v3.6.8r2** también acepta **imágenes propias del coro**: clave `"local"` en `obras.json`
+apuntando a `originales/…`, con `"licencia": "propia"`. No baja nada de Commons ni comprueba licencia
+(la imagen es del coro). Ejemplo real: el 13-sep-2026 ("El perdón").
+
+Los dos caminos de generación por IA que siguen documentados abajo — el workflow de GitHub Actions
+con OpenAI y `generar-local.py` con ComfyUI — son **anteriores** y quedan como alternativa, no como
+flujo principal.
+
 ## Nombres de archivo
 
 ```
