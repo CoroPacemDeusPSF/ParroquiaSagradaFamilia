@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.8r3
+ *   @version    v3.6.8r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -71,7 +71,7 @@
     '2026-09-06':{t:'Ordinario',n:'XXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 18,15-20',tema:'Donde dos o tres están reunidos en mi nombre',ant:'Ojalá escuchéis hoy la voz del Señor: «No endurezcáis vuestro corazón»',ci:'A'},
     '2026-09-13':{t:'Ordinario',n:'XXIV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 18,21-35',tema:'Perdona setenta veces siete',ant:'El Señor es compasivo y misericordioso, lento a la ira y rico en clemencia',ci:'A'},
     '2026-09-20':{t:'Ordinario',n:'XXV Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 20,1-16',tema:'Los últimos serán los primeros',ant:'Cerca está el Señor de los que lo invocan',ci:'A'},
-    '2026-09-27':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,28-32',tema:'Los publicanos y las prostitutas os preceden',ant:'Recuerda, Señor, Tu ternura',ci:'A'},
+    '2026-09-27':{t:'Ordinario',n:'XXVI Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,28-32',tema:'Vosotros no recapacitasteis ni le creísteis',ant:'Recuerda, Señor, Tu ternura',ci:'A'},
     '2026-10-04':{t:'Ordinario',n:'XXVII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 21,33-43',tema:'La piedra que desecharon los constructores',ant:'La viña del Señor es la casa de Israel',ci:'A'},
     '2026-10-11':{t:'Ordinario',n:'XXVIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,1-14',tema:'Muchos son los llamados, pocos los elegidos',ant:'Habitaré en la casa del Señor por años sin término',ci:'A'},
     '2026-10-18':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,15-21',tema:'Dad al César lo que es del César',ant:'Aclamad la gloria y el poder del Señor',ci:'A'},
