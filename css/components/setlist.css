@@ -6,7 +6,7 @@
      @brief      Panel SetList lateral (próximo domingo, slots por momento litúrgico)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.8
+     @version    v3.6.8r6
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -193,12 +193,21 @@ body:not(.rehearsal-mode) .sl-tema-nav-spacer {
 }
 .sl-slot:nth-child(even) { background: rgba(200,160,80,0.05); }
 .sl-slot:hover { background: rgba(200,160,80,0.12); }
+/* Etiqueta del momento litúrgico (ENTRADA, PIEDAD, …) sobre el crema #FAF5EC
+   del panel. A 0.45rem (7.2px) Cinzel Regular dibuja astas de menos de un píxel
+   y el antialiasing las aclara: el color nominal era ya oscuro (#4A3210, 11:1)
+   pero se leía como un dorado pálido. El contraste real se gana con peso de
+   trazo, no con más oscuridad de color; por eso el salto a Cinzel 600 (peso
+   cargado en el <link> de Google Fonts: 400;600;900) acompañado de un ocre más
+   profundo. La jerarquía frente a .sl-song se mantiene por tamaño (7.2px vs
+   13.1px), no por claridad. */
 .sl-moment {
   font-family: 'Cinzel', serif;
   font-size: 0.45rem;
+  font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #4A3210;
+  color: #3A2608;
   width: 4.5rem;
   flex-shrink: 0;
   line-height: 1.2;
@@ -696,19 +705,24 @@ body.wedding-mode .idx-add-btn { display: inline-flex; }
   font-size: 0.78rem;
 }
 
-/* Clickable moment label — dotted underline always visible to indicate it's a link */
+/* Clickable moment label — dotted underline always visible to indicate it's a link.
+   El punteado y el hover eran blancos, herencia de cuando el panel tenía fondo
+   oscuro: sobre el crema #FAF5EC el subrayado no se veía y el hover blanqueaba
+   la etiqueta hasta hacerla desaparecer. Ahora ambos van en la misma familia
+   ocre y el hover queda MÁS oscuro que el reposo, nunca más claro; la
+   afordancia la da el punteado que pasa a línea continua. */
 .sl-moment.clickable {
   cursor: pointer;
   transition: color 0.15s, text-shadow 0.15s, text-decoration-color 0.15s;
-  text-decoration: underline dotted rgba(255,255,255,0.4);
+  text-decoration: underline dotted rgba(58,38,8,0.45);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 .sl-moment.clickable:hover {
-  color: #fff;
-  text-decoration: underline solid #fff;
+  color: #2A1A04;
+  text-decoration: underline solid rgba(42,26,4,0.8);
   text-decoration-thickness: 1px;
-  text-shadow: 0 1px 4px rgba(30,15,0,0.7);
+  text-shadow: none;
 }
 
 /* Liturgical warning icon */
