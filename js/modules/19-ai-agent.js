@@ -6,7 +6,7 @@
  *   @brief      Asistente AI litúrgico (consulta a Gemini con contexto del cancionero)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r18
+ *   @version    v3.6.8r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -150,8 +150,14 @@
     });
   }
 
-  /* Domingo de referencia: hoy si hoy es domingo, si no el próximo. */
+  /* Domingo de referencia: hoy si hoy es domingo, si no el próximo.
+     v3.6.8r7: en hora de Lima, vía window.PDSunday (módulo 21). Este módulo
+     carga antes que el 21, pero la función solo se llama al conversar, cuando
+     el 21 ya cargó; la cuenta local queda de respaldo. */
   function upcomingSunday() {
+    if (window.PDSunday && typeof window.PDSunday.key === 'function') {
+      return window.PDSunday.key();
+    }
     var d = new Date();
     d.setHours(12, 0, 0, 0);
     d.setDate(d.getDate() + ((7 - d.getDay()) % 7));
@@ -317,6 +323,7 @@
     var catalog = getCatalog();
     var lit = buildLiturgicalContext();
     var hoy = new Date().toLocaleDateString('es-PE', {
+      timeZone: 'America/Lima',
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 

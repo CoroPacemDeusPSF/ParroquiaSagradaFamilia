@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.8r4
+ *   @version    v3.6.8r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -207,9 +207,31 @@
      formatNextSunday del 26e) y la del PDF discrepaba justo en domingo, de
      modo que el sitio mostraba una ilustracion y el PDF otra. Ahora los tres
      consumen esta. Se publica como window.PDSunday para que no vuelva a
-     duplicarse. */
-  function nextSun(){var d=new Date();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-  function sunDate(){var d=new Date();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d;}
+     duplicarse.
+
+     v3.6.8r7: "hoy" es SIEMPRE el dia de Lima (GMT-5), no el del dispositivo.
+     Antes se usaba la hora local del navegador, y cada dispositivo cambiaba
+     de domingo a SU medianoche: uno en UTC pasaba al domingo siguiente a las
+     19:00 de Lima, uno con hora europea antes aun, y el SetList del domingo
+     aparecia vacio en plena tarde. El Peru no tiene horario de verano, asi
+     que si Intl no reconoce la zona se cae a UTC-5 fijo.
+     PDLima.today() devuelve el dia de Lima como Date local a las 12:00: sus
+     getFullYear/getMonth/getDate/getDay son los de Lima en cualquier zona, y
+     el mediodia evita que un cambio de horario del dispositivo corra el dia. */
+  function limaYMD(){
+    try{
+      var s=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+      var m=s.match(/(\d{4})\D(\d{2})\D(\d{2})/);
+      if(m)return [+m[1],+m[2],+m[3]];
+    }catch(e){}
+    var u=new Date(Date.now()-5*3600000);
+    return [u.getUTCFullYear(),u.getUTCMonth()+1,u.getUTCDate()];
+  }
+  function limaToday(){var p=limaYMD();return new Date(p[0],p[1]-1,p[2],12,0,0,0);}
+  function dayKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function sunDate(){var d=limaToday();var dy=d.getDay();d.setDate(d.getDate()+(dy===0?0:7-dy));return d;}
+  function nextSun(){return dayKey(sunDate());}
+  window.PDLima={today:limaToday,todayKey:function(){return dayKey(limaToday());}};
   window.PDSunday={key:nextSun,date:sunDate};
   function getPsalmUrl(n,ci,t){
     var base='../salmos/';

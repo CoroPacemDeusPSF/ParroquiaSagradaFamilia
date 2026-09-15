@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral para Bodas — picker de fecha, slots opcionales, Firebase
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.8r1
+ *   @version    v3.6.8r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -452,6 +452,15 @@
 
   function formatDateKey(date) {
     return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  }
+
+  /* v3.6.8r7: "hoy" en hora de Lima (window.PDLima, módulo 21), no la del
+     dispositivo. La cuenta local queda de respaldo por si el 21 no cargara. */
+  function limaToday() {
+    if (window.PDLima && typeof window.PDLima.today === 'function') {
+      return window.PDLima.today();
+    }
+    return new Date();
   }
 
   function parseDateKey(key) {
@@ -1223,7 +1232,7 @@
   function openDatePicker() {
     currentView = 'date-picker';
     // Inicializar al mes actual o al de la fecha activa
-    var today = new Date();
+    var today = limaToday();
     if (currentDate) {
       var d = parseDateKey(currentDate);
       pickerYear  = d.getFullYear();
@@ -1392,7 +1401,7 @@
     // Si no hay fecha activa pero hay disponibles, pre-seleccionar la
     // más cercana a hoy (la primera futura, o la última si todas son pasadas).
     if (!currentDate && availableDates.length > 0) {
-      var todayKey = formatDateKey(new Date());
+      var todayKey = formatDateKey(limaToday());
       var nextDate = availableDates.find(function(d) { return d >= todayKey; });
       var fallback = availableDates[availableDates.length - 1];
       selectDate(nextDate || fallback);

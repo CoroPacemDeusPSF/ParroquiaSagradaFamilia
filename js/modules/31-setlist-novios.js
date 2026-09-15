@@ -7,7 +7,7 @@
  *               flag pre-init, date picker rodillo y export/import borrador.
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.6r5
+ *   @version    v3.6.8r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -93,7 +93,11 @@
    * Útil para comparaciones de fecha sin que la hora del día confunda.
    */
   function todayMidnight() {
-    var d = new Date();
+    /* v3.6.8r7: el día es el de Lima (window.PDLima, módulo 21), no el del
+       dispositivo; la cuenta local queda de respaldo. */
+    var d = (window.PDLima && typeof window.PDLima.today === 'function')
+      ? window.PDLima.today()
+      : new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   }

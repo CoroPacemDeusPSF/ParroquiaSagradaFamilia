@@ -6,7 +6,7 @@
  *   @brief      Panel SetList lateral (próximo domingo, Firebase, drag & drop)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.8
+ *   @version    v3.6.8r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -172,7 +172,15 @@
 
   /* ── DATE HELPERS ── */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  /* v3.6.8r7: el domingo lo define el módulo 21 en hora de Lima
+     (window.PDSunday). Antes se calculaba aquí con la hora del dispositivo y
+     un navegador fuera de GMT-5 pasaba al domingo siguiente en plena tarde:
+     el SetList aparecía vacío aunque el del día seguía intacto en Firebase.
+     La cuenta local queda solo de respaldo por si el 21 no cargara. */
   function getNextSunday() {
+    if (window.PDSunday && typeof window.PDSunday.key === 'function') {
+      return window.PDSunday.key();
+    }
     var d = new Date();
     var dy = d.getDay();
     d.setDate(d.getDate() + (dy === 0 ? 0 : 7 - dy));

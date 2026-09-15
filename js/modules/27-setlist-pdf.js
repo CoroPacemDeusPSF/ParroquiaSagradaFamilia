@@ -6,7 +6,7 @@
  *   @brief      Orquestación: genera PDF vectorial del SetList y lo abre en el visor
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.7r30
+ *   @version    v3.6.8r7
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -364,11 +364,18 @@
    *          "Cancionero Pacem Deus - Domingo 3 mayo 2026 (con acordes).pdf"
    */
   function buildFileName(withChords) {
-    var today = new Date();
-    var day = today.getDay();                /* 0 = domingo */
-    var daysToSunday = (7 - day) % 7 || 7;
-    var sunday = new Date(today);
-    sunday.setDate(today.getDate() + daysToSunday);
+    /* v3.6.8r7: el domingo es el de window.PDSunday (módulo 21, hora de
+       Lima), el mismo que la portada y la fecha dentro del PDF. La cuenta
+       propia de antes usaba la hora del dispositivo y, con `|| 7`, en
+       domingo nombraba el archivo con el domingo SIGUIENTE. */
+    var sunday;
+    if (window.PDSunday && typeof window.PDSunday.date === 'function') {
+      sunday = window.PDSunday.date();
+    } else {
+      var today = new Date();
+      sunday = new Date(today);
+      sunday.setDate(today.getDate() + (7 - today.getDay()) % 7);
+    }
 
     /* Meses sin tildes para máxima compatibilidad de filename */
     var meses = [
