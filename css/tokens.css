@@ -6,7 +6,7 @@
      @brief      Sistema de design tokens: paleta, espaciado, tipografía, animación, breakpoints
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.5.8
+     @version    v3.6.8r8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -168,8 +168,12 @@
   /* Bloque de contexto litúrgico */
   --theme-ctx-toggle-bg:       #222F1E;
   --theme-ctx-toggle-bg-hover: #2A3926;
-  --theme-ctx-toggle-color:    #A0B890;
-  --theme-ctx-toggle-color-hover: #C0D8B0;
+  /* v3.6.8r8: el texto sube de #A0B890 (6.53) a #CFE4BC (10.36) y el borde deja
+     de ser --color-liturgical-soft (alfa .20, apenas 1.34 contra la página) para
+     que la barra se ubique de un vistazo dentro del fondo oscuro. */
+  --theme-ctx-toggle-color:    #CFE4BC;
+  --theme-ctx-toggle-color-hover: #E4F2D8;
+  --theme-ctx-toggle-border:   rgba(107, 158, 74, 0.55);
   --theme-ctx-title:           #4A7A3A;        /* título del contexto */
   --theme-ctx-verse-bg:        rgba(107, 158, 74, 0.06);
   --theme-ctx-verse-border:    rgba(107, 158, 74, 0.30);
@@ -213,6 +217,26 @@
   --theme-icon-score:        var(--color-success);     /* default: #43A047 */
   --theme-icon-youtube:      #FF0000;                  /* default: rojo YouTube */
   --theme-number:            var(--color-accent);      /* default: #C8943C */
+
+  /* ── CONTROLES DE CADA CANTO (v3.6.8r8) ──
+     "Ver acordes", "Ver contexto litúrgico" y "Volver al índice" costaban de
+     encontrar: los tres son Cinzel de menos de 10 px en peso normal, y encima
+     el verde Material (#43A047) daba 3.11 sobre la ficha crema y el enlace del
+     índice iba al 50% de opacidad (2.35 sobre el fondo oscuro), los dos por
+     debajo del mínimo AA de 4.5. El botón de acordes pasa a verde profundo con
+     fondo propio para que se lea como botón, y el enlace del índice a un verde
+     claro sin opacidad. Tokens propios (y no --theme-icon-score, que comparte
+     con el icono 𝄞 del índice y los filetes del bloque de acordes) para poder
+     oscurecer el botón sin tocar esos otros usos.
+
+     chords-btn-color   #276B2B sobre crema #F6F9F2 → 6.13
+     back-link-color    #86BC63 sobre fondo #0E1A0C → 8.01
+     ──────────────────────────────────────────────────────────────────── */
+  --theme-chords-btn-color:     #276B2B;
+  --theme-chords-btn-border:    rgba(39, 107, 43, 0.55);
+  --theme-chords-btn-bg:        rgba(67, 160, 71, 0.08);
+  --theme-chords-btn-bg-hover:  rgba(67, 160, 71, 0.16);
+  --theme-back-link-color:      #86BC63;
 
   /* ── BACK-BAR (header sticky superior) ──
      Tira sticky con back-link, búsqueda, font-size, compartir, hamburger.
@@ -537,6 +561,7 @@ body.novios-mode {
   --theme-ctx-toggle-bg-hover: rgba(74, 63, 44, 0.12);
   --theme-ctx-toggle-color:    var(--color-sepia-deep);
   --theme-ctx-toggle-color-hover: var(--color-text-strong);
+  --theme-ctx-toggle-border:   var(--color-sepia-faint);
   --theme-ctx-title:           var(--color-accent-deep);    /* acento dorado */
   --theme-ctx-verse-bg:        var(--color-sepia-tint);
   --theme-ctx-verse-border:    var(--color-sepia-mid);
@@ -577,6 +602,15 @@ body.novios-mode {
   --theme-icon-score:        var(--color-sepia-deep);    /* #4A3F2C — AAA */
   --theme-icon-youtube:      #B85A3C;                     /* ladrillo desaturado */
   --theme-number:            #7A5A00;                     /* dorado oscuro AA */
+
+  /* Controles del canto en sepia (v3.6.8r8). El botón de acordes está oculto
+     en Modo Novios, pero el enlace del índice no: aquí el fondo es cremoso, así
+     que el verde claro del tema oscuro sería ilegible y va sepia profunda. */
+  --theme-chords-btn-color:     var(--color-sepia-deep);
+  --theme-chords-btn-border:    var(--color-sepia-faint);
+  --theme-chords-btn-bg:        rgba(74, 63, 44, 0.06);
+  --theme-chords-btn-bg-hover:  rgba(74, 63, 44, 0.12);
+  --theme-back-link-color:      var(--color-sepia-deep);
 
   /* ── Back-bar en paleta cremosa ──
      El header sticky superior pasa a fondo cream con borde inferior dorado. */

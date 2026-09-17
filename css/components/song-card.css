@@ -6,7 +6,7 @@
      @brief      Card individual de cada canto (header, body, ornamentos)
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.8
+     @version    v3.6.8r8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -22,21 +22,26 @@
    ============================================================================ */
 
 /* ── BACK LINK ── */
+/* v3.6.8r8: el enlace se perdía entre dos cantos. Iba a 0.58rem (9.3 px) en
+   Cinzel Regular y, sobre todo, con opacity .5, que dejaba el verde en 2.35
+   sobre el fondo oscuro. Fuera la opacidad —el color lo pone el tema con
+   --theme-back-link-color, verde claro en el tema oscuro y sepia en Novios, que
+   tiene fondo cremoso— y el subrayado queda para el hover. */
 .back-link {
   display: block;
   text-align: right;
   font-family: 'Cinzel', serif;
-  font-size: 0.58rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  transition: color 0.2s;
   padding: 0.3rem 0;
   margin: 0.5rem 0;
 }
 .back-link::before { content: '↑ '; }
-.back-link:hover { opacity: 1; }
+.back-link:hover { text-decoration: underline; }
 .ceremony.ramos  .back-link { color: #C8A830; }
 .ceremony.jueves .back-link { color: var(--color-accent); }
 .ceremony.vigilia .back-link { color: #E8C040; }

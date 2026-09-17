@@ -6,7 +6,7 @@
      @brief      Bloque de acordes, transposición, fullscreen y multi-columna
      @author     Renzo Núñez Berdejo
      @project    Cancionero Dominical
-     @version    v3.6.7r17
+     @version    v3.6.8r8
 
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -19,22 +19,29 @@
    ============================================================================ */
 
 /* ── CHORDS BLOCK (modo coro only) ── */
+/* v3.6.8r8: era casi invisible dentro de la ficha. Cinzel Regular a 0.62rem
+   (9.9 px) dibuja astas de menos de un píxel y el verde #43A047 daba 3.11 sobre
+   el crema, por debajo del mínimo AA. Ahora verde profundo con peso 600, un
+   punto más de cuerpo y fondo propio, para que se lea como botón y no como una
+   nota al pie. Los colores vienen de tokens: en Modo Novios este botón está
+   oculto, pero los tokens existen allí por coherencia. */
 .chords-toggle {
   display: none;
   font-family: 'Cinzel', serif;
-  font-size: 0.62rem;
+  font-size: 0.74rem;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--theme-icon-score);
-  background: none;
-  border: 1px solid rgba(67,160,71,0.4);
+  color: var(--theme-chords-btn-color);
+  background: var(--theme-chords-btn-bg);
+  border: 1px solid var(--theme-chords-btn-border);
   border-radius: 2px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.45rem 1.05rem;
   cursor: pointer;
   margin-top: 1rem;
   transition: all 0.2s;
 }
-.chords-toggle:hover { background: rgba(67,160,71,0.08); }
+.chords-toggle:hover { background: var(--theme-chords-btn-bg-hover); }
 
 /* ── Referencias de YouTube al costado del toggle (v3.6.7r17) ──────────────
    El instrumentista que está leyendo los acordes ya no tiene que subir hasta
