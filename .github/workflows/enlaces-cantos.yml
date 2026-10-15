@@ -35,7 +35,8 @@ on:
       - 'data/songs.json'
       - 'scripts/generar-enlaces-cantos.py'
       - 'scripts/imagen_canto.py'
-      - 'js/modules/26b-cinzel-font.js'     # de aquí salen las fuentes de la imagen
+      - 'js/modules/26b-cinzel-font.js'     # de aquí sale Cinzel para la imagen
+      - 'scripts/fuentes/**'                # y de aquí EB Garamond cursiva
       - '.github/workflows/enlaces-cantos.yml'
   workflow_dispatch:
 

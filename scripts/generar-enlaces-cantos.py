@@ -67,7 +67,7 @@ LARGO_MAX = 150  # las vistas previas cortan la descripcion hacia aqui
 
 # Subir este numero si cambia el diseno de la imagen: entra en el ?v= de
 # og:image, y una URL nueva obliga a WhatsApp y compania a bajarla otra vez.
-DISENO_IMAGEN = "1"
+DISENO_IMAGEN = "2"   # 2 (v3.6.9r2): el momento pasa a EB Garamond cursiva
 
 
 def texto_plano(fragmento):

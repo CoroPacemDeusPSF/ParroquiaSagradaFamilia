@@ -4,31 +4,34 @@ Imagen de vista previa (1200x630) de un canto, con la estetica de la
 cabecera de su ficha en el cancionero.
 
   @file     scripts/imagen_canto.py
-  @version  v3.6.9r1
+  @version  v3.6.9r2
 
 La usa scripts/generar-enlaces-cantos.py para la etiqueta og:image de cada
 pagina c/cpd-XXX.html. Copia la cabecera de la ficha (.song-header):
 
   - fondo con el degradado verde a 105 grados (--theme-song-header-bg-*),
   - barra vertical a la izquierda (--theme-song-header-bar-*),
-  - momento liturgico arriba, en verde claro (--theme-song-header-moment),
+  - momento liturgico arriba, en EB Garamond cursiva espaciada y verde
+    claro (.song-moment-label, --theme-song-header-moment),
   - titulo en Cinzel seminegrita, color hueso (--theme-song-header-title),
     con la misma sombra suave.
 
-Dos diferencias deliberadas con la ficha:
+Una diferencia deliberada con la ficha:
 
   - SIN NUMERO DE CANTO. El 57 de la ficha es la posicion en el cancionero y
     cambia cada vez que se inserta un canto antes. Si fuera en la imagen,
     cada canto nuevo regeneraria decenas de imagenes (y engordaria el repo
     con binarios) y las vistas previas ya compartidas quedarian con un
     numero viejo. El titulo y el momento, en cambio, no cambian.
-  - EL MOMENTO VA EN CINZEL, no en la cursiva EB Garamond de la ficha. Es la
-    unica fuente que el repo ya tiene incrustada (modulo 26b, para los PDF),
-    y es la del estilo oficial para rotulos. Asi no hay que versionar
-    archivos de fuentes ni depender de bajarlas en GitHub.
 
-Las fuentes se leen del base64 de js/modules/26b-cinzel-font.js: una sola
-fuente de verdad para web, PDF e imagenes.
+Fuentes:
+  - Cinzel: del base64 de js/modules/26b-cinzel-font.js, la misma que usan
+    los PDF. Una sola fuente de verdad.
+  - EB Garamond cursiva: scripts/fuentes/EBGaramond-Italic.ttf (Google
+    Fonts, licencia OFL en OFL-EBGaramond.txt). Es variable; se usa su peso
+    por defecto, 400, el mismo de la ficha. v3.6.9r2: antes el momento iba
+    en Cinzel porque esta fuente no estaba en el repo; Renzo pidio la
+    cursiva de la ficha.
 """
 import base64
 import io
@@ -39,6 +42,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODULO_FUENTES = os.path.join(RAIZ, "js", "modules", "26b-cinzel-font.js")
+GARAMOND_CURSIVA = os.path.join(RAIZ, "scripts", "fuentes", "EBGaramond-Italic.ttf")
 
 ANCHO, ALTO = 1200, 630
 
@@ -73,6 +77,18 @@ def fuente(variante, tam):
     clave = (variante, tam)
     if clave not in _fuentes:
         _fuentes[clave] = ImageFont.truetype(io.BytesIO(_bytes_fuente(variante)), tam)
+    return _fuentes[clave]
+
+
+def garamond_cursiva(tam):
+    clave = ("garamond-italic", tam)
+    if clave not in _fuentes:
+        f = ImageFont.truetype(GARAMOND_CURSIVA, tam)
+        try:
+            f.set_variation_by_axes([400])    # peso de la ficha, explicito
+        except (OSError, AttributeError):
+            pass                              # sin soporte de ejes: 400 ya es el defecto
+        _fuentes[clave] = f
     return _fuentes[clave]
 
 
@@ -152,21 +168,25 @@ def imagen(titulo, momento):
     """Devuelve los bytes JPEG de la vista previa del canto."""
     lienzo = _fondo_base()
 
-    f_mom = fuente("regular", 30)
-    track_mom = 30 * 0.2                      # letter-spacing: .2em, como en la ficha
+    # Momento como en la ficha: EB Garamond cursiva, letter-spacing .2em, en
+    # mayusculas y minusculas tal cual (no en versales).
+    TAM_MOM = 40
+    f_mom = garamond_cursiva(TAM_MOM)
+    track_mom = TAM_MOM * 0.2
     f_tit, tam_tit, lineas = _titulo_que_cabe(titulo)
     alto_linea = int(tam_tit * 1.2)           # line-height: 1.2, como en la ficha
 
     # Bloque momento + titulo centrado en la franja que deja libre el pie.
-    alto_bloque = 30 + 26 + alto_linea * len(lineas)
+    alto_mom, hueco = 40, 22
+    alto_bloque = alto_mom + hueco + alto_linea * len(lineas)
     zona_alta, zona_baja = 40, 500
     y0 = zona_alta + (zona_baja - zona_alta - alto_bloque) // 2
 
     d = ImageDraw.Draw(lienzo)
-    _dibujar_espaciado(d, (MARGEN_IZQ, y0), momento.upper(), f_mom, track_mom, COLOR_MOMENTO)
+    _dibujar_espaciado(d, (MARGEN_IZQ, y0), momento, f_mom, track_mom, COLOR_MOMENTO)
 
     # Sombra del titulo (text-shadow: 0 1px 10px rgba(0,0,0,.30)), a escala.
-    y_tit = y0 + 30 + 26
+    y_tit = y0 + alto_mom + hueco
     sombra = Image.new("L", (ANCHO, ALTO), 0)
     ds = ImageDraw.Draw(sombra)
     for i, linea in enumerate(lineas):
