@@ -77,12 +77,12 @@
   "archivo": "Gelijkenis van een bruiloftsfeest, RP-P-OB-44.954.jpg"
  },
  "2026-10-18": {
-  "buscar": "Titian The Tribute Money Dresden",
-  "autor_esperado": "Titian",
-  "obra": "El denario del Cesar",
-  "autor": "Tiziano (1516)",
-  "museo": "Gemaldegalerie, Dresde",
-  "porque": "Mt 22,15-21 — «Dad al Cesar lo que es del Cesar». Tiziano pinta el instante exacto en que le muestran la moneda."
+  "local": "img/liturgico/originales/2026-10-18-al-cesar.png",
+  "licencia": "propia",
+  "obra": "Dad al Cesar lo que es del Cesar (imagen propia del coro)",
+  "autor": "Coro Pacem Deus",
+  "museo": "",
+  "porque": "Elegida por Renzo el 14-oct-2026 en lugar del Tiziano (Mt 22,15-21, la moneda del tributo). Antes: Titian The Tribute Money Dresden."
  },
  "2026-10-25": {
   "buscar": "Rembrandt The Good Samaritan painting",
