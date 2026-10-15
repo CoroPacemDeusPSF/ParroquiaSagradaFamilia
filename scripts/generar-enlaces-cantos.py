@@ -4,7 +4,11 @@ Genera una pagina de enlace por canto, para que al compartirlo la vista previa
 diga de que canto se trata.
 
   @file     scripts/generar-enlaces-cantos.py
-  @version  v3.6.9
+  @version  v3.6.9r1
+
+  v3.6.9r1: cada canto tiene ademas su propia imagen de vista previa
+  (c/img/cpd-XXX.jpg) con el titulo al estilo de su ficha, en lugar de la
+  imagen generica del cancionero. Ver scripts/imagen_canto.py.
 
 ── POR QUE HACE FALTA ─────────────────────────────────────────────────────
 
@@ -47,16 +51,23 @@ enlace nunca se rompe, solo la vista previa saldria generica.
 import html
 import io
 import json
+import hashlib
 import os
 import re
+
+import imagen_canto  # scripts/imagen_canto.py — la imagen de vista previa (v3.6.9r1)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SONGS = os.path.join(RAIZ, "data", "songs.json")
 SALIDA = os.path.join(RAIZ, "c")
+SALIDA_IMG = os.path.join(SALIDA, "img")
 
 SITIO = "https://coropacemdeuspsf.github.io/ParroquiaSagradaFamilia"
-IMAGEN = SITIO + "/img/og-dominical.png?v=361"
 LARGO_MAX = 150  # las vistas previas cortan la descripcion hacia aqui
+
+# Subir este numero si cambia el diseno de la imagen: entra en el ?v= de
+# og:image, y una URL nueva obliga a WhatsApp y compania a bajarla otra vez.
+DISENO_IMAGEN = "1"
 
 
 def texto_plano(fragmento):
@@ -108,7 +119,7 @@ PLANTILLA = """<!DOCTYPE html>
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{imagen}">
 <meta property="og:image:secure_url" content="{imagen}">
-<meta property="og:image:type" content="image/png">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Coro Pacem Deus — {titulo}">
@@ -138,7 +149,29 @@ PLANTILLA = """<!DOCTYPE html>
 """
 
 
-def pagina(canto):
+def escribir_imagen(canto):
+    """Escribe c/img/cpd-XXX.jpg y devuelve su URL publica con ?v=.
+
+    Solo reescribe el archivo si los bytes cambian: Pillow genera el mismo
+    JPEG para el mismo titulo y momento, asi que un canto que no cambio no
+    produce diferencias en git.
+    """
+    momento = momento_legible(canto["moment"])
+    datos = imagen_canto.imagen(canto["title"], momento)
+    ruta = os.path.join(SALIDA_IMG, canto["cpd"] + ".jpg")
+    previo = None
+    if os.path.exists(ruta):
+        with open(ruta, "rb") as f:
+            previo = f.read()
+    if previo != datos:
+        with open(ruta, "wb") as f:
+            f.write(datos)
+    firma = hashlib.sha1(("%s|%s|%s" % (DISENO_IMAGEN, canto["title"], momento))
+                         .encode("utf-8")).hexdigest()[:8]
+    return "%s/c/img/%s.jpg?v=%s" % (SITIO, canto["cpd"], firma)
+
+
+def pagina(canto, url_imagen):
     cpd, did = canto["cpd"], canto["did"]
     titulo = html.escape(canto["title"], quote=True)
     destino = "../cancioneros/dominical.html#" + did
@@ -146,7 +179,7 @@ def pagina(canto):
         titulo=titulo,
         desc=html.escape(descripcion(canto), quote=True),
         url="%s/c/%s.html" % (SITIO, cpd),
-        imagen=IMAGEN,
+        imagen=html.escape(url_imagen, quote=True),
         destino=html.escape(destino, quote=True),
         destino_js=json.dumps(destino),
         momento=html.escape(momento_legible(canto["moment"]), quote=True),
@@ -156,17 +189,20 @@ def pagina(canto):
 def main():
     with io.open(SONGS, encoding="utf-8") as f:
         cantos = json.load(f)
-    os.makedirs(SALIDA, exist_ok=True)
+    os.makedirs(SALIDA_IMG, exist_ok=True)
 
     esperados = set()
     for canto in cantos:
         nombre = canto["cpd"] + ".html"
         esperados.add(nombre)
+        url_imagen = escribir_imagen(canto)
         with io.open(os.path.join(SALIDA, nombre), "w", encoding="utf-8", newline="\n") as f:
-            f.write(pagina(canto))
+            f.write(pagina(canto, url_imagen))
 
     sobran = sorted(n for n in os.listdir(SALIDA) if n.endswith(".html") and n not in esperados)
-    print("%d paginas escritas en c/" % len(esperados))
+    sobran += sorted("img/" + n for n in os.listdir(SALIDA_IMG)
+                     if n.endswith(".jpg") and n[:-4] + ".html" not in esperados)
+    print("%d paginas e imagenes escritas en c/" % len(esperados))
     if sobran:
         print("Sobran %d (cantos que ya no existen; borrarlas a mano si corresponde):" % len(sobran))
         for n in sobran:

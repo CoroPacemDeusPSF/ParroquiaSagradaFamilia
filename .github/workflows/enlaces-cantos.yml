@@ -12,9 +12,15 @@
 #   main, y si algo cambió se suben en un commit del bot. Ese commit dispara el
 #   redespliegue de GitHub Pages como cualquier otro.
 #
+#   Desde v3.6.9r1 genera también c/img/cpd-XXX.jpg, la imagen de la vista
+#   previa con el título del canto (scripts/imagen_canto.py).
+#
 #   CONSECUENCIA PARA QUIEN TRABAJA EN LOCAL
 #   Tras subir un cambio de songs.json, main recibe un commit más del bot.
 #   Antes del siguiente push: git pull --rebase.
+#   No subir c/ desde local: lo produce solo este workflow. Un JPEG hecho en
+#   Windows no es idéntico byte a byte al de aquí, y cada subida local haría
+#   que el bot reescribiera las imágenes.
 #
 #   El detalle de por qué hace falta una página por canto está en la cabecera
 #   de scripts/generar-enlaces-cantos.py.
@@ -28,6 +34,8 @@ on:
     paths:
       - 'data/songs.json'
       - 'scripts/generar-enlaces-cantos.py'
+      - 'scripts/imagen_canto.py'
+      - 'js/modules/26b-cinzel-font.js'     # de aquí salen las fuentes de la imagen
       - '.github/workflows/enlaces-cantos.yml'
   workflow_dispatch:
 
@@ -52,7 +60,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Generar una página por canto
+      # Versión fija a propósito: el mismo Pillow produce los mismos JPEG, así
+      # que los cantos que no cambiaron no generan diferencias en git. Una
+      # versión flotante regeneraría las 157 imágenes con cada actualización.
+      - name: Instalar Pillow
+        run: python -m pip install --quiet Pillow==12.3.0
+
+      - name: Generar una página y una imagen por canto
         run: python scripts/generar-enlaces-cantos.py
 
       - name: Subir las páginas si cambiaron
