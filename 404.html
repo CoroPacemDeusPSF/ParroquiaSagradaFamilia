@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Coro Pacem Deus</title>
+<!--
+  404 del sitio (GitHub Pages lo sirve para cualquier ruta que no exista).
+
+  v3.6.9: red de seguridad de los enlaces para compartir cantos. Cada canto
+  tiene su página c/cpd-XXX.html, que genera solo el workflow
+  .github/workflows/enlaces-cantos.yml cuando cambia data/songs.json. Si alguien
+  comparte un canto cuya página aún no existe (el minuto que tarda el workflow,
+  o si fallara), llega aquí: se busca el canto en songs.json y se lleva a la
+  persona igual al canto. El enlace nunca se rompe; solo la vista previa de ese
+  caso saldría genérica.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #0E1A0C; color: #CFE4BC;
+    font-family: Georgia, 'Times New Roman', serif; }
+  main { min-height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 0 1.5rem; }
+  p { margin: .4rem 0; }
+  a { color: #86BC63; }
+</style>
+<script>
+(function () {
+  var m = location.pathname.match(/^(.*)\/c\/(cpd-\d{3})(?:\.html)?\/?$/);
+  if (!m) return;
+  var base = m[1], cpd = m[2];
+  var cancionero = base + '/cancioneros/dominical.html';
+  fetch(base + '/data/songs.json')
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (cantos) {
+      var canto = cantos.filter(function (c) { return c.cpd === cpd; })[0];
+      location.replace(cancionero + (canto ? '#' + canto.did : ''));
+    })
+    .catch(function () { location.replace(cancionero); });
+})();
+</script>
+</head>
+<body>
+<main>
+  <p><strong>Esta página no existe</strong></p>
+  <p><a href="/ParroquiaSagradaFamilia/cancioneros/dominical.html">Ir al Cancionero Dominical</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,71 @@
+# ────────────────────────────────────────────────────────────────────────────
+#  Coro Pacem Deus — Parroquia Sagrada Familia
+# ────────────────────────────────────────────────────────────────────────────
+#
+#   Regenera c/cpd-XXX.html, una página por canto, para que al compartir un
+#   canto la vista previa (WhatsApp, Telegram, Facebook) diga cuál es.
+#
+#   POR QUÉ AUTOMÁTICO
+#   Las páginas salen de data/songs.json. Si dependieran de que alguien corra
+#   el guion a mano, un canto nuevo se quedaría sin vista previa el día que se
+#   olvide. Aquí se regeneran solas en cada cambio de songs.json que llegue a
+#   main, y si algo cambió se suben en un commit del bot. Ese commit dispara el
+#   redespliegue de GitHub Pages como cualquier otro.
+#
+#   CONSECUENCIA PARA QUIEN TRABAJA EN LOCAL
+#   Tras subir un cambio de songs.json, main recibe un commit más del bot.
+#   Antes del siguiente push: git pull --rebase.
+#
+#   El detalle de por qué hace falta una página por canto está en la cabecera
+#   de scripts/generar-enlaces-cantos.py.
+# ────────────────────────────────────────────────────────────────────────────
+
+name: Enlaces de cantos para compartir
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/songs.json'
+      - 'scripts/generar-enlaces-cantos.py'
+      - '.github/workflows/enlaces-cantos.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: enlaces-cantos
+  cancel-in-progress: false
+
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generar una página por canto
+        run: python scripts/generar-enlaces-cantos.py
+
+      - name: Subir las páginas si cambiaron
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add c/
+          if git diff --cached --quiet; then
+            echo "Las páginas ya estaban al día. Nada que subir."
+            exit 0
+          fi
+          git commit -m "Enlaces de cantos regenerados desde data/songs.json [automático]"
+          # Si mientras tanto llegó otro push a main, el rebase lo incorpora.
+          git pull --rebase origin main
+          git push origin HEAD:main

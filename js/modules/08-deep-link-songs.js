@@ -6,7 +6,7 @@
  *   @brief      Deep links a cantos específicos (#dXX) y scroll automático
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.2.46
+ *   @version    v3.6.9
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -30,16 +30,56 @@
   // El cancionero superó los 99 cantos cuando se agregó cpd-100, momento en
   // el que la regex anterior /^d\d{2}$/ dejó de matchear los nuevos IDs y
   // los deep links de esos cantos quedaban silenciosamente rotos.
+  //
+  // v3.6.9: antes se calculaba la posición una sola vez, a los 300 ms, y se
+  // hacía un scroll suave hasta ahí. Pero la página sigue creciendo por
+  // encima del canto después de ese momento (el índice lateral, módulo 15,
+  // mide unos 8.000 px y se arma más tarde; luego fuentes e imágenes), así
+  // que el enlace dejaba a la persona miles de píxeles antes del canto, en
+  // otro canto. Ahora el canto se vuelve a fijar bajo la barra superior
+  // mientras la página se acomoda, hasta que la posición se mantiene quieta
+  // un momento, o hasta que la persona toca, desliza o usa el teclado: desde
+  // ahí manda ella.
   if (hash && /^d\d{2,3}$/.test(hash)) {
-    setTimeout(function() {
+    var MAX_MS = 6000;       // nunca más que esto, aunque algo siga creciendo
+    var QUIETO_MS = 800;     // posición estable este tiempo = listo
+    var inicio = Date.now();
+    var ultimoMovimiento = Date.now();
+    var soltado = false;
+
+    // El sitio tiene scroll-behavior: smooth; mientras se fija el canto se
+    // anula para que cada corrección sea instantánea y no una animación que
+    // la siguiente corrección interrumpe.
+    var raiz = document.documentElement;
+    var comportamientoPrevio = raiz.style.scrollBehavior;
+    raiz.style.scrollBehavior = 'auto';
+    var terminar = function() { raiz.style.scrollBehavior = comportamientoPrevio; };
+
+    var soltar = function() { soltado = true; terminar(); };
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(ev) {
+      window.addEventListener(ev, soltar, { passive: true, once: true });
+    });
+
+    var fijar = function() {
+      if (soltado) return;
       var el = document.getElementById(hash);
       if (el) {
         var backBar = document.getElementById('pd-back-bar');
         var offset = backBar ? backBar.offsetHeight + 10 : 10;
-        var top = el.getBoundingClientRect().top + window.pageYOffset - offset;
-        window.scrollTo({ top: top, behavior: 'smooth' });
+        var desvio = el.getBoundingClientRect().top - offset;
+        if (Math.abs(desvio) > 2) {
+          window.scrollTo(0, window.pageYOffset + desvio);
+          ultimoMovimiento = Date.now();
+        }
       }
-    }, 300);
+      var ahora = Date.now();
+      if (ahora - inicio < MAX_MS && ahora - ultimoMovimiento < QUIETO_MS) {
+        setTimeout(fijar, 100);
+      } else {
+        terminar();
+      }
+    };
+    setTimeout(fijar, 100);
   }
 
   // ── Toast de confirmación ─────────────────────────────────────────────
@@ -57,12 +97,30 @@
   }
 
   // ── Lógica unificada de compartir canción ─────────────────────────────
-  // Recibe el `did` de la canción (ej. "d114") y copia el deep link al
-  // portapapeles. Si el navegador no soporta navigator.clipboard (HTTP no
-  // seguro o navegadores antiguos), cae en el fallback con execCommand.
+  // Recibe el `did` de la canción (ej. "d114") y copia su enlace para
+  // compartir al portapapeles. Si el navegador no soporta navigator.clipboard
+  // (HTTP no seguro o navegadores antiguos), cae en el fallback con execCommand.
+  //
+  // v3.6.9: el enlace ya no es dominical.html#d114 sino c/cpd-XXX.html. Con
+  // el # la vista previa de WhatsApp salía siempre genérica: lo que va tras el
+  // # no llega al servidor y el robot de la vista previa no ejecuta JS, así que
+  // todos los cantos eran la misma página. c/cpd-XXX.html tiene sus propias
+  // etiquetas og: con el título del canto y lleva a la persona al canto (ver
+  // scripts/generar-enlaces-cantos.py). Los enlaces #dXX viejos siguen
+  // funcionando. Si no se encuentra el cpd, se copia el enlace de siempre.
+  function shareUrlFor(did) {
+    var hashUrl = window.location.origin + window.location.pathname + '#' + did;
+    var link = document.getElementById(did);
+    var card = link && link.nextElementSibling;
+    var cpd = card && card.getAttribute('data-chord-id');
+    var base = window.location.pathname.match(/^(.*)\/cancioneros\/[^\/]*$/);
+    if (!cpd || !/^cpd-\d{3}$/.test(cpd) || !base) return hashUrl;
+    return window.location.origin + base[1] + '/c/' + cpd + '.html';
+  }
+
   function copySongLink(did) {
     if (!did) return;
-    var url = window.location.origin + window.location.pathname + '#' + did;
+    var url = shareUrlFor(did);
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(showToast, function() {
         // Si falla por permisos, usar fallback.
