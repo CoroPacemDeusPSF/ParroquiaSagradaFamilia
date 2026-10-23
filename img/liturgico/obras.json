@@ -13,6 +13,9 @@
   "  obra/autor/museo  lo que se muestra en la ficha",
   "  porque          que tiene que ver con el Evangelio de ese domingo",
   "  archivo         opcional: fija un archivo exacto y salta la busqueda",
+  "  local           opcional: imagen propia en el repo (con licencia: propia)",
+  "  foco_x          opcional, 0..1: en movil se ve la mitad del cuadro apaisado;",
+  "                  corre esa ventana (0.5 = centrada, menos = mas a la izquierda)",
   "",
   "Casi todas son literales del pasaje. Unas pocas son tematicas y en su",
   "'porque' se dice claramente."
@@ -85,12 +88,13 @@
   "porque": "Elegida por Renzo el 14-oct-2026 en lugar del Tiziano (Mt 22,15-21, la moneda del tributo). Antes: Titian The Tribute Money Dresden."
  },
  "2026-10-25": {
-  "buscar": "Rembrandt The Good Samaritan painting",
-  "autor_esperado": "Rembrandt",
-  "obra": "El buen samaritano",
-  "autor": "Rembrandt (1633)",
-  "museo": "Wallace Collection, Londres",
-  "porque": "Mt 22,34-40 — tematica: el mandamiento de amar al projimo, ilustrado con la parabola que mejor lo explica."
+  "local": "img/liturgico/originales/2026-10-25-mandamientos.png",
+  "licencia": "propia",
+  "foco_x": 0.45,
+  "obra": "Los dos mandamientos (imagen propia del coro)",
+  "autor": "Coro Pacem Deus",
+  "museo": "",
+  "porque": "Elegida por Renzo el 23-oct-2026 en lugar del Rembrandt (Mt 22,34-40, amar a Dios y al projimo). Antes: Rembrandt The Good Samaritan painting."
  },
  "2026-11-01": {
   "buscar": "Fra Angelico Forerunners of Christ with Saints and Martyrs",

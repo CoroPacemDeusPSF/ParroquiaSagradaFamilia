@@ -3,7 +3,7 @@
 Monta obra real de dominio publico como fondo liturgico.
 
   @file     scripts/montar-obra.py
-  @version  v3.6.8r2
+  @version  v3.6.9r4
 
 ── POR QUE SE MONTA Y NO SE RECORTA ──────────────────────────────────────
 
@@ -153,7 +153,7 @@ def _veladura(im):
     return ImageEnhance.Brightness(im).enhance(BRILLO)
 
 
-def monta(obra, variante):
+def monta(obra, variante, foco_x=0.5):
     """La obra fundida en la portada como atmosfera, no como protagonista.
 
     ── LO QUE SE INTENTO ANTES Y POR QUE SE DESCARTO ─────────────────────
@@ -213,7 +213,14 @@ def monta(obra, variante):
             # lienzo (lo de mas abajo lo recorta el navegador), medido en el
             # sitio a 375x812. Nunca pegada al borde superior.
             visor = int(H * 0.74)
-            x = -(ancho - W) // 2
+            # v3.6.9r4: la mitad visible va centrada salvo que la entrada de
+            # obras.json diga otra cosa con "foco_x" (0..1, centro de la
+            # ventana sobre el ancho del cuadro). Hizo falta con la imagen
+            # propia del 25-oct: centrada, cortaba la mano alzada al cielo,
+            # que es justo el gesto del primer mandamiento.
+            centro = max(0.25, min(0.75, float(foco_x)))
+            x = -int(round(centro * ancho - W / 2.0))
+            x = max(-(ancho - W), min(0, x))
             y = max(int(H * 0.02), (visor - alto) // 2)
 
             # Bordes superior e inferior fundidos contra el desenfoque, para
@@ -337,7 +344,8 @@ def main():
 
         for variante in ("desktop", "mobile"):
             ruta = os.path.join(DIR_IMG, "%s-%s.webp" % (clave, variante))
-            monta(d["imagen"], variante).save(ruta, "WEBP", quality=WEBP_Q, method=6)
+            monta(d["imagen"], variante, entrada.get("foco_x", 0.5)).save(
+                ruta, "WEBP", quality=WEBP_Q, method=6)
 
         creditos[clave] = {
             "obra": entrada["obra"], "autor": entrada["autor"],
