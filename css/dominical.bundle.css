@@ -103,3 +103,8 @@
 
 /* ─── Página específica: overrides finales ────────────────────────────────── */
 @import url('pages/dominical.css?v=3.6.8r8');
+
+/* ─── Movimiento de interacción (v3.6.9r5) ────────────────────────────────
+   Al final a propósito: algunas reglas repiten la transición de un botón y
+   le suman `scale`, y tienen que ganar a la declaración original. */
+@import url('components/motion.css?v=3.6.9r5');

@@ -1,0 +1,197 @@
+/* ────────────────────────────────────────────────────────────────────────────
+ * Coro Pacem Deus — Parroquia Sagrada Familia
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ *   @file       css/components/motion.css
+ *   @brief      Movimiento de interacción: aperturas, respuesta al toque y
+ *               entrada de cabeceras al desplazarse
+ *   @project    Cancionero Dominical
+ *   @version    v3.6.9r5
+ *
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ============================================================================
+   POR QUÉ ESTE ARCHIVO
+   ============================================================================
+   Renzo pidió (23-oct-2026) más animación en lo que se toca, para que navegar
+   sea más agradable. El inventario dio dos huecos:
+
+     1. Cuatro cosas aparecían de golpe, sin ninguna transición: los bloques
+        de acordes y de contexto, el buscador y el menú móvil. Pasaban de
+        display:none a visibles en un fotograma.
+     2. En el celular casi ningún botón respondía al dedo: la mayoría solo
+        tiene :hover, que en pantallas táctiles no existe.
+
+   CRITERIOS (para no repetir lo que se retiró en v3.6.7r13-r15 por saturar):
+
+     - Solo se anima lo que el usuario provoca, una vez y breve. Nada en
+       bucle, nada que rebote, nada que brille.
+     - Únicamente opacity y transform/scale/translate: van por la GPU, no
+       mueven el maquetado y no hacen saltar el texto.
+     - Duraciones y curvas de los tokens (--duration-*, --easing-*). Con
+       "Reducir movimiento" activado en el sistema, tokens.css las deja en
+       0.01ms y todo esto se apaga solo.
+     - La respuesta al toque usa la propiedad independiente `scale`, no
+       `transform`, para no pisar transforms que esos elementos ya tengan.
+     - Las aperturas usan @keyframes sobre la clase .open: una animación
+       arranca cada vez que el elemento pasa de display:none a visible, así
+       que no hace falta tocar el JS que abre y cierra. El cierre sigue
+       siendo instantáneo, que es lo que se espera al ocultar.
+   ============================================================================ */
+
+
+/* ── Fotogramas ────────────────────────────────────────────────────────── */
+
+@keyframes pd-revelar {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pd-fundido {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pd-subir {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pd-entrar-al-desplazar {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+
+/* ── 1. Aperturas que antes eran de golpe ──────────────────────────────── */
+
+/* Acordes y contexto: se despliegan con un leve descenso. El bloque de
+   acordes en pantalla completa se excluye: un transform en un ancestro
+   cambia la referencia de position:fixed, y la pantalla completa no debe
+   moverse ni un fotograma. */
+.chords-block.open:not(.fullscreen),
+.context-block.open {
+  animation: pd-revelar var(--duration-base) var(--easing-out);
+}
+
+/* Buscador: el velo se funde y la barra baja a su sitio. */
+#pd-search-overlay.open {
+  animation: pd-fundido var(--duration-fast) var(--easing-out);
+}
+#pd-search-overlay.open .pd-search-bar {
+  animation: pd-revelar var(--duration-base) var(--easing-out);
+}
+
+/* Menú móvil: el velo se funde y las opciones suben en cascada corta. */
+.pd-nav-overlay.open {
+  animation: pd-fundido var(--duration-base) var(--easing-out);
+}
+/* `backwards` y no `both`: aplica el estado inicial durante el retraso de la
+   cascada, pero al terminar suelta el elemento. Con `both` el último
+   fotograma (transform: none) quedaría fijado para siempre y anularía
+   cualquier transform propio de las opciones del menú. */
+.pd-nav-overlay.open > * {
+  animation: pd-subir var(--duration-slow) var(--easing-out) backwards;
+}
+.pd-nav-overlay.open > :nth-child(2) { animation-delay: 40ms; }
+.pd-nav-overlay.open > :nth-child(3) { animation-delay: 80ms; }
+.pd-nav-overlay.open > :nth-child(4) { animation-delay: 120ms; }
+.pd-nav-overlay.open > :nth-child(5) { animation-delay: 160ms; }
+.pd-nav-overlay.open > :nth-child(n+6) { animation-delay: 200ms; }
+
+
+/* ── 2. Respuesta al toque ─────────────────────────────────────────────── */
+
+/* Estos ya tienen `transition: all`, que incluye `scale`: entran y salen
+   suaves sin tocar su transición. */
+.chords-toggle:active,
+.pd-search-btn:active,
+.btn-expand-all:active,
+.font-size-btn:active,
+.pd-share-btn:active {
+  scale: 0.96;
+}
+
+/* La barra de contexto ocupa todo el ancho: un 4% se notaría como un salto
+   de bordes. Basta un 1,5%. */
+.context-toggle:active {
+  scale: 0.985;
+}
+
+/* Estos tienen una transición propia sin `scale`: se repite la suya y se
+   le suma la escala, para que vuelvan suaves al soltar. */
+.yt-play-btn {
+  transition: opacity 0.2s,
+              scale var(--duration-fast) var(--easing-out);
+}
+.yt-play-btn:active { scale: 0.9; }
+
+.pd-mode-btn {
+  transition: border-color 0.2s var(--easing-default),
+              color 0.2s var(--easing-default),
+              box-shadow 0.2s var(--easing-default),
+              scale var(--duration-fast) var(--easing-out);
+}
+.pd-mode-btn:active { scale: 0.96; }
+
+.lit-psalm-btn {
+  transition: background 0.2s, border-color 0.2s, color 0.2s,
+              scale var(--duration-fast) var(--easing-out);
+}
+.lit-psalm-btn:active { scale: 0.97; }
+
+/* Índice: en escritorio, el canto bajo el cursor se adelanta un poco. Solo
+   con puntero real: en pantallas táctiles el :hover se queda pegado. */
+@media (hover: hover) {
+  .index-list a {
+    transition: color 0.2s,
+                translate var(--duration-fast) var(--easing-out);
+  }
+  .index-list a:hover { translate: 3px 0; }
+}
+
+
+/* ── 3. Cabeceras que entran al desplazarse ────────────────────────────── */
+
+/* Al bajar por el cancionero, la cabecera de cada canto y de cada sección
+   aparece con un leve ascenso al entrar en pantalla. Va ligada al
+   desplazamiento (animation-timeline: view()), no a un temporizador: si se
+   sube o se baja despacio, acompaña al dedo, y lo que ya está a la vista al
+   cargar aparece completo.
+
+   Solo las cabeceras, no la ficha entera: dentro de la ficha vive el bloque
+   de acordes en pantalla completa, que no puede tener ancestros con
+   transform.
+
+   Navegadores sin esta función (Firefox, Safari anterior a 26): no ven nada
+   y no pierden nada. Estas animaciones no usan duraciones, así que
+   "Reducir movimiento" se respeta con su propia consulta. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .song-header,
+    .moment-header {
+      animation: pd-entrar-al-desplazar linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
+
+
+/* ── Accesibilidad e impresión ─────────────────────────────────────────── */
+
+/* Con movimiento reducido, los tokens ya dejan las duraciones en 0.01ms;
+   aquí se quitan además los retrasos de la cascada del menú. */
+@media (prefers-reduced-motion: reduce) {
+  .pd-nav-overlay.open > * { animation-delay: 0s; }
+}
+
+@media print {
+  .song-header,
+  .moment-header,
+  .chords-block,
+  .context-block {
+    animation: none !important;
+  }
+}
