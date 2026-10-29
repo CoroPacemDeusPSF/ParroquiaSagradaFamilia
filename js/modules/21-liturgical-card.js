@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.8r11
+ *   @version    v3.6.9r6
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -77,8 +77,8 @@
     '2026-10-18':{t:'Ordinario',n:'XXIX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,15-21',tema:'Al César lo que es del César y a Dios lo que es de Dios',ant:'Aclamad la gloria y el poder del Señor',ci:'A'},
     '2026-10-25':{t:'Ordinario',n:'XXX Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 22,34-40',tema:'En estos dos mandamientos se sostienen toda la Ley y los Profetas',ant:'Yo te amo, Señor; Tú eres mi fortaleza',ci:'A'},
     '2026-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados vosotros',ant:'Esta es la generación que busca Tu rostro, Señor',ci:'A'},
-    '2026-11-08':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,1-13',tema:'Llegó el esposo; salid a recibirlo',ant:'Mi alma está sedienta de Ti, Señor, Dios mío',ci:'A'},
-    '2026-11-15':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,14-30',tema:'Bien, siervo bueno y fiel',ant:'Dichosos los que temen al Señor',ci:'A'},
+    '2026-11-08':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,1-13',tema:'Dadnos de vuestro aceite, que se nos apagan las lámparas',ant:'Mi alma está sedienta de Ti, Señor, Dios mío',ci:'A'},
+    '2026-11-15':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,14-30',tema:'Llamó a sus siervos y los dejó a cargo de sus bienes',ant:'Dichosos los que temen al Señor',ci:'A'},
     '2026-11-22':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Mt 25,31-46',tema:'Lo que hicisteis con uno de estos pequeños, conmigo lo hicisteis',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
     '2026-11-29':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mc 13,33-37',tema:'Velad, porque no sabéis cuándo llegará el dueño',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'B'},
     '2026-12-06':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mc 1,1-8',tema:'Preparad el camino del Señor',ant:'Muéstranos, Señor, Tu misericordia y danos Tu salvación',ci:'B'},
