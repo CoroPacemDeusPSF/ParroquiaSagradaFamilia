@@ -1,15 +1,15 @@
 # firebase/
 
 > Las reglas en vigor se publican en Firebase Console → Realtime Database → Rules,
-> proyecto `coropacemdeusdominical`. Desde el **5 de septiembre de 2026** el archivo
-> `database.rules.v3.6.8r1.json` de esta carpeta es **exactamente** lo publicado.
+> proyecto `coropacemdeusdominical`. Desde el **1 de noviembre de 2026** el archivo
+> `database.rules.v3.6.10.json` de esta carpeta es **exactamente** lo publicado.
 
 Estado a **v3.6.10** (1 de noviembre de 2026):
 
 | Archivo | Qué es | ¿Aplicable? |
 |---|---|---|
-| `database.rules.v3.6.10.json` | **Por publicar.** Las v3.6.8r1 sin un solo cambio, más el nodo `/monitor` de la página Sistema (módulo 39): lectura solo para Renzo, escritura solo-crear con forma validada, hora del servidor, tope de 200 eventos por sesión y rastro de administradores autenticado. Comprobado al crearlo: quitando `monitor`, el JSON es idéntico al de v3.6.8r1. | **Sí**, cuando producción sirva v3.6.10. Al publicarlo pasa a ser el vigente. |
-| `database.rules.v3.6.8r1.json` | **Reglas vivas.** Nodo `/admins`, `setlist-bodas` e historiales solo para administradores. Su encabezado explica cada cambio y cómo sumar administradores. | **Sí.** Es lo publicado. |
+| `database.rules.v3.6.10.json` | **Reglas vivas desde el 1-nov-2026** (texto publicado idéntico al archivo, comprobado en la consola). Las v3.6.8r1 sin un solo cambio, más el nodo `/monitor` de la página Sistema (módulo 39): lectura solo para Renzo, escritura solo-crear con forma validada, hora del servidor, tope de 200 eventos por sesión y rastro de administradores autenticado. | **Sí.** Es lo publicado. |
+| `database.rules.v3.6.8r1.json` | Reglas anteriores (5-sep-2026). Nodo `/admins`, `setlist-bodas` e historiales solo para administradores; su encabezado explica cómo sumar administradores. Ojo: su cabecera larga contiene un cierre de comentario de bloque (línea 48); lo que se publicó entonces llevaba una cabecera corta. | No. Histórico. |
 | `database.rules.v3.6.6r7.json` | Instantánea de transición, anterior a Firebase Auth. | No. Histórico. |
 
 El snapshot `database.rules.v3.6.7.json` se eliminó en v3.6.8r7: nunca se aplicó, tenía el
