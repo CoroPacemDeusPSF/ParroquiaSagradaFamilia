@@ -4,10 +4,11 @@
 > proyecto `coropacemdeusdominical`. Desde el **5 de septiembre de 2026** el archivo
 > `database.rules.v3.6.8r1.json` de esta carpeta es **exactamente** lo publicado.
 
-Estado a **v3.6.8r7** (15 de septiembre de 2026):
+Estado a **v3.6.10** (1 de noviembre de 2026):
 
 | Archivo | Qué es | ¿Aplicable? |
 |---|---|---|
+| `database.rules.v3.6.10.json` | **Por publicar.** Las v3.6.8r1 sin un solo cambio, más el nodo `/monitor` de la página Sistema (módulo 39): lectura solo para Renzo, escritura solo-crear con forma validada, hora del servidor, tope de 200 eventos por sesión y rastro de administradores autenticado. Comprobado al crearlo: quitando `monitor`, el JSON es idéntico al de v3.6.8r1. | **Sí**, cuando producción sirva v3.6.10. Al publicarlo pasa a ser el vigente. |
 | `database.rules.v3.6.8r1.json` | **Reglas vivas.** Nodo `/admins`, `setlist-bodas` e historiales solo para administradores. Su encabezado explica cada cambio y cómo sumar administradores. | **Sí.** Es lo publicado. |
 | `database.rules.v3.6.6r7.json` | Instantánea de transición, anterior a Firebase Auth. | No. Histórico. |
 
@@ -35,6 +36,18 @@ setlist-bodas/$dateKey     read ADMIN,    write ADMIN   (sufijo opcional -N en l
 agent-feedback             sin lectura,   write create-only sin auth
 liturgical-card-feedback   sin lectura,   write create-only sin auth
 ```
+
+Lo que añade v3.6.10:
+
+```
+monitor                          read solo el UID de Renzo
+monitor/v/$dia/$sid/h            create-only, sin auth; t === now; campos y largos validados
+monitor/v/$dia/$sid/e/$n         create-only, sin auth; n de 0 a 199; exige la cabecera h
+monitor/a/$dia/$uid/$sid/...     igual, pero auth.uid === $uid y /admins/$uid === true
+```
+
+Los días viejos de `/monitor` no se borran solos: se borran a mano desde la Console
+(que no pasa por las reglas) si algún día hiciera falta espacio.
 
 Para cambiar las reglas: editar un archivo nuevo `database.rules.vX.Y.ZrN.json`, publicarlo
 desde la Console y, recién verificado, dejarlo aquí como el vigente. Orden innegociable:
