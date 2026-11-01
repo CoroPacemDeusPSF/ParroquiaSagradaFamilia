@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Coro Pacem Deus — Reglas de seguridad Realtime Database (v3.6.10)
+   ═══════════════════════════════════════════════════════════════════════
+   QUÉ CAMBIA RESPECTO A LAS REGLAS VIVAS (v3.6.8r1)
+
+     Solo se AÑADE el nodo /monitor, que alimenta la página Sistema
+     (sistema.html). Todo lo demás es idéntico, carácter por carácter, a
+     database.rules.v3.6.8r1.json.
+
+     /monitor/v/{día}/{sesión}            visitas anónimas (módulo 39)
+     /monitor/a/{día}/{uid}/{sesión}      rastro de cada administrador
+
+     Cada sesión tiene una cabecera "h" (equipo, zona horaria, entrada) y
+     eventos "e/{n}" (qué hizo). Al no haber servidor, lo escribe el
+     navegador del visitante; por eso las reglas hacen de servidor:
+
+       - LEER: solo Renzo (UID literal; "solo yo" fue su decisión del
+         1-nov-2026). Ni siquiera los demás administradores.
+       - ESCRIBIR: solo crear. Nadie puede editar ni borrar una cabecera o
+         un evento ya escrito (!data.exists()). Borrar días viejos se hace
+         desde la consola de Firebase, que no pasa por estas reglas.
+       - La hora de la cabecera debe ser la del servidor (=== now): el
+         cliente manda {".sv":"timestamp"} y no puede inventarla.
+       - Forma y largo de cada campo, y nada de campos extra ($other).
+       - Como mucho 200 eventos por sesión (n de 0 a 199), y ningún evento
+         sin su cabecera.
+       - El rastro de un administrador exige que quien escribe sea esa
+         cuenta (auth.uid === $uid) y que figure en /admins.
+
+     LÍMITE CONOCIDO: cualquiera puede crear sesiones anónimas nuevas, como
+     cualquiera puede visitar el sitio. Sin servidor no hay forma de
+     impedirlo del todo; el volumen se ve en la página Sistema y, si un día
+     hiciera falta, el remedio es App Check (gratuito) o cerrar /monitor/v.
+
+   ═══════════════════════════════════════════════════════════════════════
+   PASOS DE APLICACIÓN (solo tras verificar que producción sirve v3.6.10)
+   ═══════════════════════════════════════════════════════════════════════
+
+     1. Console → Realtime Database → Reglas → pegar este archivo
+        completo → Publicar. (Los comentarios de bloque y de línea son
+        válidos; lo que Firebase rechaza son claves-comentario tipo
+        "//path", y los símbolos de cierre de bloque escritos dentro de
+        un comentario, que lo cierran ahí mismo: lección 1 del CLAUDE.md.)
+
+     2. Probar: abrir el cancionero, tocar un par de cantos, esperar 20
+        segundos y abrir sistema.html con la cuenta de Renzo. Y en una
+        ventana de incógnito comprobar que
+        https://coropacemdeusdominical-default-rtdb.firebaseio.com/monitor.json
+        responde "Permission denied".
+
+     Antes de publicar, el módulo 39 intenta escribir, recibe "Permission
+     denied", se calla y no vuelve a intentarlo en 30 minutos. No rompe nada.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+{
+  "rules": {
+    ".read":  false,
+    ".write": false,
+
+    "admins": {
+      "$uid": {
+        ".read":  "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+
+    "chord-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write":    "auth != null && root.child('admins').child(auth.uid).val() === true && $cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 50000"
+      }
+    },
+
+    "lyrics-overrides": {
+      ".read": true,
+      "$cpdId": {
+        ".write":    "auth != null && root.child('admins').child(auth.uid).val() === true && $cpdId.matches(/^cpd-[0-9]{3}$/)",
+        ".validate": "newData.isString() && newData.val().length <= 100000"
+      }
+    },
+
+    "chord-history": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$cpdId": {
+        "$timestamp": {
+          ".write":    "auth != null && root.child('admins').child(auth.uid).val() === true && $cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 50000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "lyrics-history": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$cpdId": {
+        "$timestamp": {
+          ".write":    "auth != null && root.child('admins').child(auth.uid).val() === true && $cpdId.matches(/^cpd-[0-9]{3}$/) && $timestamp.matches(/^[0-9]{10,16}$/)",
+          ".validate": "newData.hasChildren(['content', 'savedAt']) && newData.child('content').isString() && newData.child('content').val().length <= 100000 && newData.child('savedAt').isNumber()"
+        }
+      }
+    },
+
+    "setlist": {
+      ".read": true,
+      "$dateKey": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true && $dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)",
+        "$slotId": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['cpd', 'title']) && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/) && newData.child('title').isString() && newData.child('title').val().length <= 200)"
+        }
+      }
+    },
+
+    "setlist-bodas": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$dateKey": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true && $dateKey.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}(-[0-9])?$/)",
+        "_meta": {
+          ".validate": "newData.hasChildren() && (!newData.hasChild('novios') || (newData.child('novios').isString() && newData.child('novios').val().length <= 200))"
+        },
+        "$slotId": {
+          ".validate": "$slotId === '_meta' || !newData.exists() || (newData.child('cpd').exists() && newData.child('cpd').val().matches(/^cpd-[0-9]{3}$/)) || (newData.child('instrumental').exists() && newData.child('instrumental').val() === true)"
+        }
+      }
+    },
+
+    "agent-feedback": {
+      ".read":  false,
+      ".write": "newData.exists() && !data.exists()"
+    },
+
+    "liturgical-card-feedback": {
+      ".read":  false,
+      ".write": "newData.exists() && !data.exists()"
+    },
+
+    // v3.6.10 — página Sistema. Ver la cabecera de este archivo.
+    "monitor": {
+      ".read": "auth != null && auth.uid === 'ihLzgmElwcRUvJrHRZOUOuMJoMF2'",
+
+      "v": {
+        "$dia": {
+          "$sid": {
+            "h": {
+              ".write":    "!data.exists() && newData.exists() && $dia.matches(/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/) && $sid.matches(/^[A-Za-z0-9]{16}$/)",
+              ".validate": "newData.hasChildren(['t', 'v', 'tz', 'dp', 'so', 'nav', 'pg'])",
+              "t":   { ".validate": "newData.val() === now" },
+              "v":   { ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9]{12}$/)" },
+              "tz":  { ".validate": "newData.isString() && newData.val().length <= 40" },
+              "id":  { ".validate": "newData.isString() && newData.val().length <= 12" },
+              "dp":  { ".validate": "newData.isString() && newData.val().matches(/^(movil|tablet|escritorio)$/)" },
+              "so":  { ".validate": "newData.isString() && newData.val().length <= 24" },
+              "nav": { ".validate": "newData.isString() && newData.val().length <= 24" },
+              "mod": { ".validate": "newData.isString() && newData.val().length <= 30" },
+              "px":  { ".validate": "newData.isString() && newData.val().length <= 16" },
+              "ent": { ".validate": "newData.isString() && newData.val().length <= 40" },
+              "ref": { ".validate": "newData.isString() && newData.val().length <= 60" },
+              "pg":  { ".validate": "newData.isString() && newData.val().length <= 20" },
+              "ver": { ".validate": "newData.isString() && newData.val().length <= 12" },
+              "pwa": { ".validate": "newData.isBoolean()" },
+              "$other": { ".validate": false }
+            },
+            "e": {
+              "$n": {
+                ".write":    "!data.exists() && newData.exists() && $n.matches(/^(1[0-9]{2}|[1-9]?[0-9])$/) && $dia.matches(/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/) && $sid.matches(/^[A-Za-z0-9]{16}$/) && newData.parent().parent().child('h').exists()",
+                ".validate": "newData.hasChildren(['o', 'k'])",
+                "o": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 86400000" },
+                "k": { ".validate": "newData.isString() && newData.val().matches(/^[a-z]{2,10}$/)" },
+                "d": { ".validate": "newData.isString() && newData.val().length <= 100" },
+                "$other": { ".validate": false }
+              }
+            }
+          }
+        }
+      },
+
+      "a": {
+        "$dia": {
+          "$uid": {
+            "$sid": {
+              "h": {
+                ".write":    "auth != null && auth.uid === $uid && root.child('admins').child($uid).val() === true && !data.exists() && newData.exists() && $dia.matches(/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/) && $sid.matches(/^[A-Za-z0-9]{16}$/)",
+                ".validate": "newData.hasChildren(['t', 'v', 'tz', 'dp', 'so', 'nav', 'pg'])",
+                "t":   { ".validate": "newData.val() === now" },
+                "v":   { ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9]{12}$/)" },
+                "tz":  { ".validate": "newData.isString() && newData.val().length <= 40" },
+                "id":  { ".validate": "newData.isString() && newData.val().length <= 12" },
+                "dp":  { ".validate": "newData.isString() && newData.val().matches(/^(movil|tablet|escritorio)$/)" },
+                "so":  { ".validate": "newData.isString() && newData.val().length <= 24" },
+                "nav": { ".validate": "newData.isString() && newData.val().length <= 24" },
+                "mod": { ".validate": "newData.isString() && newData.val().length <= 30" },
+                "px":  { ".validate": "newData.isString() && newData.val().length <= 16" },
+                "ent": { ".validate": "newData.isString() && newData.val().length <= 40" },
+                "ref": { ".validate": "newData.isString() && newData.val().length <= 60" },
+                "pg":  { ".validate": "newData.isString() && newData.val().length <= 20" },
+                "ver": { ".validate": "newData.isString() && newData.val().length <= 12" },
+                "pwa": { ".validate": "newData.isBoolean()" },
+                "$other": { ".validate": false }
+              },
+              "e": {
+                "$n": {
+                  ".write":    "auth != null && auth.uid === $uid && root.child('admins').child($uid).val() === true && !data.exists() && newData.exists() && $n.matches(/^(1[0-9]{2}|[1-9]?[0-9])$/) && $dia.matches(/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/) && $sid.matches(/^[A-Za-z0-9]{16}$/) && newData.parent().parent().child('h').exists()",
+                  ".validate": "newData.hasChildren(['o', 'k'])",
+                  "o": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 86400000" },
+                  "k": { ".validate": "newData.isString() && newData.val().matches(/^[a-z]{2,10}$/)" },
+                  "d": { ".validate": "newData.isString() && newData.val().length <= 100" },
+                  "$other": { ".validate": false }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

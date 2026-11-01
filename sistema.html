@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B1409">
+<title>Sistema · Pacem Deus</title>
+<!--
+  Coro Pacem Deus — página Sistema (v3.6.10)
+  Monitoreo de visitas y del sitio, solo para Renzo y solo de lectura.
+  Interfaz en Preact + htm (js/sistema/), sin compilar. Los datos los escribe
+  el módulo 39 en /monitor y las reglas v3.6.10 solo dejan leerlos a su UID.
+  Esta página no carga el módulo 39: abrirla no cuenta como visita.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Proza+Libre:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/sistema.css?v=3.6.10">
+<script defer src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script type="module" src="js/sistema/app.js?v=3.6.10"></script>
+</head>
+<body>
+<div id="app"><p class="arranque">Cargando…</p></div>
+<noscript><p class="arranque">Esta página necesita JavaScript.</p></noscript>
+</body>
+</html>
