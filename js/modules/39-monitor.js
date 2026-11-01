@@ -6,7 +6,7 @@
  *   @brief      Registro anónimo de visitas y rastro de los administradores,
  *               para la página Sistema (sistema.html)
  *   @project    Cancionero Dominical
- *   @version    v3.6.10
+ *   @version    v3.6.10r1
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -323,6 +323,7 @@
     if (g && g.sid === s.sid) {
       s.n = Math.max(s.n, g.n);
       s.cabecera = s.cabecera || g.cabecera;
+      s.confirmada = s.confirmada || g.confirmada;
     }
   }
 
@@ -381,21 +382,32 @@
         if (r.ok) {
           fallos = 0;
           s.cabecera = true;
+          s.confirmada = true;           // la cabecera existe en la base
           persistir(s, s.ruta === 'v' ? 'pdSesion' : 'pdSesionAdmin');
           return;
         }
-        // 401/403 tiene tres causas: las reglas aún sin publicar; la cabecera
-        // ya existía (una respuesta anterior se perdió); o la otra página
-        // (portada/iframe) mandó la cabecera y aún no llegó. Cada evento se
-        // reintenta una vez, ya sin cabecera; tras tres rechazos seguidos,
-        // el monitor se calla 30 minutos.
+        // 401/403 tiene tres causas: las reglas no lo permiten; la cabecera
+        // ya existía (una respuesta anterior se perdió); o falta la cabecera
+        // (la otra página la mandó y aún no llegó, o un envío anterior fue
+        // rechazado). Mientras ningún envío de la sesión haya salido bien,
+        // no se puede dar la cabecera por escrita: se vuelve a mandar, y solo
+        // si se rechaza dos veces CON ella se asume que ya existía. Cada
+        // evento se reintenta una vez; tras cuatro rechazos seguidos, el
+        // monitor se calla 30 minutos.
         if (r.status === 401 || r.status === 403) {
+          if (conCabecera) {
+            s.rechazosCabecera = (s.rechazosCabecera || 0) + 1;
+            s.cabecera = s.rechazosCabecera >= 2;
+          } else if (!s.confirmada) {
+            s.cabecera = false;
+          }
+          persistir(s, s.ruta === 'v' ? 'pdSesion' : 'pdSesionAdmin');
           grupo.items.forEach(function (it) {
             if (!it.reintento) { it.reintento = true; cola.push(it); }
           });
         }
         fallos += 1;
-        if (fallos >= 3) pausar();
+        if (fallos >= 4) pausar();
       }).catch(function () {
         // Sin red: la cabecera no llegó y los eventos se reencolan.
         if (conCabecera) {
