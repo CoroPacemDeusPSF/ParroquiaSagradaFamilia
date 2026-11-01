@@ -5,7 +5,7 @@
  *   @file       js/sistema/app.js
  *   @brief      Página Sistema: interfaz (Preact + htm, sin compilar)
  *   @project    Cancionero Dominical
- *   @version    v3.6.10
+ *   @version    v3.6.10r2
  *
  * ────────────────────────────────────────────────────────────────────────────
  *
@@ -61,6 +61,9 @@ function useCuenta() {
     }
     if (!window.firebase.apps.length) window.firebase.initializeApp(CONFIG);
     return window.firebase.auth().onAuthStateChanged((u) => {
+      // La marca le dice a la portada (js/acceso.js) que en este equipo vale
+      // la pena cargar el inicio de sesión para mostrar la sección Sistema.
+      escribirLocal('pdAccesoSistema', u && u.uid === D.RENZO ? '1' : null);
       if (!u) setCuenta({ fase: 'fuera' });
       else if (u.uid !== D.RENZO) setCuenta({ fase: 'ajena', user: u });
       else setCuenta({ fase: 'dentro', user: u });

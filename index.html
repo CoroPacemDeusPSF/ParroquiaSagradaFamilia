@@ -41,6 +41,7 @@
   gtag('config', 'G-XCNZSLLBHQ');
 </script>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/acceso.css?v=3.6.10r2">
 </head>
 <body>
 
@@ -53,18 +54,20 @@
   <a href="#cancioneros">Cancioneros</a>
   <a href="#about">El Coro</a>
   <a href="#contacto">Contacto</a>
+  <a href="#sistema" class="nav-acceso" data-acceso><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-acceso-texto>Acceder</span></a>
 </div>
 
 <!-- ══════════════════════════════════════════
      NAV
 ══════════════════════════════════════════ -->
 <nav class="site-nav">
-  <a href="#inicio" class="nav-logo">Pacem Deus <span style="font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;color:var(--gold);opacity:0.5;vertical-align:baseline;margin-left:0.3rem;">v3.6.10r1</span></a>
+  <a href="#inicio" class="nav-logo">Pacem Deus <span style="font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;color:var(--gold);opacity:0.5;vertical-align:baseline;margin-left:0.3rem;">v3.6.10r2</span></a>
   <ul class="nav-links">
     <li><a href="#inicio">Inicio</a></li>
     <li><a href="#cancioneros">Cancioneros</a></li>
     <li><a href="#about">El Coro</a></li>
     <li><a href="#contacto">Contacto</a></li>
+    <li><a href="#sistema" class="nav-acceso" data-acceso><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-acceso-texto>Acceder</span></a></li>
   </ul>
   <button class="hamburger" id="hamburger" aria-label="Menú">
     <span></span><span></span><span></span>
@@ -96,6 +99,32 @@
     </span>
   </a>
 </header>
+
+<!-- ══════════════════════════════════════════
+     SISTEMA (v3.6.10r2) — solo con sesión iniciada; panel solo para Renzo.
+     La muestra js/acceso.js. El panel es sistema.html en un iframe.
+══════════════════════════════════════════ -->
+<section id="sistema" class="sistema-portada" hidden aria-labelledby="sistema-titulo">
+  <div class="sp-cab">
+    <p class="section-eyebrow">✦ administración ✦</p>
+    <h2 class="section-title" id="sistema-titulo">Sistema</h2>
+    <div class="section-rule"></div>
+  </div>
+  <p class="sp-aviso" id="sistema-aviso" hidden></p>
+  <div id="sistema-panel" hidden>
+    <div class="sp-herramientas">
+      <a class="sp-boton" href="sistema.html" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-8 8M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></svg>
+        Pantalla completa
+      </a>
+    </div>
+    <div class="sp-marco"><iframe id="sistema-marco" title="Panel del sistema"></iframe></div>
+  </div>
+  <div class="sp-acciones">
+    <button type="button" class="sp-enlace" data-otra-cuenta>Usar otra cuenta</button>
+    <button type="button" class="sp-enlace" data-salir>Cerrar sesión</button>
+  </div>
+</section>
 
 <!-- ══════════════════════════════════════════
      CANCIONEROS / TIMELINE
@@ -596,6 +625,8 @@
 <script src="js/main.js"></script>
 <!-- Registro anónimo de visitas para la página Sistema (v3.6.10, módulo 39). -->
 <script src="js/modules/39-monitor.js?v=3.6.10r1"></script>
+<!-- «Acceder» y sección Sistema (v3.6.10r2). Carga el SDK de Google solo al pulsar. -->
+<script src="js/acceso.js?v=3.6.10r2"></script>
 <script>
 // ── SHARE ────────────────────────────────────────
 function shareCancionero(url, title, btn) {

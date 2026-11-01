@@ -1,0 +1,116 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   Coro Pacem Deus — Parroquia Sagrada Familia
+   ────────────────────────────────────────────────────────────────────────────
+
+     @file       css/acceso.css
+     @brief      Portada: enlace «Acceder» y sección Sistema (solo Renzo)
+     @project    Cancionero Dominical
+     @version    v3.6.10r2
+
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* La sección solo existe para quien inició sesión (js/acceso.js la muestra).
+   El panel va en un iframe con su propia hoja oscura: aquí solo se le da un
+   marco a la altura de la portada (crema, filete dorado, Cinzel). */
+
+.sistema-portada[hidden],
+.sistema-portada [hidden] { display: none; }
+
+.nav-acceso svg,
+.mobile-menu .nav-acceso svg {
+  width: 0.85em;
+  height: 0.85em;
+  margin-right: 0.45em;
+  vertical-align: -0.08em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sistema-portada {
+  padding: 7rem 1rem 3.5rem;
+  max-width: 78rem;
+  margin: 0 auto;
+  scroll-margin-top: 1rem;
+}
+.sistema-portada .sp-cab { text-align: center; }
+
+.sp-aviso {
+  max-width: 34rem;
+  margin: 0 auto 1.25rem;
+  text-align: center;
+  color: var(--brown-lt);
+  font-size: 1rem;
+}
+
+.sp-herramientas {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.6rem;
+}
+
+.sp-marco {
+  border: 1px solid rgba(200, 148, 60, 0.45);
+  box-shadow: 0 0 0 4px var(--cream), 0 0 0 5px rgba(200, 148, 60, 0.25), 0 10px 40px var(--shadow);
+  background: #0B1409;
+  border-radius: 2px;
+  overflow: clip;
+}
+.sp-marco iframe {
+  display: block;
+  width: 100%;
+  height: 82vh;
+  height: 82svh;
+  min-height: 32rem;
+  border: 0;
+}
+
+.sp-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.sp-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  border: 1px solid rgba(200, 148, 60, 0.5);
+  padding: 0.6rem 1.1rem;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: background-color 0.2s, border-color 0.2s, scale 0.15s;
+}
+.sp-boton:hover { background: rgba(200, 148, 60, 0.1); border-color: var(--gold); }
+.sp-boton:active { scale: 0.97; }
+.sp-boton svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.sp-enlace {
+  background: none;
+  border: 0;
+  padding: 0.4rem 0;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brown-lt);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(107, 94, 84, 0.35);
+  transition: color 0.2s, border-color 0.2s;
+}
+.sp-enlace:hover { color: var(--gold-dk); border-bottom-color: var(--gold); }
+
+@media (max-width: 40em) {
+  .sistema-portada { padding: 6rem 0.5rem 3rem; }
+  .sp-marco iframe { height: 85vh; height: 85svh; min-height: 0; }
+  .sp-herramientas { justify-content: center; }
+}
