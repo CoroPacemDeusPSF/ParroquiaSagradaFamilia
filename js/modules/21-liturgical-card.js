@@ -6,7 +6,7 @@
  *   @brief      Lit-card: domingo actual, ciclo, evangelio, salmo (cálculo automático)
  *   @author     Renzo Núñez Berdejo
  *   @project    Cancionero Dominical
- *   @version    v3.6.9r6
+ *   @version    v3.6.10r4
  *
  * ────────────────────────────────────────────────────────────────────────────
  */
@@ -79,9 +79,9 @@
     '2026-11-01':{t:'Ordinario',n:'Todos los Santos',e:'Solemnidad',c:'Blanco',ev:'Mt 5,1-12a',tema:'Bienaventurados vosotros',ant:'Esta es la generación que busca Tu rostro, Señor',ci:'A'},
     '2026-11-08':{t:'Ordinario',n:'XXXII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,1-13',tema:'Dadnos de vuestro aceite, que se nos apagan las lámparas',ant:'Mi alma está sedienta de Ti, Señor, Dios mío',ci:'A'},
     '2026-11-15':{t:'Ordinario',n:'XXXIII Domingo del Tiempo Ordinario',e:'',c:'Verde',ev:'Mt 25,14-30',tema:'Llamó a sus siervos y los dejó a cargo de sus bienes',ant:'Dichosos los que temen al Señor',ci:'A'},
-    '2026-11-22':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Mt 25,31-46',tema:'Lo que hicisteis con uno de estos pequeños, conmigo lo hicisteis',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
-    '2026-11-29':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mc 13,33-37',tema:'Velad, porque no sabéis cuándo llegará el dueño',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'B'},
-    '2026-12-06':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mc 1,1-8',tema:'Preparad el camino del Señor',ant:'Muéstranos, Señor, Tu misericordia y danos Tu salvación',ci:'B'},
+    '2026-11-22':{t:'Ordinario',n:'Cristo Rey del Universo',e:'Solemnidad',c:'Blanco',ev:'Mt 25,31-46',tema:'Volvernos semejantes a Dios en el amor',ant:'El Señor es mi pastor, nada me falta',ci:'A'},
+    '2026-11-29':{t:'Adviento',n:'I Domingo de Adviento',e:'',c:'Morado',ev:'Mc 13,33-37',tema:'Tú, Señor, eres nuestro Padre',ant:'Oh, Dios, restáuranos, que brille Tu rostro y nos salve',ci:'B'},
+    '2026-12-06':{t:'Adviento',n:'II Domingo de Adviento',e:'',c:'Morado',ev:'Mc 1,1-8',tema:'Preparad el camino al Señor',ant:'Muéstranos, Señor, Tu misericordia y danos Tu salvación',ci:'B'},
     '2026-12-13':{t:'Adviento',n:'III Domingo de Adviento',e:'Gaudete',c:'Rosa',ev:'Jn 1,6-8.19-28',tema:'En medio de vosotros hay uno que no conocéis',ant:'Me alegro con mi Dios',ci:'B'},
     '2026-12-20':{t:'Adviento',n:'IV Domingo de Adviento',e:'',c:'Morado',ev:'Lc 1,26-38',tema:'Alégrate, llena de gracia',ant:'Cantaré eternamente Tus misericordias, Señor',ci:'B'},
     '2026-12-25':{t:'Navidad',n:'Natividad del Señor',e:'Solemnidad',c:'Blanco',ev:'Jn 1,1-18',tema:'El Verbo se hizo carne',ant:'Los confines de la tierra han contemplado la salvación de nuestro Dios',ci:'B'},
